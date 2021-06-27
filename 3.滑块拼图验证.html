@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        #captcha {
+            display: block;
+            width: var(--width);
+            height: var(--height);
+            border-radius: 4px;
+            background-image: url(https://dss1.baidu.com/6ONXsjip0QIZ8tyhnq/it/u=2676921178,3792372773&fm=55&app=54&f=JPEG?w=1680&h=630);
+            background-size: cover;
+            background-position: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, .3);
+            position: relative;
+            box-sizing: border-box;
+        }
+
+
+        #captcha::before,
+        #captcha::after {
+            position: absolute;
+            content: "";
+            display: block;
+            width: inherit;
+            height: inherit;
+            background-image: inherit;
+            background-size: inherit;
+            background-position: inherit;
+            clip-path: var(--clip-path);
+            --webkit-clip-path: var(--clip-path);
+        }
+
+        #captcha::after {
+            transform: translateX(calc(var(--clip-offsetX) * -1 + var(--moved)));
+            transition: .25s all ease-in-out;
+        }
+
+        #captcha::before {
+            background-color: rgba(0, 0, 0, .5);
+            background-blend-mode: multiply;
+        }
+
+        #captcha:active #handle span,
+        #captcha:active::after {
+            transition: none;
+        }
+
+        #captcha #handle {
+            width: calc(var(--width) - (3px * 2));
+            height: 30px;
+            border-radius: 18px;
+            background-color: #eee;
+            position: absolute;
+            bottom: -50px;
+            left: 0;
+            box-shadow: inset 0 0 12px rgba(0, 0, 0, .2);
+            border: 3px solid #ccc;
+        }
+
+        #handle span {
+            display: block;
+            width: var(--puzzle-width);
+            height: inherit;
+            border-radius: inherit;
+            background-color: #fff;
+            box-shadow: inset 0 0 6px rgba(0, 0, 0, .25), 0 2px 4px rgba(0, 0, 0, .3);
+            position: absolute;
+            cursor: move;
+            transform: translateX(var(--moved));
+            transition: .25s all ease-in-out;
+        }
+
+        #captcha.passed #handle,
+        #captcha.passed::after,
+        #captcha.passed::before {
+            opacity: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="captcha">
+        <div id="handle">
+            <span></span>
+        </div>
+    </div>
+    <script>
+        let width = 400;        // 宽度
+        let height = 260;       // 高度
+        let puzzleWidth = 80;   // 切图宽
+        let puzzleHeight = 80;  // 切图高
+        let moved = 0;          // 移动位置
+        let mpe = 5;            // 允许最大误差
+        let offsetX = 6;        // 边距值  
+        let offsetY = 0;        // 边距值 
+        let shouldMove = false;
+        
+        let clipRectX1 = randomRange(puzzleWidth + offsetX, width - puzzleWidth - offsetX);
+        let clipRectX2 = clipRectX1 + puzzleWidth;
+        let clipRectY1 = randomRange(puzzleHeight + offsetX, height - puzzleHeight - offsetY);
+        let clipRectY2 = clipRectY1 + puzzleHeight;
+
+        let captcha = document.querySelector('#captcha');
+        let handle = document.querySelector('#handle');
+        let button = document.querySelector('#handle span');
+
+        button.addEventListener("mousedown", (e) => {
+            shouldMove = true;
+        })
+
+        window.addEventListener("mousemove", (e) => {
+            if (shouldMove) {
+                const offsetLeft = handle.getBoundingClientRect().left;
+                const buttonWidth = button.getBoundingClientRect().width;
+                moved = e.clientX - offsetLeft - buttonWidth / 2;
+                render();
+            }
+        })
+
+        window.addEventListener("mouseup", (e) => {
+            if (shouldMove) {
+                const finalOffset = e.clientX - handle.getBoundingClientRect().left - puzzleWidth / 2;
+                if (Math.abs(finalOffset - clipRectX1) < mpe) captcha.classList.add('passed')
+                else moved = 0;
+                render();
+                shouldMove = false;
+            }
+        })
+
+        /**
+         * 超出省略
+         */
+        function clamp(num, a, b) {
+            return Math.max(Math.min(num, Math.max(a, b)), Math.min(a, b))
+        }
+
+        /**
+         * 随机数字
+         */
+        function randomRange(min, max) {
+            return Math.round(Math.random() * (max - min)) + min
+        }
+
+        /**
+         *  渲染
+         */
+        function render() {
+            let clipPath = `polygon( ${clipRectX1}px ${clipRectY1}px, ${clipRectX2}px ${clipRectY1}px, ${clipRectX2}px ${clipRectY2}px, ${clipRectX1}px ${clipRectY2}px )`;
+            captcha.style = `--clip-offsetX:${clipRectX1}px;--moved:${clamp(moved, 0, width - puzzleWidth - offsetX)}px;--clip-path:${clipPath};--width:${width}px;--height:${height}px;--puzzle-width:${puzzleWidth}px;--puzzle-height:${puzzleHeight}px`;
+        }
+
+        render();
+    </script>
+</body>
+
+</html>
