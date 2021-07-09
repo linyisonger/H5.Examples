@@ -11,7 +11,7 @@
     <script>
         console.log("浏览器品牌名称:", BrowserBrandName());
 
-        // 浏览器品牌名称 ES6
+        // 浏览器品牌名称
         function BrowserBrandName() {
             return navigator.userAgentData?.brands?.[1].brand ?? navigator.userAgent?.split(' ')?.pop()?.split('/')?.shift()
         }
