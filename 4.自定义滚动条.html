@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        .scroll-x {
+            overflow-x: scroll;
+            white-space: nowrap;
+            height: 200px;
+            width: 300px;
+        }
+
+        .scroll-x>.item {
+            width: 80px;
+            height: 80px;
+            display: inline-block;
+            line-height: 80px;
+            font-size: 60px;
+            color: #fff;
+            text-align: center;
+        }
+
+        .scroll-x>.item:nth-child(2n) {
+            background-color: #00f;
+        }
+
+        .scroll-x>.item:nth-child(2n+1) {
+            background-color: #0fa;
+        }
+
+
+
+        .scroll-x::-webkit-scrollbar {
+            width: 12px;
+            height: 12px;
+            color: #dddddd;
+        }
+
+        .scroll-x::-webkit-scrollbar-track {
+            border-radius: 12px;
+            box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
+            background-color: #dddddd;
+            margin: 100px;
+        }
+
+        .scroll-x::-webkit-scrollbar-thumb {
+            border-radius: 12px;
+            background-color: #ff5153;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="scroll-x">
+        <div class="item">1</div>
+        <div class="item">2</div>
+        <div class="item">3</div>
+        <div class="item">4</div>
+        <div class="item">5</div>
+        <div class="item">6</div>
+        <div class="item">7</div>
+        <div class="item">8</div>
+        <div class="item">9</div>
+        <div class="item">10</div>
+    </div>
+
+</body>
+
+</html>
