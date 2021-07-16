@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body>
+    <div class="copy" onclick="copyToClipboard(this)">ABCDC</div>
+
+    <script>
+        /**
+         * 复制到剪贴板
+         */
+        function copyToClipboard(e) {
+            let input = document.querySelector('.copy-input') || document.createElement('input');
+            input.className = "copy-input";
+            input.value = e.textContent;
+            input.style = `position: fixed;top: -100%;`
+            document.body.append(input)
+            input.select();
+            document.execCommand("copy");
+        }
+    </script>
+</body>
+
+</html>
