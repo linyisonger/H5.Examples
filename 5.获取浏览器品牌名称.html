@@ -9,11 +9,28 @@
 
 <body>
     <script>
+        console.log("浏览器内核名称及版本:", BrowserInfo().name, BrowserInfo().version);
         console.log("浏览器品牌名称:", BrowserBrandName());
 
         // 浏览器品牌名称
         function BrowserBrandName() {
             return navigator.userAgentData?.brands?.[1].brand ?? navigator.userAgent?.split(' ')?.pop()?.split('/')?.shift()
+        }
+
+        /**
+         * 获取浏览器信息
+         * @returns {{ name:"Edge"|"Edge(Chromium)"|"Internet Explorer"|"Chrome"|"Safari"|"Firefox"|"unknow",version:""}} 
+         */
+        function BrowserInfo() {
+            let userAgent = self.navigator.userAgent;
+            if (/edge\/([\d\.]+)/i.exec(userAgent)) return { name: "Edge", version: /edge\/([\d\.]+)/i.exec(userAgent)[1] }
+            if (/edg\/([\d\.]+)/i.exec(userAgent)) return { name: "Edge(Chromium)", version: /edg\/([\d\.]+)/i.exec(userAgent)[1] }
+            if (/msie/i.test(userAgent)) return { name: "Internet Explorer", version: /msie ([\d\.]+)/i.exec(userAgent)[1] }
+            if (/Trident/i.test(userAgent)) return { name: "Internet Explorer", version: /rv:([\d\.]+)/i.exec(userAgent)[1] }
+            if (/chrome/i.test(userAgent)) return { name: "Chrome", version: /chrome\/([\d\.]+)/i.exec(userAgent)[1] }
+            if (/safari/i.test(userAgent)) return { name: "Safari", version: /version\/([\d\.]+)/i.exec(userAgent)[1] }
+            if (/firefox/i.test(userAgent)) return { name: "Firefox", version: /firefox\/([\d\.]+)/i.exec(userAgent)[1] }
+            return { name: "unknow" }
         }
     </script>
 </body>

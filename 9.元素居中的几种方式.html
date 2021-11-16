@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        .center1 {
+            width: 100px;
+            height: 100px;
+            background-color: #f06;
+            color: #fff;
+
+            line-height: 100px;
+            text-align: center;
+        }
+
+        .center2 {
+            width: 100px;
+            height: 100px;
+            background-color: #f06;
+            color: #fff;
+
+            position: relative;
+        }
+
+        .center2 .box {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .center3 {
+            width: 100px;
+            height: 100px;
+            background-color: #f06;
+            color: #fff;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+
+<body>
+    <p>通过line-height和text-align来控制居中</p>
+    <div class="center1">
+        1
+    </div>
+    <p>通过position的relative和absolute居中</p>
+    <div class="center2">
+        <div class="box">1</div>
+    </div>
+    <p>通过flex居中</p>
+    <div class="center3">
+        1
+    </div>
+</body>
+
+</html>

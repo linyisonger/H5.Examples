@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            margin: 0;
+        }
+
+        div[class^='box'] {
+            width: 100px;
+            height: 100px;
+            font-size: 25px;
+            color: #fff;
+            text-align: center;
+            line-height: 100px;
+        }
+
+        .box1 {
+            background-color: #f06;
+        }
+
+        .box2 {
+            background-color: #06f;
+        }
+
+        .box3 {
+            background-color: #0f6;
+        }
+
+        .default,
+        .row-reverse,
+        .column,
+        .column-reverse,
+        .default2 {
+            display: flex;
+            border: 1px solid gold;
+        }
+
+        .row-reverse {
+            flex-direction: row-reverse;
+        }
+
+        .column {
+            flex-direction: column;
+        }
+
+        .column-reverse {
+            flex-direction: column-reverse;
+        }
+
+        .default.flex-split1 .box1,
+        .default.flex-split2 .box1,
+        .default.flex-split2 .box2,
+        .default.flex-split3 .box1 {
+            flex: 1;
+        }
+
+        .default.flex-split3 .box2 {
+            flex: 2;
+        }
+
+        .default.space-between {
+            justify-content: space-between;
+        }
+
+
+        .default.space-around {
+            justify-content: space-around;
+        }
+
+        .default.center {
+            justify-content: center;
+        }
+
+        .default.flex-end {
+            justify-content: flex-end;
+        }
+
+
+        .default2 {
+            height: 200px;
+        }
+
+        .default2.flex-start {
+            align-items: flex-start;
+        }
+
+        .default2.flex-end {
+            align-items: flex-end;
+        }
+
+        .default2.center {
+            align-items: center;
+        }
+    </style>
+</head>
+
+<body>
+    <p>row(默认)</p>
+    <div class="default">
+        <div class="box1">1</div>
+        <div class="box2">2</div>
+        <div class="box3">3</div>
+    </div>
+    <p>row-reverse</p>
+    <div class="row-reverse">
+        <div class="box1">1</div>
+        <div class="box2">2</div>
+        <div class="box3">3</div>
+    </div>
+
+    <p>column</p>
+    <div class="column">
+        <div class="box1">1</div>
+        <div class="box2">2</div>
+        <div class="box3">3</div>
+    </div>
+    <p>column-reverse</p>
+    <div class="column-reverse">
+        <div class="box1">1</div>
+        <div class="box2">2</div>
+        <div class="box3">3</div>
+    </div>
+
+    <p>flex<br />当其他元素都定义好长度时flex用于分割剩余空间的比例<br />定义box1样式flex:1</p>
+    <div class="default flex-split1">
+        <div class="box1">1</div>
+        <div class="box2">2</div>
+        <div class="box3">3</div>
+    </div>
+    <p>flex<br />当其他元素都定义好长度时flex用于分割剩余空间的比例<br />定义box1,box2样式flex:1 </p>
+    <div class="default flex-split2">
+        <div class="box1">1</div>
+        <div class="box2">2</div>
+        <div class="box3">3</div>
+    </div>
+    <p>flex<br />当其他元素都定义好长度时flex用于分割剩余空间的比例<br />定义box1样式flex:1,定义box2样式flex:2 </p>
+    <div class="default flex-split3">
+        <div class="box1">1</div>
+        <div class="box2">2</div>
+        <div class="box3">3</div>
+    </div>
+
+
+    <p>justify-content:space-between<br />左右对齐</p>
+    <div class="default space-between">
+        <div class="box1">1</div>
+        <div class="box2">2</div>
+        <div class="box3">3</div>
+    </div>
+
+    <p>justify-content: space-around<br />两侧的间隔相等</p>
+    <div class="default space-around">
+        <div class="box1">1</div>
+        <div class="box2">2</div>
+        <div class="box3">3</div>
+    </div>
+
+    <p>justify-content: center<br />居中</p>
+    <div class="default center">
+        <div class="box1">1</div>
+        <div class="box2">2</div>
+        <div class="box3">3</div>
+    </div>
+
+
+    <p>justify-content: flex-end<br />集中在末端</p>
+    <div class="default flex-end">
+        <div class="box1">1</div>
+        <div class="box2">2</div>
+        <div class="box3">3</div>
+    </div>
+
+    <p>justify-content: flex-start<br />集中在前端</p>
+    <div class="default flex-start">
+        <div class="box1">1</div>
+        <div class="box2">2</div>
+        <div class="box3">3</div>
+    </div>
+
+
+
+    <p>align-items: center<br />垂直居中</p>
+    <div class="default2 center">
+        <div class="box1">1</div>
+        <div class="box2">2</div>
+        <div class="box3">3</div>
+    </div>
+
+
+    <p>align-items: flex-start<br />集中在顶端</p>
+    <div class="default2 flex-start">
+        <div class="box1">1</div>
+        <div class="box2">2</div>
+        <div class="box3">3</div>
+    </div>
+
+    <p>align-items: flex-end<br />集中在底端</p>
+    <div class="default2 flex-end">
+        <div class="box1">1</div>
+        <div class="box2">2</div>
+        <div class="box3">3</div>
+    </div>
+
+
+</body>
+
+</html>
