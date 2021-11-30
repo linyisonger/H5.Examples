@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>五子棋</title>
+    <style>
+        body {
+            margin: 0;
+        }
+
+
+        .gomoku-board {
+            /* 放置拖动鼠标进行选择 */
+            user-select: none;
+            margin: 30px;
+            --length: 400px;
+            --lineColor: #ddd;
+            position: relative;
+            width: var(--length);
+            height: var(--length);
+        }
+
+        .gomoku-board .rows,
+        .gomoku-board .lines {
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .gomoku-board .rows {
+            flex-direction: column;
+            height: var(--length);
+        }
+
+        .gomoku-board .lines {
+            width: var(--length);
+        }
+
+
+        .gomoku-board .row {
+            width: var(--length);
+            height: 1px;
+            background-color: var(--lineColor);
+        }
+
+        .gomoku-board .line {
+            width: 1px;
+            height: var(--length);
+            background-color: var(--lineColor);
+        }
+
+        .gomoku-board .key-points {
+            position: absolute;
+            --margin: calc(var(--length) / 14 * 3);
+            top: var(--margin);
+            bottom: var(--margin);
+            left: var(--margin);
+            right: var(--margin);
+        }
+
+        .gomoku-board .key-points .point {
+            --length: 8px;
+            width: var(--length);
+            height: var(--length);
+            background: rgb(92, 92, 92);
+            position: absolute;
+            transform: translate(-50%, -50%);
+        }
+
+        .gomoku-board .key-points .point:nth-child(2) {
+            left: 100%;
+        }
+
+        .gomoku-board .key-points .point:nth-child(3) {
+            left: 100%;
+            top: 100%;
+        }
+
+        .gomoku-board .key-points .point:nth-child(4) {
+            top: 100%;
+        }
+
+        .gomoku-board .key-points .point:nth-child(5) {
+            left: 50%;
+            top: 50%;
+        }
+
+
+        .gomoku-board .x-axis,
+        .gomoku-board .y-axis {
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .gomoku-board .x-axis {
+            flex-direction: column;
+            --height: calc(var(--length) / 14 * 15);
+            height: var(--height);
+        }
+
+        .gomoku-board .y-axis {
+            --width: calc(var(--length) / 14 * 15);
+            width: var(--width);
+        }
+
+
+
+
+        .gomoku-board .x-axis div {
+            --width: calc(var(--height) / 15);
+            transform: translate(calc(var(--width) * -1), -50%);
+            width: var(--width);
+            flex: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: rgba(0, 0, 0, 0.6);
+        }
+
+        .gomoku-board .y-axis div {
+            --height: calc(var(--width) / 15);
+            transform: translate(-50%, calc(var(--height) * -1));
+            height: var(--height);
+            flex: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: rgba(0, 0, 0, 0.6);
+        }
+
+
+        .gomoku-board .chessmans {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+
+            --chessman-length: calc(var(--length) / 14 * .8);
+        }
+
+        .gomoku-board .chessmans div {
+            pointer-events: none;
+            width: var(--chessman-length);
+            height: var(--chessman-length);
+            border-radius: 50%;
+            filter:
+                drop-shadow(0 0 1px rgb(92, 92, 92));
+            position: absolute;
+            transform: translate(-50%, -50%);
+            box-sizing: border-box;
+        }
+
+        .gomoku-board .chessmans div:nth-child(2n) {
+            background-color: #fefefe;
+        }
+
+        .gomoku-board .chessmans div:nth-child(2n+1) {
+            background-color: #333;
+        }
+
+        .gomoku-board .chessmans div:last-child::after {
+            content: "";
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(calc(-50% + .5px), calc(-50% + .5px));
+            height: calc(var(--chessman-length));
+            width: calc(var(--chessman-length));
+            background: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAsAAAALCAYAAACprHcmAAAATklEQVQYlWP4//8/JhYU/I9NnImBBEA7xYwgtxCvWFAQVfW7d4xwtpAQihzIGSBJBBYSgikEG4aMQSZjsxFkIsIGuCj9wxnmdhhgYGAAAMNeSsbtJkooAAAAAElFTkSuQmCC") no-repeat;
+            background-position: center;
+        }
+
+
+
+        .gameover {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.6);
+
+            color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+
+            display: none;
+        }
+
+
+        .operate {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: -70px;
+            display: flex;
+            user-select: none;
+        }
+
+        .operate div {
+            width: 100px;
+            height: 40px;
+            background-color: #fff;
+            color: #276787;
+            border: 1px solid #276787;
+            margin-right: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 20px;
+            font-size: 12px;
+            transition: all .5s;
+        }
+
+        .operate div:hover {
+
+            background-color: #276787;
+            color: white;
+            border: 1px solid transparent;
+
+        }
+
+        .operate div:active {
+            opacity: .4;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 五子棋盘 -->
+    <div class="gomoku-board">
+        <!-- 可以使用快捷输入 .row*15 .line*15 -->
+        <!-- 列 -->
+        <div class="lines">
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+        </div>
+        <!-- 行 -->
+        <div class="rows">
+            <div class="row"></div>
+            <div class="row"></div>
+            <div class="row"></div>
+            <div class="row"></div>
+            <div class="row"></div>
+            <div class="row"></div>
+            <div class="row"></div>
+            <div class="row"></div>
+            <div class="row"></div>
+            <div class="row"></div>
+            <div class="row"></div>
+            <div class="row"></div>
+            <div class="row"></div>
+            <div class="row"></div>
+            <div class="row"></div>
+        </div>
+        <!-- 关键点 -->
+        <div class="key-points">
+            <div class="point"></div>
+            <div class="point"></div>
+            <div class="point"></div>
+            <div class="point"></div>
+            <div class="point"></div>
+        </div>
+        <!-- 可以使用快捷输入 div{$}*15 -->
+        <div class="x-axis">
+            <div>1</div>
+            <div>2</div>
+            <div>3</div>
+            <div>4</div>
+            <div>5</div>
+            <div>6</div>
+            <div>7</div>
+            <div>8</div>
+            <div>9</div>
+            <div>10</div>
+            <div>11</div>
+            <div>12</div>
+            <div>13</div>
+            <div>14</div>
+            <div>15</div>
+        </div>
+        <!-- 这个没有找到什么快捷的方法 😒 -->
+        <div class="y-axis">
+            <div>A</div>
+            <div>B</div>
+            <div>C</div>
+            <div>D</div>
+            <div>E</div>
+            <div>F</div>
+            <div>G</div>
+            <div>H</div>
+            <div>I</div>
+            <div>J</div>
+            <div>K</div>
+            <div>L</div>
+            <div>M</div>
+            <div>N</div>
+            <div>O</div>
+        </div>
+        <!-- 棋子 方便删除 -->
+        <div class="chessmans"></div>
+        <!-- 游戏结束 -->
+        <div class="gameover"></div>
+        <!-- 操作按钮 -->
+        <div class="operate">
+            <div class="undo">悔棋</div>
+            <div class="reset">重来</div>
+        </div>
+    </div>
+    <!-- 代码逻辑 -->
+    <script>
+        // 部分浏览器支持 可选链操作符 https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Optional_chaining
+        // 棋子父节点的元素
+        let chessmansDom = document.getElementsByClassName('chessmans')?.[0];
+        // 悔棋元素节点
+        let undoDom = document.getElementsByClassName('undo')?.[0];
+        // 重来元素节点
+        let resetDom = document.getElementsByClassName('reset')?.[0];
+        // 重来元素节点
+        let gameoverDom = document.getElementsByClassName('gameover')?.[0];
+        // 棋盘边长  未予css进行绑定
+        let length = 400;
+        // 格子边长
+        let girdLength = length / 14
+        // 颜色定义
+        let colorEnum = {
+            None: 0,
+            black: 1,
+            white: 2
+        }
+        // 游戏状态枚举
+        let gameStateEnum = {
+            underway: 1, // 进行中
+            blackWin: 2, // 黑子胜
+            whiteWin: 4, // 白子胜
+            draw: 8,     // 平局    也可以理解为白子胜利
+            gameOver: 14,// 游戏结束
+        }
+        // 棋子历史
+        let chessmanHistory = [];
+        let chessmanDomHistory = [];
+        // 棋子位置
+        let chessmanPosition = initChessmanPosition();
+
+        // 游戏结束
+        let gameState = gameStateEnum.underway;
+
+
+        // 棋子父级点击事件
+        // layerX、layerY 相对于带有定位的父盒子的x,y坐标
+        function chessmansClickFunc(e) {
+            let { layerX, layerY } = e;
+            let x = Math.abs(Math.round(layerX / girdLength));
+            let y = Math.abs(Math.round(layerY / girdLength));
+            putDown(x, y);
+        }
+        // 落子
+        function putDown(x, y) {
+            // 包含此状态 位运算
+            if ((gameState & gameStateEnum.gameOver) != 0) {
+                console.log("游戏结束了 不能落子了");
+                return;
+            }
+
+            if (chessmanPosition[x][y] != colorEnum.None) {
+                console.log("该位置已落子");
+                return
+            }
+            let color = chessmanHistory.length % 2 == 0 ? colorEnum.black : colorEnum.white;
+            chessmanPosition[x][y] = color;
+            let chessmanDom = document.createElement('div')
+            chessmanDom.style = `left:${x * girdLength}px;top:${y * girdLength}px`;
+            chessmansDom.appendChild(chessmanDom)
+            chessmanHistory.push({ x, y })
+            chessmanDomHistory.push(chessmanDom);
+            checkGameOver(x, y);
+
+            // 包含此状态 位运算
+            if ((gameState & gameStateEnum.gameOver) != 0) {
+                let hint = gameState == gameStateEnum.draw ? '平局啦！' : gameState == gameStateEnum.blackWin ? '黑子胜利！' : "白子胜利！"
+                gameoverDom.textContent = hint;
+                gameoverDom.setAttribute("style", 'display:flex')
+            }
+
+        }
+        // 检测游戏结束
+        function checkGameOver(x, y) {
+            // 连接子不够
+            if (chessmanHistory.length < 8) return;
+            // 连续的个数
+            let continuously = 1;
+            // 颜色
+            let color = chessmanPosition[x][y];
+            // 横轴 
+            for (let i = x - 1; i >= 0; i--) {
+                if (color != chessmanPosition?.[i]?.[y]) break;
+                continuously++;
+            }
+            for (let j = x + 1; j <= 14; j++) {
+                if (color != chessmanPosition?.[j]?.[y]) break;
+                continuously++;
+            }
+            if (continuously == 5) {
+                gameState = color == colorEnum.black ? gameStateEnum.blackWin : gameStateEnum.whiteWin;
+                return;
+            }
+            continuously = 1;
+            // 纵轴 
+            for (let i = y - 1; i >= 0; i--) {
+                if (color != chessmanPosition?.[x]?.[i]) break;
+                continuously++;
+            }
+            for (let j = y + 1; j <= 14; j++) {
+                if (color != chessmanPosition?.[x]?.[j]) break;
+                continuously++;
+            }
+            if (continuously == 5) {
+                gameState = color == colorEnum.black ? gameStateEnum.blackWin : gameStateEnum.whiteWin;
+                return;
+            }
+            continuously = 1;
+            // 135°
+            for (let i = x - 1, j = y - 1; i >= 0, j >= 0; i--, j--) {
+                if (color != chessmanPosition?.[i]?.[j]) break;
+                continuously++;
+            }
+            for (let i = x + 1, j = y + 1; i <= 14, j <= 14; i++, j++) {
+                if (color != chessmanPosition?.[i]?.[j]) break;
+                continuously++;
+            }
+            if (continuously == 5) {
+                gameState = color == colorEnum.black ? gameStateEnum.blackWin : gameStateEnum.whiteWin;
+                return;
+            }
+            continuously = 1;
+            // 45°
+            for (let i = x + 1, j = y - 1; i <= 14, j >= 0; i++, j--) {
+                if (color != chessmanPosition?.[i]?.[j]) break;
+                continuously++;
+            }
+            for (let i = x - 1, j = y + 1; i >= 0, j <= 14; i--, j++) {
+                if (color != chessmanPosition?.[i]?.[j]) break;
+                continuously++;
+            }
+            if (continuously == 5) {
+                gameState = color == colorEnum.black ? gameStateEnum.blackWin : gameStateEnum.whiteWin;
+                return;
+            }
+            gameState = chessmanHistory.length == 255 ? gameStateEnum.draw : gameStateEnum.underway;
+        }
+        // 初始棋子位置信息
+        function initChessmanPosition() {
+            let temp = [];
+            for (let i = 0; i < 15; i++) {
+                let tempChild = [];
+                for (let j = 0; j < 15; j++) {
+                    tempChild.push(0);
+                }
+                temp.push(tempChild)
+            }
+            return temp
+        }
+        // 悔棋操作
+        function undoClickFunc() {
+            // 包含此状态 位运算
+            if ((gameState & gameStateEnum.gameOver) != 0) {
+                console.log("都游戏结束了  还悔什么棋");
+                return;
+            }
+            if (chessmanHistory.length == 0) {
+                console.log("没有过落子记录");
+                return;
+            }
+
+            // pop() 方法用于删除数组的最后一个元素并返回删除的元素。
+            let lastPosition = chessmanHistory.pop();
+            let lastDom = chessmanDomHistory.pop();
+            chessmanPosition[lastPosition.x][lastPosition.y] = colorEnum.None;
+            chessmansDom.removeChild(lastDom);
+        }
+        // 重来操作
+        function resetClickFunc() {
+            chessmanPosition = initChessmanPosition();
+            chessmanHistory = [];
+            chessmanDomHistory.forEach(chessmanDom => chessmanDom.remove());
+            gameState = gameStateEnum.underway;
+            gameoverDom.setAttribute("style", '')
+        }
+        chessmansDom.addEventListener('click', chessmansClickFunc)
+        undoDom.addEventListener('click', undoClickFunc)
+        resetDom.addEventListener('click', resetClickFunc)
+    </script>
+</body>
+
+</html>
