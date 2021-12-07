@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>拼图游戏</title>
+    <style>
+        body {
+            user-select: none;
+            overflow: hidden;
+        }
+
+        .jigsaw {
+            position: relative;
+            height: var(--height);
+            width: var(--width);
+            user-select: none;
+        }
+
+        .jigsaw .jigsaw-item {
+            position: absolute;
+            background-color: #fff;
+            --m-width: calc(var(--width) / var(--row));
+            --m-height: calc(var(--height) / var(--line));
+            width: var(--m-width);
+            height: var(--m-height);
+            left: calc(var(--x) * var(--m-width));
+            top: calc(var(--y) * var(--m-height));
+            background-size: var(--width) var(--height);
+            background-position: calc((var(--row) - var(--ox)) * var(--m-width)) calc((var(--line) - var(--oy)) * var(--m-height));
+            transition: all .5s;
+            box-sizing: border-box;
+            border: 2px solid #fff;
+        }
+
+        .jigsaw .gameover {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.6);
+            color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            display: none;
+            z-index: 90;
+            transition: all .5s;
+            opacity: 0;
+        }
+
+        .jigsaw .background {
+            position: fixed;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.6);
+            color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            display: none;
+            z-index: 100;
+            transition: all .2s;
+            opacity: 0;
+            background-repeat: no-repeat;
+            object-fit: cover;
+            background-size: contain;
+            background-position: center center;
+
+        }
+    </style>
+</head>
+
+<body>
+    <div class="jigsaw">
+        <div class="gameover">游戏胜利!</div>
+        <div class="background"></div>
+    </div>
+
+    <script>
+        // 使用类封装代码
+        class JigsawItem {
+            ox = 0
+            oy = 0
+            x = 0
+            y = 0
+
+            left = null
+            top = null
+            zIndex = null;
+            forceground = "";
+            opacity = null;
+            dom = null;
+            moving = null;
+
+            get style() {
+                let temp = `--x:${this.x};`
+                temp += `--y:${this.y};`
+                temp += `--ox:${this.ox};`
+                temp += `--oy:${this.oy};`
+                temp += `background-image:url(${this.forceground});`
+                if (this.left) temp += `left:${this.left}px;`
+                if (this.top) temp += `top:${this.top}px;`
+                if (this.zIndex) temp += `z-index:${this.zIndex};`
+                if (this.opacity) temp += `opacity:${this.opacity};`
+                if (this.moving) temp += `transition:none;`
+                return temp;
+            }
+        }
+        class Base64 {
+            // private property
+            static keyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+            // public method for encoding
+            /**
+             * 加密
+             */
+            static encode(input) {
+                var output = "";
+                var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
+                var i = 0;
+                input = this.#_utf8_encode(input);
+                while (i < input.length) {
+                    chr1 = input.charCodeAt(i++);
+                    chr2 = input.charCodeAt(i++);
+                    chr3 = input.charCodeAt(i++);
+                    enc1 = chr1 >> 2;
+                    enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
+                    enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
+                    enc4 = chr3 & 63;
+                    if (isNaN(chr2)) {
+                        enc3 = enc4 = 64;
+                    } else if (isNaN(chr3)) {
+                        enc4 = 64;
+                    }
+                    output = output +
+                        this.keyStr.charAt(enc1) + this.keyStr.charAt(enc2) +
+                        this.keyStr.charAt(enc3) + this.keyStr.charAt(enc4);
+                }
+                return output;
+            }
+
+            // public method for decoding
+            /**
+             * 解密
+             */
+            static decode(input) {
+                console.log(this.keyStr);
+                var output = "";
+                var chr1, chr2, chr3;
+                var enc1, enc2, enc3, enc4;
+                var i = 0;
+                input = input.replace(/[^A-Za-z0-9\+\/\=]/g, "");
+                while (i < input.length) {
+                    enc1 = this.keyStr.indexOf(input.charAt(i++));
+                    enc2 = this.keyStr.indexOf(input.charAt(i++));
+                    enc3 = this.keyStr.indexOf(input.charAt(i++));
+                    enc4 = this.keyStr.indexOf(input.charAt(i++));
+                    chr1 = (enc1 << 2) | (enc2 >> 4);
+                    chr2 = ((enc2 & 15) << 4) | (enc3 >> 2);
+                    chr3 = ((enc3 & 3) << 6) | enc4;
+                    output = output + String.fromCharCode(chr1);
+                    if (enc3 != 64) {
+                        output = output + String.fromCharCode(chr2);
+                    }
+                    if (enc4 != 64) {
+                        output = output + String.fromCharCode(chr3);
+                    }
+                }
+                output = this.#_utf8_decode(output);
+                return output;
+            }
+
+            // private method for UTF-8 encoding
+            static #_utf8_encode(string) {
+                string = string.replace(/\r\n/g, "\n");
+                var utftext = "";
+                for (var n = 0; n < string.length; n++) {
+                    var c = string.charCodeAt(n);
+                    if (c < 128) {
+                        utftext += String.fromCharCode(c);
+                    } else if ((c > 127) && (c < 2048)) {
+                        utftext += String.fromCharCode((c >> 6) | 192);
+                        utftext += String.fromCharCode((c & 63) | 128);
+                    } else {
+                        utftext += String.fromCharCode((c >> 12) | 224);
+                        utftext += String.fromCharCode(((c >> 6) & 63) | 128);
+                        utftext += String.fromCharCode((c & 63) | 128);
+                    }
+
+                }
+                return utftext;
+            }
+
+            // private method for UTF-8 decoding
+            static #_utf8_decode(utftext) {
+                var string = "";
+                var i = 0;
+                var c = 0;
+                var c1 = 0;
+                var c2 = 0;
+                while (i < utftext.length) {
+                    c = utftext.charCodeAt(i);
+                    if (c < 128) {
+                        string += String.fromCharCode(c);
+                        i++;
+                    } else if ((c > 191) && (c < 224)) {
+                        c2 = utftext.charCodeAt(i + 1);
+                        string += String.fromCharCode(((c & 31) << 6) | (c2 & 63));
+                        i += 2;
+                    } else {
+                        c2 = utftext.charCodeAt(i + 1);
+                        c3 = utftext.charCodeAt(i + 2);
+                        string += String.fromCharCode(((c & 15) << 12) | ((c2 & 63) << 6) | (c3 & 63));
+                        i += 3;
+                    }
+                }
+                return string;
+            }
+        }
+        // 获取元素
+        let jigsawDom = document.getElementsByClassName('jigsaw')?.[0];
+        // 存储拼图信息
+        let jigsawItems = [];
+        // 游戏结束元素节点
+        let gameoverDom = document.getElementsByClassName('gameover')?.[0];
+        // 背景元素节点
+        let backgroundDom = document.getElementsByClassName('background')?.[0];
+        // 允许操作标识
+        let allowOperate = true;
+        // 移动的标识
+        let moving = false;
+        // 移动元素节点
+        let movingDom = null;
+        // 移动元素
+        let movingItem = null;
+        // 下面的元素
+        let underItem = null;
+        // 参数
+        let params = { row: 3, line: 2, forceground: 'http://y.linyisonger.cn/files/864326af863f45ef84d87467960420b4637743515442806146.jpg', background: 'http://y.linyisonger.cn/files/42641a45f819460b940cc87e83b69fd5637743925771727261.jpg' }
+        // 随机位置的存储
+        let randomPositionCache = {};
+        // 随机位置
+        function randomPos() {
+            let x = parseInt(Math.random() * params.row + "")
+            let y = parseInt(Math.random() * params.line + "")
+            if (randomPositionCache[`${x}_${y}`]) return randomPos();
+            randomPositionCache[`${x}_${y}`] = 1;
+            return { x, y }
+        }
+        // 初始化拼图
+        function initJigsaw() {
+            jigsawDom.setAttribute('style', `--width:${params.width}px;--height:${params.height}px;--row:${params.row};--line:${params.line}`)
+            for (let i = 0; i < params.row; i++) {
+                for (let j = 0; j < params.line; j++) {
+                    let jigsawItem = new JigsawItem();
+                    let jigsawItemDom = document.createElement('div');
+                    let tempPos = randomPos();
+                    jigsawItem.ox = i;
+                    jigsawItem.oy = j;
+                    jigsawItem.x = tempPos.x;
+                    jigsawItem.y = tempPos.y;
+                    jigsawItem.forceground = params.forceground;
+                    jigsawItem.dom = jigsawItemDom;
+                    jigsawItemDom.setAttribute('class', 'jigsaw-item')
+                    jigsawItemDom.setAttribute('style', jigsawItem.style)
+                    jigsawItemDom.addEventListener('mousedown', mousedown)
+                    jigsawItemDom.addEventListener('touchstart', mousedown)
+                    jigsawDom.appendChild(jigsawItemDom);
+                    jigsawItems.push(jigsawItem)
+                }
+            }
+            document.addEventListener('mousemove', mousemove)
+            document.addEventListener('touchmove', mousemove)
+            document.addEventListener('mouseup', mouseup)
+            document.addEventListener('touchend', mouseup)
+        }
+        // 下面的拼图
+        function underJigsawItem(e) {
+            let temp = null;
+            for (let i = 0; i < jigsawItems.length; i++) {
+                const item = jigsawItems[i];
+                if (item == movingItem) continue;
+                let offsetLeftWorld = item.dom.offsetLeft + jigsawDom.offsetLeft;
+                let offsetWidth = item.dom.offsetWidth;
+                let offsetTopWorld = item.dom.offsetTop + jigsawDom.offsetTop;
+                let offsetHeight = item.dom.offsetHeight;
+                if (offsetLeftWorld < e.x && e.x < offsetLeftWorld + offsetWidth && offsetTopWorld < e.y && e.y < offsetTopWorld + offsetHeight) {
+                    item.opacity = .7
+                    temp = item;
+                }
+                else item.opacity = 1;
+                item.dom.setAttribute('style', item.style);
+            }
+            return temp;
+        }
+        // 更换位置
+        function exchangeJigsawItem(self, target) {
+            let tempItem = { ...target };
+            target.x = self.x;
+            target.y = self.y;
+            console.log(target);
+            target.zIndex = 1;
+            self.moving = false;
+            self.zIndex = 1;
+            self.x = tempItem.x;
+            self.y = tempItem.y;
+            self.left = null;
+            self.top = null;
+            target.dom.setAttribute('style', target.style);
+            self.dom.setAttribute('style', self.style);
+            this.allowOperate = false;
+            setTimeout(() => {
+                this.allowOperate = true;
+                restore(self)
+                restore(target)
+            }, 500);
+        }
+        // 恢复初始数据
+        function restore(self) {
+            self.left = null
+            self.top = null
+            self.zIndex = null;
+            self.opacity = null;
+            self.moving = null;
+            self.dom.setAttribute('style', self.style);
+        }
+        // 检查游戏结束
+        function checkOver() {
+            if (jigsawItems.find(ji => ji.ox != ji.x || ji.oy != ji.y)) return;
+            console.log("游戏结束");
+            gameoverDom.setAttribute("style", 'display:flex;opacity:1');
+            backgroundDom.setAttribute("style", `display:flex;background-image:url(${params.background});`);
+            setTimeout(() => {
+                backgroundDom.setAttribute("style", `display:flex;opacity:1;background-image:url(${params.background});`);
+            }, 1000);
+        }
+        // 设置拼图参数
+        function setParams() {
+            try {
+                console.log(Base64.decode(window.location.search?.split('id=')?.[1]));
+                console.log(JSON.parse(Base64.decode(window.location.search?.split('id=')?.[1])));
+                console.log(params);
+                let target = JSON.parse(Base64.decode(window.location.search?.split('id=')?.[1]));
+                console.log(target);
+                for (const key in target) {
+                    params[key] = target[key]
+                }
+            } catch (error) {
+                console.log("解析失败!?", error);
+            }
+            console.log(params);
+            console.log(params.forceground);
+            let img = document.createElement('img');
+            img.setAttribute("src", params.forceground)
+            img.onload = function (e) {
+                console.log(e);
+                params.width = document.body.clientWidth;
+                params.height = document.body.clientWidth / img.naturalWidth * img.naturalHeight // 通过图片原始宽高来获取宽高 计算比例
+                // 调用初始化拼图
+                initJigsaw();
+            }
+        }
+        // 鼠标/手指落下事件
+        function mousedown(e) {
+            if (!allowOperate) return;
+            movingDom = e.target;
+            movingItem = jigsawItems.find(a => a.dom == movingDom);
+            moving = movingItem.moving = true;
+            movingItem.zIndex = 1;
+            movingDom.setAttribute('style', movingItem.style);
+        }
+        // 鼠标/手指移动事件
+        function mousemove(e) {
+            if (!moving) return;
+            if (e?.touches?.length > 0) {
+                e.x = e.touches[0].pageX
+                e.y = e.touches[0].pageY
+            }
+            movingItem.left = e.x - movingDom.clientWidth / 2;
+            movingItem.top = e.y - movingDom.clientHeight / 2;
+            underItem = underJigsawItem(e)
+            movingItem.opacity = .7;
+            movingDom.setAttribute('style', movingItem.style)
+        }
+        // 鼠标/手指抬起事件
+        function mouseup(e) {
+            if (!movingItem) return;
+            if (underItem) exchangeJigsawItem(movingItem, underItem);
+            else exchangeJigsawItem(movingItem, movingItem)
+            moving = false;
+            movingDom = null;
+            movingItem = null;
+            underItem = null;
+            checkOver();
+        }
+        // 调用设置拼图参数
+        setParams();
+
+    </script>
+</body>
+
+</html>
