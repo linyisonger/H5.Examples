@@ -151,7 +151,6 @@
              * 解密
              */
             static decode(input) {
-                console.log(this.keyStr);
                 var output = "";
                 var chr1, chr2, chr3;
                 var enc1, enc2, enc3, enc4;
@@ -305,7 +304,6 @@
             let tempItem = { ...target };
             target.x = self.x;
             target.y = self.y;
-            console.log(target);
             target.zIndex = 1;
             self.moving = false;
             self.zIndex = 1;
@@ -344,23 +342,16 @@
         // 设置拼图参数
         function setParams() {
             try {
-                console.log(Base64.decode(window.location.search?.split('id=')?.[1]));
-                console.log(JSON.parse(Base64.decode(window.location.search?.split('id=')?.[1])));
-                console.log(params);
                 let target = JSON.parse(Base64.decode(window.location.search?.split('id=')?.[1]));
-                console.log(target);
                 for (const key in target) {
                     params[key] = target[key]
                 }
             } catch (error) {
                 console.log("解析失败!?", error);
             }
-            console.log(params);
-            console.log(params.forceground);
             let img = document.createElement('img');
             img.setAttribute("src", params.forceground)
             img.onload = function (e) {
-                console.log(e);
                 params.width = document.body.clientWidth;
                 params.height = document.body.clientWidth / img.naturalWidth * img.naturalHeight // 通过图片原始宽高来获取宽高 计算比例
                 // 调用初始化拼图
