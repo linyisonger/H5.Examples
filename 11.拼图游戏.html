@@ -5,11 +5,13 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="这是定制给您的拼图游戏~ 快来玩吧~">
     <title>拼图游戏</title>
     <style>
         body {
             user-select: none;
             overflow: hidden;
+            --tm-color: rgb(28, 139, 241);
         }
 
         .jigsaw {
@@ -53,7 +55,7 @@
             opacity: 0;
         }
 
-        .jigsaw .background {
+        .jigsaw .surprise {
             position: fixed;
             left: 0;
             right: 0;
@@ -75,13 +77,114 @@
             background-position: center center;
 
         }
+
+        .generate {
+            display: none;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .generate .input {
+            display: flex;
+            margin: 20px 0 0 0;
+            width: 80vw;
+            align-items: center;
+        }
+
+        .generate .input .label {
+            width: 100px;
+            box-sizing: border-box;
+            padding-right: 20px;
+            text-align: end;
+            font-size: 14px;
+        }
+
+        .generate .input input,
+        .generate .input .upload {
+            flex: 1;
+        }
+
+        .generate .input input[type='number'] {
+            text-align: center;
+            width: 34px;
+            height: 34px;
+            flex: none;
+            outline: none;
+            box-sizing: border-box;
+            border: 1px solid #ddd;
+        }
+
+        .generate .input .upload {
+            color: var(--tm-color);
+            font-size: 14px;
+        }
+
+        .generate img[class*='input-'] {
+            width: 80vw;
+            box-sizing: border-box;
+            height: 200px;
+            padding-left: 100px;
+            margin-top: 10px;
+            object-fit: cover;
+        }
+
+        .generate img:not([src]) {
+            display: none;
+        }
+
+        .generate .submit {
+            margin-top: 20px;
+            width: 200px;
+            height: 40px;
+            background-color: #fff;
+            color: var(--tm-color);
+            border: 1px solid var(--tm-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            transition: all .5s;
+        }
+
+        .generate .submit:hover {
+            background-color: var(--tm-color);
+            color: white;
+            border: 1px solid transparent;
+        }
     </style>
 </head>
 
 <body>
     <div class="jigsaw">
-        <div class="gameover">游戏胜利!</div>
-        <div class="background"></div>
+        <div class="gameover"></div>
+        <div class="surprise"></div>
+    </div>
+
+    <div class="generate">
+        <h2>定制一个惊喜吧!</h2>
+        <div class="input line">
+            <div class="label">行:</div>
+            <input type="number" step="1" max="100">
+        </div>
+        <div class="input row">
+            <div class="label">列:</div>
+            <input type="number">
+        </div>
+        <div class="input image">
+            <div class="label">图片:</div>
+            <div class="upload">点击上传</div>
+        </div>
+
+        <img class="input-image">
+
+        <div class="input surprise">
+            <div class="label">惊喜:</div>
+            <div class="upload">点击上传</div>
+        </div>
+
+        <img class="input-surprise">
+
+        <div class="submit">提交</div>
     </div>
 
     <script>
@@ -95,7 +198,7 @@
             left = null
             top = null
             zIndex = null;
-            forceground = "";
+            image = "";
             opacity = null;
             dom = null;
             moving = null;
@@ -105,7 +208,7 @@
                 temp += `--y:${this.y};`
                 temp += `--ox:${this.ox};`
                 temp += `--oy:${this.oy};`
-                temp += `background-image:url(${this.forceground});`
+                temp += `background-image:url(${this.image});`
                 if (this.left) temp += `left:${this.left}px;`
                 if (this.top) temp += `top:${this.top}px;`
                 if (this.zIndex) temp += `z-index:${this.zIndex};`
@@ -114,6 +217,7 @@
                 return temp;
             }
         }
+        // 加解密
         class Base64 {
             // private property
             static keyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
@@ -229,8 +333,8 @@
         let jigsawItems = [];
         // 游戏结束元素节点
         let gameoverDom = document.getElementsByClassName('gameover')?.[0];
-        // 背景元素节点
-        let backgroundDom = document.getElementsByClassName('background')?.[0];
+        // 惊喜元素节点
+        let surpriseDom = document.getElementsByClassName('surprise')?.[0];
         // 允许操作标识
         let allowOperate = true;
         // 移动的标识
@@ -242,7 +346,7 @@
         // 下面的元素
         let underItem = null;
         // 参数
-        let params = { row: 3, line: 2, forceground: 'http://y.linyisonger.cn/files/864326af863f45ef84d87467960420b4637743515442806146.jpg', background: 'http://y.linyisonger.cn/files/42641a45f819460b940cc87e83b69fd5637743925771727261.jpg' }
+        let params = { row: 3, line: 2, image: 'http://y.linyisonger.cn/files/864326af863f45ef84d87467960420b4637743515442806146.jpg', surprise: 'http://y.linyisonger.cn/files/42641a45f819460b940cc87e83b69fd5637743925771727261.jpg' }
         // 随机位置的存储
         let randomPositionCache = {};
         // 随机位置
@@ -265,7 +369,7 @@
                     jigsawItem.oy = j;
                     jigsawItem.x = tempPos.x;
                     jigsawItem.y = tempPos.y;
-                    jigsawItem.forceground = params.forceground;
+                    jigsawItem.image = params.image;
                     jigsawItem.dom = jigsawItemDom;
                     jigsawItemDom.setAttribute('class', 'jigsaw-item')
                     jigsawItemDom.setAttribute('style', jigsawItem.style)
@@ -333,10 +437,11 @@
         function checkOver() {
             if (jigsawItems.find(ji => ji.ox != ji.x || ji.oy != ji.y)) return;
             console.log("游戏结束");
+            gameoverDom.textContent = "游戏胜利!";
             gameoverDom.setAttribute("style", 'display:flex;opacity:1');
-            backgroundDom.setAttribute("style", `display:flex;background-image:url(${params.background});`);
+            surpriseDom.setAttribute("style", `display:flex;background-image:url(${params.surprise});`);
             setTimeout(() => {
-                backgroundDom.setAttribute("style", `display:flex;opacity:1;background-image:url(${params.background});`);
+                surpriseDom.setAttribute("style", `display:flex;opacity:1;background-image:url(${params.surprise});`);
             }, 1000);
         }
         // 设置拼图参数
@@ -350,7 +455,7 @@
                 console.log("解析失败!?", error);
             }
             let img = document.createElement('img');
-            img.setAttribute("src", params.forceground)
+            img.setAttribute("src", params.image)
             img.onload = function (e) {
                 params.width = document.body.clientWidth;
                 params.height = document.body.clientWidth / img.naturalWidth * img.naturalHeight // 通过图片原始宽高来获取宽高 计算比例
@@ -391,9 +496,123 @@
             underItem = null;
             checkOver();
         }
-        // 调用设置拼图参数
-        setParams();
 
+        // 上传文件的地址
+        let address = `http://y.linyisonger.cn/`;
+        // 自定义参数
+        let customParams = {
+            row: 3,
+            line: 2,
+            image: "",
+            surprise: ""
+        }
+
+        // 生成容器元素
+        let generateDom = document.querySelector('.generate');
+        // 获取输入元素 
+        let inputLineDom = document.querySelector('.input.line > input');
+        let inputRowDom = document.querySelector('.input.row > input');
+        let inputImageDom = document.querySelector('.input.image > .upload');
+        let inputSurpriseDom = document.querySelector('.input.surprise > .upload');
+        // 获取图片元素
+        let imgImageDom = document.querySelector('.input-image');
+        let imgSurpriseDom = document.querySelector('.input-surprise');
+        // 获取提交事件
+        let submitDom = document.querySelector('.submit');
+
+        // 添加事件
+        inputLineDom.addEventListener('change', this.lineChange)
+        inputRowDom.addEventListener('change', this.rowChange)
+        inputImageDom.addEventListener('click', this.imageClick)
+        inputSurpriseDom.addEventListener('click', this.surpriseClick)
+        submitDom.addEventListener('click', this.submitClick);
+
+        // 事件回调
+        function lineChange(e) {
+            customParams.line = e.target.value;
+        }
+        function rowChange(e) {
+            customParams.line = e.target.value;
+
+        }
+        function imageClick() {
+            uploadImage().then((res) => {
+                customParams.image = `${address}${res.filePath}`
+                imgImageDom.setAttribute('src', customParams.image)
+            })
+        }
+        function surpriseClick() {
+            uploadImage().then((res) => {
+                customParams.surprise = `${address}${res.filePath}`
+                imgSurpriseDom.setAttribute('src', customParams.surprise)
+            })
+        }
+        function uploadImage() {
+            return new Promise((resolve) => {
+                const fileInput = document.createElement('input');
+                fileInput.setAttribute('type', 'file');
+                fileInput.setAttribute('accept', 'image/*');
+                fileInput.addEventListener('change', () => {
+                    const file = fileInput.files[0];
+                    const reader = new FileReader();
+                    reader.readAsDataURL(file);
+                    reader.onload = function () {
+                        if (file.size / 1024 / 1024 > 80) {
+                            console.log('文件大小不超过80Mb');
+                            alert('文件大小不超过80Mb')
+                            return;
+                        }
+                        const data = new FormData();
+                        data.append('file', file);
+                        let r = new XMLHttpRequest();
+                        r.open("post", `${address}file/upload`);
+                        r.onloadend = () => {
+                            resolve(JSON.parse(r.responseText))
+                        }
+                        r.send(data);
+                    };
+                });
+                fileInput.click();
+            })
+        }
+        // 提交跳转
+        function submitClick() {
+            if (!customParams.line) {
+                alert("行不能为空!")
+                return;
+            }
+            if (!customParams.row) {
+                alert("列不能为空!")
+                return
+            }
+            if (!customParams.image) {
+                alert("请上传图片!")
+                return
+            }
+            if (!customParams.surprise) {
+                alert("请上传惊喜图片~")
+                return
+            }
+            let id = Base64.encode(JSON.stringify(customParams))
+            location.href = `${location.pathname}?id=${id}`
+        }
+
+        // 加载
+        function load() {
+            if (location.search.includes('?generate')) {
+                // 初始样式变更
+                generateDom.setAttribute("style", `display:flex`)
+                document.body.setAttribute('style', `overflow-y: auto;`)
+                // 初始值赋值
+                inputLineDom.value = customParams.line;
+                inputRowDom.value = customParams.row;
+            }
+            else {
+                // 调用设置拼图参数
+                setParams();
+            }
+        }
+        load();
     </script>
 </body>
 
