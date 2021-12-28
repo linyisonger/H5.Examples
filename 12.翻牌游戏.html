@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>翻牌游戏</title>
+
+    <style>
+        body {
+            margin: 0;
+        }
+
+        .flip {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .flip .card {
+            border-radius: 12px;
+            position: absolute;
+            transition: all .5s;
+            transform: rotateY(180deg);
+            box-sizing: border-box;
+            border: 2px solid #fff;
+            background-position: center;
+            background-size: contain;
+        }
+
+        .card.r90 {
+            transform: rotateY(90deg);
+        }
+
+        .card.r180 {
+            transform: rotateY(0deg);
+        }
+
+        .card.err {
+            border: 2px solid #ff0000;
+        }
+
+        .card.success {
+            border: 2px solid #00ff00;
+        }
+
+        .card.fadeOut {
+            opacity: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="flip">
+
+    </div>
+    <script type="module">
+        import { Mathematics } from "https://cdn.jsdelivr.net/npm/ru-toolkit-mathematics@1.0.4/dist/index.js"
+        // 参数
+        let params = {
+            cards: [
+                "https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fwww.jintonghua.com%2Fd%2Ffile%2Fsqgs%2F2017-03-03%2Fb7496114c1848eef925bcba454446446.jpg&refer=http%3A%2F%2Fwww.jintonghua.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=jpeg?sec=1641698856&t=b56df07f613f30f6e2e63d0f66de7ce5",
+                "https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fp1.hoopchina.com.cn%2F2e4656aff9f45590f6554ec5203492bd_w_690_h_690.jpg&refer=http%3A%2F%2Fp1.hoopchina.com.cn&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=jpeg?sec=1641698932&t=141fffb28bf3ce38355d9d203e36ca10",
+                "https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fimg.juimg.com%2Ftuku%2Fyulantu%2F111222%2F6445-11122223005914.jpg&refer=http%3A%2F%2Fimg.juimg.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=jpeg?sec=1641698976&t=ba09fe8f609646d0a4448fabb921ea5b",
+            ]
+        }
+        // 翻牌容器
+        let flipDom = document.querySelector('.flip');
+        // 卡片元素`
+        let cardDoms = [];
+
+        // 获取因数
+        let { a, b } = Mathematics.getFactorsByApproach(params.cards.length * 2)[0]
+        // 打乱数组
+
+        let cardWidth = Math.floor(document.body.clientWidth / b);
+        let cardHeight = Math.round(cardWidth * 1.5);
+
+        for (let card of [...params.cards, ...params.cards]) {
+            let cardDom = document.createElement('div');
+            cardDom.className = "card"
+            cardDom.style.background = '#a1e8e4';
+            cardDom.style.width = cardWidth - 20 + 'px'
+            cardDom.style.height = cardHeight - 20 + 'px'
+            cardDom.addEventListener('click', (ev) => {
+                openCard(cardDom, card)
+            })
+            cardDoms.push(cardDom)
+        }
+        cardDoms = Mathematics.getDisorganizeArray(cardDoms);
+        // 构建页面
+        for (let i = 0; i < cardDoms.length; i++) {
+            const item = cardDoms[i];
+            item.style.top = cardHeight * Math.floor(i / b) + 'px'
+            item.style.left = cardWidth * (i % b) + 'px'
+            flipDom.appendChild(item)
+        }
+
+        let firstCardDom = null;
+        let firstCard = "";
+
+        let secondCardDom = null;
+        let secondCard = "";
+
+        function openCard(dom, card) {
+            if (firstCardDom != null && secondCardDom != null) return;
+
+            dom.classList.add('r90')
+
+            if (firstCardDom == null) {
+                firstCardDom = dom;
+                firstCard = card;
+            }
+            else {
+                secondCardDom = dom;
+                secondCard = card;
+            }
+            setTimeout(() => {
+                dom.classList.remove('r90');
+                dom.style.background = `no-repeat left/cover url(${card})`
+                dom.classList.add('r180');
+
+                if (firstCard == "" || secondCard == "") return;
+
+                if (firstCard != secondCard) {
+                    setTimeout(() => {
+                        firstCardDom.classList.add('err')
+                        secondCardDom.classList.add('err')
+                        closeCard(firstCardDom);
+                        closeCard(secondCardDom)
+                    }, 500);
+                }
+                else {
+                    setTimeout(() => {
+                        firstCardDom.classList.add('success')
+                        secondCardDom.classList.add('success')
+                        closeCard(firstCardDom);
+                        closeCard(secondCardDom)
+                    }, 500);
+                }
+            }, 500);
+
+        }
+        function closeCard(dom) {
+            setTimeout(() => {
+                if (dom.classList.contains('err')) {
+                    dom.classList.remove('err');
+                    dom.classList.remove('r180');
+                    dom.classList.add('r90');
+                    setTimeout(() => {
+                        dom.classList.remove('r90');
+                        dom.style.background = '#a1e8e4';
+                        if (firstCardDom == dom) {
+                            firstCardDom = null;
+                            firstCard = ''
+                        }
+                        if (secondCardDom == dom) {
+                            secondCardDom = null;
+                            secondCard = ''
+                        }
+                    }, 500);
+                }
+                if (dom.classList.contains('success')) {
+                    dom.classList.remove('success');
+                    dom.classList.remove('r180');
+                    dom.classList.add('fadeOut');
+                    setTimeout(() => {
+                        if (firstCardDom == dom) {
+                            firstCardDom = null;
+                            firstCard = ''
+                        }
+                        if (secondCardDom == dom) {
+                            secondCardDom = null;
+                            secondCard = ''
+                        }
+                        dom.remove();
+
+                        if (flipDom.children.length == 0) alert("算你厉害!")
+                    }, 500);
+                }
+            }, 500);
+        }
+
+    </script>
+</body>
+
+</html>

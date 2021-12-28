@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        .download {
+            width: 100px;
+            height: 40px;
+            background-color: #fff;
+            color: #276787;
+            border: 1px solid #276787;
+            margin-right: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 20px;
+            font-size: 12px;
+            transition: all .5s;
+        }
+
+        .download:hover {
+
+            background-color: #276787;
+            color: white;
+            border: 1px solid transparent;
+
+        }
+
+        .download:active {
+            opacity: .4;
+        }
+    </style>
+
+</head>
+
+<body>
+    <canvas id="canvas">
+        您的浏览器不支持 HTML5 canvas 标签。
+    </canvas>
+
+    <div class="download">下载</div>
+
+
+    <script>
+        // 原始图像
+        let originImage = document.createElement('img');
+
+        // 画布
+        let canvas = document.getElementById("canvas");
+        let ctx = canvas.getContext("2d");
+        // 转换后的base64
+        let base64 = ''
+        // 下载按钮
+        let download = document.querySelector(".download");
+
+
+
+        originImage.setAttribute("src", "http://y.linyisonger.cn/files/864326af863f45ef84d87467960420b4637743515442806146.jpg")
+        originImage.crossOrigin = "anonymous";
+        originImage.onload = () => {
+            let ow = originImage.naturalWidth;
+            let oh = originImage.naturalHeight;
+            // 90度
+            // canvas.width = oh;
+            // canvas.height = ow;
+            // ctx.width = oh;
+            // ctx.height = ow;
+            // ctx.rotate(-Math.PI / 2) // 逆时针90度
+            // ctx.drawImage(originImage, -ow, 0)
+            // ctx.rotate(Math.PI / 2) // 顺时针90度
+            // ctx.drawImage(originImage, 0, -oh)
+            // 180度 
+            canvas.width = ow;
+            canvas.height = oh;
+            ctx.width = ow;
+            ctx.height = oh;
+            ctx.rotate(Math.PI) // 顺时针180度
+            ctx.drawImage(originImage, -ow, -oh)
+            base64 = canvas.toDataURL("image/jpeg", 0.5);
+        }
+
+
+        download.addEventListener('click', () => {
+            let a = document.createElement('a');
+            a.href = base64;
+            a.download = "旋转后的图片.png";
+            a.click();
+        })
+
+    </script>
+</body>
+
+</html>
