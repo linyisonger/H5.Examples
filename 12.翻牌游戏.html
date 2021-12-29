@@ -16,8 +16,11 @@
             position: relative;
             display: flex;
             align-items: center;
+            flex-direction: column;
             justify-content: center;
         }
+
+
 
         .flip .card {
             border-radius: 12px;
@@ -28,6 +31,17 @@
             border: 2px solid #fff;
             background-position: center;
             background-size: contain;
+            display: flex;
+            margin: 8px;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        .flip .epilog {
+            margin-top: 40px;
+            font-size: 5vw;
+            color: #333;
+            opacity: 0;
+            transition: all .5s;
         }
 
         .card.r90 {
@@ -39,15 +53,19 @@
         }
 
         .card.err {
-            border: 2px solid #ff0000;
+            border: 2px solid #fe6673;
         }
 
         .card.success {
-            border: 2px solid #00ff00;
+            border: 2px solid #bdf3d4;
         }
 
         .card.fadeOut {
             opacity: 0;
+        }
+
+        .epilog.fadeIn {
+            opacity: 1;
         }
     </style>
 </head>
@@ -64,24 +82,27 @@
                 "https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fwww.jintonghua.com%2Fd%2Ffile%2Fsqgs%2F2017-03-03%2Fb7496114c1848eef925bcba454446446.jpg&refer=http%3A%2F%2Fwww.jintonghua.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=jpeg?sec=1641698856&t=b56df07f613f30f6e2e63d0f66de7ce5",
                 "https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fp1.hoopchina.com.cn%2F2e4656aff9f45590f6554ec5203492bd_w_690_h_690.jpg&refer=http%3A%2F%2Fp1.hoopchina.com.cn&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=jpeg?sec=1641698932&t=141fffb28bf3ce38355d9d203e36ca10",
                 "https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fimg.juimg.com%2Ftuku%2Fyulantu%2F111222%2F6445-11122223005914.jpg&refer=http%3A%2F%2Fimg.juimg.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=jpeg?sec=1641698976&t=ba09fe8f609646d0a4448fabb921ea5b",
+            ],
+            epilog: [
+                '你肯定是出生在昼夜温差大的地方',
+                '要不然怎么会这么甜~'
             ]
         }
+        // 背景
+        let cardBack = params.back || '#a1e8e4'
         // 翻牌容器
         let flipDom = document.querySelector('.flip');
         // 卡片元素`
         let cardDoms = [];
-
         // 获取因数
         let { a, b } = Mathematics.getFactorsByApproach(params.cards.length * 2)[0]
-        // 打乱数组
-
         let cardWidth = Math.floor(document.body.clientWidth / b);
         let cardHeight = Math.round(cardWidth * 1.5);
-
+        // 塞入临时dom节点中
         for (let card of [...params.cards, ...params.cards]) {
             let cardDom = document.createElement('div');
             cardDom.className = "card"
-            cardDom.style.background = '#a1e8e4';
+            cardDom.style.background = cardBack;
             cardDom.style.width = cardWidth - 20 + 'px'
             cardDom.style.height = cardHeight - 20 + 'px'
             cardDom.addEventListener('click', (ev) => {
@@ -89,23 +110,26 @@
             })
             cardDoms.push(cardDom)
         }
+        // 打乱数组
         cardDoms = Mathematics.getDisorganizeArray(cardDoms);
         // 构建页面
         for (let i = 0; i < cardDoms.length; i++) {
             const item = cardDoms[i];
             item.style.top = cardHeight * Math.floor(i / b) + 'px'
-            item.style.left = cardWidth * (i % b) + 'px'
+            item.style.left = (cardWidth - 8) * (i % b) + 'px'
             flipDom.appendChild(item)
         }
-
+        // 第一张卡片
         let firstCardDom = null;
         let firstCard = "";
-
+        // 第二张卡片
         let secondCardDom = null;
         let secondCard = "";
-
+        // 打开卡片
         function openCard(dom, card) {
             if (firstCardDom != null && secondCardDom != null) return;
+            // 点过了 不想让你点了
+            if (dom == firstCardDom || dom == secondCardDom) return;
 
             dom.classList.add('r90')
 
@@ -143,6 +167,7 @@
             }, 500);
 
         }
+        // 关闭卡片
         function closeCard(dom) {
             setTimeout(() => {
                 if (dom.classList.contains('err')) {
@@ -151,7 +176,7 @@
                     dom.classList.add('r90');
                     setTimeout(() => {
                         dom.classList.remove('r90');
-                        dom.style.background = '#a1e8e4';
+                        dom.style.background = cardBack;
                         if (firstCardDom == dom) {
                             firstCardDom = null;
                             firstCard = ''
@@ -165,6 +190,7 @@
                 if (dom.classList.contains('success')) {
                     dom.classList.remove('success');
                     dom.classList.remove('r180');
+                    dom.classList.add('r90');
                     dom.classList.add('fadeOut');
                     setTimeout(() => {
                         if (firstCardDom == dom) {
@@ -176,13 +202,26 @@
                             secondCard = ''
                         }
                         dom.remove();
-
-                        if (flipDom.children.length == 0) alert("算你厉害!")
+                        if (flipDom.children.length == 0) {
+                            gameOver();
+                        }
                     }, 500);
                 }
             }, 500);
         }
-
+        // 游戏结束
+        function gameOver() {
+            for (let i = 0; i < params.epilog.length; i++) {
+                let tempEpilog = params.epilog[i];
+                let epilogDom = document.createElement('div')
+                epilogDom.textContent = tempEpilog;
+                epilogDom.className = 'epilog'
+                flipDom.append(epilogDom)
+                setTimeout(() => {
+                    epilogDom.classList.add("fadeIn")
+                }, i * 500)
+            }
+        } 
     </script>
 </body>
 
