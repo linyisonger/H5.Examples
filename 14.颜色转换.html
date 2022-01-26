@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <style>
+        body {
+            margin: 0;
+            width: 100vw;
+            height: 100vh;
+            transition: all 1s ease-in;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        #rgbColorDiv {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: rgba(0, 0, 0, .9);
+            text-shadow: 2px 0 rgba(255, 0, 0, .9)
+        }
+
+        #hexColorInput {
+            background-color: rgba(255, 255, 255, .7);
+            outline: none;
+            border: 1px solid rgba(0, 0, 0, .3);
+            line-height: 40px;
+            font-size: 20px;
+            padding-left: 20px;
+            width: 60vmin;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="rgbColorDiv"></div>
+    <input id="hexColorInput" type="text" placeholder="#6cf">
+    <script type="module">
+        import { Convertor } from "https://cdn.jsdelivr.net/npm/ru-toolkit-convertor@1.0.1/dist/index.js"
+        let rgbColorDiv = document.getElementById('rgbColorDiv')
+        let hexColorInput = document.getElementById('hexColorInput')
+        hexColorInput.addEventListener('input', hexColorInputFunc)
+        rgbColorDiv.addEventListener('click', copyToClipboard)
+
+        hexColorInputFunc({ target: { value: '#6cf' } })
+        /**
+         * 输入事件
+         */
+        function hexColorInputFunc(e) {
+            try {
+                let rgb = Convertor.hexToRgb(e.target.value)
+                rgbColorDiv.textContent = rgb;
+                document.body.style.backgroundColor = rgb;
+            } catch (error) {
+                console.log(error);
+            }
+        }
+        /**
+         * 复制到剪贴板
+         */
+        function copyToClipboard(e) {
+            let input = document.querySelector('.copy-input') || document.createElement('input');
+            input.className = "copy-input";
+            input.value = e.target.textContent;
+            input.style = `position: fixed;top: -100%;`
+            document.body.append(input)
+            input.select();
+            document.execCommand("copy");
+            console.log("复制完成");
+        }
+    </script>
+</body>
+
+</html>
