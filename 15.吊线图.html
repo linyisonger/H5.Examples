@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+            margin: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="canvas" width="1000" height="1000"></canvas>
+
+    <script>
+
+        // 字体大小
+        let fontSize = 10;
+        // 字间距
+        let fontSpacing = 12;
+        // 行高
+        let fontLineHeight = fontSpacing * 5;
+        // 绘制宽度
+        let drawWidth = 0;
+        // 绘制高度
+        let drawHeight = 0;
+        // 外边距
+        let margin = 20;
+        let marginLeft = margin;
+        let marginRight = margin;
+        let marginTop = margin;
+        let marginBottom = margin;
+        // 内边距
+        let padding = 20;
+        let paddingLeft = padding;
+        let paddingRight = padding;
+        let paddingTop = padding;
+        let paddingBottom = padding;
+
+
+        let maxX = 0;
+        let maxY = 0;
+
+        let fillCircleRadius = fontSize / 5;
+
+
+        let canvas = document.getElementById('canvas');
+        let ctx = canvas.getContext('2d');
+        let persons = [
+            {
+                name: "林自强"
+            },
+            {
+                name: "林自励",
+                children: [
+                    {
+                        name: '林懋進',
+                        children: [
+                            {
+                                name: "林腾芳",
+                                children: [
+                                    {
+                                        name: "林雨澍",
+                                        children: [
+                                            {
+                                                name: "林琨树",
+                                                children: [
+                                                    {
+                                                        name: "林弘任",
+                                                        children: [
+                                                            {
+                                                                name: "林世荣",
+                                                                children: [
+                                                                    {
+                                                                        name: '林元章',
+                                                                    },
+                                                                    {
+                                                                        name: "林耑",
+
+                                                                        children: [
+                                                                            {
+                                                                                name: "林蔚",
+
+                                                                                children: [
+                                                                                    {
+                                                                                        name: '林梦鳌',
+                                                                                        children: [
+                                                                                            {
+                                                                                                name: '林中方',
+                                                                                                children: [
+                                                                                                    {
+                                                                                                        name: "林松山",
+                                                                                                    },
+                                                                                                    {
+                                                                                                        name: "林藻英",
+                                                                                                        children: [
+                                                                                                            {
+                                                                                                                name: '林雲骕',
+                                                                                                                children: [
+                                                                                                                    {
+                                                                                                                        name: "林丰泰",
+                                                                                                                    }
+                                                                                                                ]
+                                                                                                            },
+                                                                                                            {
+                                                                                                                name: "林雲祥",
+                                                                                                                children: [
+                                                                                                                    {
+                                                                                                                        name: "林丰有",
+                                                                                                                    },
+                                                                                                                    {
+                                                                                                                        name: "林丰裕",
+                                                                                                                    },
+                                                                                                                    {
+                                                                                                                        name: "林丰益",
+                                                                                                                    }
+                                                                                                                ]
+                                                                                                            }
+                                                                                                        ]
+                                                                                                    },
+                                                                                                    {
+                                                                                                        name: "林藻思",
+                                                                                                        children: [
+                                                                                                            {
+                                                                                                                name: "林雲龍",
+                                                                                                                children: [
+                                                                                                                    {
+                                                                                                                        name: "林丰敬",
+                                                                                                                    },
+                                                                                                                    {
+                                                                                                                        name: "林丰和",
+                                                                                                                    }
+                                                                                                                ]
+                                                                                                            },
+                                                                                                            {
+                                                                                                                name: "林雲会",
+                                                                                                                children: [
+                                                                                                                    {
+                                                                                                                        name: "林丰年",
+                                                                                                                    }
+                                                                                                                ]
+                                                                                                            },
+                                                                                                            {
+                                                                                                                name: "林雲鶴",
+                                                                                                            },
+                                                                                                            {
+                                                                                                                name: "林雲台",
+                                                                                                                children: [
+                                                                                                                    {
+                                                                                                                        name: '林丰魁',
+                                                                                                                    }
+                                                                                                                ]
+                                                                                                            },
+                                                                                                            {
+                                                                                                                name: "林雲仙",
+                                                                                                                children: [
+                                                                                                                    {
+                                                                                                                        name: "林丰義",
+                                                                                                                    },
+                                                                                                                    {
+                                                                                                                        name: "林丰安",
+                                                                                                                    }
+                                                                                                                ]
+                                                                                                            },
+                                                                                                            {
+                                                                                                                name: "林雲亭",
+                                                                                                                children: [
+                                                                                                                    {
+                                                                                                                        name: "林丰合",
+                                                                                                                    },
+                                                                                                                    {
+                                                                                                                        name: "林丰庆",
+                                                                                                                    },
+                                                                                                                    {
+                                                                                                                        name: "林丰恒",
+                                                                                                                    }
+                                                                                                                ]
+                                                                                                            }
+                                                                                                        ]
+                                                                                                    },
+                                                                                                ]
+                                                                                            },
+                                                                                            {
+                                                                                                name: '林義方',
+                                                                                            }
+                                                                                        ]
+                                                                                    }
+                                                                                ]
+                                                                            }
+                                                                        ]
+                                                                    }
+                                                                ]
+                                                            }
+                                                        ]
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                name: "林自用"
+            },
+            {
+                name: "林自好"
+            },
+            {
+                name: "林自觀"
+            },
+        ]
+
+        function fillTextByVertical(ctx, text, x, y, fontSize) {
+            ctx.textBaseline = "top";
+            ctx.font = `${fontSize}px Arial`;
+            for (let i = 0; i < text.length; i++) {
+                ctx.fillText(text[i], x, y + fontSize * i);
+            }
+        }
+
+        function fillCircle(x, y, r) {
+            ctx.beginPath();
+            ctx.arc(x, y, r, 0, 2 * Math.PI);
+            ctx.stroke();
+        }
+
+        function fillLine(sx, sy, ex, ey) {
+            ctx.moveTo(sx, sy);
+            ctx.lineTo(ex, ey);
+            ctx.stroke();
+        }
+
+        // 不考虑性能
+        function renderPerson(persons, x, y, px, py) {
+
+            console.log("父节点位置", x, y, persons, px, py);
+            let brotherX;
+            let brotherY;
+
+            if (px && py) {
+                fillLine(px + (fontSpacing - fillCircleRadius) / 2, py + fontSpacing * 3, px + (fontSpacing - fillCircleRadius) / 2, py + fontSpacing * 4)
+            }
+
+            for (let i = 0; i < persons.length; i++) {
+                let person = persons[i];
+                let cx = parseInt(weightPerson(person) / 2);
+                let tx = x + cx * fontSpacing
+                fillTextByVertical(ctx, person.name, tx, y, fontSize)
+
+                if (px && py) {
+                    fillCircle(tx + (fontSpacing - fillCircleRadius) / 2, y - fontSpacing, fillCircleRadius)
+                    fillLine(tx + (fontSpacing - fillCircleRadius) / 2, py + fontSpacing * 4, tx + (fontSpacing - fillCircleRadius) / 2, py + fontSpacing * 5)
+                    if (brotherX && brotherY) {
+                        fillLine(brotherX + (fontSpacing - fillCircleRadius) / 2, brotherY - fontSpacing, tx + (fontSpacing - fillCircleRadius) / 2, y - fontSpacing)
+                    }
+
+                    brotherX = tx;
+                    brotherY = y;
+                }
+
+                if (person.children) renderPerson(person.children, x, y + fontLineHeight, tx, y)
+                x += weightPerson(person) * fontSpacing
+            }
+            maxX = Math.max(maxX, x);
+            maxY = Math.max(maxY, y);
+        }
+
+
+
+
+        // 权重
+        function weightPerson(person) {
+            if (!person.children) return 1;
+            let weight = 0;
+            for (const p of person.children) {
+                let childCount = p.children ? weightPerson(p) : 0;
+                childCount = childCount + (childCount % 2 == 0 ? 1 : 0)
+                weight += p.children ? childCount : 1
+            }
+            return weight
+        }
+
+        function renderRect() {
+            ctx.fillStyle = "#000000";
+            ctx.moveTo(marginLeft, marginTop);
+            ctx.lineTo(maxX + paddingRight, marginTop);
+            ctx.lineTo(maxX + paddingRight, maxY + fontLineHeight + paddingBottom);
+            ctx.lineTo(marginLeft, maxY + fontLineHeight + paddingBottom);
+            ctx.lineTo(marginLeft, marginTop);
+            ctx.stroke();
+        }
+
+        renderPerson(persons, marginLeft + paddingLeft, marginTop + paddingTop)
+        renderRect()
+    </script>
+</body>
+
+</html>

@@ -334,16 +334,16 @@
         </div>
     </div>
     <!-- 代码逻辑 -->
-    <script>
+    <script type="module">
         // 部分浏览器支持 可选链操作符 https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Optional_chaining
         // 棋子父节点的元素
-        let chessmansDom = document.getElementsByClassName('chessmans')?.[0];
+        let chessmansDom = document.getElementsByClassName('chessmans')[0];
         // 悔棋元素节点
-        let undoDom = document.getElementsByClassName('undo')?.[0];
+        let undoDom = document.getElementsByClassName('undo')[0];
         // 重来元素节点
-        let resetDom = document.getElementsByClassName('reset')?.[0];
+        let resetDom = document.getElementsByClassName('reset')[0];
         // 游戏结束元素节点
-        let gameoverDom = document.getElementsByClassName('gameover')?.[0];
+        let gameoverDom = document.getElementsByClassName('gameover')[0];
         // 棋盘边长  未予css进行绑定
         let length = 400;
         // 格子边长
@@ -407,7 +407,6 @@
                 gameoverDom.textContent = hint;
                 gameoverDom.setAttribute("style", 'display:flex')
             }
-
         }
         // 检测游戏结束
         function checkGameOver(x, y) {
@@ -512,6 +511,7 @@
             gameState = gameStateEnum.underway;
             gameoverDom.setAttribute("style", '')
         }
+
         chessmansDom.addEventListener('click', chessmansClickFunc)
         undoDom.addEventListener('click', undoClickFunc)
         resetDom.addEventListener('click', resetClickFunc)
