@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        #drag {
+            width: 500px;
+            height: 300px;
+            border-radius: 10px;
+            background-color: #f8f8f8;
+            border: 2px dashed #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: #777;
+            user-select: none;
+        }
+
+        #image {
+            width: 500px;
+            height: 300px;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="drag">拖动至此上传文件</div>
+    <img id="image" />
+    <p id="fileName"></p>
+
+    <script>
+        let dragDivDom = document.getElementById('drag');
+        let imageImgDom = document.getElementById('image')
+        let fileNamePDom = document.getElementById('fileName');
+
+        imageImgDom.hidden = true;
+        fileNamePDom.hidden = true;
+        dragDivDom.addEventListener('drop', (ev) => {
+            // 阻止进行拖拽时浏览器的默认行为
+            ev.preventDefault();
+            // 取得文件
+            let file = ev.dataTransfer.files[0]
+            // 是否是图像
+            let isImage = file.type.includes('image')
+            // 文件读取器
+            let reader = new FileReader();
+            // 如果是图像
+            if (isImage) {
+                reader.readAsDataURL(file);
+                reader.addEventListener("load", (res) => {
+                    imageImgDom.setAttribute('src', res.target.result)
+                })
+            }
+            // 是否隐藏
+            imageImgDom.hidden = !isImage;
+            fileNamePDom.hidden = false;
+
+            fileNamePDom.textContent = `文件名:${file.name}`
+
+            // 上传文件
+            let data = new FormData();
+            data.append('file', file);
+            let r = new XMLHttpRequest();
+            r.open("post", "文件服务器地址");
+            r.onloadend = () => {
+                console.log(JSON.parse(r.responseText))
+            }
+            r.send(data);
+
+        })
+        dragDivDom.addEventListener('dragover', (ev) => {
+            // 阻止进行拖拽时浏览器的默认行为
+            ev.preventDefault();
+        })
+        dragDivDom.addEventListener('dragend', (ev) => {
+            // 阻止进行拖拽时浏览器的默认行为
+            ev.preventDefault();
+        })
+    </script>
+
+</body>
+
+</html>
