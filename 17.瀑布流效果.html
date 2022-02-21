@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        /* 第一种 */
+
+        .masonry {
+            column-count: 4;
+            column-gap: 0;
+        }
+
+        .item {
+            padding: 2px;
+            position: relative;
+            counter-increment: item-counter;
+        }
+
+        .item img {
+            display: block;
+            width: 100%;
+            height: auto;
+        }
+
+        .item::after {
+            position: absolute;
+            display: block;
+            top: 2px;
+            left: 2px;
+            width: 24px;
+            height: 24px;
+            text-align: center;
+            line-height: 24px;
+            background-color: #000;
+            color: #fff;
+            content: counter(item-counter);
+
+        }
+
+
+        /* 第二种 */
+        /* .masonry {
+            display: flex;
+            flex-direction: column;
+            flex-wrap: wrap;
+            height: 1300px;
+            width: 100%;
+        }
+
+        .item {
+            position: relative;
+            width: 25%;
+            padding: 2px;
+            box-sizing: border-box;
+            counter-increment: item-counter;
+
+        }
+
+        .item:nth-child(4n+1) {
+            order: 1;
+        }
+
+        .item:nth-child(4n+2) {
+            order: 2;
+        }
+
+        .item:nth-child(4n+3) {
+            order: 3;
+        }
+
+        .item:nth-child(4n) {
+            order: 4;
+        }
+
+        .item img {
+            display: block;
+            width: 100%;
+            height: auto;
+        }
+
+        .item::after {
+            position: absolute;
+            display: block;
+            top: 2px;
+            left: 2px;
+            width: 24px;
+            height: 24px;
+            text-align: center;
+            line-height: 24px;
+            background-color: #000;
+            color: #fff;
+            content: counter(item-counter);
+
+        } */
+    </style>
+</head>
+
+<body>
+    <div class="masonry">
+        <div class="item">
+            <img src="https://picsum.photos/360/460?random=1" alt="">
+        </div>
+        <div class="item">
+            <img src="https://picsum.photos/360/360?random=2" alt="">
+        </div>
+        <div class="item">
+            <img src="https://picsum.photos/360/260?random=3" alt="">
+        </div>
+        <div class="item">
+            <img src="https://picsum.photos/360/560?random=4" alt="">
+        </div>
+        <div class="item">
+            <img src="https://picsum.photos/360/260?random=5" alt="">
+        </div>
+        <div class="item">
+            <img src="https://picsum.photos/360/320?random=6" alt="">
+        </div>
+        <div class="item">
+            <img src="https://picsum.photos/360/310?random=7" alt="">
+        </div>
+        <div class="item">
+            <img src="https://picsum.photos/360/330?random=8" alt="">
+        </div>
+        <div class="item">
+            <img src="https://picsum.photos/360/310?random=9" alt="">
+        </div>
+        <div class="item">
+            <img src="https://picsum.photos/360/140?random=10" alt="">
+        </div>
+        <div class="item">
+            <img src="https://picsum.photos/360/240?random=11" alt="">
+        </div>
+        <div class="item">
+            <img src="https://picsum.photos/360/640?random=12" alt="">
+        </div>
+        <div class="item">
+            <img src="https://picsum.photos/360/440?random=13" alt="">
+        </div>
+        <div class="item">
+            <img src="https://picsum.photos/360/240?random=14" alt="">
+        </div>
+        <div class="item">
+            <img src="https://picsum.photos/360/130?random=15" alt="">
+        </div>
+        <div class="item">
+            <img src="https://picsum.photos/360/640?random=16" alt="">
+        </div>
+        <div class="item">
+            <img src="https://picsum.photos/360/430?random=17" alt="">
+        </div>
+        <div class="item">
+            <img src="https://picsum.photos/360/460?random=18" alt="">
+        </div>
+    </div>
+
+</body>
+
+</html>
