@@ -55,9 +55,6 @@
         let base64 = ''
         // 下载按钮
         let download = document.querySelector(".download");
-
-
-
         originImage.setAttribute("src", "http://y.linyisonger.cn/files/864326af863f45ef84d87467960420b4637743515442806146.jpg")
         originImage.crossOrigin = "anonymous";
         originImage.onload = () => {
@@ -82,14 +79,34 @@
             base64 = canvas.toDataURL("image/jpeg", 0.5);
         }
 
+        // 方式一
+        // download.addEventListener('click', () => {
+        //     let a = document.createElement('a');
+        //     a.href = base64;
+        //     a.download = "旋转后的图片.png";
+        //     a.click();
+        // })
 
+        // 方式二
         download.addEventListener('click', () => {
             let a = document.createElement('a');
-            a.href = base64;
-            a.download = "旋转后的图片.png";
+            a.href = window.URL.createObjectURL(base64ToBlob(base64));
+            a.setAttribute('download', '旋转后的图片.jpg');
             a.click();
         })
 
+        // base64 转 Blob
+        function base64ToBlob(base64) {
+            let arr = base64.split(',');
+            let mime = arr[0].match(/:(.*?);/)[1];
+            let bstr = atob(arr[1]);
+            let n = bstr.length;
+            let u8arr = new Uint8Array(n);
+            while (n--) {
+                u8arr[n] = bstr.charCodeAt(n);
+            }
+            return new Blob([u8arr], { type: mime })
+        }
     </script>
 </body>
 
