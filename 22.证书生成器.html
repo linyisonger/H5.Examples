@@ -107,6 +107,8 @@
          * 印章的生成
          */
         function seal(s) {
+            // 防止转圈圈
+            if (!s) return;
             let c = document.getElementById("seal");
             let ctx = c.getContext("2d");
             ctx.clearRect(0, 0, c.clientWidth, c.clientHeight);
