@@ -5,7 +5,6 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
     <style>
         .preview {
             position: relative;
@@ -264,6 +263,19 @@
             dateDom.value = "2021年12月"
             checkPreview()
         }
+
+
+        let previewDom = document.getElementById("preview");
+        // 下载
+        function download() {
+            let a = document.createElement('a');
+            a.href = previewDom.toDataURL();
+            a.download = "荣誉证书.png";
+            a.click();
+        }
+
+        previewDom.addEventListener('click', this.download)
+
 
         certificate.onload = function () {
             sample();
