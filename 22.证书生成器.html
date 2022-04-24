@@ -101,6 +101,7 @@
     <canvas id="seal" width="200" height="200" style="opacity: 0;"></canvas>
     <canvas id="preview" width="768" height="531"></canvas>
     <script>
+        let certificate = document.getElementsByTagName('img').item(0);
 
         /**
          * 印章的生成
@@ -159,11 +160,8 @@
         function preview(name, detail, orgs, date) {
             let c = document.getElementById("preview");
             let ctx = c.getContext("2d");
-            let certificate = document.getElementsByTagName('img').item(0);
             console.log(certificate);
-
             // 证书背景
-            // certificate.onload = function () {
             ctx.drawImage(certificate, 0, 0, c.clientWidth, c.clientHeight);
             console.log("certificate.onload");
             // 获奖人
@@ -224,7 +222,7 @@
             ctx.fillText(date, c.clientWidth - 130 - 153, 450);
 
         }
-        // }
+
         let timeoutId = null;
 
         let nameDom = document.querySelector('.name');
@@ -265,8 +263,9 @@
             checkPreview()
         }
 
-        sample();
-
+        certificate.onload = function () {
+            sample();
+        }
 
     </script>
 </body>
