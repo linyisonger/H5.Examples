@@ -425,7 +425,7 @@
                 if (color != chessmanPosition?.[j]?.[y]) break;
                 continuously++;
             }
-            if (continuously == 5) {
+            if (continuously >= 5) {
                 gameState = color == colorEnum.black ? gameStateEnum.blackWin : gameStateEnum.whiteWin;
                 return;
             }
@@ -439,7 +439,7 @@
                 if (color != chessmanPosition?.[x]?.[j]) break;
                 continuously++;
             }
-            if (continuously == 5) {
+            if (continuously >= 5) {
                 gameState = color == colorEnum.black ? gameStateEnum.blackWin : gameStateEnum.whiteWin;
                 return;
             }
@@ -453,7 +453,7 @@
                 if (color != chessmanPosition?.[i]?.[j]) break;
                 continuously++;
             }
-            if (continuously == 5) {
+            if (continuously >= 5) {
                 gameState = color == colorEnum.black ? gameStateEnum.blackWin : gameStateEnum.whiteWin;
                 return;
             }
@@ -467,7 +467,7 @@
                 if (color != chessmanPosition?.[i]?.[j]) break;
                 continuously++;
             }
-            if (continuously == 5) {
+            if (continuously >= 5) {
                 gameState = color == colorEnum.black ? gameStateEnum.blackWin : gameStateEnum.whiteWin;
                 return;
             }
