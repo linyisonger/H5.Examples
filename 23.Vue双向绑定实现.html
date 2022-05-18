@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- 抄自 技术蛋老师 视频 https://www.bilibili.com/video/BV1934y1a7MN/?spm_id_from=333.788.recommend_more_video.1 -->
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body>
+    <div id="app">
+        <span>UP主:{{name}}</span>
+        <input type="text" v-model="name">
+        <span>更多:{{more.like}}</span>
+        <input type="text" v-model="more.like">
+    </div>
+
+    <script>
+        class Vue {
+            constructor(obj_instance) {
+                this.$data = obj_instance.data;
+                Observer(this.$data);
+                Complie(obj_instance.el, this)
+            }
+        }
+
+        // 数据截取 - 监听实例里的数据
+        function Observer(data_instance) {
+            // 递归出口
+            if (!data_instance || typeof data_instance !== "object") return;
+            const dependency = new Dependency();
+            Object.keys(data_instance).forEach(key => {
+                let value = data_instance[key]
+                Observer(value) // 递归 - 子属性数据劫持
+                Object.defineProperty(data_instance, key, {
+                    enumerable: true,
+                    configurable: true,
+                    get() {
+                        console.log(`访问了属性：${key} -> 值：${value}`);
+                        // 订阅者加入依赖实例的数组
+                        Dependency.temp && dependency.addSub(Dependency.temp);
+                        return value;
+                    },
+                    set(newValue) {
+                        console.log(`属性${key}的值${value}修改为 -> ${newValue}`);
+                        value = newValue;
+                        Observer(newValue);
+                        dependency.notify()
+                    }
+                })
+            })
+        }
+
+        // HTML模板解析 - 替换DOM内的数据
+        function Complie(element, vm) {
+            vm.$el = document.querySelector(element);
+
+            const fragment = document.createDocumentFragment();
+            let child;
+            while (child = vm.$el.firstChild) {
+                fragment.append(child);
+            }
+
+            fragment_compile(fragment);
+            // 替换文档碎片内容
+            function fragment_compile(node) {
+                const pattern = /\{\{\s*(\S+)\s*\}\}/
+                if (node.nodeType === 3) {
+                    const xxx = node.nodeValue;
+                    const result_regex = pattern.exec(node.nodeValue);
+                    if (result_regex) {
+                        const arr = result_regex[1].split('.');
+                        const value = arr.reduce(
+                            (total, current) => total[current], vm.$data
+                        )
+                        node.nodeValue = xxx.replace(pattern, value);
+                        // 创建订阅者
+                        new Watcher(vm, result_regex[1], newValue => {
+                            node.nodeValue = xxx.replace(pattern, newValue);
+                        })
+                        console.log(vm.$data[result_regex[1]]);
+                    }
+                    return;
+                }
+                if (node.nodeType === 1 && node.nodeName === "INPUT") {
+                    const attr = Array.from(node.attributes);
+                    attr.forEach(i => {
+                        if (i.nodeName === "v-model") {
+                            const value = i.nodeValue.split(".").reduce(
+                                (total, current) => total[current], vm.$data
+                            )
+                            node.value = value;
+                            new Watcher(vm, i.nodeValue, newValue => {
+                                node.value = newValue;
+                            })
+                            node.addEventListener("input", e => {
+                                // ['more','like']
+                                const arr1 = i.nodeValue.split('.')
+                                // ['more']
+                                const arr2 = arr1.slice(0, arr1.length - 1);
+                                // vm.$data.more
+                                const final = arr2.reduce((total, current) => total[current], vm.$data)
+                                // vm.$data.more['like'] = e.target.value
+                                final[arr1[arr1.length - 1]] = e.target.value;
+                            })
+                        }
+                    })
+
+                }
+                node.childNodes.forEach(child => fragment_compile(child))
+            }
+            vm.$el.appendChild(fragment);
+        }
+
+        // 依赖 - 收集和通知订阅者
+        class Dependency {
+            constructor() {
+                this.subscribers = []
+            }
+
+            addSub(sub) {
+                this.subscribers.push(sub)
+            }
+
+            notify() {
+                this.subscribers.forEach(sub => sub.update())
+            }
+        }
+
+        // 订阅者
+        class Watcher {
+            constructor(vm, key, callback) {
+                this.vm = vm;
+                this.key = key;
+                this.callback = callback;
+                // 临时属性 - 触发getter
+                Dependency.temp = this;
+                key.split('.').reduce((total, current) => total[current], vm.$data)
+                Dependency.temp = null;
+            }
+
+            update() {
+                const value = this.key.split('.').reduce((total, current) => total[current], this.vm.$data)
+                this.callback(value);
+            }
+        }
+
+        const vm = new Vue({
+            el: "#app",
+            data: {
+                name: "蛋老师",
+                more: {
+                    like: "一键三连"
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>
