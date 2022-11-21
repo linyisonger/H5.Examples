@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Document</title>
+    <script src="https://kit.fontawesome.com/af95122a22.js" crossorigin="anonymous"></script>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .toolbar {
+            margin: 10px 0;
+            width: 1000px;
+
+        }
+
+        .toolbar__btn {
+            border: none;
+            outline: none;
+            border-radius: 0;
+            padding: 2px 7px;
+            background: #fff;
+            border: 1px solid #ddd;
+            box-shadow: 2px 2px 2px 0 rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+        }
+
+        .toolbar>[class^='toolbar__'] {
+            margin-top: 4px;
+        }
+
+
+        [class^='toolbar__'] {
+            display: inline-flex;
+            align-items: center;
+        }
+
+        [class^='toolbar__']>select {
+            border: 1px solid #ddd;
+            box-shadow: 2px 2px 2px 0 rgba(0, 0, 0, 0.2);
+            padding: 2px 7px;
+            outline: none;
+        }
+
+        [class^='toolbar__']>input[type='color'] {
+            box-shadow: 2px 2px 2px 0 rgba(0, 0, 0, 0.2);
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: none;
+            outline: none;
+            appearance: textfield;
+        }
+
+        [class^='toolbar__']>input[type="color"]::-webkit-color-swatch-wrapper {
+            display: none;
+        }
+
+        [class^='toolbar__']>input[type="color"]::-webkit-color-swatch {
+            display: none;
+        }
+
+        .toolbar__label {
+            display: inline;
+            padding: 2px 7px;
+            font-size: 14px;
+            color: #777;
+            margin-top: 2px;
+        }
+
+        .toolbar__btn:hover {
+            background: #ddd;
+        }
+
+        .toolbar__btn[active="true"] {
+            box-shadow: none;
+            padding-top: 3px;
+            border: 1px solid transparent;
+            background: #ddd;
+        }
+
+        .toolbar__btn[active="true"]:hover {
+            background: #fff;
+        }
+
+        iframe[name="richTextField"] {
+            width: 1000px;
+            height: 500px;
+            border-color: #ddd;
+            border-width: 1px;
+            border-style: dashed;
+        }
+
+        iframe[name="richTextField"]:checked {
+            border-color: #19c;
+        }
+
+        .select-down-list {
+            border: 1px solid #19c;
+            padding: 2px 0;
+            margin-top: 5px;
+        }
+
+        .select-down-list-option {
+            padding: 2px 10px;
+            cursor: default;
+        }
+
+        .select-down-list-option.active {
+            background-color: #19c;
+            color: #fff;
+        }
+    </style>
+</head>
+
+<body onload="enableEditMode();">
+    <div class="toolbar">
+        <button class="toolbar__btn" name="bold" onclick="execCmd('bold');">
+            <i class="fa fa-bold"></i>
+        </button>
+        <button class="toolbar__btn" name="italic" onclick="execCmd('italic');">
+            <i class="fa fa-italic"></i>
+        </button>
+        <button class="toolbar__btn" name="underline" onclick="execCmd('underline');">
+            <i class="fa fa-underline"></i>
+        </button>
+        <button class="toolbar__btn" name="strikethrough" onclick="execCmd('strikeThrough');">
+            <i class="fa fa-strikethrough"></i>
+        </button>
+        <button class="toolbar__btn" name="justifyLeft" onclick="execCmd('justifyLeft');">
+            <i class="fa fa-align-left"></i>
+        </button>
+        <button class="toolbar__btn" name="justifyCenter" onclick="execCmd('justifyCenter');">
+            <i class="fa fa-align-center"></i>
+        </button>
+        <button class="toolbar__btn" name="justifyRight" onclick="execCmd('justifyRight');">
+            <i class="fa fa-align-right"></i>
+        </button>
+        <button class="toolbar__btn" name="justifyFull" onclick="execCmd('justifyFull');">
+            <i class="fa fa-align-justify"></i>
+        </button>
+        <button class="toolbar__btn" name="cut" onclick="execCmd('cut');">
+            <i class="fa fa-cut"></i>
+        </button>
+        <button class="toolbar__btn" name="copy" onclick="execCmd('copy');">
+            <i class="fa fa-copy"></i>
+        </button>
+        <button class="toolbar__btn" name="indent" onclick="execCmd('indent');">
+            <i class="fa fa-indent"></i>
+        </button>
+        <button class="toolbar__btn" name="outdent" onclick="execCmd('outdent');">
+            <i class="fa fa-dedent"></i>
+        </button>
+        <button class="toolbar__btn" name="subscript" onclick="execCmd('subscript');">
+            <i class="fa fa-subscript"></i>
+        </button>
+        <button class="toolbar__btn" name="superscript" onclick="execCmd('superscript');">
+            <i class="fa fa-superscript"></i>
+        </button>
+        <button class="toolbar__btn" name="undo" onclick="execCmd('undo');">
+            <i class="fa fa-undo"></i>
+        </button>
+        <button class="toolbar__btn" name="redo" onclick="execCmd('redo');">
+            <i class="fa fa-repeat"></i>
+        </button>
+        <button class="toolbar__btn" name="insertUnorderedList" onclick="execCmd('insertUnorderedList');">
+            <i class="fa fa-list-ul"></i>
+        </button>
+        <button class="toolbar__btn" name="insertOrderedList" onclick="execCmd('insertOrderedList');">
+            <i class="fa fa-list-ol"></i>
+        </button>
+        <button class="toolbar__btn" name="insertParagraph" onclick="execCmd('insertParagraph');">
+            <i class="fa fa-paragraph"></i>
+        </button>
+        <div class="toolbar__select">
+            <select onclick="execCommandWithArg('formatBlock',this.value)">
+                <option value="H1">H1</option>
+                <option value="H2">H2</option>
+                <option value="H3">H3</option>
+                <option value="H4">H4</option>
+                <option value="H5">H5</option>
+                <option value="H6">H6</option>
+            </select>
+        </div>
+        <button class="toolbar__btn" name="insertHorizontalRule" onclick="execCmd('insertHorizontalRule');">
+            HR
+        </button>
+        <button class="toolbar__btn" name="createLink"
+            onclick="execCommandWithArg('createLink',prompt('Enter a URL','http://'));">
+            <i class="fa fa-link"></i>
+        </button>
+        <button class="toolbar__btn" name="unlink" onclick="execCmd('unlink');">
+            <i class="fa fa-unlink"></i>
+        </button>
+        <button class="toolbar__btn" name="showingSourceCode" onclick="toggleSource();">
+            <i class="fa fa-code"></i>
+        </button>
+        <button class="toolbar__btn" name="isInEditMode" onclick="toggleEdit();">
+            开启编辑
+        </button>
+        <div class="toolbar__select">
+            <select onclick="execCommandWithArg('fontName',this.value);">
+                <option value="Arial">Arial</option>
+                <option value="Comic Sanc MS">Comic Sanc MS</option>
+                <option value="Courier">Courier</option>
+                <option value="Georgia">Georgia</option>
+                <option value="Tahoma">Tahoma</option>
+                <option value="Times New Roman">Times New Roman</option>
+                <option value="Verdana">Verdana</option>
+            </select>
+        </div>
+        <div class="toolbar__select">
+            <div class="toolbar__label">字号:</div>
+            <select onclick="execCommandWithArg('fontSize',this.value);">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+            </select>
+        </div>
+        <div class="toolbar__color">
+            <div class="toolbar__label">字体颜色:</div>
+            <input type="color" name="foreColor" onchange="execCommandWithArg('foreColor',this.value);" />
+        </div>
+        <div class="toolbar__color">
+            <div class="toolbar__label">字体背景:</div>
+            <input type="color" name="hiliteColor" onchange="execCommandWithArg('hiliteColor',this.value);" />
+        </div>
+        <button class="toolbar__btn" name="insertImage"
+            onclick="execCommandWithArg('insertImage',prompt('Endter this image URL',''));">
+            <i class="fa fa-file-image-o"></i>
+        </button>
+        <button class="toolbar__btn" name="selectAll" onclick="execCmd('selectAll');">
+            全选
+        </button>
+    </div>
+    <iframe name="richTextField" style="width: 1000px; height: 500px;"></iframe>
+
+    <script type="text/javascript">
+        /** 编辑类 */
+        class Editor {
+            /** @type {Boolean} */
+            bold = false;
+            /** @type {Boolean} */
+            showingSourceCode = false;
+            /** @type {Boolean} */
+            isInEditMode = false;
+            /** @type {HTMLDivElement} */
+            toolbar = null
+            /** @type {String} */
+            foreColor = 'rgb(255,255,255)'
+            /** @type {String} */
+            hiliteColor = 'rgb(0,0,0)'
+            /** @type {HTMLIFrameElement} */
+            iframe = null
+            /** @type {HTMLDivElement} */
+            selectDownList = null
+            /** @type {number} */
+            selectDownIndex = 0
+            /** @type {HTMLSpanElement} */
+            selectSpan = null
+            /** @type {Document} */
+            get document() {
+                return this.iframe.document;
+            }
+
+            get body() {
+                let [body] = this.document.getElementsByTagName('body')
+                return body
+            }
+
+            get value() {
+                return this.body.innerHTML
+            }
+
+            get text() {
+                return this.body.textContent
+            }
+        }
+
+        /** @type {Editor} */
+        let editor = null
+
+        let keyOfActive = ['bold', 'isInEditMode', 'showingSourceCode']
+        let keyOfColor = ['foreColor', 'hiliteColor']
+
+        /** 启用编辑模式 */
+        function enableEditMode() {
+            editor = new Editor()
+            initEditor();
+            initToolbar();
+            toggleEdit();
+            execCommandWithArg('foreColor', 'rgb(255,255,255)');
+            execCommandWithArg('hiliteColor', 'rgb(0,0,0)');
+            // execCmd('AbsolutePosition');
+            richTextField.focus()
+        }
+        /**
+         * 初始化编辑器
+         */
+        function initEditor() {
+            editor.iframe = richTextField;
+            let script = document.createElement("script")
+            script.type = 'text/javascript'
+            script.innerHTML = `function showDownSelectList(e) { console.log(e); window.parent.postMessage({ type: 'showDownSelectList', id:e.id },"*") }`
+            editor.document.head.appendChild(script)
+            editor.iframe = richTextField;
+            Object.keys(editor).forEach((key) => {
+                let value = editor[key];
+                Object.defineProperty(editor, key, {
+                    enumerable: true,
+                    configurable: true,
+                    get() {
+                        // console.log(`访问了属性：${key} -> 值：${value}`);
+                        return value;
+                    },
+                    set(newValue) {
+                        value = newValue;
+                        // console.log(`属性${key}的值${value}修改为 -> ${newValue}`);
+                        if (keyOfActive.includes(key)) setActive(editor.toolbar.querySelector(`[name='${key}']`), value);
+                        if (keyOfColor.includes(key)) setColor(editor.toolbar.querySelector(`[name='${key}']`), value)
+                    }
+                })
+            })
+            window.addEventListener("message", e => {
+                if (e.data.type === "showDownSelectList")
+                    showDownSelectList(e.data.id)
+            })
+            editor.document.onkeydown = function (e) {
+                if (editor.selectDownList) {
+                    if (e.key == 'Enter') {
+                        editor.selectSpan.textContent = editor.selectDownList.children.item(editor.selectDownIndex).textContent;
+                        pasteHtmlAtCaret('')
+                        deleteDownSelectList();
+                        e.preventDefault();
+                    }
+                    else if (e.key == 'ArrowDown') {
+                        editor.selectDownIndex++;
+                        if (editor.selectDownIndex === editor.selectDownList.children.length) editor.selectDownIndex = 0
+                        selectDownListOptionChange()
+                        e.preventDefault();
+                    }
+                    else if (e.key == 'ArrowUp') {
+                        editor.selectDownIndex--;
+                        if (editor.selectDownIndex === 0) editor.selectDownIndex = editor.selectDownList.children.length - 1
+                        selectDownListOptionChange()
+                        e.preventDefault();
+                    }
+                    else {
+                        deleteDownSelectList()
+                    }
+                }
+
+            }
+        }
+
+
+        /** 获取工具栏 */
+        function initToolbar() {
+            const toolbar = document.querySelector('.toolbar')
+            editor.toolbar = toolbar;
+        }
+
+
+        /**
+         * @param {HTMLDivElement} document 
+         * @param {Boolean} active 
+         */
+        function setActive(document, active) {
+            document.setAttribute('active', active)
+        }
+        /**
+         * @param {HTMLDivElement} document 
+         * @param {string} color 
+         */
+        function setColor(document, color) {
+            document.style.backgroundColor = color;
+        }
+
+        /**
+         * 执行对应的命令
+         * @param {string} command 
+         */
+        function execCmd(command) {
+            editor.document.execCommand(command, false, null)
+            if (keyOfActive.includes(command)) editor[command] = !editor[command]
+        }
+
+
+        function execCommandWithArg(command, arg) {
+            editor.document.execCommand(command, false, arg)
+            if (keyOfColor.includes(command)) editor[command] = arg
+        }
+
+        function toggleSource() {
+            let [body] = editor.document.getElementsByTagName('body')
+            if (editor.showingSourceCode) {
+                body.innerHTML = body.textContent;
+                editor.showingSourceCode = false;
+            }
+            else {
+                body.textContent = body.innerHTML;
+                editor.showingSourceCode = true;
+            }
+        }
+        function toggleEdit() {
+            if (editor.isInEditMode) {
+                editor.document.designMode = 'Off'
+                editor.isInEditMode = false;
+                editor.iframe.onkeyup = keywordSelect
+            }
+            else {
+                editor.document.designMode = 'On'
+                editor.isInEditMode = true;
+                editor.iframe.addEventListener("keyup", keywordSelect)
+            }
+        }
+
+        /**
+         * 插入元素
+         */
+        function pasteHtmlAtCaret(html) {
+            var sel, range;
+            if (editor.document.getSelection) {
+                // IE9 and non-IE
+                sel = editor.document.getSelection();
+                if (sel.getRangeAt && sel.rangeCount) {
+                    range = sel.getRangeAt(0);
+                    range.deleteContents();
+                    // Range.createContextualFragment() would be useful here but is
+                    // non-standard and not supported in all browsers (IE9, for one)
+                    var el = document.createElement("div");
+                    el.innerHTML = html;
+                    var frag = document.createDocumentFragment(), node, lastNode;
+                    while ((node = el.firstChild)) {
+                        lastNode = frag.appendChild(node);
+                    }
+                    range.insertNode(frag);
+
+                    // Preserve the selection
+                    if (lastNode) {
+                        range = range.cloneRange();
+                        range.setStartAfter(lastNode);
+                        range.collapse(true);
+                        sel.removeAllRanges();
+                        sel.addRange(range);
+                    }
+                }
+            } else if (document.selection && document.selection.type != "Control") {
+                // IE < 9
+                editor.document.selection.createRange().pasteHTML(html);
+            }
+        }
+
+        function uuid() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+                var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
+
+        /**
+         * @param {KeyboardEvent} ev
+         */
+        function keywordSelect(ev) {
+            if (ev.key === '[') {
+                execCmd('delete')
+                let id = `span_${uuid()}`
+                let keywordSelect = getKeywordSelect(id);
+                pasteHtmlAtCaret(keywordSelect)
+                showDownSelectList(id)
+            }
+            console.log(ev);
+        }
+
+        function getKeywordSelect(id) {
+            return `<span id="${id}" contenteditable="false" style="color: rgb(17, 153, 255);display: inline-block;" onclick="showDownSelectList(this)">[请选择]</span>`
+        }
+
+
+        /**
+         * @param {string} id
+         */
+        function showDownSelectList(id) {
+            console.log(id);
+            if (editor.selectDownList) deleteDownSelectList()
+            let span = editor.document.querySelector(`#${id}`)
+            let select = document.createElement("div");
+            let iframe = document.querySelector('iframe')
+            let { offsetLeft, offsetTop, clientHeight } = span
+
+            editor.selectSpan = span;
+            select.className = 'select-down-list'
+            select.style = `position: absolute; left:${iframe.offsetLeft + offsetLeft}px;top:${iframe.offsetTop + offsetTop + clientHeight}px;`
+
+            for (let i = 0; i < 10; i++) {
+                let option = document.createElement("div");
+                option.setAttribute('value', i)
+                option.textContent = '选项' + i
+                option.className = 'select-down-list-option'
+                option.onclick = function (e) {
+                    editor.selectDownIndex = i;
+                    editor.selectSpan.textContent = '选项' + i;
+                    deleteDownSelectList();
+                    pasteHtmlAtCaret('')
+                }
+                select.appendChild(option)
+            }
+            document.body.append(select)
+            editor.selectDownList = select;
+            selectDownListOptionChange(0);
+        }
+
+        function selectDownListOptionChange(index) {
+            if (index !== undefined) editor.selectDownIndex = index;
+            for (let i = 0; i < editor.selectDownList.children.length; i++) {
+                const option = editor.selectDownList.children.item(i);
+                option.className = i === editor.selectDownIndex ? 'select-down-list-option active' : 'select-down-list-option'
+            }
+        }
+
+        function deleteDownSelectList() {
+            editor.selectDownList.remove();
+            editor.selectDownList = null;
+        }
+    </script>
+</body>
+
+</html>
