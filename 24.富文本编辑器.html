@@ -101,7 +101,7 @@
 
         .select-down-list {
             border: 1px solid #19c;
-            padding: 2px 0;
+            padding: 0;
             margin-top: 5px;
         }
 
@@ -255,9 +255,9 @@
             /** @type {HTMLDivElement} */
             toolbar = null
             /** @type {String} */
-            foreColor = 'rgb(255,255,255)'
+            foreColor = ''
             /** @type {String} */
-            hiliteColor = 'rgb(0,0,0)'
+            hiliteColor = ''
             /** @type {HTMLIFrameElement} */
             iframe = null
             /** @type {HTMLDivElement} */
@@ -297,8 +297,8 @@
             initEditor();
             initToolbar();
             toggleEdit();
-            execCommandWithArg('foreColor', 'rgb(255,255,255)');
-            execCommandWithArg('hiliteColor', 'rgb(0,0,0)');
+            execCommandWithArg('foreColor', 'rgb(0,0,0)');
+            execCommandWithArg('hiliteColor', 'rgb(255,255,255)');
             // execCmd('AbsolutePosition');
             richTextField.focus()
         }
@@ -349,7 +349,7 @@
                     }
                     else if (e.key == 'ArrowUp') {
                         editor.selectDownIndex--;
-                        if (editor.selectDownIndex === 0) editor.selectDownIndex = editor.selectDownList.children.length - 1
+                        if (editor.selectDownIndex === -1) editor.selectDownIndex = editor.selectDownList.children.length - 1
                         selectDownListOptionChange()
                         e.preventDefault();
                     }
@@ -357,7 +357,6 @@
                         deleteDownSelectList()
                     }
                 }
-
             }
         }
 
@@ -477,7 +476,6 @@
                 pasteHtmlAtCaret(keywordSelect)
                 showDownSelectList(id)
             }
-            console.log(ev);
         }
 
         function getKeywordSelect(id) {
@@ -489,7 +487,6 @@
          * @param {string} id
          */
         function showDownSelectList(id) {
-            console.log(id);
             if (editor.selectDownList) deleteDownSelectList()
             let span = editor.document.querySelector(`#${id}`)
             let select = document.createElement("div");
