@@ -102,21 +102,28 @@
 
             let x4 = 0
             let y4 = 0
-            if (x1 == x2) x4 = d;
-            else if (y1 == y2) y4 = d;
+            if (x1 == x2) x4 = Math.sign(redirect) * d;
+            else if (y1 == y2) y4 = Math.sign(redirect) * d;
             else {
                 x4 = Math.sign(redirect) * Math.sqrt(Math.pow(d, 2) / (1 + Math.pow(1 / k, 2)))
                 y4 = - 1 / k * x4;
             }
 
-            // 角度
+            // 获得角度
             let a = Math.atan2(y4, x4) * 180 / Math.PI
+            // 角度偏移值
             a += 90
+            // 角度转弧度
             let rd = a * Math.PI / 180
+            // 保存画布
             ctx.save()
+            // 移动画布
             ctx.translate(x4 + x3, y4 + y3)
+            // 旋转画布
             ctx.rotate(rd)
+            // 绘制箭头
             ctx.drawImage(arrowImage, -10, -20, 20, 22)
+            // 画布还原
             ctx.rotate(-rd)
             ctx.translate(-x4 - x3, -y4 - y3)
             ctx.restore()
