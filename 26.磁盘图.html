@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .disk-container {
+            position: relative;
+            width: 1400px;
+            height: 1400px;
+        }
+    </style>
+
+</head>
+
+<body>
+    <canvas id="disk" class="disk-container"></canvas>
+    <script>
+        var c = document.getElementById("disk");
+        /** @type {CanvasRenderingContext2D} */
+        var ctx = c.getContext("2d");
+        c.width = c.clientWidth
+        c.height = c.clientHeight
+
+        var center = c.clientWidth / 2
+
+        for (let i = 0; i < 30; i++) {
+            ctx.beginPath()
+            ctx.lineWidth = 5
+            ctx.strokeStyle = 'rgb(66,155,66)'
+            // 重叠细节需要根据圈值改变对应下边儿第二个参数
+            ctx.setLineDash([3, 3]);
+            ctx.arc(center, center, center - 100 - 8 * i, 0, Math.PI * 2)
+            ctx.closePath();
+            ctx.stroke()
+        }
+
+    </script>
+</body>
+
+</html>
