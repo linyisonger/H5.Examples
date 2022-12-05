@@ -1,31 +1,16 @@
-# Html的样例
+# H5 示例代码
 
-### 文字溢出省略号
+![MIT](https://img.shields.io/github/license/linyisonger/H5.Examples?style=for-the-badge)![Stars](https://img.shields.io/github/stars/linyisonger/H5.Examples?style=for-the-badge)
 
-<img src="preview/1-1.png"  />
+https://linyisonger.github.io/H5.Examples/
 
-### Table边框
-
-<img src="preview/2-1.png"  />
-
-### 滑块拼图验证
-
-> 参考视频地址
->
-> https://www.bilibili.com/video/BV1NM4y1g7S6 
-
-![](preview/3-1.gif)
+可以直接打开链接进行预览效果
 
 
-### 自定义滑动条
-注: 不支持火狐浏览器
-![](preview/4-1.png)
+
+下一步在链接可以直接查看源码
+
+未完待续.....(有生之年系列)
 
 
-### 获取浏览器品牌名称
-注: 我使用的是可选链与空值合并的语法  低版本浏览器不支持
-![](preview/5-1.png)
 
-
-### 字体颜色渐变
-![](preview/6-1.png)
