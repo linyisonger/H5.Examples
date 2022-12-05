@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>H5 示例</title>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            height: 100vh;
+            background-color: #f8f8f8;
+        }
+
+
+        ::-webkit-scrollbar {
+            width: 1px;
+            height: 1px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background-color: var(--theme-color);
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--theme-smoke);
+        }
+
+        .left-navbar {
+            list-style: none;
+            max-height: 100vh;
+            background-color: #ddd;
+            width: 200px;
+            overflow-y: auto;
+        }
+
+        .left-navbar .active {
+            font-weight: bold;
+            background-color: #999;
+        }
+
+        .left-navbar ul {
+            padding-inline-start: 0px;
+            margin-block-start: 0em;
+            margin-block-end: 0em;
+            padding: 8px 10px;
+        }
+
+        .left-navbar .active {
+            font-weight: bold;
+            background-color: #999;
+        }
+
+        .container {
+            width: 100%;
+            height: 100vh;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <li class="left-navbar">
+    </li>
+    <div class="container">
+        <iframe id="preview" src="" frameborder="0"></iframe>
+    </div>
+    <script>
+        let leftNavBar = document.querySelector('.left-navbar')
+        let iframe = document.querySelector('#preview')
+        let lastActiveNav = null
+        let r = new XMLHttpRequest();
+        r.open("get", "./examples.txt");
+        r.onloadend = () => {
+            let navData = r.responseText.split('\r\n').filter(a => a && !a.includes('index'))
+            let navList = []
+            for (const nav of navData) {
+                let navNum = nav.split('.')[0]
+                let navName = nav.split('.')[1]
+                let navSrc = './' + nav
+                navList.push({
+                    navNum,
+                    navName,
+                    navSrc
+                })
+            }
+            navList.sort((a, b) => a.navNum - b.navNum)
+            for (const navItem of navList) {
+                var navDom = document.createElement('ul')
+                navDom.textContent = navItem.navName;
+                navDom.addEventListener('click', function () {
+                    iframe.setAttribute('src', navItem.navSrc)
+                    if (lastActiveNav) lastActiveNav.setAttribute('class', '')
+                    this.setAttribute('class', 'active')
+                    lastActiveNav = this;
+                })
+                leftNavBar.appendChild(navDom)
+                if(lastActiveNav == null){
+                    navDom.click()
+                }
+            }
+            
+        }
+        r.send(); 
+    </script>
+</body>
+
+</html>

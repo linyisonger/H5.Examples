@@ -8,9 +8,10 @@
 </head>
 
 <body>
+    <div class="preview"></div>
+
     <script>
-        console.log("浏览器内核名称及版本:", BrowserInfo().name, BrowserInfo().version);
-        console.log("浏览器品牌名称:", BrowserBrandName());
+        document.querySelector('.preview').textContent = `浏览器内核名称及版本:${BrowserInfo().name},${BrowserInfo().version} \n浏览器品牌名称: ${BrowserBrandName()}`
 
         // 浏览器品牌名称
         function BrowserBrandName() {
