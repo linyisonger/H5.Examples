@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <style>
+        .timeline1 {
+            width: 400px;
+            position: relative;
+        }
+
+        .timeline1 .timeline-left {
+            text-align: right;
+            width: 50%;
+            padding-right: 10px;
+            box-sizing: border-box;
+            position: relative;
+            font-size: 14px;
+        }
+
+        .timeline1 .timeline-right {
+            padding-left: calc(50% + 10px);
+            width: 50%;
+            font-size: 14px;
+            position: relative;
+        }
+
+        .timeline1 .timeline-left>.time,
+        .timeline1 .timeline-right>.time {
+            position: relative;
+        }
+
+        .timeline1 .timeline-left>.time::after,
+        .timeline1 .timeline-right>.time::after {
+            position: absolute;
+            content: "";
+            background-color: #66ccff;
+            width: 10px;
+            height: 10px;
+            top: 0;
+            /* border-radius: 50%; */
+        }
+
+        .timeline1 .timeline-right>.time::after {
+            left: 0;
+            transform: translate(calc(-50% - 10px), 50%);
+        }
+
+        .timeline1 .timeline-left>.time::after {
+            right: 0;
+            transform: translate(calc(50% + 10px), 50%);
+        }
+
+        .timeline1 .axis-line {
+            position: absolute;
+            width: 2px;
+            top: 0;
+            bottom: 0;
+            left: calc(50% - 1px);
+
+            background-color: #66ccff;
+        }
+    </style>
+</head>
+
+<body>
+    <section>第一种</section>
+    <div class="timeline1">
+        <div class="axis-line"></div>
+        <div class="timeline-left">
+            <div class="time">220年</div>
+            <div class="content">
+                曹丕篡汉称帝，定都洛阳，国号“魏”，史称曹魏，三国历史正式开始
+            </div>
+        </div>
+        <div class="timeline-right">
+            <div class="time">280年</div>
+            <div class="content">
+                西晋灭东吴，统一中国，至此三国时期结束，进入晋朝时期
+            </div>
+        </div>
+    </div>
+    <section>第二种</section>
+    遇到再整理...🤭
+</body>
+
+</html>
