@@ -158,8 +158,8 @@
 
 
         let r = new XMLHttpRequest();
-        r.open("get", "./assets/idiom.txt");
-        r.onreadystatechange = () => {
+        r.open("get", "./assets/idiom.sql");
+        function loaded() {
             console.log(r);
             if (r.readyState == 4) {
                 db.transaction(function (tx) {
@@ -200,6 +200,8 @@
                 });
             }
         }
+        r.onloadend = loaded
+        r.onerror = loaded
         r.send();
 
 
