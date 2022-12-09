@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>每日成语</title>
+    <style>
+        .idiom-card {
+            /* display: inline-block; */
+            position: absolute;
+            left: 10px;
+            top: 10px;
+            display: none;
+            padding: 5px 10px;
+            background-color: #fff;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.3);
+            max-width: 200px;
+        }
+
+        .title {
+            display: inline-block;
+            margin-top: 10px;
+            margin-left: -10px;
+            padding: 0 20px;
+            color: #fff;
+            background-color: skyblue;
+        }
+
+        .name {
+            font-weight: bold;
+            font-size: 20px;
+            margin-top: 4px;
+        }
+
+
+        .spell,
+        .content,
+        .derivation,
+        .samples {
+            margin-top: 2px;
+            font-size: 14px;
+            color: #888;
+        }
+
+        .search-card {
+            margin: 10px;
+            width: 30vw;
+            margin: 20vh auto;
+            position: relative;
+        }
+
+        .search-input {
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.3);
+            background-color: #fff;
+            padding: 10px 10px;
+            outline: none;
+            font-size: 20px;
+            border: none;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .search-deduct,
+        .search-list {
+            margin-top: 20px;
+            display: inline-block;
+            width: 100%;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.3);
+        }
+
+        .search-deduct {
+            position: absolute;
+            left: calc(100% + 20px);
+            display: inline-block;
+            max-width: 200px;
+        }
+
+        .search-deduct .title {
+            margin-left: 0;
+        }
+
+        .search-deduct .search-item {
+            width: 100%;
+        }
+
+        .search-item {
+            font-size: 14px;
+            display: block;
+            padding: 5px 10px;
+        }
+
+        .search-list .search-item:hover {
+            background-color: skyblue;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="idiom-card">
+        <div class="title">每日成语</div>
+        <div class="name"></div>
+        <div class="spell"></div>
+        <div class="content"></div>
+        <div class="derivation"></div>
+        <div class="samples"></div>
+    </div>
+    <div class="search-card">
+        <input class="search-input" type="text" placeholder="有意思的搜索框~" maxlength="10">
+
+        <div class="search-deduct"></div>
+        <div class="search-list"></div>
+    </div>
+    <script>
+
+        var db = openDatabase('idiom-data', '1.0', '这是一个存放成语的数据库', 20 * 1024 * 1024);
+
+        /**
+         * 执行SQL语句 random() 函数
+         */
+        function executeSql(tx, sql, data = []) {
+            return new Promise((resolve, reject) => {
+                // console.log(tx, sql);
+                tx.executeSql(sql, data, function (tx, results) {
+                    resolve(results)
+                }, function (tx, err) {
+                    console.log('错误信息: ', err);
+                });
+            })
+        }
+
+
+
+        let r = new XMLHttpRequest();
+        r.open("get", "./assets/idiom.sql");
+        r.onloadend = () => {
+            db.transaction(function (tx) {
+                let sqls = r.responseText.split('\r\n')
+                let createTable = sqls.shift()
+                let count = 0;
+                executeSql(tx, createTable).then(({ insertId }) => {
+                    // 是否是新创建表
+                    if (insertId === 1) {
+                        return Promise.all(sqls.map(sql => executeSql(tx, sql)))
+                    }
+                }).then((_) => {
+                    // 返回总数量
+                    return executeSql(tx, "SELECT COUNT(*) As count FROM idiom;")
+                }).then((res) => {
+                    count = res.rows[0].count
+                    // 随机一条 每日成语
+                    const randomID = Math.round(Math.random() * count) + 1
+                    return executeSql(tx, `SELECT * FROM idiom Where ID=${randomID};`)
+                }).then((res) => {
+                    if (res.rows[0]) {
+                        let idiomCardDom = document.querySelector('.idiom-card')
+                        let nameDom = document.querySelector('.idiom-card > .name')
+                        let spellDom = document.querySelector('.idiom-card > .spell')
+                        let contentDom = document.querySelector('.idiom-card > .content')
+                        let derivationDom = document.querySelector('.idiom-card > .derivation')
+                        let samplesDom = document.querySelector('.idiom-card > .samples')
+                        let { content, derivation, name, samples, spell } = res.rows[0]
+                        nameDom.textContent = name;
+                        contentDom.textContent = content;
+                        derivationDom.textContent = derivation;
+                        spellDom.textContent = spell;
+                        samplesDom.textContent = samples;
+                        idiomCardDom.setAttribute('style', 'display: inline-block;')
+                    }
+                })
+            });
+        }
+        r.send();
+
+
+        let searchInput = document.querySelector('.search-input')
+        let timeoutId = null
+        let lastText = ''
+        searchInput.addEventListener('input', (ev) => {
+            // 节流
+            if (timeoutId) clearTimeout(timeoutId)
+            timeoutId = setTimeout(() => {
+                find(ev)
+                clearTimeout(timeoutId)
+                timeoutId = null
+            }, 100);
+        })
+
+
+        function find(ev) {
+            let searchText = ev.target.value;
+            let searchZH = searchText.match(/[\u4e00-\u9fa5]/g)
+            searchZH = searchZH && searchZH.join(',').split(',')
+            // 避免重复搜索
+            if (!searchZH || lastText === searchZH.join('')) return
+            lastText = searchZH.join('')
+            let searchListDom = document.querySelector('.search-list')
+            let searchDeductDom = document.querySelector('.search-deduct')
+
+            if (searchZH && searchZH.length) {
+                db.transaction(function (tx) {
+                    Promise.all([...searchZH.map(char => executeSql(tx, `SELECT * FROM idiom WHERE name LIKE '%${char}%' limit 10;`)), executeSql(tx, `SELECT * FROM idiom WHERE name LIKE '%${searchZH.join('')}%' limit 10;`)]).then((res) => {
+
+                        let dist = {}
+                        res.map(({ rows }) => {
+                            Object.values(rows).map((row) => {
+                                if (!dist[row.ID]) dist[row.ID] = row
+                            })
+                        })
+                        console.log(dist);
+                        // 匹配搜索文字的正则
+                        let matchReg = new RegExp(`[${searchZH.join('')}]`, 'g')
+                        let searchList = Object.values(dist).sort((a, b) => b.name.match(matchReg).length - a.name.match(matchReg).length)
+
+
+                        // 清除之前残余 
+                        searchListDom.innerHTML = ''
+                        searchDeductDom.innerHTML = ''
+
+
+                        // 一刀下去只留前十个
+                        searchList.slice(0, 10).forEach((item) => {
+                            let searchItemDom = document.createElement('div')
+                            searchItemDom.className = 'search-item'
+                            searchItemDom.textContent = item.name
+                            searchListDom.appendChild(searchItemDom)
+                        })
+
+
+
+
+                        // 随机产生一组挖空词组
+                        let searchDeduct = searchZH.reduce((targ, curr, index) => {
+                            let tmpArr = searchList.filter(s => s.name.includes(curr) && !targ[s.name])
+                            let tmp = null;
+                            // 增加随机
+                            if (tmpArr.length) {
+                                tmp = tmpArr[Math.round(Math.random() * tmpArr.length)]
+                            }
+                            // 唯一判断
+                            if (tmp && !targ[tmp.name]) {
+                                targ[tmp.name] = JSON.parse(JSON.stringify(tmp));
+                                targ[tmp.name].name = targ[tmp.name].name.replace(curr, '( )')
+                                targ[tmp.name].index = index
+                            }
+                            return targ;
+                        }, {})
+
+                        let searchDeductTitleDom = document.createElement('div')
+                        searchDeductTitleDom.className = 'title'
+                        searchDeductTitleDom.textContent = '缺省补全'
+                        searchDeductDom.appendChild(searchDeductTitleDom)
+
+                        Object.values(searchDeduct).sort((a, b) => a.index - b.index).forEach((item) => {
+                            let searchItemDom = document.createElement('div')
+                            searchItemDom.className = 'search-item'
+                            searchItemDom.textContent = item.name
+
+
+                            // TODO 详情浮框
+
+
+                            searchDeductDom.appendChild(searchItemDom)
+
+                        })
+
+                    })
+                })
+            }
+        }
+    </script>
+</body>
+
+</html>
