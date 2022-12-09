@@ -163,7 +163,7 @@
             console.log(r);
             if (r.readyState == 4) {
                 db.transaction(function (tx) {
-                    let sqls = r.responseText.split('\r\n').split('\n')
+                    let sqls = r.responseText.includes('\r\n') ? r.responseText.split('\r\n') : r.responseText.split('\n')
                     console.log(sqls);
                     let createTable = sqls.shift()
                     let count = 0;
