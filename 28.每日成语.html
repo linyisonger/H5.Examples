@@ -151,7 +151,6 @@
                     resolve(results)
                 }, function (tx, err) {
                     console.log('错误信息: ', err, sql);
-                    resolve()
                 });
             })
         }
@@ -166,6 +165,7 @@
                 db.transaction(function (tx) {
                     let sqls = r.responseText.includes('\r\n') ? r.responseText.split('\r\n') : r.responseText.split('\n')
                     console.log(sqls);
+                    sqls = sqls.filter(a => a);
                     let createTable = sqls.shift()
                     let count = 0;
                     executeSql(tx, createTable).then(({ insertId }) => {
