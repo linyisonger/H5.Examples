@@ -151,6 +151,7 @@
                     resolve(results)
                 }, function (tx, err) {
                     console.log('错误信息: ', err, sql);
+                    resolve()
                 });
             })
         }
