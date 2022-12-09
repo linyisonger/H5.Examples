@@ -76,10 +76,24 @@
         let iframe = document.querySelector('#preview')
         let lastActiveNav = null
         let r = new XMLHttpRequest();
+
+        function getQueryParam(key) {
+            var query = location.search.substring(1)
+            var arr = query.split('&')
+            for (var i = 0; i < arr.length; i++) {
+                var pair = arr[i].split('=')
+                if (pair[0] == key) {
+                    return pair[1]
+                }
+            }
+            return undefined
+        }
+
         r.open("get", "./examples.txt");
         r.onloadend = () => {
             let navData = r.responseText.split('\n').filter(a => a && !a.includes('index'))
             let navList = []
+            let name = getQueryParam('name');
             for (const nav of navData) {
                 let navNum = nav.split('.')[0]
                 let navName = nav.split('.')[1]
@@ -90,23 +104,29 @@
                     navSrc
                 })
             }
-            navList.sort((a, b) => a.navNum - b.navNum)
+            navList.sort((a, b) => b.navNum - a.navNum)
             for (const navItem of navList) {
                 var navDom = document.createElement('ul')
                 navDom.textContent = navItem.navName;
                 navDom.addEventListener('click', function () {
                     iframe.setAttribute('src', navItem.navSrc)
+                    history.replaceState({ result: true }, '', location.origin + '?name=' + navItem.navSrc)
                     if (lastActiveNav) lastActiveNav.setAttribute('class', '')
                     this.setAttribute('class', 'active')
                     lastActiveNav = this;
                 })
+
                 leftNavBar.appendChild(navDom)
-                if(lastActiveNav == null){
+
+                if (name && decodeURIComponent(name) === navItem.navSrc) {
+                    navDom.click()
+                }
+                if (!name && lastActiveNav == null) {
                     navDom.click()
                 }
             }
-            
-            
+
+
         }
         r.send(); 
     </script>

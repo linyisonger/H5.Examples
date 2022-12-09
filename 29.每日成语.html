@@ -7,6 +7,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>每日成语</title>
     <style>
+        body {
+            margin: 0;
+        }
+
+        .idiom-detail,
         .idiom-card {
             /* display: inline-block; */
             position: absolute;
@@ -17,7 +22,17 @@
             background-color: #fff;
             box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.3);
             max-width: 200px;
+            z-index: 10;
         }
+
+        .idiom-detail {
+            top: 0;
+        }
+
+        .idiom-detail>div {
+            pointer-events: none;
+        }
+
 
         .title {
             display: inline-block;
@@ -107,6 +122,15 @@
         <div class="derivation"></div>
         <div class="samples"></div>
     </div>
+
+    <div class="idiom-detail">
+        <div class="title">成语详情</div>
+        <div class="name"></div>
+        <div class="spell"></div>
+        <div class="content"></div>
+        <div class="derivation"></div>
+        <div class="samples"></div>
+    </div>
     <div class="search-card">
         <input class="search-input" type="text" placeholder="有意思的搜索框~" maxlength="10">
 
@@ -189,6 +213,25 @@
         })
 
 
+        /**
+         * 获取元素偏移位置
+         * @param {HTMLDivElement} ele
+         */
+        function getOffset(ele, offset) {
+            if (ele.tagName === 'HTML') return offset
+            if (offset) {
+                offset.offsetLeft += ele.offsetLeft
+                offset.offsetTop += ele.offsetTop
+            }
+            else {
+                offset = {
+                    offsetLeft: ele.offsetLeft,
+                    offsetTop: ele.offsetTop,
+                }
+            }
+            return getOffset(ele.parentElement, offset)
+        }
+
         function find(ev) {
             let searchText = ev.target.value;
             let searchZH = searchText.match(/[\u4e00-\u9fa5]/g)
@@ -201,7 +244,7 @@
 
             if (searchZH && searchZH.length) {
                 db.transaction(function (tx) {
-                    Promise.all([...searchZH.map(char => executeSql(tx, `SELECT * FROM idiom WHERE name LIKE '%${char}%' limit 10;`)), executeSql(tx, `SELECT * FROM idiom WHERE name LIKE '%${searchZH.join('')}%' limit 10;`)]).then((res) => {
+                    Promise.all([...searchZH.map(char => executeSql(tx, `SELECT * FROM idiom WHERE name LIKE '%${char}%';`)), executeSql(tx, `SELECT * FROM idiom WHERE name LIKE '%${searchZH.join('')}%';`)]).then((res) => {
 
                         let dist = {}
                         res.map(({ rows }) => {
@@ -225,6 +268,28 @@
                             let searchItemDom = document.createElement('div')
                             searchItemDom.className = 'search-item'
                             searchItemDom.textContent = item.name
+
+                            // 详情浮框
+                            searchItemDom.addEventListener('mouseenter', function (ev) {
+                                let idiomDetailDom = document.querySelector('.idiom-detail')
+                                let nameDom = document.querySelector('.idiom-detail > .name')
+                                let spellDom = document.querySelector('.idiom-detail > .spell')
+                                let contentDom = document.querySelector('.idiom-detail > .content')
+                                let derivationDom = document.querySelector('.idiom-detail > .derivation')
+                                let samplesDom = document.querySelector('.idiom-detail > .samples')
+                                let { content, derivation, name, samples, spell } = item
+                                nameDom.textContent = name;
+                                contentDom.textContent = content;
+                                derivationDom.textContent = derivation;
+                                spellDom.textContent = spell;
+                                samplesDom.textContent = samples;
+                                let { offsetLeft, offsetTop } = getOffset(ev.target)
+                                // 不知道哪里样式出问题了
+                                let tmpOffsetTop = 35
+                                idiomDetailDom.setAttribute('style', `display: inline-block;left:${offsetLeft + ev.target.offsetWidth - 220}px;top:${offsetTop - ev.target.offsetHeight - tmpOffsetTop}px`)
+
+                            })
+
                             searchListDom.appendChild(searchItemDom)
                         })
 
@@ -257,19 +322,21 @@
                             let searchItemDom = document.createElement('div')
                             searchItemDom.className = 'search-item'
                             searchItemDom.textContent = item.name
-
-
-                            // TODO 详情浮框
-
-
                             searchDeductDom.appendChild(searchItemDom)
-
                         })
 
                     })
                 })
             }
         }
+
+
+        document.addEventListener("mousemove", (ev) => {
+            if (!['idiom-detail', 'search-item'].includes(ev.target.className)) {
+                let idiomDetailDom = document.querySelector('.idiom-detail')
+                idiomDetailDom.setAttribute('style', `display: none;`)
+            }
+        })
     </script>
 </body>
 
