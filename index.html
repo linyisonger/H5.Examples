@@ -110,7 +110,7 @@
                 navDom.textContent = navItem.navName;
                 navDom.addEventListener('click', function () {
                     iframe.setAttribute('src', navItem.navSrc)
-                    history.replaceState({ result: true }, '', '?name=' + navItem.navSrc)
+                    history.replaceState({ result: true }, '', location.origin + location.pathname + '?name=' + navItem.navSrc)
                     if (lastActiveNav) lastActiveNav.setAttribute('class', '')
                     this.setAttribute('class', 'active')
                     lastActiveNav = this;
