@@ -159,7 +159,7 @@
 
         let r = new XMLHttpRequest();
         r.open("get", "./assets/idiom.sql");
-        r.onloadend = () => {
+        r.onreadystatechange = () => {
             console.log(r);
             if (r.readyState == 4) {
                 db.transaction(function (tx) {
