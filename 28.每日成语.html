@@ -150,7 +150,7 @@
                 tx.executeSql(sql, data, function (tx, results) {
                     resolve(results)
                 }, function (tx, err) {
-                    console.log('错误信息: ', err);
+                    console.log('错误信息: ', err, sql);
                 });
             })
         }
