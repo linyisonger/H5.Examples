@@ -160,42 +160,45 @@
         let r = new XMLHttpRequest();
         r.open("get", "./assets/idiom.sql");
         r.onloadend = () => {
-            db.transaction(function (tx) {
-                let sqls = r.responseText.split('\r\n')
-                console.log(sqls);
-                let createTable = sqls.shift()
-                let count = 0;
-                executeSql(tx, createTable).then(({ insertId }) => {
-                    // 是否是新创建表
-                    if (insertId === 1) {
-                        return Promise.all(sqls.map(sql => executeSql(tx, sql)))
-                    }
-                }).then((_) => {
-                    // 返回总数量
-                    return executeSql(tx, "SELECT COUNT(*) As count FROM idiom;")
-                }).then((res) => {
-                    count = res.rows[0].count
-                    // 随机一条 每日成语
-                    const randomID = Math.round(Math.random() * count) + 1
-                    return executeSql(tx, `SELECT * FROM idiom Where ID=${randomID};`)
-                }).then((res) => {
-                    if (res.rows[0]) {
-                        let idiomCardDom = document.querySelector('.idiom-card')
-                        let nameDom = document.querySelector('.idiom-card > .name')
-                        let spellDom = document.querySelector('.idiom-card > .spell')
-                        let contentDom = document.querySelector('.idiom-card > .content')
-                        let derivationDom = document.querySelector('.idiom-card > .derivation')
-                        let samplesDom = document.querySelector('.idiom-card > .samples')
-                        let { content, derivation, name, samples, spell } = res.rows[0]
-                        nameDom.textContent = name;
-                        contentDom.textContent = content;
-                        derivationDom.textContent = derivation;
-                        spellDom.textContent = spell;
-                        samplesDom.textContent = samples;
-                        idiomCardDom.setAttribute('style', 'display: inline-block;')
-                    }
-                })
-            });
+            console.log(r);
+            if (r.readyState == 4) {
+                db.transaction(function (tx) {
+                    let sqls = r.responseText.split('\r\n')
+                    console.log(sqls);
+                    let createTable = sqls.shift()
+                    let count = 0;
+                    executeSql(tx, createTable).then(({ insertId }) => {
+                        // 是否是新创建表
+                        if (insertId === 1) {
+                            return Promise.all(sqls.map(sql => executeSql(tx, sql)))
+                        }
+                    }).then((_) => {
+                        // 返回总数量
+                        return executeSql(tx, "SELECT COUNT(*) As count FROM idiom;")
+                    }).then((res) => {
+                        count = res.rows[0].count
+                        // 随机一条 每日成语
+                        const randomID = Math.round(Math.random() * count) + 1
+                        return executeSql(tx, `SELECT * FROM idiom Where ID=${randomID};`)
+                    }).then((res) => {
+                        if (res.rows[0]) {
+                            let idiomCardDom = document.querySelector('.idiom-card')
+                            let nameDom = document.querySelector('.idiom-card > .name')
+                            let spellDom = document.querySelector('.idiom-card > .spell')
+                            let contentDom = document.querySelector('.idiom-card > .content')
+                            let derivationDom = document.querySelector('.idiom-card > .derivation')
+                            let samplesDom = document.querySelector('.idiom-card > .samples')
+                            let { content, derivation, name, samples, spell } = res.rows[0]
+                            nameDom.textContent = name;
+                            contentDom.textContent = content;
+                            derivationDom.textContent = derivation;
+                            spellDom.textContent = spell;
+                            samplesDom.textContent = samples;
+                            idiomCardDom.setAttribute('style', 'display: inline-block;')
+                        }
+                    })
+                });
+            }
         }
         r.send();
 
