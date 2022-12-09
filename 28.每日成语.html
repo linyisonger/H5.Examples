@@ -162,6 +162,7 @@
         r.onloadend = () => {
             db.transaction(function (tx) {
                 let sqls = r.responseText.split('\r\n')
+                console.log(sqls);
                 let createTable = sqls.shift()
                 let count = 0;
                 executeSql(tx, createTable).then(({ insertId }) => {
