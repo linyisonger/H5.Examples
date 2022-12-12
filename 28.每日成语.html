@@ -205,6 +205,8 @@
                     }).catch((err) => {
                         console.log(err);
                         if (err.errMsg === 'LOAD_ERROR') {
+                            // 移除表
+                            executeSql(tx, 'DROP TABLE idiom;')
                             console.log('加载错误10s后重新加载...');
                             setTimeout(loadSQL, 10000);
                         }
