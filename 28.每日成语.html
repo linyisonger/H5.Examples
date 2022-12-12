@@ -182,7 +182,7 @@
                     }).then((res) => {
                         count = res.rows[0].count
                         // 加载错误
-                        if (count < sqls.length) throw new { errMsg: 'LOAD_ERROR' }
+                        if (count < sqls.length) throw { errMsg: 'LOAD_ERROR' }
                         // 随机一条 每日成语
                         const randomID = Math.round(Math.random() * count) + 1
                         return executeSql(tx, `SELECT * FROM idiom Where ID=${randomID};`)
