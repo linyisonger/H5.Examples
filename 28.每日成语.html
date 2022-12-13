@@ -146,7 +146,6 @@
          */
         function executeSql(tx, sql, data = []) {
             return new Promise((resolve, reject) => {
-                // console.log(tx, sql);
                 tx.executeSql(sql, data, function (tx, results) {
                     resolve(results)
                 }, function (tx, err) {
@@ -154,6 +153,18 @@
                 });
             })
         }
+
+        /**
+         * 新建一个数据库事务
+         */
+        function transaction() {
+            return new Promise((resolve, reject) => {
+                db.transaction(function (tx) {
+                    resolve(tx)
+                });
+            })
+        }
+
 
         // 加载SQL文件
         function loadSQL() {
@@ -165,55 +176,55 @@
             }).then((res) => {
                 return res.text()
             }).then((res) => {
-                db.transaction(function (tx) {
-                    let sqls = res.includes('\r\n') ? res.split('\r\n') : res.split('\n')
-                    console.log(sqls);
-                    sqls = sqls.filter(a => a);
-                    let createTable = sqls.shift()
-                    let count = 0;
-                    executeSql(tx, createTable).then(({ insertId }) => {
-                        // 是否是新创建表
-                        if (insertId === 1) {
-                            return Promise.all(sqls.map(sql => executeSql(tx, sql)))
-                        }
-                    }).then((_) => {
-                        // 返回总数量
-                        return executeSql(tx, "SELECT COUNT(*) As count FROM idiom;")
-                    }).then((res) => {
-                        count = res.rows[0].count
-                        // 加载错误
-                        if (count < sqls.length) throw { errMsg: 'LOAD_ERROR' }
-                        // 随机一条 每日成语
-                        const randomID = Math.round(Math.random() * count) + 1
-                        return executeSql(tx, `SELECT * FROM idiom Where ID=${randomID};`)
-                    }).then((res) => {
-                        if (res.rows[0]) {
-                            let idiomCardDom = document.querySelector('.idiom-card')
-                            let nameDom = document.querySelector('.idiom-card > .name')
-                            let spellDom = document.querySelector('.idiom-card > .spell')
-                            let contentDom = document.querySelector('.idiom-card > .content')
-                            let derivationDom = document.querySelector('.idiom-card > .derivation')
-                            let samplesDom = document.querySelector('.idiom-card > .samples')
-                            let { content, derivation, name, samples, spell } = res.rows[0]
-                            nameDom.textContent = name;
-                            contentDom.textContent = content;
-                            derivationDom.textContent = derivation;
-                            spellDom.textContent = spell;
-                            samplesDom.textContent = samples;
-                            idiomCardDom.setAttribute('style', 'display: inline-block;')
-                        }
-                    }).catch((err) => {
-                        console.log(err);
-                        if (err.errMsg === 'LOAD_ERROR') {
-                            // 移除表
-                            executeSql(tx, 'DROP TABLE idiom;')
-                            console.log('加载错误10s后重新加载...');
-                            setTimeout(loadSQL, 10000);
-                        }
-                    })
-                });
+                return transaction()
+            }).then((tx) => {
+                let sqls = res.includes('\r\n') ? res.split('\r\n') : res.split('\n')
+                console.log(sqls);
+                sqls = sqls.filter(a => a);
+                let createTable = sqls.shift()
+                let count = 0;
+                return executeSql(tx, createTable)
+            }).then(({ insertId }) => {
+                // 是否是新创建表
+                if (insertId === 1) {
+                    return Promise.all(sqls.map(sql => executeSql(tx, sql)))
+                }
+            }).then((_) => {
+                // 返回总数量
+                return executeSql(tx, "SELECT COUNT(*) As count FROM idiom;")
+            }).then((res) => {
+                count = res.rows[0].count
+                // 加载错误
+                if (count < sqls.length) throw { errMsg: 'LOAD_ERROR' }
+                // 随机一条 每日成语
+                const randomID = Math.round(Math.random() * count) + 1
+                return executeSql(tx, `SELECT * FROM idiom Where ID=${randomID};`)
+            }).then((res) => {
+                if (res.rows[0]) {
+                    let idiomCardDom = document.querySelector('.idiom-card')
+                    let nameDom = document.querySelector('.idiom-card > .name')
+                    let spellDom = document.querySelector('.idiom-card > .spell')
+                    let contentDom = document.querySelector('.idiom-card > .content')
+                    let derivationDom = document.querySelector('.idiom-card > .derivation')
+                    let samplesDom = document.querySelector('.idiom-card > .samples')
+                    let { content, derivation, name, samples, spell } = res.rows[0]
+                    nameDom.textContent = name;
+                    contentDom.textContent = content;
+                    derivationDom.textContent = derivation;
+                    spellDom.textContent = spell;
+                    samplesDom.textContent = samples;
+                    idiomCardDom.setAttribute('style', 'display: inline-block;')
+                }
+            }).catch((err) => {
+                console.log(err);
+                if (err.errMsg === 'LOAD_ERROR') {
+                    // 移除表
+                    executeSql(tx, 'DROP TABLE idiom;')
+                    console.log('加载错误10s后重新加载...');
+                    setTimeout(loadSQL, 10000);
+                }
             })
-        }
+        };
 
         loadSQL()
 
