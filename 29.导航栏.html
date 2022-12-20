@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        .navbar__item {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            float: left;
+            display: block;
+            width: 120px;
+            background-color: rgb(206, 176, 0);
+            line-height: 40px;
+            text-align: center;
+            color: black;
+        }
+
+        .navbar__item:hover {
+            background-color: rgb(37, 76, 76);
+            color: white;
+        }
+
+        .navbar__item>ul {
+            height: 0;
+            overflow: hidden;
+            padding-inline-start: 0;
+        }
+
+        .navbar__item:hover>ul {
+            height: auto;
+            overflow: visible;
+        }
+
+        .navbar__item .navbar__item>ul {
+            position: absolute;
+            margin-top: -40px;
+            margin-left: 120px;
+        }
+
+        .navbar__item .navbar__item>ul .navbar__item {
+            float: none;
+        }
+    </style>
+</head>
+
+<body>
+    <script>
+        document.body.onload = () => {
+            let navbar = [
+                { label: '导航菜单' },
+                {
+                    label: '下拉菜单',
+                    children: [
+                        { label: 'JavaScript', href: 'http://baidu.com' },
+                        { label: 'JQuery', href: 'http://baidu.com' },
+                        { label: 'HTML5', href: 'http://baidu.com' },
+                        { label: 'CSS', href: 'http://baidu.com' },
+                        { label: 'PHP', href: 'http://baidu.com' },
+                        {
+                            label: 'ASP', href: 'http://baidu.com', children: [
+                                { label: 'C#', href: 'http://baidu.com' },
+                                { label: '.Net', href: 'http://baidu.com' },
+                                {
+                                    label: 'Window', href: 'http://baidu.com', children: [
+                                        { label: 'C#', href: 'http://baidu.com' },
+                                        { label: '.Net', href: 'http://baidu.com' },
+                                        {
+                                            label: 'Window', href: 'http://baidu.com', children: [
+                                                { label: 'C#', href: 'http://baidu.com' },
+                                                { label: '.Net', href: 'http://baidu.com' },
+                                                { label: 'Window', href: 'http://baidu.com' }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                    ]
+                }
+            ]
+            // 新建容器
+            let navbarDom = document.createElement('div')
+            navbarDom.className = 'navbar'
+            navbarDom.innerHTML = navbarTreeArray(navbar)
+            // 追加到页面上
+            document.body.appendChild(navbarDom)
+        }
+        /**
+         * @typedef INavbar
+         * @property {string} label
+         * @property {string} href
+         * @property {INavbar[]} children
+         */
+
+        /**
+        * @param {INavbar[]} treeArr
+        * @param {string} html
+        */
+        function navbarTreeArray(treeArr, html = ``) {
+            html += `<ul>`
+            treeArr.forEach((item) => {
+                let children = ''
+                let content = item.label
+                if (item.children) children = navbarTreeArray(item.children)
+                if (item.href) content = `<a class="navbar__item__a" href="${item.href}">${item.label}</a>`
+                html += `<li class="navbar__item">${content}${children}</li>`
+            })
+            html += `</ul>`
+            return html;
+        }
+    </script>
+</body>
+
+</html>
