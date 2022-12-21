@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        .doraemon {
+            width: 25px;
+            height: 38px;
+            position: relative;
+            background-image: url('./assets/doraemon.png');
+        }
+
+        .doraemon .name {
+            position: absolute;
+            top: -14px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            text-align: center;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="doraemon">
+        <div class="name">哆啦A梦</div>
+    </div>
+
+
+    <script>
+        // 写一下 doraemon 移动
+
+        // 操作元素
+        let doraemon = document.querySelector('.doraemon')
+        // 当前位置
+        let pos = { x: 0, y: 0 }
+        // 移动速度
+        let speed = 2;
+        // 当前动画
+        let currSprite = 'idle'
+
+        // 默认
+        let idleSprite = [{ x: 2, y: 0 }]
+        // 向下
+        let downSprite = [{ x: 1, y: 0 }, { x: 2, y: 0 }, { x: 3, y: 0 }]
+        // 向上
+        let upSprite = [{ x: 1, y: 1 }, { x: 2, y: 1 }, { x: 3, y: 1 }]
+        // 向左
+        let leftSprite = [{ x: 1, y: 3 }, { x: 2, y: 3 }, { x: 3, y: 3 }]
+        // 向右
+        let rightSprite = [{ x: 1, y: 2 }, { x: 2, y: 2 }, { x: 3, y: 2 }]
+        // 动画集
+        let anims = {
+            idle: idleSprite,
+            down: downSprite,
+            up: upSprite,
+            left: leftSprite,
+            right: rightSprite,
+        }
+        // 当前操作的位置
+        let backgroundPosition = ''
+        // 当前的位移
+        let transform = ''
+        // 初始动画
+        let spriteInterval = sprite()
+        // 延迟默认
+        let idleTimeout = 0
+
+        document.addEventListener('keydown', (ev) => {
+            let x = 0, y = 0;
+            if (ev.code === 'ArrowUp') y = -1;
+            if (ev.code === 'ArrowDown') y = 1;
+            if (ev.code === 'ArrowLeft') x = -1;
+            if (ev.code === 'ArrowRight') x = 1;
+            if (x || y) move(x, y)
+        })
+
+        function sprite() {
+            /** @type {{x:number,y:number}[]} */
+            let anim = anims[currSprite]
+            let animIndex = 0
+            let render = () => {
+                let curr = anim[animIndex]
+                let currX = Math.round(curr.x * 25)
+                let currY = Math.round(curr.y * 38)
+
+                backgroundPosition = `background-position: ${currX}px ${currY}px;`
+                doraemon.setAttribute('style', `${transform}${backgroundPosition}`)
+                animIndex++
+                if (anim.length === animIndex) animIndex = 0
+            }
+            render();
+            return setInterval(render, 200)
+        }
+
+        /**
+         * 元素移动
+         * @param {number} x
+         * @param {number} y
+         */
+        function move(x, y) {
+
+            clearTimeout(idleTimeout)
+
+            idleTimeout = setTimeout(() => {
+                clearInterval(spriteInterval)
+                currSprite = 'idle';
+                spriteInterval = sprite()
+            }, 500);
+
+
+            x *= speed;
+            y *= speed;
+
+            pos.x += x;
+            pos.y += y;
+
+            if (x > 0 && currSprite != 'right') {
+                clearInterval(spriteInterval)
+                currSprite = 'right';
+                spriteInterval = sprite()
+            }
+            if (y > 0 && currSprite != 'down') {
+                clearInterval(spriteInterval)
+                currSprite = 'down';
+                spriteInterval = sprite()
+            }
+            if (x < 0 && currSprite != 'left') {
+                clearInterval(spriteInterval)
+                currSprite = 'left';
+                spriteInterval = sprite()
+            }
+            if (y < 0 && currSprite != 'up') {
+                clearInterval(spriteInterval)
+                currSprite = 'up';
+                spriteInterval = sprite()
+            }
+            transform = `transform: translate(${pos.x}px,${pos.y}px);`;
+
+            doraemon.setAttribute('style', `${transform}${backgroundPosition}`)
+        }
+
+    </script>
+</body>
+
+</html>
