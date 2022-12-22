@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .m-table {
+            display: inline-flex;
+            flex-direction: column;
+            width: 200px;
+        }
+        .m-table table{
+            width: 200px;
+            text-align: center;
+        }
+        .scroll {
+            max-height: 100px;
+            overflow: auto;
+        }
+
+        .scroll::-webkit-scrollbar {
+            width: 1px;
+            height: 1px;
+            color: #dddddd;
+        }
+
+        .scroll::-webkit-scrollbar-track {
+            border-radius: 12px;
+            box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
+            background-color: #dddddd;
+        }
+
+        .scroll::-webkit-scrollbar-thumb {
+            border-radius: 1px;
+            background-color: #ff5153;
+        }
+        .scroll td{
+            width: 25%;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="m-table">
+        <div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>姓名</th>
+                        <th>年龄</th>
+                        <th>身高</th>
+                        <th>体重</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+        <div class="scroll">
+            <table>
+                <tbody>
+                    <div class="tbody">
+                        <tr>
+                            <td>张三</td>
+                            <td>20</td>
+                            <td>179</td>
+                            <td>70</td>
+                        </tr>
+                        <tr>
+                            <td>张三</td>
+                            <td>20</td>
+                            <td>179</td>
+                            <td>70</td>
+                        </tr>
+                        <tr>
+                            <td>张三</td>
+                            <td>20</td>
+                            <td>179</td>
+                            <td>70</td>
+                        </tr>
+                        <tr>
+                            <td>张三</td>
+                            <td>20</td>
+                            <td>179</td>
+                            <td>70</td>
+                        </tr>
+                        <tr>
+                            <td>张三</td>
+                            <td>20</td>
+                            <td>179</td>
+                            <td>70</td>
+                        </tr>
+                        <tr>
+                            <td>张三</td>
+                            <td>20</td>
+                            <td>179</td>
+                            <td>70</td>
+                        </tr>
+                        <tr>
+                            <td>张三</td>
+                            <td>20</td>
+                            <td>179</td>
+                            <td>70</td>
+                        </tr>
+                    </div>
+                </tbody>
+
+
+            </table>
+        </div>
+    </div>
+</body>
+
+</html>
