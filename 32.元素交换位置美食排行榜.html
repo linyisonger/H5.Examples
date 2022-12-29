@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        h1 {
+            margin-top: -20vh;
+
+        }
+
+        .ranking-list {
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            align-items: center;
+        }
+
+        .ranking-item {
+            position: absolute;
+            width: 200px;
+            padding: 10px 20px;
+            transition: transform .5s;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+            user-select: none;
+            background: #fff;
+            z-index: 1;
+        }
+
+        .ranking-item.active {
+            transition: transform .5s ease-in, background .5s ease-out;
+            background-color: #aaa;
+            z-index: 0;
+            color: #eee;
+        }
+
+        .ranking-item.float {
+            pointer-events: none;
+            position: absolute;
+            transform: translate(-50%, -50%);
+            background: #fff;
+            opacity: .7;
+            z-index: 2;
+        }
+
+        .delete-area {
+            position: absolute;
+            right: 20px;
+            top: 20vh;
+            border: 1px dashed #f13;
+            width: 100px;
+            height: 100px;
+            padding: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #f13;
+        }
+
+        .form-input {
+            margin-bottom: 20px;
+        }
+
+        .form-input>input {
+            width: 200px;
+            padding: 0px 20px;
+            height: 40px;
+            outline: none;
+            border: none;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+
+<body>
+    <h1>你心目中的美食排行榜</h1>
+    <div class="form-input">
+        <input type="text" placeholder="请输入您爱吃的美食">
+    </div>
+    <div class="ranking-list"></div>
+    <div class="delete-area">拖至此处删除</div>
+
+
+    <script type="module">
+        // 来源 https://baijiahao.baidu.com/s?id=1726366435512075604&wfr=spider&for=pc
+        let rankingList = ['河南胡辣汤', '南京鸭血粉丝汤', '新疆大盘鸡', '西藏酥油茶', '西安肉夹馍', '兰州拉面', '广西螺蛳粉', '河北驴火烧', '延吉冷面']
+        let moveItem = null
+        let floatItem = null
+        let rankingItemDoms = []
+
+        ready();
+
+        function ready() {
+            let list = document.querySelector('.ranking-list')
+            for (let i = 0; i < rankingList.length; i++) {
+                let item = document.createElement('div')
+                item.setAttribute('class', 'ranking-item')
+                item.setAttribute('style', `transform:translate3d(0px,${i * 41}px,0px)`)
+                item.textContent = rankingList[i]
+                list.appendChild(item)
+                rankingItemDoms.push(item)
+            }
+            let float = document.createElement('div')
+            float.setAttribute('class', 'ranking-item float')
+            float.hidden = true
+            document.body.appendChild(float)
+            floatItem = float;
+            list.setAttribute('style', `height:${rankingList.length * 41}px`)
+        }
+        // 渲染
+        function rendering() {
+            // 获取最新的dom数据
+            rankingItemDoms = document.querySelectorAll('.ranking-list > .ranking-item')
+            for (let i = 0; i < rankingItemDoms.length; i++) {
+                const rankingItemDom = rankingItemDoms[i];
+                rankingItemDom.setAttribute('style', `transform:translate3d(0px,${i * 41}px,0px)`)
+            }
+        }
+
+        // 更新数据
+        function updateData() {
+            // 获取最新的dom数据
+            rankingItemDoms = document.querySelectorAll('.ranking-list > .ranking-item')
+            let result = []
+            for (let i = 0; i < rankingItemDoms.length; i++) {
+                const rankingItemDom = rankingItemDoms[i];
+                result.push(rankingItemDom.textContent)
+            }
+            rankingList = result;
+        }
+
+
+
+        // 给输入框增加变更事件
+        document.querySelector('.form-input>input').addEventListener('change', (ev) => {
+            let list = document.querySelector('.ranking-list')
+            let item = document.createElement('div')
+            item.setAttribute('class', 'ranking-item')
+            item.setAttribute('style', `transform:translate3d(0px,${list.children.length * 41}px,0px)`)
+            item.textContent = ev.target.value
+            list.appendChild(item)
+            ev.target.value = ''
+            updateData()
+        })
+
+        document.addEventListener("mousedown", (ev) => {
+            // 如果点击是条目元素
+            if (ev.target.className.includes('ranking-item')) {
+                moveItem = ev.target
+                moveItem.setAttribute('class', 'ranking-item active')
+                floatItem.setAttribute('data-index', moveItem.getAttribute('data-index'))
+                floatItem.textContent = moveItem.textContent
+                floatItem.setAttribute('style', `left:${ev.clientX}px;top:${ev.clientY}px;`)
+                floatItem.hidden = false;
+            }
+        })
+        document.addEventListener("mousemove", (ev) => {
+            if (moveItem) {
+                floatItem.setAttribute('style', `left:${ev.clientX}px;top:${ev.clientY}px;`)
+                // 如果点击是条目元素
+                if (ev.target.className.includes('ranking-item') && ev.target !== moveItem) {
+                    if (ev.offsetY < 20) ev.target.before(moveItem)
+                    else ev.target.after(moveItem)
+                    rendering()
+                    updateData()
+                }
+            }
+        })
+        document.addEventListener("mouseup", (ev) => {
+            if (moveItem) {
+                moveItem.setAttribute('class', 'ranking-item')
+                if (ev.target.className.includes('delete-area')) {
+                    moveItem.remove()
+                    rendering()
+                    updateData()
+                }
+                moveItem = null
+                floatItem.hidden = true
+            }
+        })
+
+
+    </script>
+</body>
+
+</html>
