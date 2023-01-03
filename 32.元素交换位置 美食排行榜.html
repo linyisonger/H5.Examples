@@ -48,6 +48,7 @@
         }
 
         .ranking-item.float {
+            /* 悬浮元素不需要任何事件 只是方便用户查看当前操作的元素 */
             pointer-events: none;
             position: absolute;
             transform: translate(-50%, -50%);
@@ -94,7 +95,7 @@
     <div class="delete-area">拖至此处删除</div>
 
 
-    <script type="module">
+    <script>
         // 来源 https://baijiahao.baidu.com/s?id=1726366435512075604&wfr=spider&for=pc
         let rankingList = ['河南胡辣汤', '南京鸭血粉丝汤', '新疆大盘鸡', '西藏酥油茶', '西安肉夹馍', '兰州拉面', '广西螺蛳粉', '河北驴火烧', '延吉冷面']
         let moveItem = null
@@ -169,6 +170,7 @@
         })
         document.addEventListener("mousemove", (ev) => {
             if (moveItem) {
+                // 更新悬浮元素位置
                 floatItem.setAttribute('style', `left:${ev.clientX}px;top:${ev.clientY}px;`)
                 // 如果点击是条目元素
                 if (ev.target.className.includes('ranking-item') && ev.target !== moveItem) {
@@ -182,6 +184,7 @@
         document.addEventListener("mouseup", (ev) => {
             if (moveItem) {
                 moveItem.setAttribute('class', 'ranking-item')
+                // 当鼠标进入删除区域时
                 if (ev.target.className.includes('delete-area')) {
                     moveItem.remove()
                     rendering()
