@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        #mask,
+        #result {
+            width: 300px;
+            height: 160px;
+            user-select: none;
+        }
+
+        #result {
+            font-style: 30px;
+            font-weight: 900;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #mask {
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="result">谢谢参与</div>
+    <canvas id="mask"></canvas>
+
+    <script>
+        /** @type {HTMLCanvasElement} */
+        var mask = document.querySelector('#mask')
+        /** @type {CanvasRenderingContext2D} */
+        var ctx = mask.getContext('2d')
+        /** 是否允许刮开 */
+        var isScratch = false;
+
+        ctx.fillStyle = "#999"
+        ctx.fillRect(0, 0, mask.width, mask.height)
+
+        mask.onmousedown = function () {
+            isScratch = true
+        }
+        mask.onmouseup = function () {
+            isScratch = false;
+        }
+        mask.onmousemove = function (e) {
+            if (isScratch) {
+                var x = e.pageX;
+                var y = e.pageY
+                ctx.globalCompositeOperation = "destination-out"
+                ctx.moveTo(x, y)
+                ctx.arc(x, y, 20, 0, 2 * Math.PI)
+                ctx.fill()
+            }
+        }
+    </script>
+</body>
+
+</html>
