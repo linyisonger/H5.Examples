@@ -6,6 +6,9 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>H5 示例</title>
+    <!-- 引入默认代码样式，可换其他的 -->
+    <link rel="stylesheet" href="./assets/highlight/styles/github-dark.min.css">
+    <script src="./assets/highlight/highlight.min.js"></script> <!--引入代码高亮js-->
     <style>
         body {
             margin: 0;
@@ -51,13 +54,42 @@
         }
 
         .container {
-            width: 100%;
+            width: calc(100% - 240px);
             height: 100vh;
         }
 
-        iframe {
+        iframe,
+        .code {
+            display: none;
             width: 100%;
             height: 100%;
+        }
+
+        .code-prev-btn {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            /* width: 40px; */
+            /* line-height: 30px; */
+            border: 1px solid #ddd;
+            border-radius: 2px;
+            text-align: center;
+            background-color: rgba(255, 255, 255, .8);
+            user-select: none;
+            font-size: 13px;
+            padding: 6px 10px;
+        }
+
+        .code-prev-btn:active {
+            opacity: .7;
+        }
+
+        .code {
+            overflow-y: scroll;
+        }
+
+        pre {
+            margin-top: 0 !important;
         }
     </style>
 </head>
@@ -66,13 +98,24 @@
     <li class="left-navbar">
     </li>
     <div class="container">
+        <div class="code">
+            <pre><code class="hljs language-html"></code></pre>
+        </div>
         <iframe id="preview" src="" frameborder="0"></iframe>
+        <div class="code-prev-btn">源</div>
     </div>
+
     <script>
+        hljs.initHighlightingOnLoad(); // 初始化
+
         let leftNavBar = document.querySelector('.left-navbar')
         let iframe = document.querySelector('#preview')
+        let codePrevBtn = document.querySelector('.code-prev-btn')
+        let code = document.querySelector('.code')
+        let preCode = document.querySelector('.code > pre > code')
         let lastActiveNav = null
         let r = new XMLHttpRequest();
+        let isPreview = false
 
         function getQueryParam(key) {
             var query = location.search.substring(1)
@@ -85,6 +128,24 @@
             }
             return undefined
         }
+
+        codePrevBtn.addEventListener('click', () => {
+            isPreview = !isPreview
+            code.setAttribute('style', `${!isPreview ? 'display:block' : 'display:none'}`)
+            iframe.setAttribute('style', `${isPreview ? 'display:block' : 'display:none'}`)
+            codePrevBtn.textContent = isPreview ? '查看源码' : '预览效果'
+            if (!isPreview) {
+                let xhl = new XMLHttpRequest();
+                xhl.open('get', getQueryParam('name'))
+                xhl.onloadend = () => {
+                    preCode.textContent = xhl.responseText
+                    hljs.highlightBlock(preCode)
+                }
+                xhl.send()
+            }
+        })
+
+        codePrevBtn.click();
 
         r.open("get", "./examples.txt");
         r.onloadend = () => {
@@ -111,6 +172,7 @@
                     if (lastActiveNav) lastActiveNav.setAttribute('class', '')
                     this.setAttribute('class', 'active')
                     lastActiveNav = this;
+                    if (!isPreview) codePrevBtn.click()
                 })
 
                 leftNavBar.appendChild(navDom)
