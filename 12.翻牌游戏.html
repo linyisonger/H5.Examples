@@ -75,7 +75,7 @@
 
     </div>
     <script type="module">
-        import { Mathematics } from "https://cdn.jsdelivr.net/npm/ru-toolkit-mathematics@1.0.4/dist/index.js"
+        import { Maths, Randoms } from "https://gcore.jsdelivr.net/npm/@3r/tool@0.0.14/index.js"
         // 参数
         let params = {
             cards: [
@@ -95,7 +95,7 @@
         // 卡片元素`
         let cardDoms = [];
         // 获取因数
-        let { a, b } = Mathematics.getFactorsByApproach(params.cards.length * 2)[0]
+        let { a, b } = Maths.getFactorsByApproach(params.cards.length * 2)[0]
         let cardWidth = Math.floor(document.body.clientWidth / b);
         let cardHeight = Math.round(cardWidth * 1.5);
         // 塞入临时dom节点中
@@ -111,7 +111,7 @@
             cardDoms.push(cardDom)
         }
         // 打乱数组
-        cardDoms = Mathematics.getDisorganizeArray(cardDoms);
+        cardDoms = Randoms.getDisorganizeArray(cardDoms);
         // 构建页面
         for (let i = 0; i < cardDoms.length; i++) {
             const item = cardDoms[i];
