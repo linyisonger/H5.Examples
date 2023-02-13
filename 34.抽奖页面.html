@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .prize-container {
+            position: relative;
+        }
+
+        .prize-container .prize-item,
+        .prize-container .prize-turn {
+            position: absolute;
+            background-color: rgb(22, 185, 235);
+            width: 200px;
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+        }
+
+        .prize-container .prize-turn {
+            background-color: #fff;
+            cursor: pointer;
+        }
+
+
+        .prize-container .prize-turn:active {
+            opacity: .6;
+        }
+
+        .prize-container .prize-item.active {
+            background-color: #3bca3b;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="prize-container">
+        <div class="prize-item" style="left: 0;top: 0;"></div>
+        <div class="prize-item" style="left: 200px;top: 0;"></div>
+        <div class="prize-item" style="left: 400px;top: 0;"></div>
+        <div class="prize-item" style="left: 400px;top: 200px;"></div>
+        <div class="prize-item" style="left: 400px;top: 400px;"></div>
+        <div class="prize-item" style="left: 200px;top: 400px;"></div>
+        <div class="prize-item" style="left: 0;top: 400px;"></div>
+        <div class="prize-item" style="left: 0;top: 200px;"></div>
+        <div class="prize-turn" style="left: 200px;top: 200px;">开始转动</div>
+    </div>
+
+    <script type="module">
+        import { Maths, Randoms, Animation } from "https://gcore.jsdelivr.net/npm/@3r/tool@0.1.0/index.js"
+
+        let prizeDomList = document.querySelectorAll('.prize-item')
+        let prizeTurnDom = document.querySelector('.prize-turn')
+        let startIndex = 0;
+        let duration = 2000;
+
+
+
+        let prizes = [
+            {
+                name: '苹果13',
+                weight: 1
+            },
+            {
+                name: '兰博基尼5元优惠券',
+                weight: 1000
+            },
+            {
+                name: '香港一日游满5000-5券',
+                weight: 200
+            },
+            {
+                name: '王者荣耀绝美皮肤一套',
+                weight: 200
+            },
+            {
+                name: '鼠标垫',
+                weight: 200
+            },
+            {
+                name: '再来一次',
+                weight: 100,
+            },
+            {
+                name: '吹风机',
+                weight: 20
+            },
+            {
+                name: '扫地机器人',
+                weight: 10
+            },
+        ]
+
+        for (let i = 0; i < prizeDomList.length; i++) {
+            const element = prizeDomList[i];
+            element.textContent = prizes[i].name
+        }
+
+
+
+        // 等待时间
+        let waitTime = function (time) {
+            return {
+                then: function (resolve) {
+                    setTimeout(resolve, time)
+                }
+            }
+        }
+        // 转动
+        let turn = async function () {
+            let offset = 1 / 120 // 执行次数
+            let interval = 250; // 延迟
+            let minInterval = 50; // 最小延迟
+            let endIndex = Randoms.getRandomIndexByWeight(prizes) // 随机结束奖品
+            for (let i = 0; i <= 1; i += offset) {
+                // 延迟时间
+                await waitTime(Math.max(Animation.easeIn(i) * interval, minInterval))
+                document.querySelector('.prize-item.active')?.classList?.remove('active')
+                prizeDomList.item(startIndex % prizeDomList.length).classList.add('active')
+                if (i > .9 && (startIndex % prizeDomList.length === endIndex)) break;
+                startIndex++;
+            }
+            let name = prizes[endIndex].name
+
+            setTimeout(() => {
+                if (name == "再来一次")
+                    alert(`请${name}吧~`)
+                else
+                    alert(`您获得了${name}`)
+            }, interval);
+        }
+
+        prizeTurnDom.addEventListener("click", turn)    
+    </script>
+</body>
+
+</html>
