@@ -54,14 +54,10 @@
 
     <script type="module">
         import { Maths, Randoms, Animation } from "https://gcore.jsdelivr.net/npm/@3r/tool@0.1.0/index.js"
-
+        // 获取所有的
         let prizeDomList = document.querySelectorAll('.prize-item')
         let prizeTurnDom = document.querySelector('.prize-turn')
         let startIndex = 0;
-        let duration = 2000;
-
-
-
         let prizes = [
             {
                 name: '苹果13',
@@ -97,13 +93,11 @@
             },
         ]
 
+        // 展示效果
         for (let i = 0; i < prizeDomList.length; i++) {
             const element = prizeDomList[i];
             element.textContent = prizes[i].name
         }
-
-
-
         // 等待时间
         let waitTime = function (time) {
             return {
@@ -114,15 +108,17 @@
         }
         // 转动
         let turn = async function () {
-            let offset = 1 / 120 // 执行次数
-            let interval = 250; // 延迟
+            let offset = 1 / (prizes.length * 10) // 执行次数
+            let interval = 200; // 延迟
             let minInterval = 50; // 最小延迟
             let endIndex = Randoms.getRandomIndexByWeight(prizes) // 随机结束奖品
+            let lastDom = null
             for (let i = 0; i <= 1; i += offset) {
                 // 延迟时间
                 await waitTime(Math.max(Animation.easeIn(i) * interval, minInterval))
-                document.querySelector('.prize-item.active')?.classList?.remove('active')
-                prizeDomList.item(startIndex % prizeDomList.length).classList.add('active')
+                lastDom?.classList?.remove('active');
+                lastDom = prizeDomList.item(startIndex % prizeDomList.length)
+                lastDom.classList.add('active')
                 if (i > .9 && (startIndex % prizeDomList.length === endIndex)) break;
                 startIndex++;
             }
