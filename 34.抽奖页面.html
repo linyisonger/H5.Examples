@@ -14,27 +14,58 @@
         .prize-container .prize-item,
         .prize-container .prize-turn {
             position: absolute;
-            background-color: rgb(22, 185, 235);
+            /* background-color: rgb(22, 185, 235); */
             width: 200px;
             height: 200px;
             display: flex;
             align-items: center;
             justify-content: center;
             user-select: none;
+            box-sizing: border-box;
         }
 
         .prize-container .prize-turn {
             background-color: #fff;
             cursor: pointer;
+            border-radius: 50%;
+            border: 1px solid rgb(209, 92, 92);
+            font-size: 30px;
+            transform: scale(.5, .5);
+            color: rgb(209, 92, 92);
+            transition: all .4s ease-in;
+        }
+
+        .prize-container .prize-item {
+            border: 4px solid transparent;
+        }
+
+        .prize-container .prize-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: .9;
+        }
+
+        .prize-container .prize-item>div {
+            position: absolute;
+            width: 100%;
+            text-align: center;
+            left: 0;
+            font-weight: bold;
+            color: beige;
+            line-height: 30px;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, .3);
         }
 
 
         .prize-container .prize-turn:active {
-            opacity: .6;
+            background-color: rgb(209, 92, 92);
+            color: #fff;
         }
 
         .prize-container .prize-item.active {
-            background-color: #3bca3b;
+            border-color: #eb9c26;
         }
     </style>
 </head>
@@ -61,42 +92,58 @@
         let prizes = [
             {
                 name: '苹果13',
-                weight: 1
+                weight: 1,
+                imgSrc: 'https://img10.360buyimg.com/n1/s450x450_jfs/t1/122791/34/35195/31712/63e4d4f8Fc242eca8/e8b37a3c1c707551.jpg'
             },
             {
                 name: '兰博基尼5元优惠券',
-                weight: 1000
+                weight: 1000,
+                imgSrc: 'https://youjia-image.cdn.bcebos.com/modelImage/5567ba4dd1ac4a059511ce1968cf8e31/16233074995453266694.jpg@!watermark_1'
             },
             {
                 name: '香港一日游满5000-5券',
-                weight: 200
+                weight: 200,
+                imgSrc: 'https://wx4.sinaimg.cn/mw690/0076qYpPgy1hb22ws8hjdj30nw0fydp9.jpg'
             },
             {
                 name: '王者荣耀绝美皮肤一套',
-                weight: 200
+                weight: 200,
+                imgSrc: 'https://img2.40407.com/upload/202111/09/091448320eecb8dV5D4vrsertjn.jpg'
             },
             {
                 name: '鼠标垫',
-                weight: 200
+                weight: 200,
+                imgSrc: 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fcbu01.alicdn.com%2Fimg%2Fibank%2F2020%2F940%2F595%2F17542595049_1110060834.jpg&refer=http%3A%2F%2Fcbu01.alicdn.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1678946052&t=f6b6664f8bfb36eee1bfa142f74e6dc5'
             },
             {
                 name: '再来一次',
                 weight: 100,
+                imgSrc: 'https://q.qqbiaoqing.com/q/2017/03/04/33a5791469c29d97fea7e7a96debdf4c.gif'
             },
             {
                 name: '吹风机',
-                weight: 20
+                weight: 20,
+                imgSrc: 'https://img2.baidu.com/it/u=4244035486,2082281147&fm=253&fmt=auto&app=138&f=JPEG?w=777&h=500'
             },
             {
                 name: '扫地机器人',
-                weight: 10
+                weight: 10,
+                imgSrc: 'https://img0.baidu.com/it/u=305646170,4023681037&fm=253&fmt=auto&app=120&f=JPEG?w=600&h=433'
             },
         ]
 
         // 展示效果
         for (let i = 0; i < prizeDomList.length; i++) {
-            const element = prizeDomList[i];
-            element.textContent = prizes[i].name
+            const prizeItem = prizeDomList[i];
+            const prizeText = document.createElement('div')
+            const prizeImage = document.createElement('img')
+
+
+            prizeText.textContent = prizes[i].name
+            prizeImage.setAttribute("src", prizes[i].imgSrc)
+
+            prizeItem.appendChild(prizeImage)
+            prizeItem.appendChild(prizeText)
         }
         // 等待时间
         let waitTime = function (time) {
