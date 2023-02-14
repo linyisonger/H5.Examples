@@ -32,20 +32,29 @@
         }
 
         .left-navbar {
+            padding: 0;
+            margin: 0;
+            position: relative;
             list-style: none;
             max-height: 100vh;
             background-color: #f1f1f1;
             width: 240px;
             overflow-y: auto;
+            overflow-x: auto;
             font-size: 14px;
+            transition: all .5s ease-in;
         }
 
+        .left-navbar.hidden {
+            width: 0;
+        }
 
-        .left-navbar ul {
+        .left-navbar li {
             padding-inline-start: 0px;
             margin-block-start: 0em;
             margin-block-end: 0em;
             padding: 8px 10px;
+            white-space: nowrap;
         }
 
         .left-navbar .active {
@@ -53,9 +62,29 @@
             background-color: rgb(15, 126, 185);
         }
 
+        .left-container {
+            position: relative;
+        }
+
+        .left-container .fold {
+            position: absolute;
+            top: 50%;
+            right: 0px;
+            width: 20px;
+            height: 60px;
+            transform: translate(50%, -50%);
+            background-color: rgb(15, 126, 185);
+            z-index: 10;
+        }
+
         .container {
             width: calc(100% - 240px);
             height: 100vh;
+            transition: all .5s ease-in;
+        }
+
+        .container.full {
+            width: 100%;
         }
 
         iframe,
@@ -95,8 +124,10 @@
 </head>
 
 <body>
-    <li class="left-navbar">
-    </li>
+    <div class="left-container">
+        <ul class="left-navbar">
+        </ul>
+    </div>
     <div class="container">
         <div class="code">
             <pre><code class="hljs language-html"></code></pre>
@@ -107,7 +138,8 @@
 
     <script>
         hljs.initHighlightingOnLoad(); // 初始化
-
+        let leftContainer = document.querySelector('.left-container')
+        let container = document.querySelector('.container')
         let leftNavBar = document.querySelector('.left-navbar')
         let iframe = document.querySelector('#preview')
         let codePrevBtn = document.querySelector('.code-prev-btn')
@@ -164,7 +196,7 @@
             }
             navList.sort((a, b) => b.navNum - a.navNum)
             for (const navItem of navList) {
-                var navDom = document.createElement('ul')
+                var navDom = document.createElement('li')
                 navDom.textContent = navItem.navName;
                 navDom.addEventListener('click', function () {
                     iframe.setAttribute('src', navItem.navSrc)
@@ -184,6 +216,20 @@
                     navDom.click()
                 }
             }
+
+            const unfoldDom = document.createElement('div')
+            unfoldDom.classList.add('fold')
+            leftContainer.appendChild(unfoldDom)
+            unfoldDom.addEventListener("click", () => {
+                if (leftNavBar.classList.contains('hidden')) {
+                    leftNavBar.classList.remove('hidden')
+                    container.classList.remove('full')
+                }
+                else {
+                    leftNavBar.classList.add('hidden')
+                    container.classList.add('full')
+                }
+            })
 
 
         }
