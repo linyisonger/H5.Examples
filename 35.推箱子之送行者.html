@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.1">
+    <title>Document</title>
+    <style>
+        body {
+            margin: 0;
+        }
+
+        .sokoban {
+            margin: 20px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .sokoban-item {
+            width: 20px;
+            height: 20px;
+            background-color: saddlebrown;
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 16px;
+        }
+
+        .operate {
+            display: flex;
+            flex-wrap: wrap;
+            margin: 20px;
+            width: 120px;
+        }
+
+        .operate .btn {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+        }
+
+        .operate .btn:active {
+            background-color: saddlebrown;
+            color: #fff;
+            transition: all .4s ease-in-out;
+        }
+
+        .operate .flex {
+            width: 100%;
+        }
+
+        .desc {
+            margin: 20px;
+            font-size: 12px;
+            color: rgba(0, 0, 0, 0.7);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="sokoban"> </div>
+    <div class="desc">之所以使用如此简约的页面，当然是...找不到素材了...无奈之举自己也不会画,玩法：通过上下左右键或屏幕上的上下左右将棺埋入的口中。</div>
+    <div class="operate">
+        <div class="btn flex">上</div>
+        <div class="btn">左</div>
+        <div class="btn">下</div>
+        <div class="btn">右</div>
+    </div>
+
+    <script type="module">
+        // 宽度
+        let width = 20, height = 20;
+        // 地图枚举
+        let mapEnum = {
+            blank: 1, // 空白格
+            player: 2, // 玩家
+            box: 4, // 箱子
+            target: 8, // 目标
+            wall: 16 // 墙
+        }
+
+        let map =
+            // [
+            //     [16, 16, 16, 16, 16],
+            //     [16, 9, 1, 1, 16],
+            //     [16, 1, 5, 1, 16],
+            //     [16, 1, 1, 3, 16],
+            //     [16, 16, 16, 16, 16]
+            // ]
+            // [
+            //     [16, 16, 16, 16, 16, 16],
+            //     [16, 1, 1, 9, 9, 16],
+            //     [16, 1, 5, 1, 1, 16],
+            //     [16, 1, 5, 13, 1, 16],
+            //     [16, 16, 3, 1, 16, 16],
+            //     [1, 16, 16, 16, 16, 1],
+            // ]
+            [
+                [16, 16, 16, 16, 16, 16],
+                [16, 1, 1, 9, 1, 16],
+                [16, 1, 5, 3, 1, 16],
+                [16, 9, 16, 5, 1, 16],
+                [16, 1, 5, 1, 9, 16],
+                [16, 16, 16, 16, 16, 16],
+            ]
+        let player = { x: 0, y: 0 }
+
+        let sokobanDom = document.querySelector('.sokoban')
+        let sokobanMapDom = {}
+        let operateDom = document.querySelectorAll('.operate > .btn')
+
+
+
+        // 初始化
+        function init() {
+            let ylength = map.length, xlength = 0
+            for (let y = 0; y < map.length; y++) {
+                const xmap = map[y];
+                xlength = Math.max(xlength, xmap.length)
+                for (let x = 0; x < xmap.length; x++) {
+                    if ((xmap[x] & mapEnum.player) != 0) {
+                        player = { x, y }
+                    }
+                }
+            }
+            sokobanDom.setAttribute('style', `width:${xlength * width}px;height:${ylength * height}px`)
+            for (let i = 0; i < operateDom.length; i++) {
+                const btn = operateDom.item(i);
+                btn.addEventListener('click', function () {
+                    onKeyDown(['ArrowUp', 'ArrowLeft', 'ArrowDown', 'ArrowRight'][i])
+                })
+            }
+        }
+
+        // 渲染
+        function randerMap() {
+            for (let y = 0; y < map.length; y++) {
+                const xmap = map[y];
+                for (let x = 0; x < xmap.length; x++) {
+                    let sokobanItem = null;
+                    if (sokobanMapDom[`${x},${y}`]) {
+                        sokobanItem = sokobanMapDom[`${x},${y}`];
+                        sokobanItem.textContent = ''
+                    }
+                    else {
+                        sokobanItem = document.createElement('div')
+                        sokobanItem.classList.add('sokoban-item')
+                        sokobanItem.setAttribute(`style`, `left:${x * width}px;top:${y * height}px`)
+                        sokobanDom.appendChild(sokobanItem)
+                        sokobanMapDom[`${x},${y}`] = sokobanItem
+                    }
+                    if (xmap[x] == mapEnum.wall) {
+                        sokobanItem.textContent = '墙'
+                    }
+                    if (xmap[x] == (mapEnum.blank + mapEnum.target)) {
+                        sokobanItem.textContent = '口'
+                    }
+                    if (xmap[x] == (mapEnum.blank + mapEnum.box)) {
+                        sokobanItem.textContent = '棺'
+                    }
+                    if (xmap[x] == (mapEnum.blank + mapEnum.player)) {
+                        sokobanItem.textContent = '人'
+                    }
+                    if (xmap[x] == (mapEnum.blank + mapEnum.box + mapEnum.target)) {
+                        sokobanItem.textContent = '坟'
+                    }
+                    if (xmap[x] == (mapEnum.blank + mapEnum.player + mapEnum.target)) {
+                        sokobanItem.textContent = '囚'
+                    }
+                }
+            }
+        }
+        // 检查游戏是否结束
+        function checkGameOver() {
+            for (let y = 0; y < map.length; y++) {
+                const xmap = map[y];
+                for (let x = 0; x < xmap.length; x++) {
+                    if ((xmap[x] & mapEnum.target) != 0 && (xmap[x] & mapEnum.box) == 0) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+        // 走
+        function walk(x, y) {
+            let tx = player.x + x, ty = player.y + y;
+            // 假如这里是盒子的话
+            if ((map[ty][tx] & mapEnum.box) != 0) {
+                let bx = tx + x, by = ty + y;
+                // 如果是盒子叠盒子无法移动
+                if ((map[by][bx] & mapEnum.box) != 0) {
+                    return;
+                }
+                // 假如盒子移动的方向包含地板，则允许移动
+                if ((map[by][bx] & mapEnum.blank) != 0) {
+                    map[ty][tx] -= mapEnum.box;
+                    map[by][bx] += mapEnum.box;
+                    // 假如盒子移动的目标位置包含目标位置则检测游戏是否胜利
+                    if ((map[by][bx] & mapEnum.target) != 0 && checkGameOver()) {
+                        sokobanDom.innerHTML = `恭喜你安置了一切`
+                    }
+                }
+            }
+            // 假如这里包含地板
+            if ((map[ty][tx] & mapEnum.blank) != 0 && (map[ty][tx] & mapEnum.box) == 0) {
+                map[player.y][player.x] -= mapEnum.player;
+                map[ty][tx] += mapEnum.player
+                player.x = tx;
+                player.y = ty;
+            }
+            randerMap()
+        }
+
+        function onKeyDown(key) {
+            let x = 0, y = 0;
+            if (key == 'ArrowUp') y -= 1
+            if (key == 'ArrowDown') y += 1
+            if (key == 'ArrowLeft') x -= 1
+            if (key == 'ArrowRight') x += 1
+            try {
+                if (x || y) walk(x, y)
+            } catch (error) {
+                // 报错就不处理，任性哈哈哈哈
+            }
+        }
+
+        document.addEventListener("keydown", (ev) => onKeyDown(ev.key))
+        init();
+        randerMap()
+    </script>
+</body>
+
+</html>
