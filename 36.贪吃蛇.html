@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .snake-map {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .snake-map .snake-item {
+            background-color: saddlebrown;
+            position: absolute;
+            width: 20px;
+            height: 20px;
+        }
+
+        .snake-map .snake-item.snake {
+            background-color: green;
+        }
+
+        .snake-map .snake-item.apple {
+            background-color: crimson;
+        }
+
+        .operate {
+            display: flex;
+            flex-wrap: wrap;
+            margin: 20px;
+            width: 120px;
+        }
+
+        .operate .btn {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+        }
+
+        .operate .btn:active {
+            background-color: saddlebrown;
+            color: #fff;
+            transition: all .4s ease-in-out;
+        }
+
+        .operate .flex {
+            width: 100%;
+        }
+
+        .desc {
+            margin: 20px;
+            font-size: 12px;
+            color: rgba(0, 0, 0, 0.7);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="snake-map"> </div>
+
+    <div class="desc">玩法：通过上下左右键或屏幕上的上下左右将使其绿色线条（🐍）吃到红色方块（🍎）记录得分。</div>
+    <div class="operate">
+        <div class="btn flex">上</div>
+        <div class="btn">左</div>
+        <div class="btn">下</div>
+        <div class="btn">右</div>
+    </div>
+    <script type="module">
+        import { v2, Maths, Randoms } from "https://gcore.jsdelivr.net/npm/@3r/tool@1.1.0/index.js";
+
+        let width = 20, height = 20;
+
+        let map = [
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        ]
+
+        let mapEnum = {
+            blank: 0, // 空白格
+            snake: 1, // 蛇 🐍
+            apple: 2, // 苹果 🍎
+        }
+        // 蛇数据
+        let snake = [v2(5, 5), v2(5, 6)]
+        // 移动方向
+        let movingDirection = v2(1, 0)
+        // 容器
+        let snakeConDom = document.querySelector('.snake-map')
+        // 操作元素
+        let operateDom = document.querySelectorAll('.operate > .btn')
+        // 地图
+        let snakeMapDom = {}
+
+        // 地图最大边界
+        let maxY = 0;
+        let maxX = 0;
+
+        // 延迟
+        let intervalTime = 500;
+        let intervalId = 0;
+
+        // 初始化
+        function init() {
+            let ylength = map.length, xlength = 0;
+            for (let y = 0; y < map.length; y++) {
+                const xmap = map[y];
+                xlength = Math.max(xlength, xmap.length)
+                for (let x = 0; x < xmap.length; x++) {
+                    let snakeItem = document.createElement('div')
+                    snakeItem.classList.add('snake-item')
+                    snakeItem.setAttribute(`style`, `left:${x * width}px;top:${y * height}px`)
+                    snakeConDom.appendChild(snakeItem)
+                    snakeMapDom[`${x},${y}`] = snakeItem
+                }
+            }
+
+            for (let i = 0; i < snake.length; i++) {
+                const snakeBody = snake[i];
+                map[snakeBody.y][snakeBody.x] = mapEnum.snake;
+            }
+            snakeConDom.setAttribute(`style`, `width:${xlength * width}px;height:${ylength * height}px`)
+
+            for (let i = 0; i < operateDom.length; i++) {
+                const btn = operateDom.item(i);
+                btn.addEventListener('click', function () {
+                    onKeyDown(['ArrowUp', 'ArrowLeft', 'ArrowDown', 'ArrowRight'][i])
+                })
+            }
+
+            maxY = ylength;
+            maxX = xlength;
+
+            generateApple();
+        }
+        // 渲染地图
+        function renderMap() {
+            for (let y = 0; y < map.length; y++) {
+                const xmap = map[y];
+                for (let x = 0; x < xmap.length; x++) {
+                    let snakeItem = snakeMapDom[`${x},${y}`]
+                    if (xmap[x] == mapEnum.snake) snakeItem.classList.add('snake')
+                    else snakeItem.classList.remove('snake')
+                    if (xmap[x] == mapEnum.apple) snakeItem.classList.add('apple')
+                    else snakeItem.classList.remove('apple')
+                }
+            }
+        }
+        // 生成苹果
+        function generateApple() {
+            let apple = v2(Randoms.getRandomInt(0, maxX), Randoms.getRandomInt(0, maxY))
+            if (map[apple.y][apple.x] != mapEnum.blank) return generateApple();
+            map[apple.y][apple.x] = mapEnum.apple;
+            return;
+        }
+        // 移动
+        function moving() {
+            // 运动为0时则停止运动
+            if (Maths.equal(movingDirection, v2(0, 0))) return;
+            // 头
+            let head = snake[0].copy()
+            // 新头
+            let newHead = head.plus(movingDirection)
+            // 当新头部是空白时
+            if (map?.[newHead.y]?.[newHead.x] == mapEnum.blank) {
+                // 尾巴
+                let tail = snake.pop()
+                map[tail.y][tail.x] = mapEnum.blank;
+                map[newHead.y][newHead.x] = mapEnum.snake;
+                snake.unshift(newHead)
+            }
+            // 再生成一个新🍎
+            else if (map?.[newHead.y]?.[newHead.x] == mapEnum.apple) {
+                generateApple()
+                map[newHead.y][newHead.x] = mapEnum.snake;
+                snake.unshift(newHead)
+            }
+            else {
+                clearInterval(intervalId)
+                snakeConDom.innerHTML = `游戏结束，得分为${snake.length - 2}`
+            }
+            renderMap()
+        }
+
+        function onKeyDown(key) {
+            let direction = v2(0, 0)
+            if (key == 'ArrowUp') direction = v2(0, -1)
+            if (key == 'ArrowDown') direction = v2(0, 1)
+            if (key == 'ArrowLeft') direction = v2(-1, 0)
+            if (key == 'ArrowRight') direction = v2(1, 0)
+
+            // 如果没有运动方向
+            if (Maths.equal(movingDirection, direction)) return;
+            let cannotMovingDirection = snake[1].subtract(snake[0]);
+            // 如果移动方向是禁止的
+            if (Maths.equal(cannotMovingDirection, direction)) return;
+            movingDirection = direction;
+        }
+
+        document.addEventListener("keydown", (ev) => onKeyDown(ev.key))
+
+        init();
+        renderMap()
+
+        intervalId = setInterval(moving, intervalTime)
+
+    </script>
+</body>
+
+</html>

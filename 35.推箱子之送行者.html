@@ -142,7 +142,7 @@
         }
 
         // 渲染
-        function randerMap() {
+        function renderMap() {
             for (let y = 0; y < map.length; y++) {
                 const xmap = map[y];
                 for (let x = 0; x < xmap.length; x++) {
@@ -218,7 +218,7 @@
                 player.x = tx;
                 player.y = ty;
             }
-            randerMap()
+            renderMap()
         }
 
         function onKeyDown(key) {
@@ -236,7 +236,7 @@
 
         document.addEventListener("keydown", (ev) => onKeyDown(ev.key))
         init();
-        randerMap()
+        renderMap()
     </script>
 </body>
 
