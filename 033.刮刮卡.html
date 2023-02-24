@@ -14,18 +14,11 @@
 
         #mask,
         #result {
-            width: 300px;
-            height: 160px;
+            width: 480px;
+            height: 720px;
             user-select: none;
         }
 
-        #result {
-            font-style: 30px;
-            font-weight: 900;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
 
         #mask {
             position: absolute;
@@ -36,34 +29,79 @@
 </head>
 
 <body>
-    <div id="result">谢谢参与</div>
+    <canvas id="result"></canvas>
     <canvas id="mask"></canvas>
 
     <script>
         /** @type {HTMLCanvasElement} */
+        var result = document.querySelector('#result')
+        /** @type {CanvasRenderingContext2D} */
+        var resultContext = result.getContext('2d')
+
+        /** @type {HTMLCanvasElement} */
         var mask = document.querySelector('#mask')
         /** @type {CanvasRenderingContext2D} */
-        var ctx = mask.getContext('2d')
+        var maskContext = mask.getContext('2d')
         /** 是否允许刮开 */
         var isScratch = false;
 
-        ctx.fillStyle = "#999"
-        ctx.fillRect(0, 0, mask.width, mask.height)
 
-        mask.onmousedown = function () {
+        var resultImage = new Image();
+        var maskImage = new Image();
+
+        var lastX = 0;
+        var lastY = 0
+
+
+        mask.hidden = true;
+
+        resultImage.src = 'assets/scratchCard.jpg'
+        maskImage.src = 'assets/scratchCard.png'
+
+
+        resultImage.onload = function () {
+            result.width = resultImage.width;
+            result.height = resultImage.height;
+            resultContext.drawImage(resultImage, 0, 0, result.width, result.height)
+        }
+        maskImage.onload = function () {
+            mask.width = maskImage.width;
+            mask.height = maskImage.height;
+            maskContext.drawImage(maskImage, 0, 0, mask.width, mask.height)
+            mask.hidden = false;
+        }
+
+        mask.onmousedown = function (e) {
             isScratch = true
+
+            var x = e.clientX - parseInt(mask.offsetLeft);
+            var y = e.clientY - parseInt(mask.offsetTop);
+
+            x = parseInt(x / mask.clientWidth * mask.width)
+            y = parseInt(y / mask.clientHeight * mask.height)
+
+            lastX = x;
+            lastY = y;
         }
         mask.onmouseup = function () {
             isScratch = false;
         }
         mask.onmousemove = function (e) {
             if (isScratch) {
-                var x = e.pageX;
-                var y = e.pageY
-                ctx.globalCompositeOperation = "destination-out"
-                ctx.moveTo(x, y)
-                ctx.arc(x, y, 20, 0, 2 * Math.PI)
-                ctx.fill()
+                var x = e.clientX - parseInt(mask.offsetLeft);
+                var y = e.clientY - parseInt(mask.offsetTop);
+
+                x = parseInt(x / mask.clientWidth * mask.width)
+                y = parseInt(y / mask.clientHeight * mask.height)
+                maskContext.lineWidth = 20;
+                maskContext.beginPath();
+                maskContext.moveTo(lastX, lastY);
+                maskContext.lineTo(x, y)
+                maskContext.globalCompositeOperation = "destination-out";
+                maskContext.closePath();
+                maskContext.stroke()
+                lastX = x;
+                lastY = y;
             }
         }
     </script>
