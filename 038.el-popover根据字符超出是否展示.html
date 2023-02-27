@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <style>
+        .m-content {
+            /* 默认宽度 */
+            width: 200px;
+            display: -webkit-box;
+            overflow: hidden;
+            word-wrap: break-word;
+            word-break: break-all;
+            white-space: normal !important;
+            text-overflow: ellipsis;
+            /* 控制行数 */
+            -webkit-line-clamp: var(--line-clamp, 1);
+            -webkit-box-orient: vertical;
+            margin-top: 40px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <el-popover placement="right" width="200" :disabled="!overflow1" trigger="hover" :content="content1">
+            <div slot="reference" class="m-content">
+                <span v-overflow="overflow1">{{content1}}</span>
+            </div>
+        </el-popover>
+        <el-popover placement="right" width="200" :disabled="!overflow2" trigger="hover" :content="content2">
+            <div slot="reference" class="m-content">
+                <span v-overflow="overflow2">{{content2}}</span>
+            </div>
+        </el-popover>
+    </div>
+</body>
+<!-- import Vue before Element -->
+<script src="https://unpkg.com/vue@2/dist/vue.js"></script>
+<!-- import JavaScript -->
+<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+<script>
+    // 超出监听
+    function overflowListener(el, binding, vnode) {
+        if (binding.oldValue != binding.value) return;
+        const container = el.parentNode;
+        const span = container.lastChild;
+        vnode.context[binding.expression] = span.offsetWidth >= container.clientWidth
+    }
+    new Vue({
+        el: '#app',
+        data: function () {
+            return {
+                content1: '这是一段内容,',
+                overflow1: false,
+                content2: '这是一段内容,这是一段内容,这是一段内容,这是一段内容。',
+                overflow2: true
+            }
+        },
+        mounted() {
+            setTimeout(() => {
+                this.content1 = this.content2;
+                setTimeout(() => {
+                    this.content1 = '这是一段内容,'
+                }, 3000)
+            }, 1000)
+        },
+        directives: {
+            overflow: {
+                inserted: overflowListener,
+                componentUpdated: overflowListener
+            }
+        }
+    })
+</script>
+
+</html>
