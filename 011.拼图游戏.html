@@ -6,6 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="这是定制给您的拼图游戏~ 快来玩吧~">
+    <link rel="stylesheet" href="./assets/global.css">
     <title>拼图游戏</title>
     <style>
         body {
@@ -259,7 +260,7 @@
                 var chr1, chr2, chr3;
                 var enc1, enc2, enc3, enc4;
                 var i = 0;
-                input = input.replace(/[^A-Za-z0-9\+\/\=]/g, "");
+                input = input?.replace(/[^A-Za-z0-9\+\/\=]/g, "");
                 while (i < input.length) {
                     enc1 = this.keyStr.indexOf(input.charAt(i++));
                     enc2 = this.keyStr.indexOf(input.charAt(i++));
@@ -346,7 +347,7 @@
         // 下面的元素
         let underItem = null;
         // 参数
-        let params = { row: 3, line: 3, image: 'https://t10.baidu.com/it/u=2832125904,2599440296&fm=58', surprise: 'https://t10.baidu.com/it/u=2793734184,3203256504&fm=58' }
+        let params = { row: 3, line: 3, image: './assets/movie-poster/m-wmdaqxjlal.png', surprise: './assets/movie-poster/m-zljsj3.png' }
         // 随机位置的存储
         let randomPositionCache = {};
         // 随机位置
@@ -447,7 +448,7 @@
         // 设置拼图参数
         function setParams() {
             try {
-                let target = JSON.parse(Base64.decode(window.location.search?.split('id=')?.[1]));
+                let target = JSON.parse(Base64.decode(window.location.search?.split('id=')?.[1] ?? "{}"));
                 for (const key in target) {
                     params[key] = target[key]
                 }

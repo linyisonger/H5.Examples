@@ -1,0 +1,173 @@
+{
+    "code": 0,
+    "msg": "操作成功！",
+    "data": {
+        "rootName": "昆仑数智科技有限责任公司",
+        "r": {
+            "name": "origin",
+            "children": [
+                {
+                    "name": "对外投资",
+                    "nodeType": 0,
+                    "children": [
+                        {
+                            "name": "成都川油瑞飞科技有限责任公司",
+                            "ratio": "51.00%",
+                            "hasChildren": true,
+                            "children": []
+                        },
+                        {
+                            "name": "深圳市鲲鹏快付科技有限公司",
+                            "ratio": "40.00%",
+                            "hasChildren": true,
+                            "children": []
+                        },
+                        {
+                            "name": "北京市凌怡科技有限公司",
+                            "ratio": "100.00%",
+                            "hasChildren": true,
+                            "children": []
+                        }
+                    ]
+                },
+                {
+                    "name": "分支机构",
+                    "nodeType": 0,
+                    "children": [
+                        {
+                            "name": "天津市河西区市场监督管理局",
+                            "ratio": "",
+                            "hasChildren": true,
+                            "children": []
+                        },
+                        {
+                            "name": "北京中油瑞飞信息技术有限责任公司河北分公司",
+                            "ratio": "",
+                            "hasChildren": true,
+                            "children": []
+                        },
+                        {
+                            "name": "昆仑数智科技有限责任公司海南分公司",
+                            "ratio": "",
+                            "hasChildren": true,
+                            "children": []
+                        },
+                        {
+                            "name": "昆仑数智科技有限责任公司成都分公司",
+                            "ratio": "",
+                            "hasChildren": true,
+                            "children": []
+                        },
+                        {
+                            "name": "昆仑数智科技有限责任公司西安分公司",
+                            "ratio": "",
+                            "hasChildren": true,
+                            "children": []
+                        }
+                    ]
+                }
+            ]
+        },
+        "l": {
+            "name": "origin",
+            "children": [
+                {
+                    "name": "股东",
+                    "nodeType": 0,
+                    "children": [
+                        {
+                            "name": "中国石油集团东方地球物理勘探有限责任公司",
+                            "ratio": "30.00%",
+                            "hasChildren": true,
+                            "children": []
+                        },
+                        {
+                            "name": "中国石油集团工程有限公司",
+                            "ratio": "10.00%",
+                            "hasChildren": true,
+                            "children": []
+                        },
+                        {
+                            "name": "中国石油集团资本有限责任公司",
+                            "ratio": "10.00%",
+                            "hasChildren": true,
+                            "children": []
+                        },
+                        {
+                            "name": "中国石油天然气股份有限公司",
+                            "ratio": "15.00%",
+                            "hasChildren": true,
+                            "children": []
+                        },
+                        {
+                            "name": "中国石油天然气集团有限公司",
+                            "ratio": "35.00%",
+                            "hasChildren": true,
+                            "children": []
+                        }
+                    ]
+                },
+                {
+                    "name": "高管",
+                    "nodeType": 0,
+                    "children": [
+                        {
+                            "name": "元红萍",
+                            "ratio": "['监事']",
+                            "hasChildren": true,
+                            "children": []
+                        },
+                        {
+                            "name": "陈朝晖",
+                            "ratio": "['负责人']",
+                            "hasChildren": true,
+                            "children": []
+                        },
+                        {
+                            "name": "于海蓉",
+                            "ratio": "['监事']",
+                            "hasChildren": true,
+                            "children": []
+                        },
+                        {
+                            "name": "张银河",
+                            "ratio": "['董事']",
+                            "hasChildren": true,
+                            "children": []
+                        },
+                        {
+                            "name": "杨剑锋",
+                            "ratio": "['董事', '经理']",
+                            "hasChildren": true,
+                            "children": []
+                        },
+                        {
+                            "name": "窦红庆",
+                            "ratio": "['监事']",
+                            "hasChildren": true,
+                            "children": []
+                        },
+                        {
+                            "name": "陈元鹏",
+                            "ratio": "['副董事长']",
+                            "hasChildren": true,
+                            "children": []
+                        },
+                        {
+                            "name": "刘晓",
+                            "ratio": "['监事']",
+                            "hasChildren": true,
+                            "children": []
+                        },
+                        {
+                            "name": "刘哲生",
+                            "ratio": "['董事']",
+                            "hasChildren": true,
+                            "children": []
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+}

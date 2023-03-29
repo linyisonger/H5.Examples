@@ -6,11 +6,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://unpkg.com/vconsole@latest/dist/vconsole.min.js"></script>
+    <link rel="stylesheet" href="./assets/global.css">
     <style>
-        body {
-            margin: 0;
-        }
-
         html,
         body,
         video,
@@ -70,7 +67,10 @@
                     video.srcObject = mediaStream;
                     taskPhoto.hidden = false;
                 })
-                .catch(function (err) { console.log(err.name + ": " + err.message); }); // 总是在最后检查错误
+                .catch(function (err) {
+                    console.log(err.name + ": " + err.message);
+                    document.write("您的浏览器不支持")
+                }); // 总是在最后检查错误
         } else console.log("您的浏览器不支持");
 
         taskPhoto.addEventListener('click', () => {

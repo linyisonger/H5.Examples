@@ -5,13 +5,10 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./assets/global.css">
     <title>翻牌游戏</title>
 
     <style>
-        body {
-            margin: 0;
-        }
-
         .flip {
             position: relative;
             display: flex;
@@ -75,13 +72,15 @@
 
     </div>
     <script type="module">
-        import { Maths, Randoms } from "https://gcore.jsdelivr.net/npm/@3r/tool@0.0.14/index.js"
+        import { Maths } from "https://unpkg.com/@3r/tool/lib/maths.js";
+        import { Randoms } from "https://unpkg.com/@3r/tool/lib/randoms.js";
+
         // 参数
         let params = {
             cards: [
-                "https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fwww.jintonghua.com%2Fd%2Ffile%2Fsqgs%2F2017-03-03%2Fb7496114c1848eef925bcba454446446.jpg&refer=http%3A%2F%2Fwww.jintonghua.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=jpeg?sec=1641698856&t=b56df07f613f30f6e2e63d0f66de7ce5",
-                "https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fp1.hoopchina.com.cn%2F2e4656aff9f45590f6554ec5203492bd_w_690_h_690.jpg&refer=http%3A%2F%2Fp1.hoopchina.com.cn&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=jpeg?sec=1641698932&t=141fffb28bf3ce38355d9d203e36ca10",
-                "https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fimg.juimg.com%2Ftuku%2Fyulantu%2F111222%2F6445-11122223005914.jpg&refer=http%3A%2F%2Fimg.juimg.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=jpeg?sec=1641698976&t=ba09fe8f609646d0a4448fabb921ea5b",
+                "./assets/movie-poster/m-byxz.png",
+                "./assets/movie-poster/m-dbs.png",
+                "./assets/movie-poster/m-dq.png",
             ],
             epilog: [
                 '你肯定是出生在昼夜温差大的地方',

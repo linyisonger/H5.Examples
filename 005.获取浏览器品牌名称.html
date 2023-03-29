@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./assets/global.css">
+
 </head>
 
 <body>
@@ -15,7 +17,7 @@
 
         // 浏览器品牌名称
         function BrowserBrandName() {
-            return navigator.userAgentData?.brands?.[1].brand ?? navigator.userAgent?.split(' ')?.pop()?.split('/')?.shift()
+            return navigator.userAgentData?.brands?.[1]?.brand ?? navigator.userAgent?.split(' ')?.pop()?.split('/')?.shift()
         }
 
         /**

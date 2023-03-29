@@ -3,19 +3,14 @@
 
 <head>
     <title>Document</title>
-    <script src="https://kit.fontawesome.com/af95122a22.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="./assets/global.css">
+    <link rel="stylesheet" href="./assets/fontawesome/css/all.css">
     <style>
-        body {
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
         .toolbar {
-            margin: 10px 0;
+            padding: 10px 0;
             width: 1000px;
-
+            display: flex;
+            flex-wrap: wrap;
         }
 
         .toolbar__btn {
@@ -27,6 +22,7 @@
             border: 1px solid #ddd;
             box-shadow: 2px 2px 2px 0 rgba(0, 0, 0, 0.2);
             cursor: pointer;
+            margin-right: 5px;
         }
 
         .toolbar>[class^='toolbar__'] {
@@ -153,7 +149,7 @@
             <i class="fa fa-indent"></i>
         </button>
         <button class="toolbar__btn" name="outdent" onclick="execCmd('outdent');">
-            <i class="fa fa-dedent"></i>
+            <i class="fa fa-outdent"></i>
         </button>
         <button class="toolbar__btn" name="subscript" onclick="execCmd('subscript');">
             <i class="fa fa-subscript"></i>
@@ -165,7 +161,7 @@
             <i class="fa fa-undo"></i>
         </button>
         <button class="toolbar__btn" name="redo" onclick="execCmd('redo');">
-            <i class="fa fa-repeat"></i>
+            <i class="fa fa-redo"></i>
         </button>
         <button class="toolbar__btn" name="insertUnorderedList" onclick="execCmd('insertUnorderedList');">
             <i class="fa fa-list-ul"></i>
@@ -235,7 +231,7 @@
         </div>
         <button class="toolbar__btn" name="insertImage"
             onclick="execCommandWithArg('insertImage',prompt('Endter this image URL',''));">
-            <i class="fa fa-file-image-o"></i>
+            <i class="fa fa-file-image"></i>
         </button>
         <button class="toolbar__btn" name="selectAll" onclick="execCmd('selectAll');">
             全选

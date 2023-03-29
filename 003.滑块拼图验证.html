@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./assets/global.css">
     <style>
         body {
             display: flex;
@@ -105,7 +106,7 @@
         let offsetX = 6;        // 边距值  
         let offsetY = 0;        // 边距值 
         let shouldMove = false;
-        
+
         let clipRectX1 = randomRange(puzzleWidth + offsetX, width - puzzleWidth - offsetX);
         let clipRectX2 = clipRectX1 + puzzleWidth;
         let clipRectY1 = randomRange(puzzleHeight + offsetX, height - puzzleHeight - offsetY);

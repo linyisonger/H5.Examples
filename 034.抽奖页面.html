@@ -5,7 +5,8 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <link rel="stylesheet" href="./assets/global.css">
+
     <style>
         .prize-container {
             position: relative;
@@ -83,8 +84,8 @@
         <div class="prize-turn" style="left: 200px;top: 200px;">开始转动</div>
     </div>
 
-    <script type="module">
-        import { Maths, Randoms, Animation } from "https://gcore.jsdelivr.net/npm/@3r/tool@0.1.0/index.js"
+    <script type="module"> 
+        import { Maths, Randoms, Animation } from "https://unpkg.com/@3r/tool"
         // 获取所有的
         let prizeDomList = document.querySelectorAll('.prize-item')
         let prizeTurnDom = document.querySelector('.prize-turn')
@@ -93,42 +94,42 @@
             {
                 name: '苹果13',
                 weight: 1,
-                imgSrc: 'https://img10.360buyimg.com/n1/s450x450_jfs/t1/122791/34/35195/31712/63e4d4f8Fc242eca8/e8b37a3c1c707551.jpg'
+                imgSrc: './assets/prizes/1.jpg'
             },
             {
                 name: '兰博基尼5元优惠券',
                 weight: 1000,
-                imgSrc: 'https://youjia-image.cdn.bcebos.com/modelImage/5567ba4dd1ac4a059511ce1968cf8e31/16233074995453266694.jpg@!watermark_1'
+                imgSrc: './assets/prizes/2.jpg'
             },
             {
                 name: '香港一日游满5000-5券',
                 weight: 200,
-                imgSrc: 'https://wx4.sinaimg.cn/mw690/0076qYpPgy1hb22ws8hjdj30nw0fydp9.jpg'
+                imgSrc: './assets/prizes/3.jpg'
             },
             {
                 name: '王者荣耀绝美皮肤一套',
                 weight: 200,
-                imgSrc: 'https://img2.40407.com/upload/202111/09/091448320eecb8dV5D4vrsertjn.jpg'
+                imgSrc: './assets/prizes/4.jpg'
             },
             {
                 name: '鼠标垫',
                 weight: 200,
-                imgSrc: 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fcbu01.alicdn.com%2Fimg%2Fibank%2F2020%2F940%2F595%2F17542595049_1110060834.jpg&refer=http%3A%2F%2Fcbu01.alicdn.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1678946052&t=f6b6664f8bfb36eee1bfa142f74e6dc5'
+                imgSrc: './assets/prizes/5.webp'
             },
             {
                 name: '再来一次',
                 weight: 100,
-                imgSrc: 'https://q.qqbiaoqing.com/q/2017/03/04/33a5791469c29d97fea7e7a96debdf4c.gif'
+                imgSrc: './assets/prizes/6.gif'
             },
             {
                 name: '吹风机',
                 weight: 20,
-                imgSrc: 'https://img2.baidu.com/it/u=4244035486,2082281147&fm=253&fmt=auto&app=138&f=JPEG?w=777&h=500'
+                imgSrc: './assets/prizes/7.webp'
             },
             {
                 name: '扫地机器人',
                 weight: 10,
-                imgSrc: 'https://img0.baidu.com/it/u=305646170,4023681037&fm=253&fmt=auto&app=120&f=JPEG?w=600&h=433'
+                imgSrc: './assets/prizes/8.webp'
             },
         ]
 

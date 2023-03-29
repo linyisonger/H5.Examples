@@ -5,7 +5,8 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <link rel="stylesheet" href="./assets/global.css">
+
     <style>
         .snake-map {
             position: relative;
@@ -32,8 +33,9 @@
         .operate {
             display: flex;
             flex-wrap: wrap;
-            margin: 20px;
+            margin: 0 20px;
             width: 120px;
+            padding: 20px 0;
         }
 
         .operate .btn {
@@ -74,7 +76,7 @@
         <div class="btn">右</div>
     </div>
     <script type="module">
-        import { v2, Maths, Randoms } from "https://gcore.jsdelivr.net/npm/@3r/tool@1.1.0/index.js";
+        import { v2, Maths, Randoms, cloneDeep } from "https://unpkg.com/@3r/tool";
 
         let width = 20, height = 20;
 
@@ -178,7 +180,7 @@
             // 运动为0时则停止运动
             if (Maths.equal(movingDirection, v2(0, 0))) return;
             // 头
-            let head = snake[0].copy()
+            let head = cloneDeep(snake[0])
             // 新头
             let newHead = head.plus(movingDirection)
             // 当新头部是空白时
