@@ -91,6 +91,8 @@ https://linyisonger.github.io/H5.Examples/
 ![](./assets/preview/038.png)
 ##### [**书本翻页效果**](https://linyisonger.github.io/H5.Examples/?name=./039.书本翻页效果.html) 
 ![](./assets/preview/039.png)
+##### [**文字展开查看更多**](https://linyisonger.github.io/H5.Examples/?name=./040.文字展开查看更多.html) 
+![](./assets/preview/040.png)
 
 
 ### 开发
