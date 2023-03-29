@@ -54,9 +54,12 @@ try:
   readmeFile.writelines(template)
   for line in lines:
     if not line.startswith('index'):
-        screencut(baseUrl+line, line.split('.')[0])
-        readmeFile.writelines('##### [**{}**](https://linyisonger.github.io/H5.Examples/?name=./{}) \n'.format(line.split('.')[1],line.replace('\n','')))
-        readmeFile.writelines('![](./assets/preview/{}.png)\n'.format(line.split('.')[0]))
+        try:
+            screencut(baseUrl+line, line.split('.')[0])
+            readmeFile.writelines('##### [**{}**](https://linyisonger.github.io/H5.Examples/?name=./{}) \n'.format(line.split('.')[1],line.replace('\n','').replace(' ','%20')))
+            readmeFile.writelines('![](./assets/preview/{}.png)\n'.format(line.split('.')[0]))
+        except:
+            print('生成异常文件:{}'.format(line))
   readmeFile.writelines('\n')
   readmeFile.writelines('\n')
   readmeFile.writelines(development)
