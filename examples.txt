@@ -37,4 +37,5 @@
 037.文字左右对齐样式.html
 038.el-popover根据字符超出是否展示.html
 039.书本翻页效果.html
+040.文字展开查看更多.html
 index.html

@@ -4,7 +4,7 @@
 
 用于提交时更新**examples.txt**，从而更新列表以及预览图。
 
-[.git/hooks/pre-commit]("./.git/hooks/pre-commit")
+[.git/hooks/pre-commit](.git/hooks/pre-commit)
 
 ```shell
 #!/bin/sh
