@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./assets/global.css">
+    <link rel="stylesheet" href="./assets/highlight/styles/github-dark.min.css">
+    <script src="./assets/highlight/highlight.min.js"></script> <!--引入代码高亮js-->
+
+    <style>
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 20px;
+        }
+
+        .container canvas {
+            margin-right: 20px;
+            border: 1px dashed salmon;
+        }
+
+        pre {
+            margin: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <script type="module">
+        import { Maths, Randoms, Animation } from "https://unpkg.com/@3r/tool"
+        /**
+         * 创建画布 
+         */
+        function createCanvas({
+            width,
+            height,
+            render
+        }) {
+            const container = document.createElement('div')
+            const canvasContainer = document.createElement('div')
+            const canvas = document.createElement('canvas');
+            const codeContainer = document.createElement('div')
+            const codePre = document.createElement('pre')
+            const code = document.createElement('code')
+
+
+            canvas.width = width;
+            canvas.height = height;
+            const context = canvas.getContext('2d')
+
+            container.classList.add('container')
+            codeContainer.classList.add('code')
+            code.classList.add('hljs', 'language-html')
+
+            codePre.appendChild(code)
+            codeContainer.appendChild(codePre)
+            canvasContainer.appendChild(canvas)
+            container.appendChild(canvasContainer)
+            container.appendChild(codeContainer)
+
+            let codeTextContent = render.toString()
+            codeTextContent = codeTextContent.split('\n')
+            let codeStartLine = codeTextContent.findIndex(line => line.includes('//'))
+            codeTextContent = codeTextContent.slice(codeStartLine, codeTextContent.length - 1)
+            codeTextContent = codeTextContent.map(line => line.replace('                ', ''))
+            codeTextContent = codeTextContent.join('\n')
+            code.textContent = codeTextContent
+            document.body.appendChild(container)
+            render({
+                canvas,
+                context
+            })
+        }
+        createCanvas({
+            width: 200,
+            height: 200,
+            render: function ({
+                canvas,
+                context
+            }) {
+                // 绘制一条红色的线
+                context.moveTo(20, 20);
+                context.lineTo(180, 180);
+                context.strokeStyle = 'red'
+                context.stroke();
+            }
+        })
+        createCanvas({
+            width: 200,
+            height: 200,
+            render: function ({
+                canvas,
+                context
+            }) {
+                // 绘制一个蓝色三角形
+                context.moveTo(20, 20);
+                context.lineTo(20, 120);
+                context.lineTo(120, 120);
+                context.lineTo(20, 20);
+                context.strokeStyle = 'blue'
+                context.stroke();
+            }
+        })
+        createCanvas({
+            width: 200,
+            height: 200,
+            render: function ({
+                canvas,
+                context
+            }) {
+                // 绘制一个绿色矩形
+                context.moveTo(20, 20);
+                context.lineTo(20, 120);
+                context.lineTo(120, 120);
+                context.lineTo(120, 20);
+                context.lineTo(20, 20);
+                context.strokeStyle = 'green'
+                context.stroke();
+            }
+        })
+        createCanvas({
+            width: 200,
+            height: 200,
+            render: function ({
+                canvas,
+                context
+            }) {
+                // 绘制一个绿色三角形
+                context.moveTo(20, 20);
+                context.lineTo(30, 120);
+                context.lineTo(120, 130);
+                context.lineTo(20, 20);
+                context.fillStyle = 'green'
+                context.fill();
+            }
+        })
+        createCanvas({
+            width: 200,
+            height: 200,
+            render: function ({
+                canvas,
+                context
+            }) {
+                // 绘制一个绿色矩形
+                context.moveTo(20, 20);
+                context.lineTo(20, 120);
+                context.lineTo(120, 120);
+                context.lineTo(120, 20);
+                context.lineTo(20, 20);
+                context.fillStyle = 'green'
+                context.fill();
+            }
+        })
+        createCanvas({
+            width: 200,
+            height: 200,
+            render: function ({
+                canvas,
+                context
+            }) {
+                // 绘制一个绿色矩形/一个红色三角形
+                // 通过 closePath 可以自动合并连线
+                // 避免颜色污染
+                // - stroke beginPath + closePath
+                // - fill beginPath
+
+                context.beginPath()
+                context.moveTo(20, 20);
+                context.lineTo(30, 120);
+                context.lineTo(120, 130);
+                context.strokeStyle = 'red'
+                context.closePath()
+                context.stroke();
+
+                context.moveTo(20, 20);
+                context.beginPath()
+                context.lineTo(40, 120);
+                context.lineTo(120, 120);
+                context.lineTo(120, 40);
+                context.lineTo(40, 40);
+                context.fillStyle = 'green'
+                context.closePath()
+                context.fill();
+            }
+        })
+        createCanvas({
+            width: 200,
+            height: 200,
+            render: function ({
+                canvas,
+                context
+            }) {
+                // lineWidth 控制线条的粗细
+                context.beginPath()
+                context.moveTo(20, 20);
+                context.lineTo(30, 120);
+                context.lineWidth = 10;
+                context.strokeStyle = 'red'
+                context.closePath()
+                context.stroke();
+
+                // 绘制三角形
+                context.beginPath()
+                context.moveTo(50, 50);
+                context.lineTo(30, 90);
+                context.lineTo(90, 130);
+                context.fillStyle = 'green' // 不会影响fill
+                context.lineWidth = 10;
+                context.closePath()
+                context.fill();
+
+                // 绘制矩形 
+                context.beginPath()
+                context.rect(120, 120, 40, 40)
+                context.strokeStyle = 'yellow'
+                context.closePath()
+                context.stroke()
+
+                // 绘制矩形 
+                context.beginPath()
+                context.strokeStyle = 'pink'
+                context.strokeRect(140, 140, 40, 40)
+                context.lineWidth = 4;
+                context.closePath()
+                context.stroke()
+
+                // 绘制矩形 
+                context.beginPath()
+                context.fillStyle = 'pink'
+                context.fillRect(160, 160, 40, 40)
+                context.closePath()
+            }
+        })
+        createCanvas({
+            width: 200,
+            height: 200,
+            render: function ({
+                canvas,
+                context
+            }) {
+                // 绘制七巧板
+                function drawPath(points, bgcolor) {
+                    context.beginPath()
+                    for (let i = 0; i < points.length; i++) {
+                        if (i == 0) context.moveTo(...points[i]);
+                        else context.lineTo(...points[i]);
+                    }
+                    context.fillStyle = bgcolor
+                    context.closePath()
+                    context.fill();
+                }
+
+                drawPath([[0, 0], [100, 100], [0, 200]], 'rgb(255,81,102)')
+                drawPath([[0, 0], [100, 100], [200, 0]], 'rgb(255,155,209)')
+                drawPath([[150, 50], [100, 100], [150, 150]], 'rgb(252,239,22)')
+                drawPath([[200, 0], [150, 50], [150, 150], [200, 100]], 'rgb(170,151,199)')
+                drawPath([[100, 100], [50, 150], [100, 200], [150, 150]], 'rgb(254,199,35)')
+                drawPath([[0, 200], [50, 150], [100, 200]], 'rgb(203,242,100)')
+                drawPath([[200, 200], [100, 200], [200, 100]], 'rgb(97,180,207)')
+            }
+        })
+        createCanvas({
+            width: 200,
+            height: 200,
+            render: function ({
+                canvas,
+                context
+            }) {
+                // 绘制uView icon练习
+                function drawPath(points, color, lineWidth = 2) {
+                    context.beginPath()
+                    for (let i = 0; i < points.length; i++) {
+                        if (i == 0) context.moveTo(...points[i]);
+                        else context.lineTo(...points[i]);
+                    }
+                    context.lineWidth = lineWidth
+                    context.strokeStyle = color
+                    context.stroke();
+                }
+
+                // 双箭头
+                drawPath([[20, 20], [30, 30], [20, 40]], 'rgb(194,193,194)')
+                drawPath([[28, 20], [38, 30], [28, 40]], 'rgb(194,193,194)')
+
+                // 对勾
+                drawPath([[60, 40], [70, 48], [88, 30], [70, 54], [60, 40]], 'rgb(194,193,194)')
+                context.fillStyle = 'rgb(194,193,194)'
+                context.fill()
+
+                // 上传
+                drawPath([[20, 130], [30, 120], [40, 130]], 'rgb(194,193,194)')
+                drawPath([[30, 120], [30, 136]], 'rgb(194,193,194)')
+                drawPath([[20, 140], [40, 140]], 'rgb(194,193,194)')
+            }
+        })
+        createCanvas({
+            width: 200,
+            height: 200,
+            render: function ({
+                canvas,
+                context
+            }) {
+                // 绘制箭头
+                function drawPath(points, bgcolor) {
+                    context.beginPath()
+                    for (let i = 0; i < points.length; i++) {
+                        if (i == 0) context.moveTo(...points[i]);
+                        else context.lineTo(...points[i]);
+                    }
+                    context.fillStyle = bgcolor
+                    context.closePath()
+                    context.fill();
+                }
+
+                drawPath([[20, 80], [100, 80], [100, 40], [150, 100], [100, 160], [100, 120], [20, 120]], 'blue')
+            }
+        })
+        createCanvas({
+            width: 200,
+            height: 200,
+            render: function ({
+                canvas,
+                context
+            }) {
+                // 绘制圆
+                context.beginPath()
+                context.arc(50, 100, 30, 0, Math.PI * 2)
+                context.closePath()
+                context.stroke();
+
+                context.beginPath()
+                context.arc(150, 100, 30, 0, Math.PI * 2)
+                context.closePath()
+                context.fillStyle = 'red'
+                context.fill();
+            }
+        })
+        createCanvas({
+            width: 200,
+            height: 200,
+            render: function ({
+                canvas,
+                context
+            }) {
+                // 绘制半圆
+                context.beginPath()
+                context.arc(50, 100, 30, Math.PI * 1, 0)
+                context.closePath()
+                context.stroke();
+
+                // 绘制1/4圆
+                context.beginPath()
+                context.moveTo(150, 100)
+                context.arc(150, 100, 30, 0, Math.PI / 2)
+                context.closePath()
+                context.fillStyle = 'red'
+                context.fill();
+
+                context.beginPath()
+                context.moveTo(150, 100)
+                context.arc(150, 100, 30, Math.PI, - Math.PI / 2)
+                context.closePath()
+                context.fillStyle = 'red'
+                context.fill();
+            }
+        })
+        createCanvas({
+            width: 200,
+            height: 200,
+            render: function ({
+                canvas,
+                context
+            }) {
+                // 绘制椭圆 
+                context.beginPath()
+                context.ellipse(50, 100, 40, 30, 0, 0, Math.PI * 2)
+                context.closePath()
+                context.fillStyle = 'red'
+                context.fill();
+
+                context.beginPath()
+                context.ellipse(50, 100, 40, 30, Math.PI / 4, 0, Math.PI * 2)
+                context.closePath()
+                context.strokeStyle = 'green'
+                context.stroke();
+            }
+        })
+        createCanvas({
+            width: 200,
+            height: 200,
+            render: function ({
+                canvas,
+                context
+            }) {
+                // 绘制圆角矩形
+                context.beginPath()
+
+                context.moveTo(20, 20)
+                context.arc(30, 30, 10, Math.PI, -Math.PI / 2)
+                context.lineTo(20, 20);
+                context.lineTo(120, 20);
+                context.arc(110, 30, 10, -Math.PI / 2, 0)
+                context.lineTo(120, 120);
+                context.arc(110, 110, 10, 0, Math.PI / 2)
+                context.lineTo(20, 120);
+                context.arc(30, 110, 10, Math.PI / 2, Math.PI)
+
+                context.closePath()
+                context.fillStyle = 'red'
+                context.fill();
+            }
+        })
+        createCanvas({
+            width: 200,
+            height: 200,
+            render: function ({
+                canvas,
+                context
+            }) {
+                // 绘制波浪线
+                context.beginPath()
+                for (let i = 0; i < 10; i++) {
+                    context.moveTo(20 * i + 10, 10)
+                    context.arc(20 * i, 10, 10, 0, Math.PI)
+                }
+                context.strokeStyle = 'red'
+                context.stroke();
+            }
+        })
+        createCanvas({
+            width: 200,
+            height: 200,
+            render: function ({
+                canvas,
+                context
+            }) {
+                // uView icon
+                // 更多
+                context.beginPath()
+                context.arc(50, 50, 15, Math.PI * 2, 0)
+                context.strokeStyle = 'red'
+                context.lineWidth = 3
+                context.stroke();
+
+                context.beginPath()
+                context.lineWidth = 1
+                context.arc(50, 50, 1, Math.PI * 2, 0)
+                context.stroke();
+
+                context.beginPath()
+                context.lineWidth = 1
+                context.arc(45, 50, 1, Math.PI * 2, 0)
+                context.stroke();
+
+                context.beginPath()
+                context.lineWidth = 1
+                context.arc(55, 50, 1, Math.PI * 2, 0)
+                context.stroke();
+
+            }
+        })
+        createCanvas({
+            width: 200,
+            height: 200,
+            render: function ({
+                canvas,
+                context
+            }) {
+                // uView icon
+                // 放大镜
+                context.beginPath()
+                context.arc(50, 50, 15, -Math.PI * 7 / 4, Math.PI / 4)
+                context.lineTo(72, 72)
+                context.strokeStyle = 'red'
+                context.lineWidth = 3
+                context.stroke();
+            }
+        })
+        createCanvas({
+            width: 200,
+            height: 200,
+            render: function ({
+                canvas,
+                context
+            }) {
+                // 随机生成圆形
+                setInterval(() => {
+                    context.beginPath()
+                    let r = Randoms.getRandomInt(0, 50);
+                    let x = Randoms.getRandomInt(0, canvas.width);
+                    let y = Randoms.getRandomInt(0, canvas.height);
+                    context.arc(x, y, r, Math.PI * 2, 0)
+                    context.fillStyle = Randoms.getRandomColor()
+                    context.closePath()
+                    context.fill();
+                }, 500);
+            }
+        })
+
+
+        createCanvas({
+            width: 600,
+            height: 600,
+            render: function ({
+                canvas,
+                context
+            }) {
+                // RollABall
+
+                let ball = {
+                    x: 300,
+                    y: 300,
+                    r: 30,
+                    vx: 0,
+                    vy: 0,
+                    g: 9.8
+                }
+
+
+                // 画面绘制
+                const render = () => {
+                    context.clearRect(0, 0, canvas.width, canvas.height)
+                    // 绘制小球
+                    context.beginPath()
+                    context.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2)
+                    context.fillStyle = 'skyblue'
+                    context.closePath()
+                    context.fill();
+                }
+
+                // 数据修改
+                const update = () => {
+                    ball.x += ball.vx
+                    ball.y += ball.vy
+                    ball.vy += ball.g
+
+                    if (ball.x + ball.r > canvas.width) {
+                        ball.x = canvas.width - ball.r;
+                        ball.vx *= -1
+                    }
+                    if (ball.x - ball.r < 0) {
+                        ball.x = ball.r;
+                        ball.vx *= -1
+                    }
+
+                    if (ball.y + ball.r > canvas.height) {
+                        ball.y = canvas.height - ball.r;
+                        ball.vy *= (ball.g ? 0 : -1)
+                    }
+                    if (ball.y - ball.r < 0) {
+                        ball.y = ball.r;
+                        ball.vy *= ball.g ? -1 : -1
+                    }
+                }
+
+                setInterval(() => {
+                    render();
+                    update();
+                }, 20);
+            }
+        })
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,1420 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./assets/global.css">
+    <link rel="stylesheet" href="./assets/fontawesome/css/all.min.css">
+
+    <style>
+        .map-container {
+            background-image: url('./assets/monopoly/map.jpg');
+            width: 1225px;
+            height: 837px;
+            position: relative;
+        }
+
+        .map-element {
+            position: absolute;
+            z-index: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .map-element .player {
+            width: 36px;
+            height: 36px;
+            margin-right: 5px;
+            border-radius: 50%;
+            background-repeat: no-repeat;
+            background-size: contain;
+            border: 4px solid var(--border-color);
+        }
+
+        .map-mask,
+        .commentary-seat {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, .8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+        }
+
+        .map-mask .game-start .players {
+            display: flex;
+        }
+
+        .map-mask .game-start .player {
+            margin-left: 20px;
+            text-align: center;
+            padding: 20px;
+            background: #fff;
+            user-select: none;
+        }
+
+        .map-mask .game-start .player.active {
+            background: #caf09f;
+        }
+
+        .map-mask .game-start .player img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .game-start .btns {
+            display: flex;
+        }
+
+        .game-start .start-btn,
+        .game-start .rule-btn {
+            padding: 10px 20px;
+            margin: 20px auto;
+            background-color: #70d1cc;
+            user-select: none;
+        }
+
+        [class$='-btn']:active {
+            opacity: .7;
+        }
+
+        .game-rule {
+            position: relative;
+        }
+
+        .game-rule .fa-times {
+            position: absolute;
+            right: 0;
+            width: 100px;
+            height: 100px;
+            font-size: 30px;
+            color: #f57373;
+            text-align: center;
+            line-height: 100px;
+        }
+
+        .commentary-seat {
+            display: none;
+            left: 171px;
+            top: 171px;
+            right: 171px;
+            bottom: 171px;
+            justify-content: start;
+            align-items: start;
+        }
+
+        .commentary-seat .player-list {
+            display: flex;
+            flex-direction: column;
+            padding-top: 20px;
+            padding-left: 20px;
+        }
+
+        .commentary-seat .player-list .player {
+            display: flex;
+            margin-bottom: 20px;
+        }
+
+        .commentary-seat .player .avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+        }
+
+        .commentary-seat .player .avatar.active {
+            border: 4px solid var(--border-color);
+            box-sizing: border-box;
+        }
+
+        .commentary-seat .dice {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .commentary-seat .log-list {
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            max-height: 180px;
+            width: 300px;
+            padding-left: 20px;
+            padding-bottom: 20px;
+            overflow-y: auto;
+        }
+
+        .chance-container,
+        .destiny-container,
+        .business-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, .8);
+        }
+
+        .chance-container .result,
+        .destiny-container .result {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+
+        .chance-container .loading,
+        .destiny-container .loading {
+            width: 100%;
+            height: 100%;
+            transform: rotateY(0deg);
+            animation-name: rotating;
+            animation-duration: 1s;
+            animation-iteration-count: infinite;
+        }
+
+        .chance-container img,
+        .destiny-container img {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            height: 442px;
+            width: 248px;
+            transform: translate(-50%, -50%) rotate(90deg);
+        }
+
+        .chance-container .result-close-btn,
+        .destiny-container .result-close-btn {
+            width: 40px;
+            height: 40px;
+            position: absolute;
+            left: 50%;
+            top: 400px;
+            background: #f24;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: #fff;
+        }
+
+        .business-container {
+            white-space: nowrap;
+            display: flex;
+            width: 100%;
+        }
+
+        .business-container .info,
+        .business-container .operate {
+            display: flex;
+        }
+
+        .business-container .info {
+            padding: 20px;
+            margin-left: 300px;
+        }
+
+        .business-container .operate {
+            flex-direction: column;
+            padding-top: 100px;
+            flex: 1;
+        }
+
+        .business-container .operate .h2 {
+            font-size: 28px;
+            font-weight: bold;
+            color: #555;
+            text-align: center;
+        }
+
+        .business-container .info img {
+            width: 250px;
+            height: 426px;
+        }
+
+        .business-container .buy-land-btn,
+        .business-container .buy-house-btn,
+        .business-container .buy-hotel-btn,
+        .business-container .pass-btn {
+            padding: 10px 20px;
+            background-color: #44a0c4;
+            width: 200px;
+            margin: 20px auto 0;
+        }
+
+        .pass-btn {
+            background-color: #949494;
+        }
+
+        @keyframes rotating {
+            0% {
+                transform: rotateY(0deg);
+
+            }
+
+            50% {
+                transform: rotateY(180deg);
+            }
+
+            100% {
+                transform: rotateY(0deg);
+
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="map-container">
+        <div class="map-mask">
+            <div class="game-start">
+                <div class="players select">
+                    <div class="player active">
+                        <img src="./assets/monopoly/black.jpg" alt="小黑">
+                        <div class="name">小黑</div>
+                        <div class="color" hidden>black</div>
+                    </div>
+                    <div class="player active">
+                        <img src="./assets/monopoly/red.jpg" alt="小红">
+                        <div class="name">小红</div>
+                        <div class="color" hidden>red</div>
+                    </div>
+                    <div class="player active">
+                        <img src="./assets/monopoly/yellow.jpg" alt="小黄">
+                        <div class="name">小黄</div>
+                        <div class="color" hidden>yellow</div>
+                    </div>
+                    <div class="player active">
+                        <img src="./assets/monopoly/blue.jpg" alt="小蓝">
+                        <div class="name">小蓝</div>
+                        <div class="color" hidden>blue</div>
+                    </div>
+                </div>
+                <div class="btns">
+                    <div class="start-btn">开始游戏</div>
+                    <div class="rule-btn">规则查看</div>
+                </div>
+            </div>
+            <div class="game-rule" hidden>
+                <img src="./assets/monopoly/rule.jpg" alt="游戏规则">
+                <i class="fas fa-times rule-close-btn"></i>
+            </div>
+        </div>
+        <div class="commentary-seat">
+            <div class="player-list"> </div>
+            <div class="dice">
+                <img src="./assets/monopoly/1.png" alt="1">
+                <img src="./assets/monopoly/2.png" alt="2" hidden>
+                <img src="./assets/monopoly/3.png" alt="3" hidden>
+                <img src="./assets/monopoly/4.png" alt="4" hidden>
+                <img src="./assets/monopoly/5.png" alt="5" hidden>
+                <img src="./assets/monopoly/6.png" alt="6" hidden>
+            </div>
+            <div class="log-list"></div>
+            <div class="chance-container" hidden>
+                <div class="loading">
+                    <img src="./assets/monopoly/chance.jpg">
+                </div>
+                <div class="result" hidden>
+                    <img src="./assets/monopoly/chance.jpg">
+                    <div class="result-close-btn">
+                        <i class="fas fa-times"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="destiny-container" hidden>
+                <div class="loading">
+                    <img src="./assets/monopoly/destiny.jpg">
+                </div>
+                <div class="result" hidden>
+                    <img src="./assets/monopoly/destiny.jpg">
+                    <div class="result-close-btn">
+                        <i class="fas fa-times"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="business-container" style="display: none;">
+                <div class="info">
+                    <img src="./assets/monopoly/land1.jpg" alt="地产">
+                </div>
+                <div class="operate">
+                    <div class="h2">请选择您的操作</div>
+                    <div class="buy-land-btn">购买土地</div>
+                    <div class="buy-house-btn">购买房子</div>
+                    <div class="pass-btn">路过</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        class MapFunction {
+            constructor({
+                pass,
+                stop
+            } = {}) {
+                this.pass = pass ?? function (player, score) {
+                    console.log('经过', player, score);
+                }
+                this.stop = stop ?? function (player, score) {
+                    console.log('停留', player, score);
+                }
+            }
+        }
+
+        class MapLandFunction extends MapFunction {
+            constructor({
+                landSrc,
+                pass,
+                stop,
+                toll,
+                money,
+                holder,
+                upgrade,
+                level,
+                maxLevel,
+                name
+            } = {}) {
+                super({ pass, stop });
+                this.landSrc = landSrc ?? ''
+                this.toll = toll
+                this.money = money
+                this.holder = holder
+                this.upgrade = upgrade
+                this.level = level
+                this.maxLevel = maxLevel
+                this.name = name
+            }
+        }
+
+        class ChanceFunction {
+            constructor({
+                /** 信息 */
+                info,
+                /** 奖罚 */
+                award,
+                /** 结果图 */
+                resultSrc,
+                /** 结果事件 */
+                resultFunc,
+                /** 关闭事件 */
+                closeFunc
+            } = {}) {
+                this.info = info ?? ''
+                this.award = award ?? ''
+                this.resultSrc = resultSrc ?? ''
+                this.resultFunc = resultFunc ?? function () { }
+                this.closeFunc = closeFunc ?? function () { }
+                this.container = document.querySelector('.chance-container');
+                this.loading = this.container.querySelector('.loading')
+                this.result = this.container.querySelector('.result')
+                this.closeBtn = this.result.querySelector('.result-close-btn')
+                this.closeBtn.addEventListener('click', () => {
+                    this.container.hidden = true;
+                    this.closeFunc()
+                })
+                let that = this;
+                this.run = function (player) {
+                    this.container.hidden = false;
+                    this.result.hidden = true;
+                    setTimeout(() => {
+                        this.resultFunc.bind(that, player)()
+                        this.result.querySelector('img').src = this.resultSrc
+                        this.result.hidden = false;
+                    }, 1500)
+                }
+            }
+
+        }
+        class DestinyFunction {
+            constructor({
+                /** 信息 */
+                info,
+                /** 奖罚 */
+                award,
+                /** 结果图 */
+                resultSrc,
+                /** 结果事件 */
+                resultFunc,
+                /** 关闭事件 */
+                closeFunc
+            } = {}) {
+                this.info = info ?? ''
+                this.award = award ?? ''
+                this.resultSrc = resultSrc ?? ''
+                this.resultFunc = resultFunc ?? function () { }
+                this.closeFunc = closeFunc ?? function () { }
+                this.container = document.querySelector('.destiny-container');
+                this.loading = this.container.querySelector('.loading')
+                this.result = this.container.querySelector('.result')
+                this.closeBtn = this.result.querySelector('.result-close-btn')
+                this.closeBtn.addEventListener('click', () => {
+                    this.container.hidden = true;
+                    this.closeFunc()
+                })
+                let that = this;
+                this.run = function (player) {
+                    this.container.hidden = false;
+                    this.result.hidden = true;
+                    setTimeout(() => {
+                        this.resultFunc.bind(that, player)()
+                        this.result.querySelector('img').src = this.resultSrc
+                        this.result.hidden = false;
+                    }, 1500)
+                }
+            }
+        }
+
+        import { Randoms } from "https://unpkg.com/@3r/tool/lib/randoms";
+
+
+        let mapContainer = document.querySelector('.map-container')
+        let mapMask = document.querySelector('.map-mask')
+        let gameStart = document.querySelector('.game-start')
+        let commentarySeat = document.querySelector('.commentary-seat')
+        let gameRule = document.querySelector('.game-rule')
+        let ruleBtn = document.querySelector('.rule-btn')
+        let startBtn = document.querySelector('.start-btn')
+        let ruleCloseBtn = document.querySelector('.rule-close-btn')
+        let selectPlayers = document.querySelectorAll('.players.select .player')
+        let dice = commentarySeat.querySelector('.dice')
+        let logList = commentarySeat.querySelector('.log-list')
+
+        let playerInfoList = []
+        let mapElementList = []
+        let mapFunctionList = []
+        let chanceFunctionList = []
+        let destinyFunctionList = []
+
+        let diceTurn = false;
+        let dicePlayerIndex = 0
+
+
+
+        // 初始化
+        function init() {
+            let mapElementInfoList = [
+                {
+                    top: '667px',
+                    left: '1056px',
+                    width: '169px',
+                    height: '167px',
+                },
+                {
+                    top: '667px',
+                    left: '945px',
+                    width: '109px',
+                    height: '167px',
+                },
+                {
+                    top: '667px',
+                    left: '834px',
+                    width: '109px',
+                    height: '167px',
+                },
+                {
+                    top: '667px',
+                    left: '723px',
+                    width: '109px',
+                    height: '167px',
+                },
+                {
+                    top: '667px',
+                    left: '612px',
+                    width: '109px',
+                    height: '167px',
+                },
+                {
+                    top: '667px',
+                    left: '501px',
+                    width: '109px',
+                    height: '167px',
+                },
+                {
+                    top: '667px',
+                    left: '390px',
+                    width: '109px',
+                    height: '167px',
+                },
+                {
+                    top: '667px',
+                    left: '279px',
+                    width: '109px',
+                    height: '167px',
+                },
+                {
+                    top: '667px',
+                    left: '168px',
+                    width: '109px',
+                    height: '167px',
+                },
+                {
+                    top: '667px',
+                    left: '0',
+                    width: '166px',
+                    height: '167px',
+                },
+                {
+                    top: '568px',
+                    left: '0',
+                    width: '168px',
+                    height: '96px'
+                },
+                {
+                    top: '469px',
+                    left: '0',
+                    width: '168px',
+                    height: '96px'
+                },
+                {
+                    top: '370px',
+                    left: '0',
+                    width: '168px',
+                    height: '96px'
+                },
+                {
+                    top: '272px',
+                    left: '0',
+                    width: '168px',
+                    height: '96px'
+                },
+                {
+                    top: '173px',
+                    left: '0',
+                    width: '168px',
+                    height: '96px'
+                },
+                {
+                    top: '0px',
+                    left: '0',
+                    width: '171px',
+                    height: '171px',
+                },
+                {
+                    top: '7px',
+                    left: '173px',
+                    width: '109px',
+                    height: '166px',
+                },
+                {
+                    top: '7px',
+                    left: '284px',
+                    width: '109px',
+                    height: '166px',
+                },
+                {
+                    top: '7px',
+                    left: '394px',
+                    width: '109px',
+                    height: '166px',
+                },
+                {
+                    top: '7px',
+                    left: '505px',
+                    width: '109px',
+                    height: '166px',
+                },
+                {
+                    top: '7px',
+                    left: '615px',
+                    width: '105px',
+                    height: '166px',
+                },
+                {
+                    top: '7px',
+                    left: '723px',
+                    width: '107px',
+                    height: '166px',
+                },
+                {
+                    top: '7px',
+                    left: '832px',
+                    width: '109px',
+                    height: '166px',
+                },
+                {
+                    top: '7px',
+                    left: '943px',
+                    width: '109px',
+                    height: '166px',
+                },
+                {
+                    top: '6px',
+                    left: '1054px',
+                    width: '170px',
+                    height: '166px',
+                },
+                {
+                    top: '175px',
+                    left: '1054px',
+                    width: '170px',
+                    height: '98px',
+                },
+                {
+                    top: '275px',
+                    left: '1054px',
+                    width: '170px',
+                    height: '93px',
+                },
+                {
+                    top: '370px',
+                    left: '1054px',
+                    width: '170px',
+                    height: '98px',
+                },
+                {
+                    top: '470px',
+                    left: '1054px',
+                    width: '170px',
+                    height: '95px',
+                },
+                {
+                    top: '567px',
+                    left: '1054px',
+                    width: '170px',
+                    height: '98px',
+                },
+            ]
+            for (let i = 0; i < mapElementInfoList.length; i++) {
+                const info = mapElementInfoList[i]
+                const element = document.createElement('div')
+                element.setAttribute('style', `top:${info.top};left:${info.left};width:${info.width};height:${info.height}`)
+                element.classList.add('map-element')
+                mapElementList.push(element)
+                mapContainer.appendChild(element)
+                mapFunctionList.push(new MapFunction())
+            }
+
+            let businessContainer = document.querySelector('.business-container');
+
+            // 交易页面路过操作
+            let businessContainerPassBtn = businessContainer.querySelector('.pass-btn');
+            businessContainerPassBtn.addEventListener("click", () => {
+                businessContainer.setAttribute('style', 'display:none')
+                nextDicePlayer()
+            })
+
+            // 当前交易的地皮
+            let currentBusinessLand = null
+            let businessContainerBuyLandBtn = businessContainer.querySelector('.buy-land-btn');
+            businessContainerBuyLandBtn.addEventListener('click', () => {
+                let currentPlayer = playerInfoList[dicePlayerIndex % playerInfoList.length];
+                currentPlayer.money -= currentBusinessLand.money;
+                currentBusinessLand.holder = currentPlayer;
+                updateMoney()
+                // TODO 更新土地状态
+                log(`玩家${currentPlayer.name} 购买了${currentBusinessLand.name}土地的使用权`)
+                businessContainer.setAttribute('style', 'display:none')
+                nextDicePlayer()
+            })
+
+            let businessContainerBuyHouseBtn = businessContainer.querySelector('.buy-house-btn');
+            businessContainerBuyHouseBtn.addEventListener('click', () => {
+                let currentPlayer = playerInfoList[dicePlayerIndex % playerInfoList.length];
+                currentPlayer.money -= currentBusinessLand.upgrade;
+                currentBusinessLand.level++;
+                updateMoney()
+                // TODO 更新土地状态
+
+                businessContainer.setAttribute('style', 'display:none')
+                nextDicePlayer()
+            })
+
+            let countryStop = function (player, score) {
+                // TODO 
+                // 弹出交易页面
+                // 允许买地/盖房/升级成旅馆/路过
+                // 
+                let img = businessContainer.querySelector('.info img')
+                img.src = this.landSrc;
+                businessContainerBuyLandBtn.hidden = true;
+                businessContainerBuyHouseBtn.hidden = true;
+                if (!this.holder || this.holder === player) {
+                    currentBusinessLand = this;
+                    if (this.holder === player) {
+                        let upgradeText = this.level === 2 ? '升级宾馆' : '购买房屋'
+                        businessContainerBuyHouseBtn.textContent = `${upgradeText}(${this.upgrade}元)`
+                        businessContainerBuyHouseBtn.hidden = false;
+                    }
+                    else {
+                        businessContainerBuyLandBtn.textContent = `购买土地(${this.money}元)`
+                        businessContainerBuyLandBtn.hidden = false;
+                    }
+                    if (this.level < 3) businessContainer.setAttribute('style', 'display:flex')
+                }
+                else {
+                    let toll = this.toll[this.level]
+                    player.money -= toll;
+                    this.holder.money += toll
+                    // 检查破产 
+                    log(`玩家${player.name}停留${this.name} 给玩家${this.holder.name} 支付过路费${toll}元`)
+                    updateMoney()
+                    nextDicePlayer()
+                }
+            }
+            let hydropowerStop = function (player, score) {
+                let img = businessContainer.querySelector('.info img')
+                img.src = this.landSrc;
+                businessContainerBuyLandBtn.hidden = true;
+                businessContainerBuyHouseBtn.hidden = true;
+                if (!this.holder) {
+                    currentBusinessLand = this;
+                    businessContainerBuyLandBtn.textContent = `购买土地(${this.money}元)`
+                    businessContainerBuyLandBtn.hidden = false;
+                    businessContainer.setAttribute('style', 'display:flex')
+                }
+                else {
+                    // TODO 
+                    let level = this.level
+                    let toll = this.toll[level] * score
+                    player.money -= toll;
+                    this.holder.money += toll
+                    // 检查破产 
+                    log(`玩家${player.name}停留${this.name} 给玩家${this.holder.name} 支付过路费${toll}元`)
+                    updateMoney()
+                    nextDicePlayer()
+                }
+            }
+
+            let airfieldStop = function (player, score) {
+                let img = businessContainer.querySelector('.info img')
+                img.src = this.landSrc;
+                businessContainerBuyLandBtn.hidden = true;
+                businessContainerBuyHouseBtn.hidden = true;
+                if (!this.holder) {
+                    currentBusinessLand = this;
+                    businessContainerBuyLandBtn.textContent = `购买土地(${this.money}元)`
+                    businessContainerBuyLandBtn.hidden = false;
+                    businessContainer.setAttribute('style', 'display:flex')
+                }
+                else {
+                    // TODO 
+                    let level = this.level
+                    let toll = this.toll[level]
+                    player.money -= toll;
+                    this.holder.money += toll
+                    // 检查破产 
+                    log(`玩家${player.name}停留${this.name} 给玩家${this.holder.name} 支付过路费${toll}元`)
+                    updateMoney()
+                    nextDicePlayer()
+                }
+            }
+            mapFunctionList[0] = new MapFunction({
+                pass: (player, score) => {
+                    log(`玩家${player.name}经过起点 奖励1000元`)
+                    player.money += 1000;
+                    updateMoney()
+                },
+                stop: nextDicePlayer
+            })
+            mapFunctionList[1] = new MapLandFunction({
+                id: 1,
+                name: '中国',
+                money: 4000,
+                landSrc: './assets/monopoly/land4.jpg',
+                holder: null,
+                level: 0,
+                toll: [500, 2000, 5500, 11500],
+                upgrade: 2000,
+                stop: countryStop
+            })
+            mapFunctionList[2] = new MapLandFunction({
+                id: 2,
+                name: '泰国',
+                money: 1000,
+                landSrc: './assets/monopoly/land16.jpg',
+                holder: null,
+                level: 0,
+                toll: [100, 300, 900, 2000],
+                upgrade: 500,
+                stop: countryStop
+            })
+            mapFunctionList[3] = new MapFunction({
+                stop: (player, score) => {
+                    let target = Randoms.getRandomInt(0, chanceFunctionList.length)
+                    chanceFunctionList[target].run(player)
+                }
+            })
+            mapFunctionList[4] = new MapLandFunction({
+                id: 4,
+                name: '印尼',
+                money: 1600,
+                landSrc: './assets/monopoly/land7.jpg',
+                holder: null,
+                level: 0,
+                toll: [200, 600, 1800, 5000],
+                upgrade: 1000,
+                stop: countryStop
+            })
+            mapFunctionList[5] = new MapLandFunction({
+                id: 5,
+                name: '自来水厂',
+                money: 1200,
+                landSrc: './assets/monopoly/land14.jpg',
+                holder: null,
+                level: 0,
+                toll: [100, 300],
+                stop: hydropowerStop
+            })
+            mapFunctionList[6] = new MapFunction({
+                stop: (player, score) => {
+                    let target = Randoms.getRandomInt(0, destinyFunctionList.length)
+                    destinyFunctionList[target].run(player)
+                }
+            })
+            mapFunctionList[7] = new MapLandFunction({
+                id: 7,
+                name: '上海浦东国际机场',
+                money: 2000,
+                landSrc: './assets/monopoly/land18.jpg',
+                holder: null,
+                level: 0,
+                toll: [3000, 5000],
+                stop: airfieldStop
+            })
+            mapFunctionList[8] = new MapLandFunction({
+                id: 8,
+                name: '日本',
+                money: 2000,
+                landSrc: './assets/monopoly/land13.jpg',
+                holder: null,
+                level: 0,
+                toll: [200, 800, 2200, 6000],
+                upgrade: 1000,
+                stop: countryStop
+            })
+            mapFunctionList[9] = new MapFunction({
+                stop: nextDicePlayer
+            })
+            mapFunctionList[10] = new MapLandFunction({
+                id: 10,
+                name: '西班牙',
+                money: 2200,
+                landSrc: './assets/monopoly/land13.jpg',
+                holder: null,
+                level: 0,
+                toll: [200, 900, 2500, 7000],
+                upgrade: 1500,
+                stop: countryStop
+            })
+            mapFunctionList[11] = new MapFunction({
+                stop: (player, score) => {
+                    let target = Randoms.getRandomInt(0, chanceFunctionList.length)
+                    chanceFunctionList[target].run(player)
+                }
+            })
+            mapFunctionList[12] = new MapLandFunction({
+                id: 12,
+                name: '巴西',
+                money: 2400,
+                landSrc: './assets/monopoly/land12.jpg',
+                holder: null,
+                level: 0,
+                toll: [200, 1000, 3000, 7500],
+                upgrade: 1500,
+                stop: countryStop
+            })
+            mapFunctionList[13] = new MapFunction({
+                stop: (player, score) => {
+                    log(`玩家${player.name}需要缴纳700元所得税`)
+                    player.money -= 700;
+                    updateMoney()
+                    nextDicePlayer()
+                }
+            })
+            mapFunctionList[14] = new MapLandFunction({
+                id: 14,
+                name: '加拿大',
+                money: 2600,
+                landSrc: './assets/monopoly/land6.jpg',
+                holder: null,
+                level: 0,
+                toll: [300, 1100, 3300, 8000],
+                upgrade: 1500,
+                stop: countryStop
+            })
+            mapFunctionList[15] = new MapFunction({
+                stop: (player, score) => {
+                    log(`玩家${player.name}停留免费停车场`)
+                    player.pause = true;
+                    updateMoney()
+                    nextDicePlayer()
+                }
+            })
+            mapFunctionList[16] = new MapLandFunction({
+                id: 16,
+                name: '土耳其',
+                money: 2200,
+                landSrc: './assets/monopoly/land3.jpg',
+                holder: null,
+                level: 0,
+                toll: [200, 900, 2500, 7000],
+                upgrade: 1500,
+                stop: countryStop
+            })
+            mapFunctionList[17] = new MapLandFunction({
+                id: 17,
+                name: '美国',
+                money: 2400,
+                landSrc: './assets/monopoly/land8.jpg',
+                holder: null,
+                level: 0,
+                toll: [200, 1000, 3000, 7500],
+                upgrade: 1500,
+                stop: countryStop
+            })
+            mapFunctionList[18] = new MapFunction({
+                stop: (player, score) => {
+                    let target = Randoms.getRandomInt(0, destinyFunctionList.length)
+                    destinyFunctionList[target].run(player)
+                }
+            })
+            mapFunctionList[19] = new MapLandFunction({
+                id: 19,
+                name: '英国',
+                money: 3000,
+                landSrc: './assets/monopoly/land9.jpg',
+                holder: null,
+                level: 0,
+                toll: [300, 1300, 3900, 9000],
+                upgrade: 2000,
+                stop: countryStop
+            })
+            mapFunctionList[20] = new MapLandFunction({
+                id: 20,
+                name: '德国',
+                money: 3600,
+                landSrc: './assets/monopoly/land17.jpg',
+                holder: null,
+                level: 0,
+                toll: [400, 1800, 5000, 11000],
+                upgrade: 2000,
+                stop: countryStop
+            })
+            mapFunctionList[21] = new MapLandFunction({
+                id: 21,
+                name: '伦敦希思罗国际机场',
+                money: 2000,
+                landSrc: './assets/monopoly/land5.jpg',
+                holder: null,
+                level: 0,
+                toll: [3000, 5000],
+                stop: airfieldStop
+            })
+            mapFunctionList[22] = new MapFunction({
+                stop: (player, score) => {
+                    let target = Randoms.getRandomInt(0, chanceFunctionList.length)
+                    chanceFunctionList[target].run(player)
+                }
+            })
+            mapFunctionList[23] = new MapFunction({
+                stop: (player, score) => {
+                    log(`玩家${player.name}需要缴纳500元签证费`)
+                    player.money -= 500;
+                    updateMoney()
+                    nextDicePlayer()
+                }
+            })
+            mapFunctionList[24] = new MapFunction({
+                stop: (player, score) => {
+                    // 入狱
+                    player.pause = true;
+                    nextDicePlayer()
+                }
+            })
+            mapFunctionList[25] = new MapLandFunction({
+                id: 25,
+                name: '俄罗斯',
+                money: 3200,
+                landSrc: './assets/monopoly/land11.jpg',
+                holder: null,
+                level: 0,
+                toll: [300, 1500, 4500, 10000],
+                upgrade: 2000,
+                stop: countryStop
+            })
+            mapFunctionList[26] = new MapFunction({
+                stop: (player, score) => {
+                    let target = Randoms.getRandomInt(0, destinyFunctionList.length)
+                    destinyFunctionList[target].run(player)
+                }
+            })
+            mapFunctionList[27] = new MapLandFunction({
+                id: 27,
+                name: '法国',
+                money: 2200,
+                landSrc: './assets/monopoly/land15.jpg',
+                holder: null,
+                level: 0,
+                toll: [200, 900, 2500, 7000],
+                upgrade: 1500,
+                stop: countryStop
+            })
+            mapFunctionList[28] = new MapLandFunction({
+                id: 28,
+                name: '电力公司',
+                money: 1200,
+                landSrc: './assets/monopoly/land2.jpg',
+                holder: null,
+                level: 0,
+                toll: [100, 300],
+                stop: hydropowerStop
+            })
+            mapFunctionList[29] = new MapLandFunction({
+                id: 29,
+                name: '印度',
+                money: 1000,
+                landSrc: './assets/monopoly/land1.jpg',
+                holder: null,
+                level: 0,
+                toll: [100, 300, 900, 2700],
+                upgrade: 500,
+                stop: countryStop
+            })
+            // 个人
+            let moneyResultFunc = function (player) {
+                log(`${player.name} ${this.info}`)
+                player.money += this.award;
+                updateMoney();
+                nextDicePlayer()
+            }
+            // 群体
+            let moneyAndOtherPlayersResultFunc = function (player) {
+                log(`${player.name} ${this.info}`)
+                let other = playerInfoList.filter(p => p != player)
+                player.money += other.length * this.award;
+                other.map(p => p.money -= this.award)
+                updateMoney();
+                // TODO 检查一下玩家是否有破产的
+                nextDicePlayer()
+            }
+            chanceFunctionList = [
+                new ChanceFunction({
+                    info: '到泰国按摩学院 学习正统泰式按摩 付学费500元',
+                    award: -500,
+                    resultSrc: './assets/monopoly/chance1.jpg',
+                    resultFunc: moneyResultFunc
+                }),
+                new ChanceFunction({
+                    info: '在纽约时代广场 扮演街头艺 打赏500元',
+                    award: 500,
+                    resultSrc: './assets/monopoly/chance2.jpg',
+                    resultFunc: moneyResultFunc
+                }),
+                new ChanceFunction({
+                    info: '破坏英国大英博物馆 珍稀艺术品 罚款1000元',
+                    award: -1000,
+                    resultSrc: './assets/monopoly/chance3.jpg',
+                    resultFunc: moneyResultFunc
+                }),
+                new ChanceFunction({
+                    info: '成立爱心慈善基金会 帮助弱势群体 奖励1200元',
+                    award: 1200,
+                    resultSrc: './assets/monopoly/chance4.jpg',
+                    resultFunc: moneyResultFunc
+                }),
+                new ChanceFunction({
+                    info: '获聘为法国蓝带厨艺学院 首席教师 奖励金800元',
+                    award: 800,
+                    resultSrc: './assets/monopoly/chance5.jpg',
+                    resultFunc: moneyResultFunc
+                }),
+                new ChanceFunction({
+                    info: '成功登上世界最高峰 「珠穆朗玛峰」 每位玩家给你奖励金300元',
+                    award: 300,
+                    resultSrc: './assets/monopoly/chance6.jpg',
+                    resultFunc: moneyAndOtherPlayersResultFunc
+                }),
+                new ChanceFunction({
+                    info: '参加巴西狂欢节游行 人潮众多，遭遇扒手集团 损失700元',
+                    award: -700,
+                    resultSrc: './assets/monopoly/chance7.jpg',
+                    resultFunc: moneyResultFunc
+                }),
+                new ChanceFunction({
+                    info: '考古新发现 在埃及挖掘出稀世珍宝 奖金800元',
+                    award: 800,
+                    resultSrc: './assets/monopoly/chance8.jpg',
+                    resultFunc: moneyResultFunc
+                }),
+                new ChanceFunction({
+                    info: '参加北京故宫志愿者服务队，精神可嘉 全体玩家为你鼓掌10秒钟',
+                    resultSrc: './assets/monopoly/chance9.jpg',
+                    resultFunc: function (player) {
+                        log(`${player.name} ${this.info}`)
+                        nextDicePlayer()
+                    }
+                }),
+                new ChanceFunction({
+                    info: '招待朋友去看 世界杯足球赛 付给每位玩家200元',
+                    award: -200,
+                    resultSrc: './assets/monopoly/chance10.jpg',
+                    resultFunc: moneyAndOtherPlayersResultFunc
+                }),
+                new ChanceFunction({
+                    info: '投资印尼巴厘岛度假村 可在自己土地上任选一处免费升级一栋房屋',
+                    resultSrc: './assets/monopoly/chance11.jpg',
+                    resultFunc: function (player) {
+                        log(`${player.name} ${this.info}`)
+                        // TODO 增加玩家免费盖房buff
+                        nextDicePlayer()
+                    }
+                }),
+                new ChanceFunction({
+                    info: '搭乘豪华游轮环游世界 费用900元',
+                    award: -900,
+                    resultSrc: './assets/monopoly/chance12.jpg',
+                    resultFunc: moneyResultFunc
+                }),
+            ]
+            destinyFunctionList = [
+                new DestinyFunction({
+                    info: '眼光精准 投资股票获利 得300元',
+                    award: 300,
+                    resultSrc: './assets/monopoly/destiny1.jpg',
+                    resultFunc: moneyResultFunc
+                }),
+                new DestinyFunction({
+                    info: '在非洲肯尼亚野生动物园区 乱喂食动物 罚款800元',
+                    award: -800,
+                    resultSrc: './assets/monopoly/destiny2.jpg',
+                    resultFunc: moneyResultFunc
+                }),
+                new DestinyFunction({
+                    info: '参加抽奖大赛 可任意选择再翻一张命运卡或机会卡',
+                    resultSrc: './assets/monopoly/destiny3.jpg',
+                    resultFunc: function (player) {
+                        log(`${player.name} ${this.info}`)
+                        // TODO 特殊处理
+                        nextDicePlayer()
+                    }
+                }),
+                new DestinyFunction({
+                    info: '入选国家队 代表参加奥运会比赛 请每位玩家赞美你1个优点',
+                    resultSrc: './assets/monopoly/destiny4.jpg',
+                    resultFunc: function (player) {
+                        log(`${player.name} ${this.info}`)
+                        nextDicePlayer()
+                    }
+                }),
+                new DestinyFunction({
+                    info: '获得出狱许可证',
+                    resultSrc: './assets/monopoly/destiny5.jpg',
+                    resultFunc: function (player) {
+                        log(`${player.name} ${this.info}`)
+                        // TODO 增加玩家buff
+                        nextDicePlayer()
+                    }
+                }),
+                new DestinyFunction({
+                    info: '投稿上海外滩夜景照片 获得世界摄影大赛冠军 奖金1000元',
+                    award: 1000,
+                    resultSrc: './assets/monopoly/destiny6.jpg',
+                    resultFunc: moneyResultFunc
+                }),
+                new DestinyFunction({
+                    info: '走路玩手机 不幸被汽车撞断腿 下回合暂停一次',
+                    resultSrc: './assets/monopoly/destiny7.jpg',
+                    resultFunc: function (player) {
+                        log(`${player.name} ${this.info}`)
+                        player.pause = true;
+                        nextDicePlayer()
+                    }
+                }),
+                new DestinyFunction({
+                    info: '走私毒品 立刻坐牢 若经过起点“由此去” 不得领取1000元',
+                    resultSrc: './assets/monopoly/destiny8.jpg',
+                    resultFunc: function (player) {
+                        log(`${player.name} ${this.info}`)
+                        // TODO 增加玩家buff
+                        nextDicePlayer()
+                    }
+                }),
+                new DestinyFunction({
+                    info: '搭乘热气球 游览澳洲黄金海岸 可重新掷骰再玩一次',
+                    resultSrc: './assets/monopoly/destiny9.jpg',
+                    resultFunc: function (player) {
+                        log(`${player.name} ${this.info}`)
+                    }
+                }),
+                new DestinyFunction({
+                    info: '在冰岛看北极光 防寒设备不足冻伤 可指定任一玩家 下回合暂停一次',
+                    resultSrc: './assets/monopoly/destiny10.jpg',
+                    resultFunc: function (player) {
+                        log(`${player.name} ${this.info}`)
+                        // TODO 增加逻辑
+                    }
+                }),
+                new DestinyFunction({
+                    info: '受邀参加戛纳电影节 开幕典礼 花置装费600元',
+                    award: -600,
+                    resultSrc: './assets/monopoly/destiny11.jpg',
+                    resultFunc: moneyResultFunc
+                }),
+
+                new DestinyFunction({
+                    info: '不幸遭遇地震 房屋倒塌 付修缮费1200元',
+                    award: -1200,
+                    resultSrc: './assets/monopoly/destiny12.jpg',
+                    resultFunc: moneyResultFunc
+                }),
+            ]
+            ruleBtn.addEventListener("click", () => {
+                gameStart.hidden = true;
+                gameRule.hidden = false
+            })
+            ruleCloseBtn.addEventListener('click', () => {
+                gameStart.hidden = false;
+                gameRule.hidden = true
+            })
+            selectPlayers.forEach(player => {
+                player.addEventListener('click', function () {
+                    if (player.classList.contains('active')) {
+                        // 当人数小于两个不移除标签
+                        if (document.querySelectorAll('.players .player.active').length > 2) {
+                            player.classList.remove('active')
+                        }
+                    }
+                    else {
+                        player.classList.add('active')
+                    }
+                })
+            })
+            startBtn.addEventListener("click", () => {
+                mapMask.setAttribute('style', 'display:none')
+                commentarySeat.setAttribute('style', 'display:flex')
+                let selected = document.querySelectorAll('.players .player.active')
+                let playerList = commentarySeat.querySelector('.player-list')
+                selected.forEach(function (player, index) {
+                    let chessPiece = document.createElement('div')
+                    let information = document.createElement('div')
+                    let color = player.querySelector('.color').textContent;
+                    let src = player.querySelector('img').src
+
+                    chessPiece.classList.add('player')
+                    information.classList.add('player')
+
+                    chessPiece.setAttribute('style', `background-image:url(${src});--border-color:${color}`)
+
+                    let infoAvatar = document.createElement('img')
+                    infoAvatar.setAttribute("src", src)
+                    infoAvatar.classList.add('avatar')
+                    infoAvatar.setAttribute('style', `--border-color:${color}`)
+                    if (dicePlayerIndex === index) infoAvatar.classList.add('active')
+                    information.appendChild(infoAvatar)
+
+                    let money = (5000 + 2000 + 1000 + 500 + 200 + 100) * 2
+                    let fund = document.createElement('div')
+                    fund.classList.add('fund')
+                    fund.textContent = money
+
+                    information.appendChild(fund)
+                    playerList.appendChild(information)
+                    mapElementList[0].appendChild(chessPiece)
+
+                    playerInfoList.push({
+                        avater: src,
+                        name: player.querySelector('.name').textContent,
+                        color,
+                        chessPiece,
+                        information,
+                        moveScore: 0,
+                        pause: false,
+                        money,
+                        fund
+                    })
+                })
+
+                log('游戏开始')
+                log(`请玩家${playerInfoList[dicePlayerIndex].name}开始掷色子`)
+            })
+            dice.addEventListener('click', diceClick)
+            log('游戏初始化完成')
+            // 模拟开始
+            // startBtn.click()
+        }
+
+        // 玩家移动
+        async function moving(player, score) {
+            let current = player.moveScore % mapElementList.length
+            let wait = () => new Promise((resolve) => {
+                setTimeout(resolve, 100)
+            })
+            for (let i = 0; i < score; i++) {
+                await wait();
+                player.moveScore++;
+                let target = player.moveScore % mapElementList.length
+                mapElementList[target].appendChild(player.chessPiece)
+                // 途径
+                let funcName = i === score - 1 ? 'stop' : 'pass';
+                mapFunctionList[target][funcName](player, score)
+            }
+        }
+
+        // 骰子🎲
+        async function diceClick() {
+            if (diceTurn) return;
+            diceTurn = true
+
+            let target = Randoms.getRandomInt(1, 7);
+            let length = 18 + target;
+            let diceChildren = dice.children
+            let wait = () => new Promise((resolve) => {
+                setTimeout(resolve, 100)
+            })
+            for (let i = 0; i < length; i++) {
+                await wait();
+                dice.querySelector('img:not([hidden])').hidden = true
+                diceChildren.item(i % 6).hidden = false
+            }
+            let playerInfo = playerInfoList[dicePlayerIndex % playerInfoList.length]
+            log(`玩家${playerInfo.name}掷色子数为${target}`)
+            await moving(playerInfo, target)
+            diceTurn = false
+        }
+
+        // 下一个摇骰子人
+        function nextDicePlayer() {
+            dicePlayerIndex++;
+            let nextPlayer = playerInfoList[dicePlayerIndex % playerInfoList.length];
+            if (nextPlayer.pause) {
+                nextPlayer.pause = false;
+                return nextDicePlayer()
+            }
+            commentarySeat.querySelector('.player-list .avatar.active').classList.remove('active')
+            nextPlayer.information.querySelector('.avatar').classList.add('active')
+            log(`请玩家${nextPlayer.name}开始掷色子`)
+        }
+
+        // 打印日志
+        function log(str) {
+            let element = document.createElement('div')
+            element.textContent = str
+            logList.appendChild(element)
+            logList.scrollTo({ top: 100000000 })
+        }
+
+
+        // 更新💴
+        function updateMoney() {
+            playerInfoList.forEach((player) => {
+                player.fund.textContent = player.money
+            })
+        }
+        init();
+    </script>
+</body>
+
+</html>
