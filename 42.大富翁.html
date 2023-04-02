@@ -35,6 +35,16 @@
             border: 4px solid var(--border-color);
         }
 
+        .map-element .corona {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            top: 0;
+            pointer-events: none;
+            border: 4px solid var(--border-color);
+        }
+
         .map-mask,
         .commentary-seat {
             position: absolute;
@@ -141,6 +151,10 @@
             left: 50%;
             top: 50%;
             transform: translate(-50%, -50%);
+        }
+
+        .commentary-seat .dice img {
+            pointer-events: none;
         }
 
         .commentary-seat .log-list {
@@ -376,6 +390,7 @@
 
         class MapLandFunction extends MapFunction {
             constructor({
+                id,
                 landSrc,
                 pass,
                 stop,
@@ -396,6 +411,7 @@
                 this.level = level
                 this.maxLevel = maxLevel
                 this.name = name
+                this.id = id
             }
         }
 
@@ -714,8 +730,14 @@
                 currentPlayer.money -= currentBusinessLand.money;
                 currentBusinessLand.holder = currentPlayer;
                 updateMoney()
-                // TODO 更新土地状态
                 log(`玩家${currentPlayer.name} 购买了${currentBusinessLand.name}土地的使用权`)
+                // TODO 更新土地状态
+
+                // 增加光环
+                let corona = document.createElement('div')
+                corona.classList.add('corona')
+                corona.setAttribute('style', `--border-color:${currentPlayer.color}`)
+                mapElementList[currentBusinessLand.id].appendChild(corona)
                 businessContainer.setAttribute('style', 'display:none')
                 nextDicePlayer()
             })
@@ -727,16 +749,16 @@
                 currentBusinessLand.level++;
                 updateMoney()
                 // TODO 更新土地状态
+                mapElementList[currentBusinessLand.id].querySelector('.corona').textContent = currentBusinessLand.level
 
                 businessContainer.setAttribute('style', 'display:none')
                 nextDicePlayer()
             })
 
             let countryStop = function (player, score) {
-                // TODO 
+                console.log(this);
                 // 弹出交易页面
-                // 允许买地/盖房/升级成旅馆/路过
-                // 
+                // 允许买地/盖房/升级旅馆/路过
                 let img = businessContainer.querySelector('.info img')
                 img.src = this.landSrc;
                 businessContainerBuyLandBtn.hidden = true;
@@ -744,7 +766,8 @@
                 if (!this.holder || this.holder === player) {
                     currentBusinessLand = this;
                     if (this.holder === player) {
-                        let upgradeText = this.level === 2 ? '升级宾馆' : '购买房屋'
+                        let upgradeText = this.level === 2 ? '升级旅馆' : '购买房屋'
+                        log(`玩家${player.name} 在${this.name}土地${upgradeText}`)
                         businessContainerBuyHouseBtn.textContent = `${upgradeText}(${this.upgrade}元)`
                         businessContainerBuyHouseBtn.hidden = false;
                     }
@@ -775,9 +798,11 @@
                     businessContainerBuyLandBtn.hidden = false;
                     businessContainer.setAttribute('style', 'display:flex')
                 }
+                else if (this.holder === player) {
+                    nextDicePlayer()
+                }
                 else {
-                    // TODO 
-                    let level = this.level
+                    let level = mapFunctionList[5].holder === mapFunctionList[28].holder ? 1 : 0
                     let toll = this.toll[level] * score
                     player.money -= toll;
                     this.holder.money += toll
@@ -787,7 +812,6 @@
                     nextDicePlayer()
                 }
             }
-
             let airfieldStop = function (player, score) {
                 let img = businessContainer.querySelector('.info img')
                 img.src = this.landSrc;
@@ -799,9 +823,11 @@
                     businessContainerBuyLandBtn.hidden = false;
                     businessContainer.setAttribute('style', 'display:flex')
                 }
+                else if (this.holder === player) {
+                    nextDicePlayer()
+                }
                 else {
-                    // TODO 
-                    let level = this.level
+                    let level = mapFunctionList[7].holder === mapFunctionList[21].holder ? 1 : 0
                     let toll = this.toll[level]
                     player.money -= toll;
                     this.holder.money += toll
@@ -810,6 +836,14 @@
                     updateMoney()
                     nextDicePlayer()
                 }
+            }
+            let goToPrison = function (player, score) {
+                log(`玩家${player.name}入狱暂停一回合`)
+                player.moveScore += (mapElementList.length - player.moveScore % mapElementList.length + 9)
+                player.pause = true;
+                let target = player.moveScore % mapElementList.length
+                mapElementList[target].appendChild(player.chessPiece)
+                mapFunctionList[target]['stop'](player, score)
             }
             mapFunctionList[0] = new MapFunction({
                 pass: (player, score) => {
@@ -902,7 +936,7 @@
                 id: 10,
                 name: '西班牙',
                 money: 2200,
-                landSrc: './assets/monopoly/land13.jpg',
+                landSrc: './assets/monopoly/land10.jpg',
                 holder: null,
                 level: 0,
                 toll: [200, 900, 2500, 7000],
@@ -1028,11 +1062,7 @@
                 }
             })
             mapFunctionList[24] = new MapFunction({
-                stop: (player, score) => {
-                    // 入狱
-                    player.pause = true;
-                    nextDicePlayer()
-                }
+                stop: goToPrison
             })
             mapFunctionList[25] = new MapLandFunction({
                 id: 25,
@@ -1238,8 +1268,7 @@
                     resultSrc: './assets/monopoly/destiny8.jpg',
                     resultFunc: function (player) {
                         log(`${player.name} ${this.info}`)
-                        // TODO 增加玩家buff
-                        nextDicePlayer()
+                        goToPrison(player, 1)
                     }
                 }),
                 new DestinyFunction({
