@@ -1167,23 +1167,6 @@
                     stop: countryStop
                 })
             ]
-            // 个人
-            let moneyResultFunc = function (player) {
-                log(`${player.name} ${this.info}`)
-                player.money += this.award;
-                updateMoney();
-                nextDicePlayer()
-            }
-            // 群体
-            let moneyAndOtherPlayersResultFunc = function (player) {
-                log(`${player.name} ${this.info}`)
-                let other = playerInfoList.filter(p => p != player)
-                player.money += other.length * this.award;
-                other.map(p => p.money -= this.award)
-                updateMoney();
-                // TODO 检查一下玩家是否有破产的
-                nextDicePlayer()
-            }
 
             // 命运选择
             let destinySelect = commentarySeat.querySelector('.destiny-select')
@@ -1222,6 +1205,24 @@
                         nextDicePlayer()
                     })
                 }))
+            }
+
+            // 个人
+            let moneyResultFunc = function (player) {
+                log(`${player.name} ${this.info}`)
+                player.money += this.award;
+                updateMoney();
+                nextDicePlayer()
+            }
+            // 群体
+            let moneyAndOtherPlayersResultFunc = function (player) {
+                log(`${player.name} ${this.info}`)
+                let other = playerInfoList.filter(p => p != player)
+                player.money += other.length * this.award;
+                other.map(p => p.money -= this.award)
+                updateMoney();
+                // TODO 检查一下玩家是否有破产的
+                nextDicePlayer()
             }
             chanceFunctionList = [
                 new ChanceFunction({

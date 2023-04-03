@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./assets/global.css">
+
+    <style>
+        .from,
+        .to,
+        .move {
+            width: 200px;
+            height: 300px;
+            border: 1px dashed red;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="from">
+        <img class="move" src="./assets/movie-poster/m-byxz.png" draggable="true">
+    </div>
+    <div class="to">
+
+    </div>
+    <script type="module">
+        var from = document.querySelector(".from");
+        var to = document.querySelector(".to");
+        var move = document.querySelector(".move");
+
+        // drag:拖， over：经过， 就是红盒子拖拽到它身上时会调用
+        // 默认是不接受，如果要想让它接收，需要禁用默认事件
+        to.ondragover = function (target) {
+            target.preventDefault();
+        }
+        //drop： 放下， 松手
+        to.ondrop = function () {
+            to.appendChild(move);
+        }
+        from.ondragover = function (target) {
+            target.preventDefault();
+        }
+        //drop： 放下， 松手
+        from.ondrop = function () {
+            from.appendChild(move);
+        } 
+    </script>
+</body>
+
+</html>
