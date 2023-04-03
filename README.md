@@ -93,6 +93,10 @@ https://linyisonger.github.io/H5.Examples/
 ![](./assets/preview/039.png)
 ##### [**文字展开查看更多**](https://linyisonger.github.io/H5.Examples/?name=./040.文字展开查看更多.html) 
 ![](./assets/preview/040.png)
+##### [**Canvas奇幻之旅第一季**](https://linyisonger.github.io/H5.Examples/?name=./041.Canvas奇幻之旅第一季.html) 
+![](./assets/preview/041.png)
+##### [**大富翁**](https://linyisonger.github.io/H5.Examples/?name=./042.大富翁.html) 
+![](./assets/preview/042.png)
 
 
 ### 开发
