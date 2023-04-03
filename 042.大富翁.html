@@ -370,7 +370,6 @@
                     <div class="pass-btn">路过</div>
                 </div>
             </div>
-
         </div>
     </div>
 
@@ -388,7 +387,6 @@
                 }
             }
         }
-
         class MapLandFunction extends MapFunction {
             constructor({
                 id,
@@ -415,9 +413,9 @@
                 this.id = id
             }
         }
-
         class ChanceFunction {
             constructor({
+                name,
                 /** 信息 */
                 info,
                 /** 奖罚 */
@@ -429,6 +427,7 @@
                 /** 关闭事件 */
                 closeFunc
             } = {}) {
+                this.name = name ?? ''
                 this.info = info ?? ''
                 this.award = award ?? ''
                 this.resultSrc = resultSrc ?? ''
@@ -457,6 +456,7 @@
         }
         class DestinyFunction {
             constructor({
+                name,
                 /** 信息 */
                 info,
                 /** 奖罚 */
@@ -468,6 +468,7 @@
                 /** 关闭事件 */
                 closeFunc
             } = {}) {
+                this.name = name ?? ''
                 this.info = info ?? ''
                 this.award = award ?? ''
                 this.resultSrc = resultSrc ?? ''
@@ -750,7 +751,6 @@
                 updateMoney()
                 // TODO 更新土地状态
                 mapElementList[currentBusinessLand.id].querySelector('.corona').textContent = currentBusinessLand.level
-
                 businessContainer.setAttribute('style', 'display:none')
                 nextDicePlayer()
             })
@@ -840,7 +840,12 @@
             let goToPrison = function (player, score) {
                 log(`玩家${player.name}入狱 暂停一回合`)
                 player.moveScore += (mapElementList.length - player.moveScore % mapElementList.length + 9)
-                player.pause = true;
+                let idx = player.knapsack.findIndex(item => item.name === '出狱许可证');
+                if (idx > -1) {
+                    log(`玩家${player.name} 使用出狱许可证 无需暂停`)
+                    player.knapsack.splice(idx, 1)
+                }
+                else player.pause = true;
                 let target = player.moveScore % mapElementList.length
                 mapElementList[target].appendChild(player.chessPiece)
                 mapFunctionList[target]['stop'](player, score)
@@ -1178,11 +1183,12 @@
                     resultFunc: moneyAndOtherPlayersResultFunc
                 }),
                 new ChanceFunction({
+                    name: '免费升级卡',
                     info: '投资印尼巴厘岛度假村 可在自己土地上任选一处免费升级一栋房屋',
                     resultSrc: './assets/monopoly/chance11.jpg',
                     resultFunc: function (player) {
                         log(`${player.name} ${this.info}`)
-                        // TODO 增加玩家免费盖房buff
+                        player.knapsack.push(this)
                         nextDicePlayer()
                     }
                 }),
@@ -1224,11 +1230,12 @@
                     }
                 }),
                 new DestinyFunction({
+                    name: '出狱许可证',
                     info: '获得出狱许可证',
                     resultSrc: './assets/monopoly/destiny5.jpg',
                     resultFunc: function (player) {
                         log(`${player.name} ${this.info}`)
-                        // TODO 增加玩家buff
+                        player.knapsack.push(this)
                         nextDicePlayer()
                     }
                 }),
@@ -1346,7 +1353,8 @@
                         moveScore: 0,
                         pause: false,
                         money,
-                        fund
+                        fund,
+                        knapsack: []
                     })
                 })
 
@@ -1419,12 +1427,16 @@
             logList.scrollTo({ top: 100000000 })
         }
 
-
         // 更新💴
         function updateMoney() {
             playerInfoList.forEach((player) => {
                 player.fund.textContent = player.money
             })
+        }
+
+        // 更新背包
+        function updateKnapsack() {
+
         }
         init();
     </script>

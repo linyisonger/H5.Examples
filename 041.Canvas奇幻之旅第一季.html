@@ -29,7 +29,7 @@
 
 <body>
     <script type="module">
-        import { Maths, Randoms, Animation } from "https://unpkg.com/@3r/tool"
+        import { Maths, Randoms, Animation, v2, Vector2 } from "https://unpkg.com/@3r/tool"
         /**
          * 创建画布 
          */
@@ -508,57 +508,150 @@
                 context
             }) {
                 // RollABall
+                class Ball {
+                    ball = {
+                        x: 300,
+                        y: 300,
+                        r: 30,
+                        vx: 20,
+                        vy: 0,
+                        g: 9.8
+                    }
+                    constructor(ball) {
+                        this.ball = ball;
+                    }
 
+                    render() {
+                        let ball = this.ball;
+                        // 绘制小球
+                        context.beginPath()
+                        context.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2)
+                        context.fillStyle = ball.color
+                        context.closePath()
+                        context.fill();
+                    }
+
+                    update() {
+                        this.move()
+                        this.check()
+                    }
+
+                    move(direction) {
+                        let ball = this.ball;
+                        ball.x += ball.vx + (direction?.x ?? 0)
+                        ball.y += ball.vy + (direction?.y ?? 0)
+                        ball.vy += ball.g
+                    }
+
+                    check() {
+                        let ball = this.ball;
+                        let physics = this.ball.physics
+                        if (ball.x + ball.r > canvas.width) {
+                            ball.x = canvas.width - ball.r;
+                            if (physics) ball.vx *= -1
+                        }
+                        if (ball.x - ball.r < 0) {
+                            ball.x = ball.r;
+                            if (physics) ball.vx *= -1
+                        }
+
+                        if (ball.y + ball.r > canvas.height) {
+                            ball.y = canvas.height - ball.r;
+                            if (physics) ball.vy *= (ball.g ? -.6 : -1)
+                        }
+                        if (ball.y - ball.r < 0) {
+                            ball.y = ball.r;
+                            if (physics) ball.vy *= ball.g ? -1 : -1
+                        }
+                    }
+
+
+                    static generate() {
+                        let sphere = {
+                            x: Randoms.getRandomInt(0, canvas.width),
+                            y: Randoms.getRandomInt(0, canvas.height),
+                            r: Randoms.getRandomInt(10, 40),
+                            color: Randoms.getRandomColor(),
+                            vx: Randoms.getRandomInt(0, 10),
+                            vy: Randoms.getRandomInt(0, 10),
+                            g: 0,
+                            physics: true
+                        }
+                        return new Ball(sphere)
+                    }
+                }
                 let ball = {
                     x: 300,
                     y: 300,
                     r: 30,
+                    color: 'skyblue',
                     vx: 0,
                     vy: 0,
-                    g: 9.8
+                    g: 0,
+                    physics: false,
+                    shield: false
                 }
+                let player = new Ball(ball)
+                let ballList = [player, Ball.generate()];
+                let lastTime = Date.now()
+                let checkCollide = function () {
+                    for (let i = 0; i < ballList.length - 1; i++) {
+                        const prevBall = ballList[i];
+                        for (let j = i + 1; j < ballList.length; j++) {
+                            const currBall = ballList[j];
+                            if (currBall.ball.shield || prevBall.ball.shield) {
+                                continue
+                            }
+                            if (Vector2.distance(prevBall.ball, currBall.ball) < prevBall.ball.r + currBall.ball.r) {
+                                if (prevBall.ball.r < currBall.ball.r) {
+                                    currBall.ball.r++;
+                                    ballList.splice(i, 1)
+                                    i--;
+                                }
+                                else {
+                                    prevBall.ball.r++
+                                    ballList.splice(j, 1)
+                                    j--;
+                                }
+                            }
+                        }
+                    }
+                    // 复活
+                    if (!ballList.includes(player)) {
+                        ball.x = 300
+                        ball.y = 300
+                        ball.r = 30
+                        ball.shield = true;
+                        ballList.push(player)
+                        setTimeout(() => {
+                            ball.shield = false
+                        }, 500);
+                    }
 
-
-                // 画面绘制
-                const render = () => {
-                    context.clearRect(0, 0, canvas.width, canvas.height)
-                    // 绘制小球
-                    context.beginPath()
-                    context.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2)
-                    context.fillStyle = 'skyblue'
-                    context.closePath()
-                    context.fill();
                 }
-
-                // 数据修改
-                const update = () => {
-                    ball.x += ball.vx
-                    ball.y += ball.vy
-                    ball.vy += ball.g
-
-                    if (ball.x + ball.r > canvas.width) {
-                        ball.x = canvas.width - ball.r;
-                        ball.vx *= -1
-                    }
-                    if (ball.x - ball.r < 0) {
-                        ball.x = ball.r;
-                        ball.vx *= -1
-                    }
-
-                    if (ball.y + ball.r > canvas.height) {
-                        ball.y = canvas.height - ball.r;
-                        ball.vy *= (ball.g ? 0 : -1)
-                    }
-                    if (ball.y - ball.r < 0) {
-                        ball.y = ball.r;
-                        ball.vy *= ball.g ? -1 : -1
-                    }
-                }
-
                 setInterval(() => {
-                    render();
-                    update();
+                    if (Date.now() - lastTime > 3000) {
+                        ballList.push(Ball.generate())
+                        lastTime = Date.now()
+                    }
+                    context.clearRect(0, 0, canvas.width, canvas.height)
+                    ballList.forEach(ball => ball.render())
+                    ballList.forEach(ball => ball.update())
+                    checkCollide()
                 }, 20);
+                document.addEventListener("keydown", (ev) => {
+                    ev.preventDefault()
+                    onKeyDown(ev.key)
+                })
+                function onKeyDown(key) {
+                    let direction = v2(0, 0)
+                    let speed = 20
+                    if (key == 'ArrowUp') direction = v2(0, -speed)
+                    if (key == 'ArrowDown') direction = v2(0, speed)
+                    if (key == 'ArrowLeft') direction = v2(-speed, 0)
+                    if (key == 'ArrowRight') direction = v2(speed, 0)
+                    player.move(direction)
+                }
             }
         })
     </script>
