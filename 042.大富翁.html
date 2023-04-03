@@ -141,6 +141,15 @@
             border-radius: 50%;
         }
 
+        .commentary-seat .player .fund {
+            display: flex;
+            align-items: center;
+            padding-left: 10px;
+            font-weight: bold;
+            color: black;
+            text-shadow: 2px 2px gold;
+        }
+
         .commentary-seat .player .avatar.active {
             border: 4px solid var(--border-color);
             box-sizing: border-box;
@@ -170,7 +179,9 @@
 
         .chance-container,
         .destiny-container,
-        .business-container {
+        .business-container,
+        .destiny-select,
+        .pause-user-select {
             position: absolute;
             top: 0;
             left: 0;
@@ -198,6 +209,32 @@
             animation-iteration-count: infinite;
         }
 
+        .pause-user-select {
+            padding: 100px 0;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .pause-user-select .select-btn {
+            display: inline-block;
+            width: 120px;
+            height: 120px;
+            border: 2px solid #ddd;
+            margin-right: 20px;
+            user-select: none;
+        }
+
+        .pause-user-select .select-btn:active {
+            background-color: #caf09f;
+        }
+
+        .pause-user-select .select-btn img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            padding-top: 20px;
+        }
+
         .chance-container img,
         .destiny-container img {
             position: absolute;
@@ -205,6 +242,26 @@
             top: 50%;
             height: 442px;
             width: 248px;
+            transform: translate(-50%, -50%) rotate(90deg);
+        }
+
+        .destiny-select .select-btn:first-child {
+            position: absolute;
+            left: 30%;
+            top: 50%;
+            height: 100%;
+        }
+
+        .destiny-select .select-btn:last-child {
+            position: absolute;
+            left: 70%;
+            top: 50%;
+            height: 100%;
+        }
+
+        .destiny-select img {
+            height: 221px;
+            width: 124px;
             transform: translate(-50%, -50%) rotate(90deg);
         }
 
@@ -271,6 +328,7 @@
         .pass-btn {
             background-color: #949494;
         }
+
 
         @keyframes rotating {
             0% {
@@ -370,6 +428,15 @@
                     <div class="pass-btn">路过</div>
                 </div>
             </div>
+            <div class="destiny-select" hidden>
+                <div class="select-btn chance">
+                    <img src="./assets/monopoly/chance.jpg">
+                </div>
+                <div class="select-btn destiny">
+                    <img src="./assets/monopoly/destiny.jpg">
+                </div>
+            </div>
+            <div class="pause-user-select" hidden></div>
         </div>
     </div>
 
@@ -732,8 +799,6 @@
                 currentBusinessLand.holder = currentPlayer;
                 updateMoney()
                 log(`玩家${currentPlayer.name} 购买了${currentBusinessLand.name}土地的使用权`)
-                // TODO 更新土地状态
-
                 // 增加光环
                 let corona = document.createElement('div')
                 corona.classList.add('corona')
@@ -756,7 +821,6 @@
             })
 
             let countryStop = function (player, score) {
-                console.log(this);
                 // 弹出交易页面
                 // 允许买地/盖房/升级旅馆/路过
                 let img = businessContainer.querySelector('.info img')
@@ -844,6 +908,7 @@
                 if (idx > -1) {
                     log(`玩家${player.name} 使用出狱许可证 无需暂停`)
                     player.knapsack.splice(idx, 1)
+                    updateKnapsack()
                 }
                 else player.pause = true;
                 let target = player.moveScore % mapElementList.length
@@ -1119,6 +1184,45 @@
                 // TODO 检查一下玩家是否有破产的
                 nextDicePlayer()
             }
+
+            // 命运选择
+            let destinySelect = commentarySeat.querySelector('.destiny-select')
+            let selectChance = destinySelect.querySelector('.select-btn.chance')
+            let selectDestiny = destinySelect.querySelector('.select-btn.destiny')
+            selectChance.addEventListener('click', function () {
+                let currentPlayer = playerInfoList[dicePlayerIndex % playerInfoList.length];
+                chanceMapFunction.stop(currentPlayer)
+                destinySelect.hidden = true;
+            })
+            selectDestiny.addEventListener('click', function () {
+                let currentPlayer = playerInfoList[dicePlayerIndex % playerInfoList.length];
+                destinyMapFunction.stop(currentPlayer)
+                destinySelect.hidden = true;
+            })
+
+            // 暂停玩家选择
+            let pauseUserSelect = commentarySeat.querySelector('.pause-user-select')
+            function pauseUserSelectOpen() {
+                pauseUserSelect.hidden = false;
+                let currentPlayer = playerInfoList[dicePlayerIndex % playerInfoList.length];
+                playerInfoList.forEach((player => {
+                    let info = document.createElement('div')
+                    info.classList.add('select-btn')
+                    let avatar = document.createElement('img')
+                    avatar.src = player.avater
+                    let name = document.createElement('div')
+                    name.textContent = player.name
+                    info.appendChild(avatar)
+                    info.appendChild(name)
+                    pauseUserSelect.appendChild(info)
+
+                    info.addEventListener('click', function () {
+                        log(`玩家${currentPlayer.name} 指定 玩家${player.name} 暂停一回合`)
+                        player.pause = true;
+                        nextDicePlayer()
+                    })
+                }))
+            }
             chanceFunctionList = [
                 new ChanceFunction({
                     info: '到泰国按摩学院 学习正统泰式按摩 付学费500元',
@@ -1189,6 +1293,7 @@
                     resultFunc: function (player) {
                         log(`${player.name} ${this.info}`)
                         player.knapsack.push(this)
+                        updateKnapsack()
                         nextDicePlayer()
                     }
                 }),
@@ -1217,8 +1322,8 @@
                     resultSrc: './assets/monopoly/destiny3.jpg',
                     resultFunc: function (player) {
                         log(`${player.name} ${this.info}`)
-                        // TODO 特殊处理
-                        nextDicePlayer()
+                        this.container.hidden = true;
+                        destinySelect.hidden = false;
                     }
                 }),
                 new DestinyFunction({
@@ -1236,6 +1341,7 @@
                     resultFunc: function (player) {
                         log(`${player.name} ${this.info}`)
                         player.knapsack.push(this)
+                        updateKnapsack()
                         nextDicePlayer()
                     }
                 }),
@@ -1274,7 +1380,8 @@
                     resultSrc: './assets/monopoly/destiny10.jpg',
                     resultFunc: function (player) {
                         log(`${player.name} ${this.info}`)
-                        // TODO 增加逻辑
+                        this.container.hidden = false;
+                        pauseUserSelectOpen()
                     }
                 }),
                 new DestinyFunction({
@@ -1340,7 +1447,12 @@
                     fund.classList.add('fund')
                     fund.textContent = money
 
+                    let inventory = document.createElement('div')
+                    inventory.classList.add('inventory')
+
+
                     information.appendChild(fund)
+                    information.appendChild(inventory)
                     playerList.appendChild(information)
                     mapElementList[0].appendChild(chessPiece)
 
@@ -1354,6 +1466,7 @@
                         pause: false,
                         money,
                         fund,
+                        inventory,
                         knapsack: []
                     })
                 })
@@ -1364,7 +1477,9 @@
             dice.addEventListener('click', diceClick)
             log('游戏初始化完成')
             // 模拟开始
-            // startBtn.click()
+            startBtn.click()
+            // pauseUserSelectOpen();
+            // destinySelect.hidden = false;
         }
 
         // 玩家移动
@@ -1389,7 +1504,7 @@
             if (diceTurn) return;
             diceTurn = true
 
-            let target = Randoms.getRandomInt(1, 7);
+            let target = 6 //Randoms.getRandomInt(1, 7);
             let length = 18 + target;
             let diceChildren = dice.children
             let wait = () => new Promise((resolve) => {
@@ -1436,7 +1551,9 @@
 
         // 更新背包
         function updateKnapsack() {
-
+            playerInfoList.forEach((player) => {
+                player.inventory.textContent = player.knapsack.join(',')
+            })
         }
         init();
     </script>
