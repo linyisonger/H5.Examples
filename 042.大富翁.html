@@ -153,6 +153,7 @@
         .commentary-seat .player-list .player {
             display: flex;
             margin-bottom: 20px;
+            position: relative;
         }
 
         .commentary-seat .player .avatar {
@@ -173,6 +174,22 @@
         .commentary-seat .inventory {
             display: flex;
             align-items: center;
+        }
+
+        .commentary-seat .player .bankruptcy {
+            position: absolute;
+            left: 0;
+            top: 0;
+            background-color: rgba(59, 59, 59, 0.5);
+            border-radius: 50%;
+            height: 100%;
+            width: 50px;
+            color: #f24;
+            text-align: center;
+            line-height: 50px;
+            font-size: 14px;
+            font-weight: bold;
+            transform: rotate(30deg);
         }
 
         .commentary-seat .player .card {
@@ -542,7 +559,7 @@
                         return level
                     },
                     set(val) {
-                        log(`玩家${val.name} 在${name}土地升级了房屋`)
+                        log(`玩家${holder.name} 在${name}土地升级了房屋`)
                         // 俩绿 一红
                         corona.setAttribute('level', val)
                         level = val
@@ -1357,6 +1374,7 @@
                     info.addEventListener('click', function () {
                         log(`玩家${currentPlayer.name} 指定 玩家${player.name} 暂停一回合`)
                         player.pause = true;
+                        pauseUserSelect.hidden = true;
                         nextDicePlayer()
                     })
                 }))
@@ -1586,28 +1604,35 @@
                     let information = document.createElement('div')
                     let color = player.querySelector('.color').textContent;
                     let src = player.querySelector('img').src
-
+                    let money = config.money
+                    let isBankruptcy = false
                     chessPiece.classList.add('player')
                     information.classList.add('player')
 
                     chessPiece.setAttribute('style', `background-image:url(${src});--border-color:${color}`)
-
+                    // 新建头像
                     let infoAvatar = document.createElement('img')
                     infoAvatar.setAttribute("src", src)
                     infoAvatar.classList.add('avatar')
                     infoAvatar.setAttribute('style', `--border-color:${color}`)
                     if (dicePlayerIndex === index) infoAvatar.classList.add('active')
-                    information.appendChild(infoAvatar)
-                    // 初始资金
-                    let money = config.money
+                    // 新建资金栏
                     let fund = document.createElement('div')
                     fund.classList.add('fund')
                     fund.textContent = money
-
+                    // 新建物品栏
                     let inventory = document.createElement('div')
                     inventory.classList.add('inventory')
+                    // 新建已破产
+                    let bankruptcy = document.createElement('div')
+                    bankruptcy.classList.add('bankruptcy')
+                    bankruptcy.textContent = '已破产'
+                    bankruptcy.hidden = !isBankruptcy
+
+                    information.appendChild(infoAvatar)
                     information.appendChild(fund)
                     information.appendChild(inventory)
+                    information.appendChild(bankruptcy)
                     playerList.appendChild(information)
                     // 玩家棋子初始位置
                     mapElementList[0].appendChild(chessPiece)
@@ -1616,14 +1641,16 @@
                         avater: src,
                         name: player.querySelector('.name').textContent,
                         color,
-                        chessPiece,
-                        information,
                         moveScore: 0,
                         pause: false,
                         money,
+                        knapsack: null,
+                        isBankruptcy,
+                        information,
                         fund,
+                        chessPiece,
                         inventory,
-                        knapsack: null
+                        bankruptcy,
                     }
                     playerInfo.knapsack = new Knapsack(playerInfo)
                     // 绑定金钱
@@ -1634,8 +1661,26 @@
                         set(val) {
                             money = val
                             fund.textContent = money
+                            // 进入破产流程
+                            if (money < 0) {
+                                playerInfo.isBankruptcy = true;
+                                // 土地充公
+                                // 重新竞价
+
+                            }
                         }
                     })
+                    // 绑定是否破产
+                    Object.defineProperty(playerInfo, 'isBankruptcy', {
+                        get() {
+                            return isBankruptcy
+                        },
+                        set(val) {
+                            isBankruptcy = val
+                            bankruptcy.hidden = !val
+                        }
+                    })
+
                     playerInfoList.push(playerInfo)
                 })
 
@@ -1699,6 +1744,10 @@
             let nextPlayer = playerInfoList[dicePlayerIndex % playerInfoList.length];
             if (nextPlayer.pause) {
                 nextPlayer.pause = false;
+                return nextDicePlayer()
+            }
+            // 破产
+            if (nextPlayer.isBankruptcy) {
                 return nextDicePlayer()
             }
             commentarySeat.querySelector('.player-list .avatar.active').classList.remove('active')
