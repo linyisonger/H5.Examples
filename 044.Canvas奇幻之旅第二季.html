@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./assets/global.css">
+    <link rel="stylesheet" href="./assets/highlight/styles/github-dark.min.css">
+    <script src="./assets/highlight/highlight.min.js"></script> <!--引入代码高亮js-->
+
+    <style>
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 20px;
+        }
+
+        .container canvas {
+            margin-right: 20px;
+            border: 1px dashed salmon;
+        }
+
+        pre {
+            margin: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <script type="module">
+        import { Maths, Randoms, Animation, v2, Vector2 } from "https://unpkg.com/@3r/tool"
+        /**
+         * 创建画布
+         */
+        function createCanvas({
+            width,
+            height,
+            render
+        }) {
+            const container = document.createElement('div')
+            const canvasContainer = document.createElement('div')
+            const canvas = document.createElement('canvas');
+            const codeContainer = document.createElement('div')
+            const codePre = document.createElement('pre')
+            const code = document.createElement('code')
+
+
+            canvas.width = width;
+            canvas.height = height;
+            const context = canvas.getContext('2d')
+
+            container.classList.add('container')
+            codeContainer.classList.add('code')
+            code.classList.add('hljs', 'language-html')
+
+            codePre.appendChild(code)
+            codeContainer.appendChild(codePre)
+            canvasContainer.appendChild(canvas)
+            container.appendChild(canvasContainer)
+            container.appendChild(codeContainer)
+
+            let codeTextContent = render.toString()
+            codeTextContent = codeTextContent.split('\n')
+            let codeStartLine = codeTextContent.findIndex(line => line.includes('//'))
+            codeTextContent = codeTextContent.slice(codeStartLine, codeTextContent.length - 1)
+            codeTextContent = codeTextContent.map(line => line.replace('                ', ''))
+            codeTextContent = codeTextContent.join('\n')
+            code.textContent = codeTextContent
+            document.body.appendChild(container)
+            render({
+                canvas,
+                context
+            })
+        }
+
+
+        createCanvas({
+            width: 300,
+            height: 300,
+            render: ({ canvas, context }) => {
+                // lineCap 属性
+                context.beginPath()
+                context.moveTo(20, 20)
+                context.lineTo(180, 20)
+                context.strokeStyle = 'blue'
+                context.lineWidth = 10
+                context.lineCap = 'butt' // 默认
+                context.stroke();
+
+                context.beginPath()
+                context.moveTo(20, 70)
+                context.lineTo(180, 70)
+                context.strokeStyle = 'blue'
+                context.lineWidth = 10
+                context.lineCap = 'round' // 圆 
+                context.stroke();
+
+                context.beginPath()
+                context.moveTo(20, 120)
+                context.lineTo(180, 120)
+                context.strokeStyle = 'blue'
+                context.lineWidth = 10
+                context.lineCap = 'square' // 方 
+                context.stroke();
+
+
+
+                context.beginPath()
+                context.moveTo(20, 170)
+                context.lineTo(180, 170)
+                context.strokeStyle = 'blue'
+                context.lineWidth = 10
+                context.lineCap = 'square' // 方
+                context.closePath(); // 会使lineCap不生效
+                context.stroke();
+
+
+                // 辅助观察线
+                context.beginPath()
+                context.moveTo(20, 0)
+                context.lineTo(20, 300)
+                context.moveTo(180, 0)
+                context.lineTo(180, 300)
+                context.strokeStyle = 'red'
+                context.lineWidth = 1
+                context.lineCap = 'butt' // 默认
+                context.stroke();
+
+                // 矩形一角未封口问题
+                context.beginPath()
+                context.moveTo(20, 200)
+                context.lineTo(80, 200)
+                context.lineTo(80, 260)
+                context.lineTo(20, 260)
+                context.lineTo(20, 200)
+                context.strokeStyle = 'blue'
+                context.lineWidth = 10
+                // 两种方式任选其一
+                // context.lineCap = 'square' 
+                // context.closePath(); 
+                context.stroke();
+            }
+        })
+
+        createCanvas({
+            width: 300,
+            height: 300,
+            render: ({ canvas, context }) => {
+                // lineJoin 属性
+                context.beginPath()
+                context.moveTo(20, 20)
+                context.lineTo(180, 20)
+                context.lineTo(20, 50)
+                context.strokeStyle = 'blue'
+                context.lineWidth = 10
+                context.closePath()
+                context.lineJoin = 'miter' // 默认
+                context.stroke();
+
+                context.beginPath()
+                context.moveTo(20, 70)
+                context.lineTo(180, 70)
+                context.lineTo(20, 100)
+                context.strokeStyle = 'blue'
+                context.lineWidth = 10
+                context.closePath()
+                context.lineJoin = 'bevel'
+                context.stroke();
+
+                context.beginPath()
+                context.moveTo(20, 120)
+                context.lineTo(180, 120)
+                context.lineTo(20, 150)
+                context.strokeStyle = 'blue'
+                context.lineWidth = 10
+                context.closePath()
+                context.lineJoin = 'round'
+                context.stroke();
+
+                context.beginPath()
+                context.moveTo(20, 170)
+                context.lineTo(180, 170)
+                context.lineTo(20, 200)
+                context.strokeStyle = 'blue'
+                context.lineWidth = 10
+                context.closePath()
+                context.lineJoin = 'miter' // 默认
+                context.miterLimit = '1' // 如果斜接长度超过 miterLimit 的值，边角会以 lineJoin 的 "bevel" 类型来显示。
+                context.stroke();
+
+            }
+        })
+
+        createCanvas({
+            width: 300,
+            height: 300,
+            render: ({ canvas, context }) => {
+                // 绘制星星⭐
+                function drawStar(x, y, R, r, color) {
+                    // let R = 100
+                    // let r = 40
+                    context.beginPath()
+                    for (let i = 0; i < 5; i++) {
+                        // 外角
+                        context.lineTo(R * Math.cos((18 + i * 72) / 180 * Math.PI) + x, -R * Math.sin((18 + i * 72) / 180 * Math.PI) + y)
+                        // 内角
+                        context.lineTo(r * Math.cos((54 + i * 72) / 180 * Math.PI) + x, -r * Math.sin((54 + i * 72) / 180 * Math.PI) + y)
+                    }
+                    context.fillStyle = color
+                    context.closePath()
+                    context.fill()
+                }
+
+                drawStar(150, 150, 100, 40, 'yellow')
+
+            }
+        })
+
+
+        createCanvas({
+            width: 300,
+            height: 300,
+            render: ({ canvas, context }) => {
+                // translate 移动画布
+                context.beginPath()
+                context.moveTo(50, 50)
+                context.lineTo(120, 50)
+                context.lineTo(120, 120)
+                context.lineTo(50, 120)
+                context.fillStyle = '#f0f'
+                context.closePath()
+                context.fill()
+
+                context.beginPath()
+                context.translate(50, 50)
+                context.moveTo(50, 50)
+                context.lineTo(120, 50)
+                context.lineTo(120, 120)
+                context.lineTo(50, 120)
+                context.fillStyle = '#f0f'
+                context.closePath()
+                context.fill()
+
+                context.beginPath()
+                context.translate(50, 50) // 叠加性
+                context.moveTo(50, 50)
+                context.lineTo(120, 50)
+                context.lineTo(120, 120)
+                context.lineTo(50, 120)
+                context.fillStyle = '#f0f'
+                context.closePath()
+                context.fill()
+
+                // 盖住第一个
+                context.beginPath()
+                context.translate(-100, -100) // 叠加性
+                context.moveTo(50, 50)
+                context.lineTo(120, 50)
+                context.lineTo(120, 120)
+                context.lineTo(50, 120)
+                context.fillStyle = '#ff0'
+                context.closePath()
+                context.fill()
+            }
+        })
+
+
+        createCanvas({
+            width: 300,
+            height: 300,
+            render: ({ canvas, context }) => {
+                // save restore 保存和恢复画布
+                context.beginPath()
+                context.moveTo(50, 50)
+                context.lineTo(120, 50)
+                context.lineTo(120, 120)
+                context.lineTo(50, 120)
+                context.fillStyle = '#f0f'
+                context.closePath()
+                context.fill()
+
+                context.save()
+                context.beginPath()
+                context.translate(50, 50)
+                context.moveTo(50, 50)
+                context.lineTo(120, 50)
+                context.lineTo(120, 120)
+                context.lineTo(50, 120)
+                context.fillStyle = '#f0f'
+                context.closePath()
+                context.fill()
+                context.restore()
+
+                // 盖住第二个
+                context.save()
+                context.beginPath()
+                context.translate(50, 50) // 叠加性
+                context.moveTo(50, 50)
+                context.lineTo(120, 50)
+                context.lineTo(120, 120)
+                context.lineTo(50, 120)
+                context.fillStyle = '#0ff'
+                context.closePath()
+                context.fill()
+                context.restore()
+
+                // 盖住第一个
+                context.save()
+                context.beginPath()
+                context.moveTo(50, 50)
+                context.lineTo(120, 50)
+                context.lineTo(120, 120)
+                context.lineTo(50, 120)
+                context.fillStyle = '#ff0'
+                context.closePath()
+                context.fill()
+                context.restore()
+
+
+                // 绘制星星⭐
+                function drawStar(x, y, R, r, color) {
+                    // let R = 100
+                    // let r = 40
+                    context.save()
+                    context.translate(x, y)
+                    context.beginPath()
+                    for (let i = 0; i < 5; i++) {
+                        // 外角
+                        context.lineTo(R * Math.cos((18 + i * 72) / 180 * Math.PI), -R * Math.sin((18 + i * 72) / 180 * Math.PI))
+                        // 内角
+                        context.lineTo(r * Math.cos((54 + i * 72) / 180 * Math.PI), -r * Math.sin((54 + i * 72) / 180 * Math.PI))
+                    }
+                    context.fillStyle = color
+                    context.closePath()
+                    context.fill()
+                    context.restore()
+
+                }
+
+                drawStar(150, 150, 100, 40, 'yellow')
+                drawStar(170, 170, 100, 40, 'red')
+            }
+        })
+
+        createCanvas({
+            width: 300,
+            height: 300,
+            render: ({ canvas, context }) => {
+                // rotate 默认绕(0，0)旋转
+                context.save()
+                context.rotate(30 / 180 * Math.PI)
+                context.strokeStyle = 'red'
+                context.strokeRect(100, 100, 100, 50)
+                context.restore()
+
+
+                context.save()
+                context.rotate(-30 / 180 * Math.PI)
+                context.strokeStyle = 'red'
+                context.strokeRect(100, 100, 100, 50)
+                context.restore()
+
+                // scale 整个画布放大
+                context.save()
+                context.scale(2, 2)
+                context.strokeStyle = 'red'
+                context.lineWidth = 1;
+                context.strokeRect(50, 50, 100, 50)
+                context.restore()
+
+                // 绘制星星⭐
+                function drawStar(x, y, R, r, a, s, color) {
+                    // let R = 100
+                    // let r = 40
+                    context.save()
+                    context.translate(x, y)
+                    context.scale(s, s)
+                    context.rotate(a / 180 * Math.PI)
+                    context.beginPath()
+                    for (let i = 0; i < 5; i++) {
+                        // 外角
+                        context.lineTo(R * Math.cos((18 + i * 72) / 180 * Math.PI), -R * Math.sin((18 + i * 72) / 180 * Math.PI))
+                        // 内角
+                        context.lineTo(r * Math.cos((54 + i * 72) / 180 * Math.PI), -r * Math.sin((54 + i * 72) / 180 * Math.PI))
+                    }
+                    context.fillStyle = color
+                    context.closePath()
+                    context.fill()
+                    context.restore()
+                }
+                drawStar(100, 100, 120, 50, 40, 1.2, 'red')
+            }
+        })
+        createCanvas({
+            width: 300,
+            height: 300,
+            render: ({ canvas, context }) => {
+                // 绘制星空
+
+                // 绘制星星⭐
+                function drawStar(x, y, R, r, a, s, color) {
+                    // let R = 100
+                    // let r = 40
+                    context.save()
+                    context.translate(x, y)
+                    context.scale(s, s)
+                    context.rotate(a / 180 * Math.PI)
+                    context.beginPath()
+                    for (let i = 0; i < 5; i++) {
+                        // 外角
+                        context.lineTo(R * Math.cos((18 + i * 72) / 180 * Math.PI), -R * Math.sin((18 + i * 72) / 180 * Math.PI))
+                        // 内角
+                        context.lineTo(r * Math.cos((54 + i * 72) / 180 * Math.PI), -r * Math.sin((54 + i * 72) / 180 * Math.PI))
+                    }
+                    context.fillStyle = color
+                    context.closePath()
+                    context.fill()
+                    context.restore()
+                }
+                context.fillStyle = '#000'
+                context.fillRect(0, 0, canvas.width, canvas.height)
+                for (let i = 0; i < 50; i++) {
+                    let x = Randoms.getRandomInt(0, canvas.width)
+                    let y = Randoms.getRandomInt(0, canvas.height)
+                    let a = Randoms.getRandomInt(0, 180)
+                    drawStar(x, y, 30, 15, a, 1, 'yellow')
+                }
+            }
+        })
+
+        createCanvas({
+            width: 300,
+            height: 300,
+            render: ({ canvas, context }) => {
+                // arcTo 绘制曲线
+
+                // 封装带有辅助线的arcTo方法
+                function drawArcTo(x1, y1, x2, y2, radius) {
+                    context.beginPath()
+                    context.moveTo(x1 - x2, y1)
+                    context.arcTo(...arguments)
+                    context.strokeStyle = 'red'
+                    context.stroke()
+
+                    context.beginPath()
+                    context.moveTo(x1 - x2, y1)
+                    context.lineTo(x1, y1)
+                    context.lineTo(x2, y2)
+                    context.strokeStyle = '#808080'
+                    context.stroke()
+                }
+
+                drawArcTo(200, 100, 200, 200, 50)
+                drawArcTo(240, 70, 200, 200, 50)
+                drawArcTo(180, 140, 200, 200, 50)
+
+            }
+        })
+
+        createCanvas({
+            width: 300,
+            height: 300,
+            render: ({ canvas, context }) => {
+                // 绘制月亮
+
+            }
+        })
+    </script>
+</body>
+
+</html>

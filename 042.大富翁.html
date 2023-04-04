@@ -45,6 +45,26 @@
             border: 4px solid var(--border-color);
         }
 
+        .map-element .corona i {
+            opacity: 0;
+            padding: 5px;
+        }
+
+        .map-element .corona[level='1'] i:first-child {
+            opacity: 1;
+            color: green;
+        }
+
+        .map-element .corona[level='2'] i {
+            opacity: 1;
+            color: green;
+        }
+
+        .map-element .corona[level='3'] i:first-child {
+            opacity: 1;
+            color: red;
+        }
+
         .map-mask,
         .commentary-seat {
             position: absolute;
@@ -148,6 +168,18 @@
             font-weight: bold;
             color: black;
             text-shadow: 2px 2px gold;
+        }
+
+        .commentary-seat .inventory {
+            display: flex;
+            align-items: center;
+        }
+
+        .commentary-seat .player .card {
+            margin-left: 10px;
+            background: var(--bg-color);
+            padding: 5px 5px;
+            border: 1px solid #ddd;
         }
 
         .commentary-seat .player .avatar.active {
@@ -318,6 +350,7 @@
         .business-container .buy-land-btn,
         .business-container .buy-house-btn,
         .business-container .buy-hotel-btn,
+        .business-container .free-buy-house-btn,
         .business-container .pass-btn {
             padding: 10px 20px;
             background-color: #44a0c4;
@@ -425,6 +458,7 @@
                     <div class="h2">请选择您的操作</div>
                     <div class="buy-land-btn">购买土地</div>
                     <div class="buy-house-btn">购买房子</div>
+                    <div class="free-buy-house-btn">免费升级</div>
                     <div class="pass-btn">路过</div>
                 </div>
             </div>
@@ -437,10 +471,14 @@
                 </div>
             </div>
             <div class="pause-user-select" hidden></div>
+
+            <!-- <div class="bank-container">
+            </div> -->
         </div>
     </div>
 
     <script type="module">
+        // 默认地图事件
         class MapFunction {
             constructor({
                 pass,
@@ -454,6 +492,7 @@
                 }
             }
         }
+        // 地图土地事件
         class MapLandFunction extends MapFunction {
             constructor({
                 id,
@@ -478,8 +517,41 @@
                 this.maxLevel = maxLevel
                 this.name = name
                 this.id = id
+
+                let corona = document.createElement('div')
+                corona.classList.add('corona')
+                Object.defineProperty(this, 'holder', {
+                    get() {
+                        return holder
+                    },
+                    set(val) {
+                        log(`玩家${val.name} 购买了${name}的土地使用权 花费${money}元`)
+                        corona.setAttribute('style', `--border-color:${val.color}`)
+                        for (let i = 0; i < 2; i++) {
+                            let house = document.createElement('i')
+                            house.classList.add('fas', 'fa-home')
+                            corona.appendChild(house)
+                        }
+                        mapElementList[id].appendChild(corona)
+                        holder = val
+                    }
+                })
+
+                Object.defineProperty(this, 'level', {
+                    get() {
+                        return level
+                    },
+                    set(val) {
+                        log(`玩家${val.name} 在${name}土地升级了房屋`)
+                        // 俩绿 一红
+                        corona.setAttribute('level', val)
+                        level = val
+                    }
+                })
+
             }
         }
+        // 机会事件
         class ChanceFunction {
             constructor({
                 name,
@@ -521,6 +593,7 @@
             }
 
         }
+        // 命运事件
         class DestinyFunction {
             constructor({
                 name,
@@ -561,35 +634,98 @@
                 }
             }
         }
-
+        // 玩家背包
+        class Knapsack extends Array {
+            constructor(player) {
+                super()
+                this.player = player
+            }
+            push(...items) {
+                super.push(...items)
+                this.render(...items)
+            }
+            splice(start, deleteCount, ...items) {
+                let inventory = this.player.inventory
+                let deleteList = this.slice(start - 1, start + deleteCount);
+                for (let i = 0; i < deleteList.length; i++) {
+                    const element = deleteList[i];
+                    inventory.querySelector(`.card[alt=${element.name}]`).remove()
+                }
+                super.splice(start, deleteCount, ...items)
+                this.render(...items)
+            }
+            render(...items) {
+                let inventory = this.player.inventory
+                for (let i = 0; i < items.length; i++) {
+                    const name = items[i].name;
+                    let card = document.createElement('div')
+                    card.classList.add('card')
+                    card.textContent = name[0]
+                    card.setAttribute('alt', name)
+                    switch (name) {
+                        case "出狱许可证":
+                            card.setAttribute('style', `--bg-color:rgb(242,199,6)`)
+                            break;
+                        case "免费升级卡":
+                            card.setAttribute('style', `--bg-color:rgb(206,54,43)`)
+                            break;
+                    }
+                    inventory.appendChild(card)
+                }
+            }
+        }
+        // 三方库  仅使用随机模块
         import { Randoms } from "https://unpkg.com/@3r/tool/lib/randoms";
 
+        // 配置
+        const config = {
+            // 初始资金
+            money: 5000 // (5000 + 2000 + 1000 + 500 + 200 + 100) * 2
+        }
 
+
+
+        // 地图容器
         let mapContainer = document.querySelector('.map-container')
+        // 地图遮罩
         let mapMask = document.querySelector('.map-mask')
+        // 开始游戏
         let gameStart = document.querySelector('.game-start')
+        // 观众席
         let commentarySeat = document.querySelector('.commentary-seat')
+        // 游戏规则
         let gameRule = document.querySelector('.game-rule')
+        // 规则按钮
         let ruleBtn = document.querySelector('.rule-btn')
+        // 开始按钮
         let startBtn = document.querySelector('.start-btn')
+        // 规则关闭按钮
         let ruleCloseBtn = document.querySelector('.rule-close-btn')
+        // 开始游戏前选择玩家
         let selectPlayers = document.querySelectorAll('.players.select .player')
+        // 🎲
         let dice = commentarySeat.querySelector('.dice')
+        // 日志
         let logList = commentarySeat.querySelector('.log-list')
 
+        // 玩家信息列表
         let playerInfoList = []
+        // 地图元素列表
         let mapElementList = []
+        // 地图方法列表
         let mapFunctionList = []
+        // 机会事件列表
         let chanceFunctionList = []
+        // 命运事件列表
         let destinyFunctionList = []
-
+        // 🎲是否转动中
         let diceTurn = false;
+        // 🙋‍哪位玩家操作
         let dicePlayerIndex = 0
-
-
 
         // 初始化
         function init() {
+            // 标记地图元素信息列表
             let mapElementInfoList = [
                 {
                     top: '667px',
@@ -777,10 +913,15 @@
                 const element = document.createElement('div')
                 element.setAttribute('style', `top:${info.top};left:${info.left};width:${info.width};height:${info.height}`)
                 element.classList.add('map-element')
+                // 储存列表中
                 mapElementList.push(element)
+                // 塞入页面渲染
                 mapContainer.appendChild(element)
+
             }
 
+
+            // 交易容器
             let businessContainer = document.querySelector('.business-container');
 
             // 交易页面路过操作
@@ -792,45 +933,63 @@
 
             // 当前交易的地皮
             let currentBusinessLand = null
+            // 购买地皮
             let businessContainerBuyLandBtn = businessContainer.querySelector('.buy-land-btn');
             businessContainerBuyLandBtn.addEventListener('click', () => {
                 let currentPlayer = playerInfoList[dicePlayerIndex % playerInfoList.length];
-                currentPlayer.money -= currentBusinessLand.money;
-                currentBusinessLand.holder = currentPlayer;
-                updateMoney()
-                log(`玩家${currentPlayer.name} 购买了${currentBusinessLand.name}土地的使用权`)
-                // 增加光环
-                let corona = document.createElement('div')
-                corona.classList.add('corona')
-                corona.setAttribute('style', `--border-color:${currentPlayer.color}`)
-                mapElementList[currentBusinessLand.id].appendChild(corona)
-                businessContainer.setAttribute('style', 'display:none')
-                nextDicePlayer()
+                if (currentPlayer.money < currentBusinessLand.money) {
+                    alert('余额不足无法购买')
+                }
+                else {
+                    currentPlayer.money -= currentBusinessLand.money;
+                    currentBusinessLand.holder = currentPlayer;
+                    businessContainer.setAttribute('style', 'display:none')
+                    nextDicePlayer()
+                }
             })
-
+            // 买🏠
             let businessContainerBuyHouseBtn = businessContainer.querySelector('.buy-house-btn');
             businessContainerBuyHouseBtn.addEventListener('click', () => {
                 let currentPlayer = playerInfoList[dicePlayerIndex % playerInfoList.length];
-                currentPlayer.money -= currentBusinessLand.upgrade;
+                if (currentPlayer.money < currentBusinessLand.money) {
+                    alert('余额不足无法升级')
+                }
+                else {
+                    currentPlayer.money -= currentBusinessLand.upgrade;
+                    currentBusinessLand.level++;
+                    businessContainer.setAttribute('style', 'display:none')
+                    nextDicePlayer()
+                }
+            })
+            // 0元购🏠
+            let businessContainerFreeBuyHouseBtn = businessContainer.querySelector('.free-buy-house-btn')
+            businessContainerFreeBuyHouseBtn.addEventListener('click', () => {
+                let currentPlayer = playerInfoList[dicePlayerIndex % playerInfoList.length];
+                let idx = currentPlayer.knapsack.findIndex(item => item.name === '免费升级卡')
+                currentPlayer.knapsack.splice(idx, 1)
                 currentBusinessLand.level++;
-                updateMoney()
-                // TODO 更新土地状态
-                mapElementList[currentBusinessLand.id].querySelector('.corona').textContent = currentBusinessLand.level
                 businessContainer.setAttribute('style', 'display:none')
                 nextDicePlayer()
             })
-
+            // 在国家止步
             let countryStop = function (player, score) {
-                // 弹出交易页面
-                // 允许买地/盖房/升级旅馆/路过
                 let img = businessContainer.querySelector('.info img')
                 img.src = this.landSrc;
                 businessContainerBuyLandBtn.hidden = true;
                 businessContainerBuyHouseBtn.hidden = true;
+                businessContainerFreeBuyHouseBtn.hidden = true;
                 if (!this.holder || this.holder === player) {
                     currentBusinessLand = this;
-                    if (this.holder === player) {
+                    if (this.level === 3) {
+                        nextDicePlayer()
+                    }
+                    else if (this.holder === player) {
                         let upgradeText = this.level === 2 ? '升级旅馆' : '购买房屋'
+                        let idx = player.knapsack.findIndex(item => item.name === '免费升级卡')
+                        if (idx > -1) {
+                            console.log(idx);
+                            businessContainerFreeBuyHouseBtn.hidden = false;
+                        }
                         log(`玩家${player.name} 在${this.name}土地${upgradeText}`)
                         businessContainerBuyHouseBtn.textContent = `${upgradeText}(${this.upgrade}元)`
                         businessContainerBuyHouseBtn.hidden = false;
@@ -845,17 +1004,17 @@
                     let toll = this.toll[this.level]
                     player.money -= toll;
                     this.holder.money += toll
-                    // 检查破产 
                     log(`玩家${player.name}停留${this.name} 给玩家${this.holder.name} 支付过路费${toll}元`)
-                    updateMoney()
                     nextDicePlayer()
                 }
             }
+            // 在水电厂止步
             let hydropowerStop = function (player, score) {
                 let img = businessContainer.querySelector('.info img')
                 img.src = this.landSrc;
                 businessContainerBuyLandBtn.hidden = true;
                 businessContainerBuyHouseBtn.hidden = true;
+                businessContainerFreeBuyHouseBtn.hidden = true;
                 if (!this.holder) {
                     currentBusinessLand = this;
                     businessContainerBuyLandBtn.textContent = `购买土地(${this.money}元)`
@@ -870,17 +1029,17 @@
                     let toll = this.toll[level] * score
                     player.money -= toll;
                     this.holder.money += toll
-                    // 检查破产 
                     log(`玩家${player.name}停留${this.name} 给玩家${this.holder.name} 支付过路费${toll}元`)
-                    updateMoney()
                     nextDicePlayer()
                 }
             }
+            // 在机场止步
             let airfieldStop = function (player, score) {
                 let img = businessContainer.querySelector('.info img')
                 img.src = this.landSrc;
                 businessContainerBuyLandBtn.hidden = true;
                 businessContainerBuyHouseBtn.hidden = true;
+                businessContainerFreeBuyHouseBtn.hidden = true;
                 if (!this.holder) {
                     currentBusinessLand = this;
                     businessContainerBuyLandBtn.textContent = `购买土地(${this.money}元)`
@@ -895,12 +1054,11 @@
                     let toll = this.toll[level]
                     player.money -= toll;
                     this.holder.money += toll
-                    // 检查破产 
                     log(`玩家${player.name}停留${this.name} 给玩家${this.holder.name} 支付过路费${toll}元`)
-                    updateMoney()
                     nextDicePlayer()
                 }
             }
+            // 👮‍♀️欢迎回家~
             let goToPrison = function (player, score) {
                 log(`玩家${player.name}入狱 暂停一回合`)
                 player.moveScore += (mapElementList.length - player.moveScore % mapElementList.length + 9)
@@ -908,31 +1066,32 @@
                 if (idx > -1) {
                     log(`玩家${player.name} 使用出狱许可证 无需暂停`)
                     player.knapsack.splice(idx, 1)
-                    updateKnapsack()
                 }
                 else player.pause = true;
                 let target = player.moveScore % mapElementList.length
                 mapElementList[target].appendChild(player.chessPiece)
                 mapFunctionList[target]['stop'](player, score)
             }
+            // 机会地图事件
             let chanceMapFunction = new MapFunction({
                 stop: (player, score) => {
-                    let target = Randoms.getRandomInt(0, chanceFunctionList.length)
+                    let target = 10 //Randoms.getRandomInt(0, chanceFunctionList.length)
                     chanceFunctionList[target].run(player)
                 }
             })
+            // 命运地图事件
             let destinyMapFunction = new MapFunction({
                 stop: (player, score) => {
                     let target = Randoms.getRandomInt(0, destinyFunctionList.length)
                     destinyFunctionList[target].run(player)
                 }
             })
+            // 地图事件列表
             mapFunctionList = [
                 new MapFunction({
                     pass: (player, score) => {
                         log(`玩家${player.name}经过起点 奖励1000元`)
                         player.money += 1000;
-                        updateMoney()
                     },
                     stop: nextDicePlayer
                 }),
@@ -1032,7 +1191,6 @@
                     stop: (player, score) => {
                         log(`玩家${player.name}需要缴纳700元所得税`)
                         player.money -= 700;
-                        updateMoney()
                         nextDicePlayer()
                     }
                 }),
@@ -1051,7 +1209,6 @@
                     stop: (player, score) => {
                         log(`玩家${player.name}停留免费停车场 暂停一回合`)
                         player.pause = true;
-                        updateMoney()
                         nextDicePlayer()
                     }
                 }),
@@ -1115,7 +1272,6 @@
                     stop: (player, score) => {
                         log(`玩家${player.name}需要缴纳500元签证费`)
                         player.money -= 500;
-                        updateMoney()
                         nextDicePlayer()
                     }
                 }),
@@ -1167,7 +1323,6 @@
                     stop: countryStop
                 })
             ]
-
             // 命运选择
             let destinySelect = commentarySeat.querySelector('.destiny-select')
             let selectChance = destinySelect.querySelector('.select-btn.chance')
@@ -1211,7 +1366,6 @@
             let moneyResultFunc = function (player) {
                 log(`${player.name} ${this.info}`)
                 player.money += this.award;
-                updateMoney();
                 nextDicePlayer()
             }
             // 群体
@@ -1220,10 +1374,9 @@
                 let other = playerInfoList.filter(p => p != player)
                 player.money += other.length * this.award;
                 other.map(p => p.money -= this.award)
-                updateMoney();
-                // TODO 检查一下玩家是否有破产的
                 nextDicePlayer()
             }
+            // 机会事件列表
             chanceFunctionList = [
                 new ChanceFunction({
                     info: '到泰国按摩学院 学习正统泰式按摩 付学费500元',
@@ -1294,7 +1447,6 @@
                     resultFunc: function (player) {
                         log(`${player.name} ${this.info}`)
                         player.knapsack.push(this)
-                        updateKnapsack()
                         nextDicePlayer()
                     }
                 }),
@@ -1305,6 +1457,7 @@
                     resultFunc: moneyResultFunc
                 }),
             ]
+            // 命运事件列表
             destinyFunctionList = [
                 new DestinyFunction({
                     info: '眼光精准 投资股票获利 得300元',
@@ -1342,7 +1495,6 @@
                     resultFunc: function (player) {
                         log(`${player.name} ${this.info}`)
                         player.knapsack.push(this)
-                        updateKnapsack()
                         nextDicePlayer()
                     }
                 }),
@@ -1399,14 +1551,17 @@
                     resultFunc: moneyResultFunc
                 }),
             ]
+            // 规则按钮点击事件
             ruleBtn.addEventListener("click", () => {
                 gameStart.hidden = true;
                 gameRule.hidden = false
             })
+            // 规则关闭按钮点击事件
             ruleCloseBtn.addEventListener('click', () => {
                 gameStart.hidden = false;
                 gameRule.hidden = true
             })
+            // 选择玩家按钮点击事件
             selectPlayers.forEach(player => {
                 player.addEventListener('click', function () {
                     if (player.classList.contains('active')) {
@@ -1420,6 +1575,7 @@
                     }
                 })
             })
+            // 开始游戏点击事件
             startBtn.addEventListener("click", () => {
                 mapMask.setAttribute('style', 'display:none')
                 commentarySeat.setAttribute('style', 'display:flex')
@@ -1442,22 +1598,21 @@
                     infoAvatar.setAttribute('style', `--border-color:${color}`)
                     if (dicePlayerIndex === index) infoAvatar.classList.add('active')
                     information.appendChild(infoAvatar)
-
-                    let money = (5000 + 2000 + 1000 + 500 + 200 + 100) * 2
+                    // 初始资金
+                    let money = config.money
                     let fund = document.createElement('div')
                     fund.classList.add('fund')
                     fund.textContent = money
 
                     let inventory = document.createElement('div')
                     inventory.classList.add('inventory')
-
-
                     information.appendChild(fund)
                     information.appendChild(inventory)
                     playerList.appendChild(information)
+                    // 玩家棋子初始位置
                     mapElementList[0].appendChild(chessPiece)
-
-                    playerInfoList.push({
+                    // 玩家信息
+                    const playerInfo = {
                         avater: src,
                         name: player.querySelector('.name').textContent,
                         color,
@@ -1468,19 +1623,37 @@
                         money,
                         fund,
                         inventory,
-                        knapsack: []
+                        knapsack: null
+                    }
+                    playerInfo.knapsack = new Knapsack(playerInfo)
+                    // 绑定金钱
+                    Object.defineProperty(playerInfo, 'money', {
+                        get() {
+                            return money
+                        },
+                        set(val) {
+                            money = val
+                            fund.textContent = money
+                        }
                     })
+                    playerInfoList.push(playerInfo)
                 })
 
                 log('游戏开始')
                 log(`请玩家${playerInfoList[dicePlayerIndex].name}开始掷色子`)
             })
+            // 🎲
             dice.addEventListener('click', diceClick)
             log('游戏初始化完成')
             // 模拟开始
             startBtn.click()
+            // diceClick();
             // pauseUserSelectOpen();
             // destinySelect.hidden = false;
+            // chanceMapFunction.stop()
+            // setTimeout(() => {
+            //     businessContainerFreeBuyHouseBtn.click()
+            // }, 8000)
         }
 
         // 玩家移动
@@ -1494,7 +1667,6 @@
                 player.moveScore++;
                 let target = player.moveScore % mapElementList.length
                 mapElementList[target].appendChild(player.chessPiece)
-                // 途径
                 let funcName = i === score - 1 ? 'stop' : 'pass';
                 mapFunctionList[target][funcName](player, score)
             }
@@ -1504,8 +1676,7 @@
         async function diceClick() {
             if (diceTurn) return;
             diceTurn = true
-
-            let target = 6 //Randoms.getRandomInt(1, 7);
+            let target = Randoms.getRandomInt(1, 7);
             let length = 18 + target;
             let diceChildren = dice.children
             let wait = () => new Promise((resolve) => {
@@ -1543,19 +1714,7 @@
             logList.scrollTo({ top: 100000000 })
         }
 
-        // 更新💴
-        function updateMoney() {
-            playerInfoList.forEach((player) => {
-                player.fund.textContent = player.money
-            })
-        }
-
-        // 更新背包
-        function updateKnapsack() {
-            playerInfoList.forEach((player) => {
-                player.inventory.textContent = player.knapsack.join(',')
-            })
-        }
+        // 执行初始化
         init();
     </script>
 </body>
