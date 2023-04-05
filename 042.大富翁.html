@@ -33,6 +33,7 @@
             background-repeat: no-repeat;
             background-size: contain;
             border: 4px solid var(--border-color);
+            z-index: 1;
         }
 
         .map-element .corona {
@@ -48,6 +49,15 @@
         .map-element .corona i {
             opacity: 0;
             padding: 5px;
+        }
+
+        .map-element .corona .mortgaged {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(30deg) scale(1.4);
+            font-weight: bold;
+            text-shadow: 2px 2px red;
         }
 
         .map-element .corona[level='1'] i:first-child {
@@ -230,13 +240,31 @@
         .destiny-container,
         .business-container,
         .destiny-select,
-        .pause-user-select {
+        .pause-user-select,
+        .game-over-container,
+        .bank-container {
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
             background-color: rgba(255, 255, 255, .8);
+        }
+
+        .game-over-container {
+            padding-top: 150px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 30px;
+        }
+
+        .game-over-container .reset-btn {
+            padding: 10px 20px;
+            background-color: #44a0c4;
+            width: 200px;
+            margin: 80px auto 0;
+            font-size: 20px;
+            color: #fff;
         }
 
         .chance-container .result,
@@ -368,7 +396,8 @@
         .business-container .buy-house-btn,
         .business-container .buy-hotel-btn,
         .business-container .free-buy-house-btn,
-        .business-container .pass-btn {
+        .business-container .pass-btn,
+        .business-container .redeem-btn {
             padding: 10px 20px;
             background-color: #44a0c4;
             width: 200px;
@@ -377,6 +406,68 @@
 
         .pass-btn {
             background-color: #949494;
+        }
+
+        .bank-container h2 {
+            text-align: center;
+        }
+
+        .bank-container .desc {
+            padding: 0 100px;
+        }
+
+        .bank-container .land-list {
+            max-height: 270px;
+            overflow: auto;
+            margin: 20px 100px;
+            padding: 0px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+
+        .bank-container .land-item {
+            position: relative;
+            margin-bottom: 20px;
+            display: flex;
+            width: 48%;
+            box-sizing: border-box;
+            background-color: #e4e3e3;
+        }
+
+        .bank-container .land-item .info {
+            display: flex;
+            align-items: center;
+            flex: 1;
+            justify-content: space-between;
+            padding: 20px;
+        }
+
+        .bank-container .land-item .mortgaged {
+            position: absolute;
+            background-color: rgb(233, 162, 9);
+            font-size: 14px;
+            left: 0;
+            top: 0;
+        }
+
+        .bank-container .land-item .mortgage-btn {
+            background-color: #44a0c4;
+            width: 60px;
+            line-height: 60px;
+            text-align: center;
+        }
+
+        .bank-container .cancel-btn {
+            position: absolute;
+            right: 100px;
+            bottom: 20px;
+            background-color: #44a0c4;
+            width: 200px;
+            padding: 10px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
 
@@ -413,12 +504,12 @@
                         <div class="name">小红</div>
                         <div class="color" hidden>red</div>
                     </div>
-                    <div class="player active">
+                    <div class="player">
                         <img src="./assets/monopoly/yellow.jpg" alt="小黄">
                         <div class="name">小黄</div>
                         <div class="color" hidden>yellow</div>
                     </div>
-                    <div class="player active">
+                    <div class="player">
                         <img src="./assets/monopoly/blue.jpg" alt="小蓝">
                         <div class="name">小蓝</div>
                         <div class="color" hidden>blue</div>
@@ -476,6 +567,7 @@
                     <div class="buy-land-btn">购买土地</div>
                     <div class="buy-house-btn">购买房子</div>
                     <div class="free-buy-house-btn">免费升级</div>
+                    <div class="redeem-btn">赎回</div>
                     <div class="pass-btn">路过</div>
                 </div>
             </div>
@@ -489,8 +581,28 @@
             </div>
             <div class="pause-user-select" hidden></div>
 
-            <!-- <div class="bank-container">
-            </div> -->
+            <div class="bank-container" hidden>
+                <h2>银行</h2>
+                <div class="desc">
+                    我们是一个很公正的机构哦😀~ 您已经没有💴票子啦，需要抵押一些土地(赎回时收取10%的手续费💴)，不然您就要被淘汰喽
+                </div>
+                <div class="land-list">
+                    <div class="land-item">
+                        <div class="info">
+                            <div class="name">加拿大</div>
+                            <div class="money">2600元</div>
+                        </div>
+                        <div class="mortgage-btn">抵押</div>
+                        <div class="mortgaged">已抵押</div>
+                    </div>
+                </div>
+                <div class="cancel-btn">放弃抵押(游戏结束)</div>
+            </div>
+
+            <div class="game-over-container" hidden>
+                <div class="h1">恭喜小红获得游戏胜利</div>
+                <div class="reset-btn">重新开始</div>
+            </div>
         </div>
     </div>
 
@@ -522,7 +634,8 @@
                 upgrade,
                 level,
                 maxLevel,
-                name
+                name,
+                mortgaged
             } = {}) {
                 super({ pass, stop });
                 this.landSrc = landSrc ?? ''
@@ -534,22 +647,54 @@
                 this.maxLevel = maxLevel
                 this.name = name
                 this.id = id
-
+                this.mortgaged = mortgaged
                 let corona = document.createElement('div')
+                let mortgagedDom = document.createElement('div')
+
                 corona.classList.add('corona')
+                mortgagedDom.hidden = true
+                mortgagedDom.textContent = '已抵押'
+                mortgagedDom.classList.add('mortgaged')
+
+                corona.appendChild(mortgagedDom)
+                Object.defineProperty(this, 'mortgaged', {
+                    get() {
+                        return mortgaged
+                    },
+                    set(val) {
+                        if (val) {
+                            log(`玩家${val.name} 将${name}的土地使用权抵押给银行`)
+                            mortgagedDom.hidden = false
+                            mapElementList[id].appendChild(corona)
+                        }
+                        else {
+                            log(`玩家${val.name} 将${name}的土地使用权赎回`)
+                            mortgagedDom.hidden = true
+                            corona.remove()
+                        }
+                        holder = val
+                    }
+                })
+
+
                 Object.defineProperty(this, 'holder', {
                     get() {
                         return holder
                     },
                     set(val) {
-                        log(`玩家${val.name} 购买了${name}的土地使用权 花费${money}元`)
-                        corona.setAttribute('style', `--border-color:${val.color}`)
-                        for (let i = 0; i < 2; i++) {
-                            let house = document.createElement('i')
-                            house.classList.add('fas', 'fa-home')
-                            corona.appendChild(house)
+                        if (val !== null) {
+                            log(`玩家${val.name} 购买了${name}的土地使用权 花费${money}元`)
+                            corona.setAttribute('style', `--border-color:${val.color}`)
+                            for (let i = 0; i < 2; i++) {
+                                let house = document.createElement('i')
+                                house.classList.add('fas', 'fa-home')
+                                corona.appendChild(house)
+                            }
+                            mapElementList[id].appendChild(corona)
                         }
-                        mapElementList[id].appendChild(corona)
+                        else {
+                            corona.remove()
+                        }
                         holder = val
                     }
                 })
@@ -559,9 +704,11 @@
                         return level
                     },
                     set(val) {
-                        log(`玩家${holder.name} 在${name}土地升级了房屋`)
-                        // 俩绿 一红
-                        corona.setAttribute('level', val)
+                        if (val !== 0) {
+                            log(`玩家${holder.name} 在${name}土地升级了房屋`)
+                            // 俩绿 一红
+                            corona.setAttribute('level', val)
+                        }
                         level = val
                     }
                 })
@@ -666,7 +813,8 @@
                 let deleteList = this.slice(start - 1, start + deleteCount);
                 for (let i = 0; i < deleteList.length; i++) {
                     const element = deleteList[i];
-                    inventory.querySelector(`.card[alt=${element.name}]`).remove()
+                    console.log(inventory.querySelector(`.card[title=${element.name}]`));
+                    inventory.querySelector(`.card[title=${element.name}]`).remove()
                 }
                 super.splice(start, deleteCount, ...items)
                 this.render(...items)
@@ -678,7 +826,7 @@
                     let card = document.createElement('div')
                     card.classList.add('card')
                     card.textContent = name[0]
-                    card.setAttribute('alt', name)
+                    card.setAttribute('title', name)
                     switch (name) {
                         case "出狱许可证":
                             card.setAttribute('style', `--bg-color:rgb(242,199,6)`)
@@ -692,12 +840,14 @@
             }
         }
         // 三方库  仅使用随机模块
-        import { Randoms } from "https://unpkg.com/@3r/tool/lib/randoms";
+        import { Randoms } from "https://gcore.jsdelivr.net/npm/@3r/tool/lib/randoms.js";
 
         // 配置
         const config = {
             // 初始资金
-            money: 5000 // (5000 + 2000 + 1000 + 500 + 200 + 100) * 2
+            money: 5000, // (5000 + 2000 + 1000 + 500 + 200 + 100) * 2
+            // 手续费 + 本金
+            commission: 1.1
         }
 
 
@@ -968,7 +1118,7 @@
             let businessContainerBuyHouseBtn = businessContainer.querySelector('.buy-house-btn');
             businessContainerBuyHouseBtn.addEventListener('click', () => {
                 let currentPlayer = playerInfoList[dicePlayerIndex % playerInfoList.length];
-                if (currentPlayer.money < currentBusinessLand.money) {
+                if (currentPlayer.money < currentBusinessLand.upgrade) {
                     alert('余额不足无法升级')
                 }
                 else {
@@ -988,6 +1138,23 @@
                 businessContainer.setAttribute('style', 'display:none')
                 nextDicePlayer()
             })
+            // 赎回 
+            let businessContainerRedeemBtn = businessContainer.querySelector('.redeem-btn')
+            businessContainerRedeemBtn.addEventListener('click', () => {
+                let currentPlayer = playerInfoList[dicePlayerIndex % playerInfoList.length];
+                let levelMoney = currentBusinessLand.level * currentBusinessLand.upgrade
+                let totalMoney = currentBusinessLand.money + (isNaN(levelMoney) ? 0 : levelMoney)
+                totalMoney = ~~(totalMoney * config.commission)
+                if (currentPlayer.money < totalMoney) {
+                    alert('余额不足无法赎回')
+                }
+                else {
+                    businessContainer.setAttribute('style', 'display:none')
+                    currentBusinessLand.mortgaged = false
+                    nextDicePlayer()
+                }
+            })
+
             // 在国家止步
             let countryStop = function (player, score) {
                 let img = businessContainer.querySelector('.info img')
@@ -995,16 +1162,24 @@
                 businessContainerBuyLandBtn.hidden = true;
                 businessContainerBuyHouseBtn.hidden = true;
                 businessContainerFreeBuyHouseBtn.hidden = true;
+                businessContainerRedeemBtn.hidden = true;
                 if (!this.holder || this.holder === player) {
                     currentBusinessLand = this;
-                    if (this.level === 3) {
+                    if (this.mortgaged) {
+                        console.log(currentBusinessLand);
+                        businessContainerRedeemBtn.hidden = false;
+                        let levelMoney = currentBusinessLand.level * currentBusinessLand.upgrade
+                        let totalMoney = currentBusinessLand.money + (isNaN(levelMoney) ? 0 : levelMoney)
+                        totalMoney = ~~(totalMoney * config.commission)
+                        businessContainerRedeemBtn.textContent = `赎回土地(${totalMoney}元)`
+                    }
+                    else if (this.level === 3) {
                         nextDicePlayer()
                     }
                     else if (this.holder === player) {
                         let upgradeText = this.level === 2 ? '升级旅馆' : '购买房屋'
                         let idx = player.knapsack.findIndex(item => item.name === '免费升级卡')
                         if (idx > -1) {
-                            console.log(idx);
                             businessContainerFreeBuyHouseBtn.hidden = false;
                         }
                         log(`玩家${player.name} 在${this.name}土地${upgradeText}`)
@@ -1017,11 +1192,14 @@
                     }
                     if (this.level < 3) businessContainer.setAttribute('style', 'display:flex')
                 }
-                else {
+                else if (!this.mortgaged) {
                     let toll = this.toll[this.level]
                     player.money -= toll;
                     this.holder.money += toll
                     log(`玩家${player.name}停留${this.name} 给玩家${this.holder.name} 支付过路费${toll}元`)
+                    nextDicePlayer()
+                }
+                else {
                     nextDicePlayer()
                 }
             }
@@ -1032,7 +1210,15 @@
                 businessContainerBuyLandBtn.hidden = true;
                 businessContainerBuyHouseBtn.hidden = true;
                 businessContainerFreeBuyHouseBtn.hidden = true;
-                if (!this.holder) {
+                businessContainerRedeemBtn.hidden = true;
+
+                if (this.mortgaged) {
+                    businessContainerRedeemBtn.hidden = false;
+                    let totalMoney = currentBusinessLand.money
+                    totalMoney = ~~(totalMoney * config.commission)
+                    businessContainerRedeemBtn.textContent = `赎回土地(${totalMoney}元)`
+                }
+                else if (!this.holder) {
                     currentBusinessLand = this;
                     businessContainerBuyLandBtn.textContent = `购买土地(${this.money}元)`
                     businessContainerBuyLandBtn.hidden = false;
@@ -1041,12 +1227,15 @@
                 else if (this.holder === player) {
                     nextDicePlayer()
                 }
-                else {
+                else if (!this.mortgaged) {
                     let level = mapFunctionList[5].holder === mapFunctionList[28].holder ? 1 : 0
                     let toll = this.toll[level] * score
                     player.money -= toll;
                     this.holder.money += toll
                     log(`玩家${player.name}停留${this.name} 给玩家${this.holder.name} 支付过路费${toll}元`)
+                    nextDicePlayer()
+                }
+                else {
                     nextDicePlayer()
                 }
             }
@@ -1057,7 +1246,14 @@
                 businessContainerBuyLandBtn.hidden = true;
                 businessContainerBuyHouseBtn.hidden = true;
                 businessContainerFreeBuyHouseBtn.hidden = true;
-                if (!this.holder) {
+                businessContainerRedeemBtn.hidden = true;
+                if (this.mortgaged) {
+                    businessContainerRedeemBtn.hidden = false;
+                    let totalMoney = currentBusinessLand.money
+                    totalMoney = ~~(totalMoney * config.commission)
+                    businessContainerRedeemBtn.textContent = `赎回土地(${totalMoney}元)`
+                }
+                else if (!this.holder) {
                     currentBusinessLand = this;
                     businessContainerBuyLandBtn.textContent = `购买土地(${this.money}元)`
                     businessContainerBuyLandBtn.hidden = false;
@@ -1066,12 +1262,15 @@
                 else if (this.holder === player) {
                     nextDicePlayer()
                 }
-                else {
+                else if (!this.mortgaged) {
                     let level = mapFunctionList[7].holder === mapFunctionList[21].holder ? 1 : 0
                     let toll = this.toll[level]
                     player.money -= toll;
                     this.holder.money += toll
                     log(`玩家${player.name}停留${this.name} 给玩家${this.holder.name} 支付过路费${toll}元`)
+                    nextDicePlayer()
+                }
+                else {
                     nextDicePlayer()
                 }
             }
@@ -1092,7 +1291,7 @@
             // 机会地图事件
             let chanceMapFunction = new MapFunction({
                 stop: (player, score) => {
-                    let target = 10 //Randoms.getRandomInt(0, chanceFunctionList.length)
+                    let target = Randoms.getRandomInt(0, chanceFunctionList.length)
                     chanceFunctionList[target].run(player)
                 }
             })
@@ -1359,6 +1558,7 @@
             let pauseUserSelect = commentarySeat.querySelector('.pause-user-select')
             function pauseUserSelectOpen() {
                 pauseUserSelect.hidden = false;
+                pauseUserSelect.innerHTML = ''
                 let currentPlayer = playerInfoList[dicePlayerIndex % playerInfoList.length];
                 playerInfoList.forEach((player => {
                     let info = document.createElement('div')
@@ -1661,13 +1861,6 @@
                         set(val) {
                             money = val
                             fund.textContent = money
-                            // 进入破产流程
-                            if (money < 0) {
-                                playerInfo.isBankruptcy = true;
-                                // 土地充公
-                                // 重新竞价
-
-                            }
                         }
                     })
                     // 绑定是否破产
@@ -1689,16 +1882,28 @@
             })
             // 🎲
             dice.addEventListener('click', diceClick)
+            // 重新开始
+            document.querySelector('.game-over-container .reset-btn').addEventListener('click', () => {
+                location.reload()
+            })
+
+            // 银行
+            let bankContainer = document.querySelector('.bank-container')
+            let mortgageCancelBtn = bankContainer.querySelector('.cancel-btn')
+
+            // 取消
+            mortgageCancelBtn.addEventListener('click', () => {
+                bankContainer.hidden = true;
+                let currentPlayer = playerInfoList[dicePlayerIndex % playerInfoList.length];
+                landConfiscate(currentPlayer)
+                nextDicePlayer()
+            })
+
+
+
             log('游戏初始化完成')
             // 模拟开始
-            startBtn.click()
-            // diceClick();
-            // pauseUserSelectOpen();
-            // destinySelect.hidden = false;
-            // chanceMapFunction.stop()
-            // setTimeout(() => {
-            //     businessContainerFreeBuyHouseBtn.click()
-            // }, 8000)
+            // startBtn.click()
         }
 
         // 玩家移动
@@ -1722,7 +1927,7 @@
             if (diceTurn) return;
             diceTurn = true
             let target = Randoms.getRandomInt(1, 7);
-            let length = 18 + target;
+            let length = target // 18 + target;
             let diceChildren = dice.children
             let wait = () => new Promise((resolve) => {
                 setTimeout(resolve, 100)
@@ -1740,6 +1945,13 @@
 
         // 下一个摇骰子人
         function nextDicePlayer() {
+            checkGameOver();
+            // 处理当前人
+            let currentPlayer = playerInfoList[dicePlayerIndex % playerInfoList.length];
+            if (currentPlayer.money < 0 && !currentPlayer.isBankruptcy) {
+                startMortgage(currentPlayer)
+                return
+            }
             dicePlayerIndex++;
             let nextPlayer = playerInfoList[dicePlayerIndex % playerInfoList.length];
             if (nextPlayer.pause) {
@@ -1763,6 +1975,79 @@
             logList.scrollTo({ top: 100000000 })
         }
 
+        // 开始抵押
+        function startMortgage(player) {
+            console.log(player);
+            // 土地可抵押列表
+            let bankContainer = document.querySelector('.bank-container')
+            bankContainer.hidden = false;
+            let landList = bankContainer.querySelector('.land-list')
+            landList.innerHTML = ``
+            let playerLandList = mapFunctionList.filter(map => map instanceof MapLandFunction && map.holder === player);
+            let landMonery = playerLandList.filter(map => !map.mortgaged).reduce((total, map) => {
+                let levelMoney = map.level * map.upgrade
+                let totalMoney = map.money + (isNaN(levelMoney) ? 0 : levelMoney)
+                total += totalMoney;
+                return total;
+            }, 0)
+            // 破产
+            if (player.money + landMonery < 0) {
+                player.isBankruptcy = true;
+                bankContainer.hidden = true;
+                nextDicePlayer()
+            }
+            else {
+                playerLandList.forEach(map => {
+                    let landItem = document.createElement('div')
+                    let levelMoney = map.level * map.upgrade
+                    let totalMoney = map.money + (isNaN(levelMoney) ? 0 : levelMoney)
+                    landItem.innerHTML = `
+                            <div class="info">
+                                <div class="name">${map.name}</div>
+                                <div class="money">${totalMoney}元</div>
+                            </div>
+                            <div class="mortgage-btn" ${map.mortgaged ? "hidden" : ""}>抵押</div>
+                            <div class="mortgaged" ${!map.mortgaged ? "hidden" : ""}>已抵押</div>
+                        `
+                    landItem.classList.add('land-item')
+                    let mortgageBtn = landItem.querySelector('.mortgage-btn')
+                    let mortgaged = landItem.querySelector('.mortgaged')
+                    mortgageBtn.onclick = function () {
+                        map.mortgaged = true;
+                        mortgageBtn.hidden = true;
+                        mortgaged.hidden = false;
+                        console.log(player);
+                        player.money += totalMoney
+
+                        if (player.money >= 0) {
+                            bankContainer.hidden = true;
+                            nextDicePlayer()
+                        }
+                    }
+                    landList.appendChild(landItem)
+                })
+            }
+        }
+
+        // 土地充公
+        function landConfiscate(player) {
+            mapFunctionList.forEach(map => {
+                if (map instanceof MapLandFunction && map.holder === player) {
+                    map.holder = null;
+                    map.level = 0;
+                }
+            })
+        }
+
+        // 检查
+        function checkGameOver() {
+            let survivors = playerInfoList.filter(player => player.isBankruptcy === false)
+            if (survivors.length === 1) {
+                let gameOver = document.querySelector('.game-over-container')
+                gameOver.hidden = false;
+                gameOver.querySelector('.h1').textContent = `恭喜${survivors[0].name}获得了游戏的胜利✌`
+            }
+        }
         // 执行初始化
         init();
     </script>
