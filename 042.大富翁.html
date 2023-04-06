@@ -655,7 +655,6 @@
                 mortgagedDom.hidden = true
                 mortgagedDom.textContent = '已抵押'
                 mortgagedDom.classList.add('mortgaged')
-
                 corona.appendChild(mortgagedDom)
                 Object.defineProperty(this, 'mortgaged', {
                     get() {
@@ -665,12 +664,10 @@
                         if (val) {
                             log(`玩家${holder.name} 将${name}的土地使用权抵押给银行`)
                             mortgagedDom.hidden = false
-                            mapElementList[id].appendChild(corona)
                         }
                         else {
                             log(`玩家${holder.name} 将${name}的土地使用权赎回`)
                             mortgagedDom.hidden = true
-                            corona.remove()
                         }
                         mortgaged = val
                     }
@@ -849,8 +846,6 @@
             // 手续费 + 本金
             commission: 1.1
         }
-
-
 
         // 地图容器
         let mapContainer = document.querySelector('.map-container')
