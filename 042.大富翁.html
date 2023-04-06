@@ -663,16 +663,16 @@
                     },
                     set(val) {
                         if (val) {
-                            log(`玩家${val.name} 将${name}的土地使用权抵押给银行`)
+                            log(`玩家${holder.name} 将${name}的土地使用权抵押给银行`)
                             mortgagedDom.hidden = false
                             mapElementList[id].appendChild(corona)
                         }
                         else {
-                            log(`玩家${val.name} 将${name}的土地使用权赎回`)
+                            log(`玩家${holder.name} 将${name}的土地使用权赎回`)
                             mortgagedDom.hidden = true
                             corona.remove()
                         }
-                        holder = val
+                        mortgaged = val
                     }
                 })
 
