@@ -60,7 +60,7 @@
             text-shadow: 2px 2px red;
         }
 
-        .map-element .corona[level='1'] i:first-child {
+        .map-element .corona[level='1'] i:nth-of-type(1) {
             opacity: 1;
             color: green;
         }
@@ -70,7 +70,7 @@
             color: green;
         }
 
-        .map-element .corona[level='3'] i:first-child {
+        .map-element .corona[level='3'] i:nth-of-type(1) {
             opacity: 1;
             color: red;
         }
@@ -1555,7 +1555,7 @@
                 pauseUserSelect.hidden = false;
                 pauseUserSelect.innerHTML = ''
                 let currentPlayer = playerInfoList[dicePlayerIndex % playerInfoList.length];
-                playerInfoList.forEach((player => {
+                playerInfoList.filter(player => !player.isBankruptcy).forEach((player => {
                     let info = document.createElement('div')
                     info.classList.add('select-btn')
                     let avatar = document.createElement('img')
@@ -1584,7 +1584,7 @@
             // 群体
             let moneyAndOtherPlayersResultFunc = function (player) {
                 log(`${player.name} ${this.info}`)
-                let other = playerInfoList.filter(p => p != player)
+                let other = playerInfoList.filter(p => p != player && !p.isBankruptcy)
                 player.money += other.length * this.award;
                 other.map(p => p.money -= this.award)
                 nextDicePlayer()
@@ -1985,6 +1985,7 @@
             if (player.money + landMonery < 0) {
                 player.isBankruptcy = true;
                 bankContainer.hidden = true;
+                landConfiscate(player)
                 nextDicePlayer()
             }
             else {
@@ -2024,8 +2025,9 @@
         function landConfiscate(player) {
             mapFunctionList.forEach(map => {
                 if (map instanceof MapLandFunction && map.holder === player) {
-                    map.holder = null;
+                    map.mortgaged = false;
                     map.level = 0;
+                    map.holder = null;
                 }
             })
         }
