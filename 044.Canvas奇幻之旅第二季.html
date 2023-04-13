@@ -463,7 +463,79 @@
             height: 300,
             render: ({ canvas, context }) => {
                 // 绘制月亮
+                let a = v2(40, 10)
+                let b = v2(40, 70)
+                let c = v2(120, 40)
 
+                let R = Vector2.distance(a, c) * 3 / 8
+                context.moveTo(a.x, a.y)
+                context.arcTo(c.x, c.y, b.x, b.y, R)
+                // 只能逆时针绘制
+                context.arc(40, 40, 30, 1 / 2 * Math.PI, 3 / 2 * Math.PI, true)
+                context.fillStyle = 'yellow'
+                context.fill()
+                function drawMoon(a, b, c, color) {
+                    let R = Vector2.distance(a, c) * 3 / 8
+                    context.beginPath()
+                    context.moveTo(a.x, a.y)
+                    context.arcTo(c.x, c.y, b.x, b.y, R)
+                    // 只能逆时针绘制
+                    context.arc(a.x, (b.y - a.y) / 2 + a.y, (b.y - a.y) / 2, 1 / 2 * Math.PI, 3 / 2 * Math.PI, true)
+                    context.fillStyle = color
+                    context.fill()
+                }
+
+                drawMoon(a.plus(v2(100, 0)), b.plus(v2(100, 0)), c.plus(v2(100, 0)), 'red')
+            }
+        })
+
+
+        createCanvas({
+            width: 300,
+            height: 300,
+            render: ({ canvas, context }) => {
+                // 绘制月亮 贝塞尔二次曲线
+                let a = v2(40, 10)
+                let b = v2(40, 70)
+                let c = v2(120, 40)
+
+                let R = Vector2.distance(a, c) * 3 / 8
+                context.moveTo(a.x, a.y)
+                context.arcTo(c.x, c.y, b.x, b.y, R)
+                // 只能逆时针绘制
+                context.arc(40, 40, 30, 1 / 2 * Math.PI, 3 / 2 * Math.PI, true)
+                context.fillStyle = 'yellow'
+                context.fill()
+                function drawMoon(a, b, c, color) {
+                    context.beginPath()
+                    context.moveTo(a.x, a.y)
+                    context.quadraticCurveTo(c.x, c.y, b.x, b.y)
+                    // 只能逆时针绘制
+                    context.arc(a.x, (b.y - a.y) / 2 + a.y, (b.y - a.y) / 2, 1 / 2 * Math.PI, 3 / 2 * Math.PI, true)
+                    context.fillStyle = color
+                    context.fill()
+                }
+
+                drawMoon(a.plus(v2(100, 0)), b.plus(v2(100, 0)), c.plus(v2(60, 0)), 'red')
+            }
+        })
+
+        createCanvas({
+            width: 300,
+            height: 300,
+            render: ({ canvas, context }) => {
+                // 绘制贝塞尔三次曲线
+                let s = v2(10, 20)
+                let a = v2(80, 10)
+                let b = v2(40, 70)
+                let c = v2(120, 40)
+
+
+                context.beginPath()
+                context.moveTo(s.x, s.y)
+                context.bezierCurveTo(a.x, a.y, b.x, b.y, c.x, c.y)
+                context.strokeStyle = '#f00'
+                context.stroke()
             }
         })
     </script>
