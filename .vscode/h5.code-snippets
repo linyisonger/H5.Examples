@@ -27,5 +27,13 @@
 			"</html>",
 		],
 		"description": "新建h5示例文件"
+	},
+	"3r.Tool.Randoms": {
+		"scope": "javascript",
+		"prefix": "random",
+		"body": [
+			"import { Randoms } from \"https://gcore.jsdelivr.net/npm/@3r/tool/lib/randoms.js\";",
+		],
+		"description": "引入随机函数"
 	}
 }

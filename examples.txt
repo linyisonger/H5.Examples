@@ -42,4 +42,5 @@
 042.大富翁.html
 043.图片拖拽另一个盒子中.html
 044.Canvas奇幻之旅第二季.html
+045.监听盒子宽度发生变化.html
 index.html

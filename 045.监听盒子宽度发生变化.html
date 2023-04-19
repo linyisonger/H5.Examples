@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./assets/global.css">
+
+    <style>
+        .flex-box {
+            display: flex;
+        }
+
+        .flex-box>div {
+            min-height: 200px;
+            flex: 1;
+        }
+
+        .flex-box .red-box {
+            background-color: #f00;
+            flex: auto;
+        }
+
+        .flex-box .blue-box {
+            background-color: #00f;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="flex-box">
+        <div class="red-box"></div>
+        <div class="blue-box"></div>
+    </div>
+
+    <button class="change-btn">更改红盒子的宽度</button>
+    <script type="module">
+        import { Randoms } from "https://gcore.jsdelivr.net/npm/@3r/tool/lib/randoms.js";
+
+        let changeBtn = document.querySelector('.change-btn')
+        let redBox = document.querySelector(".red-box")
+        let blueBox = document.querySelector(".red-box")
+        changeBtn.addEventListener('click', () => {
+            redBox.setAttribute("style", `width:${Randoms.getRandomInt(0, document.body.clientWidth)}px`)
+        })
+
+        let observer = new MutationObserver(mutations => {
+            let p = document.createElement('p')
+            p.textContent = "检测到blueBox发生变化"
+            document.body.appendChild(p)
+        })
+        observer.observe(blueBox, { attributes: true })
+    </script>
+</body>
+
+</html>
