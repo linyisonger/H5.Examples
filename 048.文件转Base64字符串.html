@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./assets/global.css">
+    <style>
+        body {
+            display: flex;
+        }
+
+        #drag,
+        #base64,
+        #prefix {
+            width: 500px;
+            height: 300px;
+            border-radius: 10px;
+            background-color: #f8f8f8;
+            border: 2px dashed #ddd;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: #777;
+            user-select: none;
+            resize: none;
+            padding: 0;
+            margin-right: 10px;
+            position: relative;
+        }
+
+        #base64,
+        #prefix {
+            white-space: normal;
+            word-break: break-all;
+            overflow-y: auto;
+            align-items: flex-start;
+            justify-content: flex-start;
+            user-select: all;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="drag">拖动至此或点击上传文件</div>
+    <div id="base64" onclick="copyToClipboard(this)"></div>
+    <div id="prefix" onclick="copyToClipboard(this)"></div>
+    
+    <script>
+        var dragDivDom = document.getElementById('drag');
+        var base64Dom = document.getElementById('base64');
+        var prefixDom = document.getElementById('prefix');
+
+        dragDivDom.addEventListener('drop', (ev) => {
+            // 阻止进行拖拽时浏览器的默认行为
+            ev.preventDefault();
+            // 取得文件
+            var file = ev.dataTransfer.files[0]
+            // 加载数据
+            loadDataUrl(file)
+        })
+        dragDivDom.addEventListener('dragover', (ev) => {
+            // 阻止进行拖拽时浏览器的默认行为
+            ev.preventDefault();
+        })
+        dragDivDom.addEventListener('dragend', (ev) => {
+            // 阻止进行拖拽时浏览器的默认行为
+            ev.preventDefault();
+        })
+        dragDivDom.addEventListener('click', (ev) => {
+            var fileInput = document.createElement('input');
+            fileInput.setAttribute('type', 'file');
+            fileInput.addEventListener('change', () => {
+                const file = fileInput.files[0];
+                loadDataUrl(file)
+            })
+            fileInput.click();
+        })
+        // 获取文件
+        function loadDataUrl(file) {
+            // 文件读取器
+            var reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.addEventListener("load", (res) => {
+                console.log(res.target.result);
+                var base64 = res.target.result;
+                base64Dom.textContent = base64.split('base64,').pop()
+                prefixDom.textContent = base64;
+            })
+        }
+
+        /**
+         * 复制到剪贴板
+         */
+        function copyToClipboard(e) {
+            let input = document.querySelector('.copy-input') || document.createElement('input');
+            input.className = "copy-input";
+            input.value = e.textContent;
+            input.style = `position: fixed;top: -100%;`
+            document.body.append(input)
+            input.select();
+            document.execCommand("copy");
+            e.style = `color:#39C5BB`;
+            setTimeout(() => {
+                e.style = "";
+            }, 1000)
+        }
+    </script>
+
+</body>
+
+</html>

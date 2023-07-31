@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./assets/global.css">
+
+    <style>
+        .game-container {
+            width: 100%;
+            height: 100vh;
+            position: relative;
+        }
+
+        .tile-container {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .tile-container .tile-item {
+            position: absolute;
+        }
+
+        #drawLine {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+            pointer-events: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="game-container">
+        <div class="tile-container">
+            <canvas id="drawLine">
+                抱歉，您的浏览器不支持 canvas 元素
+            </canvas>
+        </div>
+    </div>
+    <script type="module">
+        import { Randoms } from "https://gcore.jsdelivr.net/npm/@3r/tool/lib/randoms.js";
+        import { cloneDeep } from "https://gcore.jsdelivr.net/npm/@3r/tool/lib/common.js";
+
+        let config = {
+            row: 7,
+            col: 12,
+            w: 50,
+            h: 50,
+            tiles: new Array(21).fill('_').map((_, index) => {
+                return {
+                    id: index,
+                    bgColor: [Randoms.getRandomColor()]
+                }
+            })
+        }
+
+        let tileContainerDom = document.querySelector('.tile-container')
+        let drawLineDom = document.querySelector('#drawLine')
+        /** @type {CanvasRenderingContext2D} */
+        let drawLineContext = drawLineDom.getContext('2d')
+        // 容器宽高
+        let width = config.col * config.w;
+        let height = config.row * config.h;
+        // 格子地图
+        let tileMap = []
+        /** @type {HTMLDivElement} */
+        let current = null;
+        /** @type {HTMLDivElement} */
+        let target = null;
+
+        // 初始化
+        function init() {
+            console.log(config);
+            // 初始化数据
+            let tmpTiles = []
+            for (let i = 0; i < config.row * config.col / config.tiles.length; i++) {
+                tmpTiles = tmpTiles.concat(cloneDeep(config.tiles))
+            }
+            tmpTiles = Randoms.getDisorganizeArray(tmpTiles)
+            console.log(tmpTiles);
+            // 绘制格子
+            for (let x = 0; x < config.col; x++) {
+                let tileRow = []
+                for (let y = 0; y < config.row; y++) {
+                    let tileDom = document.createElement('div');
+                    tileDom.classList.add('tile-item')
+                    tileContainerDom.appendChild(tileDom);
+                    let i = x + y * config.row
+                    let style = `
+                        width:${config.w}px;
+                        height:${config.h}px;
+                        left:${-(config.col / 2 - x) * config.w}px;
+                        top:${-(config.row / 2 - y) * config.h}px;
+                        background:${tmpTiles[i].bgColor[0]};
+                    `
+                    tileDom.style = style;
+                    tileDom.x = x;
+                    tileDom.y = y;
+                    tileDom.i = tmpTiles[i].id;
+                    tileDom.textContent = tmpTiles[i].id
+                    tileDom.addEventListener('click', tileClick)
+                    tileRow.push(tileDom)
+
+                }
+                tileMap.push(tileRow)
+            }
+
+            let drawLineWidth = width + config.w * 2;
+            let drawLineHeight = height + config.h * 2;
+            drawLineDom.style = ` 
+                width:${drawLineWidth}px;
+                height:${drawLineHeight}px;
+            `
+            drawLineDom.width = drawLineWidth;
+            drawLineDom.height = drawLineHeight;
+            drawLineContext = drawLineDom.getContext('2d')
+            console.log(tileMap);
+        }
+
+        /**
+         * 绘制线条
+         * @param {{x:number,y:number}[]} path
+         */
+        function drawLine(path) {
+            drawLineContext.clearRect(0, 0, drawLineDom.width, drawLineDom.height)
+            drawLineContext.beginPath()
+            for (const p of path) {
+                drawLineContext.lineTo(p.x * config.w - config.w / 2, p.y * config.h - config.h / 2)
+            }
+            drawLineContext.stroke();
+        }
+
+        // 砖块点击事件
+        function tileClick() {
+            if (!current) {
+                current = this;
+            }
+            else if (current.i != this.i) {
+                current = this;
+            }
+            else if (current != this) {
+                target = this;
+                // 检查
+                checkConnection()
+            }
+            console.log(current, target);
+        }
+
+        // 检查连接
+        function checkConnection() {
+            console.log(current.x, target.x);
+            console.log(current.y, target.y);
+            console.log(current.i, target.i);
+            console.log(checkConnectionByZeroCorner());
+        }
+
+        /**
+         * 检查路径
+         * @param {{x:number,y:number}[]} path
+         */
+        function checkPath(path) {
+            for (const p of path) {
+                if (!tileMap[p.x][p.y]) return false;
+            }
+            return path
+        }
+
+
+        function range(end,) {
+
+        }
+
+        // 检查0折
+        function checkConnectionByZeroCorner() {
+            let path = [];
+            if (current.x == target.x) {
+                // 检查之间的物体是否为空
+                let start = Math.min(current.y, target.y)
+                let end = Math.max(current.y, target.y)
+                for (let i = start; i <= end; i++) {
+                    if (!tileMap[current.x][i]) return false;
+                    path.push({ x: current.x, y: i })
+                }
+            }
+            if (current.y == target.y) {
+                // 检查之间的物体是否为空
+                let start = Math.min(current.x, target.x)
+                let end = Math.max(current.x, target.x)
+                for (let i = start; i <= end; i++) {
+                    if (!tileMap[i][current.y]) return false
+                    path.push({ x: i, y: current.y })
+                }
+            }
+            return path;
+        }
+        // 检查0折
+        function checkConnectionByOneCorner() {
+            let path = [];
+            if (current.x == target.x) return path;
+            if (current.y == target.y) return path;
+            // Y 轴优先
+
+
+
+            return path;
+        }
+
+        init();
+
+
+        drawLine([{ x: 10, y: 20 }, { x: 10, y: 40 }])
+    </script>
+</body>
+
+</html>
