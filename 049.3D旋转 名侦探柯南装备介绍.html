@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./assets/global.css">
+    <style>
+        body {
+            overflow: hidden;
+        }
+
+        #perspective {
+            perspective: 800px;
+            user-select: none;
+            z-index: 100;
+            position: relative;
+        }
+
+        #mask {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            left: 50%;
+            top: -20%;
+            transform: translateX(-50%);
+            transition: transform .2s linear;
+            background-image: url('./assets/rotation/kn.png');
+            background-size: auto 100%;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+
+        #wrap {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            margin: 150px auto;
+            transform-style: preserve-3d;
+            transition: transform .2s linear;
+        }
+
+
+        #wrap>.item {
+            min-width: 200px;
+            height: 200px;
+            position: absolute;
+            left: 0;
+            top: 0;
+            text-align: center;
+        }
+
+        #wrap>.item img {
+            width: 100%;
+            height: 100%;
+        }
+
+        #wrap>.item:hover .content {
+            display: block;
+        }
+
+        .item .content {
+            display: none;
+            position: absolute;
+            top: 150px;
+        }
+
+        .item .content .title {
+            font-size: 20px;
+        }
+
+        .item .content .text {
+            margin-top: 5px;
+            font-size: 12px;
+            text-align: left;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="perspective">
+        <div id="wrap">
+            <div class="item">
+                <img src="./assets/rotation/sb.png" draggable="false">
+                <div class="content">
+                    <div class="title">手表型麻醉枪</div>
+                    <div class="text">
+                        这是个只要按下开关就会飞出麻醉针让人瞬间沉睡的道具。由于只有一根针，所以机会只有一次。主要在新一以小五郎的音色推理揭露犯人时使用，有时也用作逮捕犯人的武器。麻醉针是环保材料。</div>
+                </div>
+            </div>
+            <div class="item">
+                <img src="./assets/rotation/hz.png" draggable="false">
+                <div class="content">
+                    <div class="title">少年侦探团徽章</div>
+                    <div class="text">
+                        这是内置了无线电收发器的徽章。用于DB（Detective Boys），即少年侦探团成员间的交流。拥有与犯人追踪眼镜联动的发信机能。</div>
+                </div>
+            </div>
+            <div class="item">
+                <img src="./assets/rotation/hdj.png" draggable="false">
+                <div class="content">
+                    <div class="title">蝴蝶结型变声器</div>
+                    <div class="text">
+                        这是可以通过调节领结背面的拨号盘以自如变换音色的道具。右侧的拨号盘调节音程，左侧的拨号盘调节音量。顺便一提，小五郎的声音是59号。</div>
+                </div>
+            </div>
+            <div class="item">
+                <img src="./assets/rotation/hb.png" draggable="false">
+                <div class="content">
+                    <div class="title">带有涡轮引擎的滑板</div>
+                    <div class="text">
+                        这是组装有超高性能的太阳能板和电池的滑板。白天充电的话在夜间也可使用30分钟。即使载上新一、元太、光彦三人（总重量78千克）也无需担心，拥有能追踪轿车程度的马力。</div>
+                </div>
+            </div>
+            <div class="item">
+                <img src="./assets/rotation/xz.png" draggable="false">
+                <div class="content">
+                    <div class="title">脚力增强鞋</div>
+                    <div class="text">
+                        这是通过电力和磁力刺激脚部穴位，提高肌肉力量至极限的道具。若被穿着这双鞋踢出的球击中，犯人会不堪一击。是擅长足球的新一的必杀武器。</div>
+                </div>
+            </div>
+            <div class="item">
+                <img src="./assets/rotation/bd.png" draggable="false">
+                <div class="content">
+                    <div class="title">伸缩吊带</div>
+                    <div class="text">
+                        这是使用织入了特殊形状记忆材料的纤维制成的背带。按下按钮进行伸缩，可以轻松举起以小孩子的力量无法移动的东西。</div>
+                </div>
+            </div>
+            <div class="item">
+                <img src="./assets/rotation/yj.png" draggable="false">
+                <div class="content">
+                    <div class="title">犯人追踪眼镜</div>
+                    <div class="text">
+                        可以确定发信器周围20千米以内的地点。镜框左侧有天线，左镜片会变成显示器。充电式，有窃听机能。发信器是贴纸，新一总是将其带在衣服纽扣上。现在有备用眼镜。</div>
+                </div>
+            </div>
+            <div id="mask"></div>
+        </div>
+    </div>
+    <script>
+        window.onload = function () {
+            // 透视层
+            var perspective = document.getElementById('perspective')
+            // 包裹容器层
+            var wrap = document.querySelector('#wrap')
+            // 遮罩
+            var mask = document.querySelector('#mask')
+            // 元素
+            var wrapItems = document.querySelectorAll('.item')
+            // 角度 用于处理各个元素间隔
+            var deg = 360 / wrapItems.length
+            // 是否移动鼠标
+            var isMoving = false;
+            // 鼠标开始的位置
+            var startX = 0;
+            // 当前旋转的角度
+            var currDeg = 0
+            // 仰角
+            var elevation = -10;
+            // 间隔事件
+            var intervalTime = 200;
+            // 间隔角度
+            var intervalDeg = -2;
+            // 间隔 Id 
+            var intervalId = rotate()
+            // 旋转半径圆点距离
+            var radius = 400
+            // 最小移动距离
+            var minMoveDistance = 20;
+            // 屏幕转世界比例
+            var screenToWorldScale = 1 / 10;
+
+            // 初始化旋转
+            mask.style.transform = `transform: rotateX(${-elevation}deg) rotateY(0deg);`
+            // 循环元素
+            Array.prototype.forEach.call(wrapItems, function (el, index) {
+                el.style.transform = `rotateY(${deg * index}deg) translateZ(${radius}px)`;
+                el.addEventListener("mouseenter", function () {
+                    el.style.transform = `rotateY(${deg * index}deg) translateZ(${radius}px) scale(1.1)`;
+                    if (intervalId) clearInterval(intervalId)
+                })
+                el.addEventListener("mouseleave", function () {
+                    el.style.transform = `rotateY(${deg * index}deg) translateZ(${radius}px)`;
+                    if (intervalId) clearInterval(intervalId)
+                    intervalId = rotate();
+                })
+            })
+            // 鼠标点击事件
+            perspective.addEventListener("mousedown", function (e) {
+                startX = e.x
+                isMoving = true;
+                if (intervalId) clearInterval(intervalId)
+            })
+            // 鼠标拖动
+            document.addEventListener("mousemove", function (e) {
+                // 判断是否大于最小可移动距离
+                if (isMoving && Math.abs(e.x - startX) > minMoveDistance) {
+                    currDeg += (e.x - startX) * screenToWorldScale
+                    wrap.style = `transform: rotateX(${elevation}deg) rotateY(${currDeg}deg);`
+                    mask.style = `transform: translateX(-50%) rotateY(${-currDeg}deg);`
+                    startX = e.x
+                }
+            })
+            // 鼠标抬起
+            document.addEventListener("mouseup", function (e) {
+                isMoving = false;
+                if (intervalId) clearInterval(intervalId)
+                intervalId = rotate();
+            })
+
+            // 旋转事件
+            function rotate() {
+                return isMoving ? null : setInterval(() => {
+                    currDeg += intervalDeg;
+                    wrap.style = `transform: rotateX(${elevation}deg) rotateY(${currDeg}deg);`
+                    mask.style = `transform: translateX(-50%) rotateY(${-currDeg}deg);`
+                }, intervalTime);
+            }
+
+        }
+    </script>
+</body>
+
+</html>
