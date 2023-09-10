@@ -26,6 +26,11 @@
 
         .tile-container .tile-item {
             position: absolute;
+            cursor: default;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         #drawLine {
@@ -46,178 +51,434 @@
             </canvas>
         </div>
     </div>
+    <div class="sound-container">
+        <audio id="sound_audio"></audio>
+    </div>
     <script type="module">
         import { Randoms } from "https://gcore.jsdelivr.net/npm/@3r/tool/lib/randoms.js";
-        import { cloneDeep } from "https://gcore.jsdelivr.net/npm/@3r/tool/lib/common.js";
+        // import { cloneDeep } from "https://gcore.jsdelivr.net/npm/@3r/tool/lib/common.js";
 
+        let configPath = './assets/lianliankan/config.json'
+        // 配置信息
         let config = {
-            row: 7,
-            col: 12,
-            w: 50,
-            h: 50,
-            tiles: new Array(21).fill('_').map((_, index) => {
-                return {
-                    id: index,
-                    bgColor: [Randoms.getRandomColor()]
-                }
+            cols: 0,
+            rows: 0,
+            width: 400,
+            height: 400,
+            capacity: 0, // 容量 
+            get itemWidth() {
+                return this.width / this.cols
+            },
+            get itemHeight() {
+                return this.height / this.rows;
+            },
+
+            get canvasWidth() {
+                return this.width + 2 * this.itemWidth
+            },
+            get canvasHeight() {
+                return this.height + 2 * this.itemHeight
+            }
+
+        }
+        // 获取格子容器
+        let tileContainerDom = document.querySelector('.tile-container')
+        // 画线元素
+        /** @type {HTMLCanvasElement} */
+        let drawLineDom = document.querySelector('#drawLine')
+        // 遮罩数据
+        let maskData = []
+        // 第一个元素
+        /** @type {Element} */
+        let firstDom = null
+        // 第二个元素
+        /** @type {Element} */
+        let lastDom = null
+        // 地图数据
+        let mapData = {}
+        // 加载配置
+        function loadConfig() {
+            fetch(configPath).then((response) => {
+                return response.text()
+            }).then((response) => {
+                Object.assign(config, JSON.parse(response))
+                initMask();
             })
         }
+        // 初始化遮罩
+        function initMask() {
+            // 读取遮罩地图 
+            let maskImg = new Image();
+            maskImg.src = './assets/lianliankan/mask.png'
+            maskImg.onload = (ev) => {
+                let cv = document.createElement('canvas');
+                let ctx = cv.getContext('2d')
+                cv.width = maskImg.width;
+                cv.height = maskImg.height;
+                ctx.drawImage(maskImg, 0, 0)
+                // 获取遮罩数据
+                let colorData = ctx.getImageData(0, 0, cv.width, cv.height)
+                let colorArrData = group(colorData.data, (item, index) => index % 4)
 
-        let tileContainerDom = document.querySelector('.tile-container')
-        let drawLineDom = document.querySelector('#drawLine')
-        /** @type {CanvasRenderingContext2D} */
-        let drawLineContext = drawLineDom.getContext('2d')
-        // 容器宽高
-        let width = config.col * config.w;
-        let height = config.row * config.h;
-        // 格子地图
-        let tileMap = []
-        /** @type {HTMLDivElement} */
-        let current = null;
-        /** @type {HTMLDivElement} */
-        let target = null;
+                maskData = group(colorArrData.shift().map(item => item == 255 ? 1 : 0), (item, index) => index % cv.width);
 
-        // 初始化
-        function init() {
-            console.log(config);
-            // 初始化数据
-            let tmpTiles = []
-            for (let i = 0; i < config.row * config.col / config.tiles.length; i++) {
-                tmpTiles = tmpTiles.concat(cloneDeep(config.tiles))
-            }
-            tmpTiles = Randoms.getDisorganizeArray(tmpTiles)
-            console.log(tmpTiles);
-            // 绘制格子
-            for (let x = 0; x < config.col; x++) {
-                let tileRow = []
-                for (let y = 0; y < config.row; y++) {
-                    let tileDom = document.createElement('div');
-                    tileDom.classList.add('tile-item')
-                    tileContainerDom.appendChild(tileDom);
-                    let i = x + y * config.row
-                    let style = `
-                        width:${config.w}px;
-                        height:${config.h}px;
-                        left:${-(config.col / 2 - x) * config.w}px;
-                        top:${-(config.row / 2 - y) * config.h}px;
-                        background:${tmpTiles[i].bgColor[0]};
-                    `
-                    tileDom.style = style;
-                    tileDom.x = x;
-                    tileDom.y = y;
-                    tileDom.i = tmpTiles[i].id;
-                    tileDom.textContent = tmpTiles[i].id
-                    tileDom.addEventListener('click', tileClick)
-                    tileRow.push(tileDom)
-
+                config.rows = maskData.length;
+                config.cols = maskData[0].length
+                config.capacity = maskData.flat().filter(item => item).length
+                let maskDataPreview = '预览遮罩数据\n';
+                for (let x = 0; x < config.rows; x++) {
+                    for (let y = 0; y < config.cols; y++) {
+                        maskDataPreview += `${maskData[y][x]} `
+                    }
+                    maskDataPreview += '\n'
                 }
-                tileMap.push(tileRow)
+                console.log(maskDataPreview);
+                // 执行初始化配置
+                initConfig();
             }
-
-            let drawLineWidth = width + config.w * 2;
-            let drawLineHeight = height + config.h * 2;
-            drawLineDom.style = ` 
-                width:${drawLineWidth}px;
-                height:${drawLineHeight}px;
-            `
-            drawLineDom.width = drawLineWidth;
-            drawLineDom.height = drawLineHeight;
-            drawLineContext = drawLineDom.getContext('2d')
-            console.log(tileMap);
         }
-
-        /**
-         * 绘制线条
-         * @param {{x:number,y:number}[]} path
-         */
-        function drawLine(path) {
-            drawLineContext.clearRect(0, 0, drawLineDom.width, drawLineDom.height)
-            drawLineContext.beginPath()
-            for (const p of path) {
-                drawLineContext.lineTo(p.x * config.w - config.w / 2, p.y * config.h - config.h / 2)
+        // 初始化配置
+        function initConfig() {
+            console.log("读取配置", config);
+            // 读取配置文件 
+            tileContainerDom.setAttribute("style", `width:${config.width}px;height:${config.height}px`);
+            // 初始化地图
+            for (let x = 0; x < config.rows; x++) {
+                for (let y = 0; y < config.cols; y++) {
+                    if (maskData[x][y]) {
+                        let tileDom = document.createElement('div');
+                        tileDom.classList.add('tile-item')
+                        tileDom.setAttribute("style", `width:${config.itemWidth}px;height:${config.itemHeight}px;left:${x * config.itemWidth}px;top:${y * config.itemHeight}px`)
+                        tileDom.setAttribute('x', x)
+                        tileDom.setAttribute('y', y)
+                        tileDom.textContent = maskData[x][y]
+                        tileDom.addEventListener("click", tileClick)
+                        tileContainerDom.appendChild(tileDom);
+                    }
+                }
             }
-            drawLineContext.stroke();
+            // 初始化画布
+            drawLineDom.setAttribute("style", `width:${config.canvasWidth}px;height:${config.canvasHeight}px`)
+            initTile();
         }
-
+        // 初始化砖块
+        function initTile() {
+            let tiles = [
+                [{ id: 1, tile: '1' }],
+                [{ id: 2, tile: '2' }],
+                [{ id: 3, tile: '3' }],
+                [{ id: 4, tile: '4' }],
+                [{ id: 5, tile: '5' }],
+            ]
+            let tileList = []
+            // 计算出可放对数     
+            // 总数 / 4         类型一    双对存在便于配对
+            let tile4Count = ~~(config.capacity / 4)
+            // 总数 % 4 / 2     类型二    单对存在无解增加
+            let tile2Count = ~~((config.capacity % 4) / 2)
+            for (let i = 0; i < tile4Count; i++) {
+                let tile = tiles[i];
+                for (let j = 0; j < Math.pow(4, 1 / tile.length); j++) {
+                    tileList.push(...tile)
+                }
+            }
+            for (let i = 0; i < tile2Count; i++) {
+                let tile = tiles[tile4Count + i];
+                for (let j = 0; j < Math.pow(2, 1 / tile.length); j++) {
+                    tileList.push(...tile)
+                }
+            }
+            // 将数组顺序打乱 
+            console.log(tileList);
+            tileList = Randoms.getDisorganizeArray(tileList)
+            // 加载致DOM层
+            let tileDomList = document.querySelectorAll('.tile-item')
+            console.log(tileDomList);
+            for (let i = 0; i < tileDomList.length; i++) {
+                const tileDom = tileDomList.item(i)
+                tileDom.setAttribute("id", tileList[i].id)
+                tileDom.textContent = tileList[i].tile
+                let x = tileDom.getAttribute('x')
+                let y = tileDom.getAttribute('y')
+                mapData[`(${x},${y})`] = tileList[i].id
+            }
+            console.log(mapData);
+        }
         // 砖块点击事件
-        function tileClick() {
-            if (!current) {
-                current = this;
+        function tileClick(event) {
+            // 避免相同元素被点击 2 次 
+            if (firstDom != event.target) {
+                if (!firstDom) firstDom = event.target
+                else lastDom = event.target;
+                console.log(firstDom, lastDom);
+                if (firstDom && lastDom) {
+                    if (firstDom.getAttribute('id') == lastDom.getAttribute('id')) {
+                        let linkPath = getLinkPath(firstDom, lastDom)
+                        if (linkPath) {
+                            console.log('允许连接');
+                            drawLinkPath(linkPath)
+                            playSound("linkSuccess")
+                            eliminate()
+                            if (Object.values(mapData).filter(a => a).length == 0) console.log('游戏胜利');
+                        }
+                        else {
+                            console.log('啊偶');
+                            playSound("linkError")
+                        }
+                    }
+                    firstDom = null;
+                    lastDom = null;
+                }
             }
-            else if (current.i != this.i) {
-                current = this;
-            }
-            else if (current != this) {
-                target = this;
-                // 检查
-                checkConnection()
-            }
-            console.log(current, target);
-        }
 
-        // 检查连接
-        function checkConnection() {
-            console.log(current.x, target.x);
-            console.log(current.y, target.y);
-            console.log(current.i, target.i);
-            console.log(checkConnectionByZeroCorner());
         }
-
-        /**
-         * 检查路径
-         * @param {{x:number,y:number}[]} path
+        /** 消除逻辑
          */
-        function checkPath(path) {
-            for (const p of path) {
-                if (!tileMap[p.x][p.y]) return false;
+        function eliminate() {
+            let start = {
+                x: firstDom.getAttribute('x'),
+                y: firstDom.getAttribute('y'),
             }
+            let end = {
+                x: lastDom.getAttribute('x'),
+                y: lastDom.getAttribute('y'),
+            }
+            firstDom.remove();
+            lastDom.remove();
+            delete mapData[`(${start.x},${start.y})`]
+            delete mapData[`(${end.x},${end.y})`]
+            setTimeout(() => {
+                let ctx = drawLineDom.getContext('2d')
+                ctx.clearRect(0, 0, config.canvasWidth, config.canvasHeight)
+            }, 300);
+        }
+        /** 播放音效
+         */
+        function playSound(name) {
+            /**
+             * @type {HTMLAudioElement}
+             */
+            let audio = document.querySelector("#sound_audio")
+            audio.setAttribute('src', config.sounds[name])
+            audio.addEventListener("canplay", (ev) => {
+                audio.play()
+            })
+        }
+        /** 绘制连接路径线
+         */
+        function drawLinkPath(paths) {
+            drawLineDom.width = config.canvasWidth
+            drawLineDom.height = config.canvasHeight
+            let ctx = drawLineDom.getContext('2d')
+            ctx.clearRect(0, 0, config.canvasWidth, config.canvasHeight)
+            ctx.beginPath()
+            ctx.lineWidth = 2;
+            for (let i = 0; i < paths.length; i++) {
+                let { x, y } = paths[i]
+                x = firstDom.offsetWidth / 2 + config.itemWidth * (x + 1)
+                y = firstDom.offsetHeight / 2 + config.itemHeight * (y + 1)
+                if (!i) ctx.moveTo(x, y)
+                else ctx.lineTo(x, y)
+            }
+            ctx.stroke();
+        }
+        /** 获取可连接的路径
+         * @param { HTMLDivElement } t1  
+         * @param { HTMLDivElement } t2  
+         */
+        function getLinkPath(t1, t2) {
+            let path = []
+
+            let x1 = +t1.getAttribute('x')
+            let y1 = +t1.getAttribute('y')
+
+            let x2 = +t2.getAttribute('x')
+            let y2 = +t2.getAttribute('y')
+
+            let minX = Math.min(x1, x2)
+            let minY = Math.min(y1, y2)
+            let maxX = Math.max(x1, x2)
+            let maxY = Math.max(y1, y2)
+
+
+            // 相邻 
+            if (y1 == y2 && Math.abs(x1 - x2) == 1 || x1 == x2 && Math.abs(y1 - y2) == 1) {
+                return [{ x: x1, y: y1 }, { x: x2, y: y2 }]
+            }
+            // L0 直连 只用判断一次 只会存在一种
+            // 横向 纵向
+            if (y1 == y2 || x1 == x2) {
+                console.log('检查L0');
+                let path = checkLinkPath(generateStraightLinePath({ x: x1, y: y1 }, { x: x2, y: y2 }))
+                if (path) return path
+            }
+            // L1
+            // 两种直角弯
+            if (x1 != x2 && y1 != y2) {
+                console.log('检查L1');
+                let path = checkLinkPath(
+                    generateStraightLinePath({ x: x1, y: y1 }, { x: x2, y: y1 }, { x: x2, y: y2 }),
+                    generateStraightLinePath({ x: x1, y: y1 }, { x: x1, y: y2 }, { x: x2, y: y2 })
+                )
+                if (path) return path
+            }
+
+            // L2 
+            // 内二折 x轴
+            if (Math.abs(x1 - x2) > 1) {
+                console.log('内二折 x轴');
+                if (x1 < x2) {
+                    for (let x = x1 + 1; x < x2; x++) {
+                        let path = checkLinkPath(generateStraightLinePath({ x: x1, y: y1 }, { x, y: y1 }, { x, y: y2 }, { x: x2, y: y2 }))
+                        if (path) return path
+                    }
+                }
+                else {
+                    for (let x = x2 + 1; x < x1; x++) {
+                        let path = checkLinkPath(generateStraightLinePath({ x: x2, y: y2 }, { x, y: y2 }, { x, y: y1 }, { x: x1, y: y1 }))
+                        if (path) return path
+                    }
+                }
+            }
+            if (Math.abs(y1 - y2) > 1) {
+                console.log('内二折 y轴');
+                if (y1 < y2) {
+                    for (let y = y1 + 1; y < y2; y++) {
+                        let path = checkLinkPath(generateStraightLinePath({ x: x1, y: y1 }, { x: x1, y }, { x: x2, y }, { x: x2, y: y2 }))
+                        if (path) return path
+                    }
+                }
+                else {
+                    for (let y = y2 + 1; y < y1; y++) {
+                        let path = checkLinkPath(generateStraightLinePath({ x: x2, y: y2 }, { x: x2, y }, { x: x1, y }, { x: x1, y: y1 }))
+                        if (path) return path
+                    }
+                }
+            }
+
+            if (y1 != y2) {
+                console.log('外二折');
+                if (x1 < x2) {
+                    console.log('外二折 x1<x2');
+                    for (let x = x1 - 1; x >= -1; x--) {
+                        let path = checkLinkPath(generateStraightLinePath({ x: x1, y: y1 }, { x, y: y1 }, { x, y: y2 }, { x: x2, y: y2 }))
+                        if (path) return path
+                    }
+                    for (let x = x2 + 1; x <= config.rows; x++) {
+                        let path = checkLinkPath(generateStraightLinePath({ x: x2, y: y2 }, { x, y: y2 }, { x, y: y1 }, { x: x1, y: y1 }))
+                        if (path) return path
+                    }
+                }
+                else {
+                    console.log('外二折 x1>x2');
+                    for (let x = x2 - 1; x >= -1; x--) {
+                        let path = checkLinkPath(generateStraightLinePath({ x: x2, y: y2 }, { x, y: y2 }, { x, y: y1 }, { x: x1, y: y1 }))
+                        if (path) return path
+                    }
+                    for (let x = x1 + 1; x <= config.rows; x++) {
+                        let path = checkLinkPath(generateStraightLinePath({ x: x1, y: y1 }, { x, y: y2 }, { x, y: y2 }, { x: x2, y: y2 }))
+                        if (path) return path
+                    }
+                }
+            }
+
+            if (x1 != x2) {
+                if (y1 < y2) {
+                    for (let y = y1 - 1; y >= -1; y--) {
+                        let path = checkLinkPath(generateStraightLinePath({ x: x1, y: y1 }, { x: x1, y }, { x: x2, y }, { x: x2, y: y2 }))
+                        if (path) return path
+                    }
+                    for (let y = y2 + 1; y <= config.cols; y++) {
+                        let path = checkLinkPath(generateStraightLinePath({ x: x2, y: y2 }, { x: x2, y }, { x: x1, y }, { x: x1, y: y1 }))
+                        if (path) return path
+                    }
+                }
+                else {
+                    for (let y = y2 - 1; y >= -1; y--) {
+                        let path = checkLinkPath(generateStraightLinePath({ x: x2, y: y2 }, { x: x2, y }, { x: x1, y }, { x: x1, y: y1 }))
+                        if (path) return path
+                    }
+                    for (let y = y1 + 1; y <= config.rows; y++) {
+                        let path = checkLinkPath(generateStraightLinePath({ x: x1, y: y1 }, { x: x1, y }, { x: x2, y }, { x: x2, y: y2 }))
+                        if (path) return path
+                    }
+                }
+            }
+
+        }
+        /** 检查连接路径
+         *  忽略起点和目标点
+         */
+        function checkLinkPath(...paths) {
+            for (let i = 0; i < paths.length; i++) {
+                let path = paths[i];
+                let middle = []
+                for (let j = 1; j < path.length - 1; j++) {
+                    let prev = path[j - 1]
+                    let { x, y } = path[j];
+                    // 相连性
+                    if (mapData[`(${x},${y})`] || Math.abs(prev.x - x) > 1 || Math.abs(prev.y - y) > 1) {
+                        middle = []
+                        break;
+                    }
+                    else middle.push({ x, y })
+                }
+                if (middle.length > 0) {
+                    return path
+                }
+            }
+        }
+        /** 生成范围数字 例如 1 - 7) [1,2,3,4,5,6] or [6,5,4,3,2,1]
+         * @param {number} start
+         * @param {number} end
+         * @param {number} step
+         */
+        function generateRangeNumber(start, end, step = 1) {
+            let nums = []
+            if (end > start) {
+                for (let i = start; i < end; i += step) {
+                    nums.push(i)
+                }
+            }
+            else {
+                for (let i = start; i > end; i -= step) {
+                    nums.push(i)
+                }
+            }
+            return nums;
+        }
+        /** 通过一些坐标点生成直线路径 [start,...,end]
+         */
+        function generateStraightLinePath(...points) {
+            let path = []
+            for (let i = 1; i < points.length; i++) {
+                let start = points[i - 1]
+                let end = points[i]
+                if (start.x == end.x) {
+                    path = path.concat(generateRangeNumber(start.y, end.y).map(n => Object({ x: start.x, y: n })))
+                }
+                if (start.y == end.y) {
+                    path = path.concat(generateRangeNumber(start.x, end.x).map(n => Object({ x: n, y: start.y })))
+                }
+            }
+            path.push(points[points.length - 1])
             return path
         }
-
-
-        function range(end,) {
-
-        }
-
-        // 检查0折
-        function checkConnectionByZeroCorner() {
-            let path = [];
-            if (current.x == target.x) {
-                // 检查之间的物体是否为空
-                let start = Math.min(current.y, target.y)
-                let end = Math.max(current.y, target.y)
-                for (let i = start; i <= end; i++) {
-                    if (!tileMap[current.x][i]) return false;
-                    path.push({ x: current.x, y: i })
-                }
+        /** 通过某条件进行打组
+         */
+        function group(arr, func) {
+            let tmpDict = {};
+            for (let i = 0; i < arr.length; i++) {
+                if (!tmpDict[func(arr[i], i)]) tmpDict[func(arr[i], i)] = []
+                tmpDict[func(arr[i], i)].push(arr[i])
             }
-            if (current.y == target.y) {
-                // 检查之间的物体是否为空
-                let start = Math.min(current.x, target.x)
-                let end = Math.max(current.x, target.x)
-                for (let i = start; i <= end; i++) {
-                    if (!tileMap[i][current.y]) return false
-                    path.push({ x: i, y: current.y })
-                }
-            }
-            return path;
+            return Object.values(tmpDict)
         }
-        // 检查0折
-        function checkConnectionByOneCorner() {
-            let path = [];
-            if (current.x == target.x) return path;
-            if (current.y == target.y) return path;
-            // Y 轴优先
-
-
-
-            return path;
+        // 主程序执行
+        function main() {
+            loadConfig();
         }
-
-        init();
-
-
-        drawLine([{ x: 10, y: 20 }, { x: 10, y: 40 }])
+        main(); 
     </script>
 </body>
 

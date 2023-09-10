@@ -1,0 +1,11 @@
+{
+    "cols": 0,
+    "rows": 0,
+    "width": 400,
+    "height": 400,
+    "capacity": 0,
+    "sounds": {
+        "linkSuccess": "./assets/lianliankan/linkSuccess.mp3",
+        "linkError": "./assets/lianliankan/linkError.mp3"
+    }
+}
