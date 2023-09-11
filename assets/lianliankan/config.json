@@ -7,5 +7,111 @@
     "sounds": {
         "linkSuccess": "./assets/lianliankan/linkSuccess.mp3",
         "linkError": "./assets/lianliankan/linkError.mp3"
-    }
+    },
+    "mask": "./assets/lianliankan/mask.png",
+    "background": "",
+    "tiles": [
+        [
+            {
+                "id": 1,
+                "tile": "./assets/lianliankan/1.jpg"
+            }
+        ],
+        [
+            {
+                "id": 2,
+                "tile": "./assets/lianliankan/2.jpg"
+            }
+        ],
+        [
+            {
+                "id": 3,
+                "tile": "./assets/lianliankan/3.jpg"
+            }
+        ],
+        [
+            {
+                "id": 4,
+                "tile": "./assets/lianliankan/4.jpg"
+            }
+        ],
+        [
+            {
+                "id": 5,
+                "tile": "./assets/lianliankan/5.jpg"
+            }
+        ],
+        [
+            {
+                "id": 6,
+                "tile": "./assets/lianliankan/6.jpg"
+            }
+        ],
+        [
+            {
+                "id": 7,
+                "tile": "./assets/lianliankan/7.jpg"
+            }
+        ],
+        [
+            {
+                "id": 8,
+                "tile": "./assets/lianliankan/8.jpg"
+            }
+        ],
+        [
+            {
+                "id": 9,
+                "tile": "./assets/lianliankan/9.jpg"
+            }
+        ],
+        [
+            {
+                "id": 10,
+                "tile": "./assets/lianliankan/10.jpg"
+            }
+        ],
+        [
+            {
+                "id": 11,
+                "tile": "./assets/lianliankan/11.jpg"
+            }
+        ],
+        [
+            {
+                "id": 12,
+                "tile": "./assets/lianliankan/12.jpg"
+            }
+        ],
+        [
+            {
+                "id": 13,
+                "tile": "./assets/lianliankan/13.jpg"
+            }
+        ],
+        [
+            {
+                "id": 14,
+                "tile": "./assets/lianliankan/14.jpg"
+            }
+        ],
+        [
+            {
+                "id": 15,
+                "tile": "./assets/lianliankan/15.jpg"
+            }
+        ],
+        [
+            {
+                "id": 16,
+                "tile": "./assets/lianliankan/16.jpg"
+            }
+        ],
+        [
+            {
+                "id": 17,
+                "tile": "./assets/lianliankan/17.jpg"
+            }
+        ]
+    ]
 }

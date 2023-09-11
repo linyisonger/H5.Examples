@@ -31,6 +31,8 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            background-repeat: no-repeat;
+            background-size: cover;
         }
 
         #drawLine {
@@ -72,14 +74,12 @@
             get itemHeight() {
                 return this.height / this.rows;
             },
-
             get canvasWidth() {
                 return this.width + 2 * this.itemWidth
             },
             get canvasHeight() {
                 return this.height + 2 * this.itemHeight
             }
-
         }
         // 获取格子容器
         let tileContainerDom = document.querySelector('.tile-container')
@@ -109,7 +109,7 @@
         function initMask() {
             // 读取遮罩地图 
             let maskImg = new Image();
-            maskImg.src = './assets/lianliankan/mask.png'
+            maskImg.src = config.mask
             maskImg.onload = (ev) => {
                 let cv = document.createElement('canvas');
                 let ctx = cv.getContext('2d')
@@ -151,7 +151,7 @@
                         tileDom.setAttribute("style", `width:${config.itemWidth}px;height:${config.itemHeight}px;left:${x * config.itemWidth}px;top:${y * config.itemHeight}px`)
                         tileDom.setAttribute('x', x)
                         tileDom.setAttribute('y', y)
-                        tileDom.textContent = maskData[x][y]
+                        // tileDom.textContent = maskData[x][y]
                         tileDom.addEventListener("click", tileClick)
                         tileContainerDom.appendChild(tileDom);
                     }
@@ -163,22 +163,18 @@
         }
         // 初始化砖块
         function initTile() {
-            let tiles = [
-                [{ id: 1, tile: '1' }],
-                [{ id: 2, tile: '2' }],
-                [{ id: 3, tile: '3' }],
-                [{ id: 4, tile: '4' }],
-                [{ id: 5, tile: '5' }],
-            ]
+            let tiles = config.tiles
             let tileList = []
-            // 计算出可放对数     
-            // 总数 / 4         类型一    双对存在便于配对
-            let tile4Count = ~~(config.capacity / 4)
-            // 总数 % 4 / 2     类型二    单对存在无解增加
-            let tile2Count = ~~((config.capacity % 4) / 2)
+            let minLoopCount = 8
+            // 计算出可放对数
+            // 总数 / minLoopCount         类型一    双对存在便于配对
+            let tile4Count = ~~(config.capacity / minLoopCount)
+            // 总数 % minLoopCount / 2     类型二    单对存在无解增加
+            let tile2Count = ~~((config.capacity % minLoopCount) / 2)
+            console.log(tile4Count);
             for (let i = 0; i < tile4Count; i++) {
                 let tile = tiles[i];
-                for (let j = 0; j < Math.pow(4, 1 / tile.length); j++) {
+                for (let j = 0; j < Math.pow(minLoopCount, 1 / tile.length); j++) {
                     tileList.push(...tile)
                 }
             }
@@ -197,7 +193,8 @@
             for (let i = 0; i < tileDomList.length; i++) {
                 const tileDom = tileDomList.item(i)
                 tileDom.setAttribute("id", tileList[i].id)
-                tileDom.textContent = tileList[i].tile
+                // tileDom.textContent = tileList[i].tile
+                tileDom.setAttribute("style", `${tileDom.getAttribute('style')};background-image: url(${tileList[i].tile})`)
                 let x = tileDom.getAttribute('x')
                 let y = tileDom.getAttribute('y')
                 mapData[`(${x},${y})`] = tileList[i].id
@@ -219,18 +216,30 @@
                             drawLinkPath(linkPath)
                             playSound("linkSuccess")
                             eliminate()
-                            if (Object.values(mapData).filter(a => a).length == 0) console.log('游戏胜利');
+                            checkGameOver();
+
                         }
                         else {
                             console.log('啊偶');
                             playSound("linkError")
                         }
                     }
+                    else {
+                        console.log('啊偶');
+                        playSound("linkError")
+                    }
                     firstDom = null;
                     lastDom = null;
                 }
             }
 
+        }
+        /** 检查游戏是否结束 
+         */
+        function checkGameOver() {
+            if (Object.values(mapData).filter(a => a).length == 0) {
+                console.log('游戏胜利');
+            }
         }
         /** 消除逻辑
          */
@@ -375,8 +384,9 @@
                         let path = checkLinkPath(generateStraightLinePath({ x: x2, y: y2 }, { x, y: y2 }, { x, y: y1 }, { x: x1, y: y1 }))
                         if (path) return path
                     }
+                    console.log("外二折 x = x1 + 1");
                     for (let x = x1 + 1; x <= config.rows; x++) {
-                        let path = checkLinkPath(generateStraightLinePath({ x: x1, y: y1 }, { x, y: y2 }, { x, y: y2 }, { x: x2, y: y2 }))
+                        let path = checkLinkPath(generateStraightLinePath({ x: x1, y: y1 }, { x, y: y1 }, { x, y: y2 }, { x: x2, y: y2 }))
                         if (path) return path
                     }
                 }
@@ -428,7 +438,7 @@
                 }
             }
         }
-        /** 生成范围数字 例如 1 - 7) [1,2,3,4,5,6] or [6,5,4,3,2,1]
+        /** 生成范围数字 例如 1 - 7) [1,2,3,4,5,6] or [7,6,5,4,3,2]
          * @param {number} start
          * @param {number} end
          * @param {number} step
@@ -473,6 +483,15 @@
                 tmpDict[func(arr[i], i)].push(arr[i])
             }
             return Object.values(tmpDict)
+        }
+        /** 通过条件一一对比 */
+        function contrast(arr, func) {
+            for (let i = 0; i < arr.length - 1; i++) {
+                for (let j = i + 1; j < arr.length; j++) {
+                    if (func(arr[i], arr[j])) return true;
+                }
+            }
+            return false;
         }
         // 主程序执行
         function main() {
