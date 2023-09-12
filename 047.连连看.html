@@ -35,6 +35,11 @@
             background-size: cover;
         }
 
+        .tile-container .tile-item.active {
+            box-sizing: border-box;
+            border: 2px solid skyblue;
+        }
+
         #drawLine {
             position: absolute;
             width: 100%;
@@ -89,10 +94,10 @@
         // 遮罩数据
         let maskData = []
         // 第一个元素
-        /** @type {Element} */
+        /** @type {HTMLDivElement} */
         let firstDom = null
         // 第二个元素
-        /** @type {Element} */
+        /** @type {HTMLDivElement} */
         let lastDom = null
         // 地图数据
         let mapData = {}
@@ -165,7 +170,7 @@
         function initTile() {
             let tiles = config.tiles
             let tileList = []
-            let minLoopCount = 8
+            let minLoopCount = config.minLoopCount
             // 计算出可放对数
             // 总数 / minLoopCount         类型一    双对存在便于配对
             let tile4Count = ~~(config.capacity / minLoopCount)
@@ -193,7 +198,7 @@
             for (let i = 0; i < tileDomList.length; i++) {
                 const tileDom = tileDomList.item(i)
                 tileDom.setAttribute("id", tileList[i].id)
-                // tileDom.textContent = tileList[i].tile
+                tileDom.setAttribute('tile', tileList[i].tile)
                 tileDom.setAttribute("style", `${tileDom.getAttribute('style')};background-image: url(${tileList[i].tile})`)
                 let x = tileDom.getAttribute('x')
                 let y = tileDom.getAttribute('y')
@@ -207,7 +212,7 @@
             if (firstDom != event.target) {
                 if (!firstDom) firstDom = event.target
                 else lastDom = event.target;
-                console.log(firstDom, lastDom);
+                event.target.classList.add('active')
                 if (firstDom && lastDom) {
                     if (firstDom.getAttribute('id') == lastDom.getAttribute('id')) {
                         let linkPath = getLinkPath(firstDom, lastDom)
@@ -228,6 +233,8 @@
                         console.log('啊偶');
                         playSound("linkError")
                     }
+                    firstDom.classList.remove('active')
+                    lastDom.classList.remove('active')
                     firstDom = null;
                     lastDom = null;
                 }
@@ -239,6 +246,68 @@
         function checkGameOver() {
             if (Object.values(mapData).filter(a => a).length == 0) {
                 console.log('游戏胜利');
+                // TODO 帧动画
+            }
+            // 检查死局
+            if (!checkStalemate()) {
+                rearrange();
+            }
+        }
+        /** 检查是否是死局 */
+        function checkStalemate() {
+            let mapList = Object.keys(mapData).map(key => {
+                return {
+                    v2: key,
+                    id: mapData[key]
+                }
+            })
+
+            let someIdArrList = group(mapList, (item) => item.id)
+
+            for (let i = 0; i < someIdArrList.length; i++) {
+                if (contrast(someIdArrList[i], (prev, next) => getLinkPathByV2(...strToV2(prev.v2), ...strToV2(next.v2)))) {
+                    return true
+                }
+            }
+
+            return false;
+        }
+        /** 重新排列 */
+        function rearrange() {
+            let origin = Object.keys(mapData)
+            let target = Randoms.getDisorganizeArray(origin)
+
+            for (let i = 0; i < origin.length; i++) {
+                const okey = origin[i];
+                const tkey = target[i];
+
+                const [ox, oy] = strToV2(okey);
+                const [tx, ty] = strToV2(tkey);
+
+                const odom = document.querySelector(`.tile-item[x='${ox}'][y='${oy}']`)
+                const tdom = document.querySelector(`.tile-item[x='${tx}'][y='${ty}']`)
+
+                const otile = odom.getAttribute('tile')
+                const ttile = tdom.getAttribute('tile')
+
+                const oid = odom.getAttribute('id')
+                const tid = tdom.getAttribute('id')
+
+                tdom.setAttribute('id', oid)
+                odom.setAttribute('id', tid)
+
+                tdom.setAttribute('tile', otile)
+                odom.setAttribute('tile', ttile)
+
+                mapData[tkey] = oid
+                mapData[okey] = tid
+
+                tdom.style.backgroundImage = `url(${otile})`
+                odom.style.backgroundImage = `url(${ttile})`
+            }
+
+            if (!checkStalemate()) {
+                rearrange()
             }
         }
         /** 消除逻辑
@@ -296,14 +365,20 @@
          * @param { HTMLDivElement } t2  
          */
         function getLinkPath(t1, t2) {
-            let path = []
-
             let x1 = +t1.getAttribute('x')
             let y1 = +t1.getAttribute('y')
-
             let x2 = +t2.getAttribute('x')
             let y2 = +t2.getAttribute('y')
-
+            return getLinkPathByV2(x1, y1, x2, y2)
+        }
+        /** 获取可连接的路径
+         * @param { number } x1  
+         * @param { number } y1  
+         * @param { number } x2  
+         * @param { number } y2  
+         */
+        function getLinkPathByV2(x1, y1, x2, y2) {
+            let path = []
             let minX = Math.min(x1, x2)
             let minY = Math.min(y1, y2)
             let maxX = Math.max(x1, x2)
@@ -414,7 +489,6 @@
                     }
                 }
             }
-
         }
         /** 检查连接路径
          *  忽略起点和目标点
@@ -492,6 +566,13 @@
                 }
             }
             return false;
+        }
+        /** 字符串变更为数字格式 */
+        function strToV2(str) {
+            console.log(str);
+            let [x, y] = str.match(/[0-9.]{1,}/g);
+            console.log(x, y);
+            return [+x, +y]
         }
         // 主程序执行
         function main() {

@@ -4,6 +4,7 @@
     "width": 400,
     "height": 400,
     "capacity": 0,
+    "minLoopCount": 8,
     "sounds": {
         "linkSuccess": "./assets/lianliankan/linkSuccess.mp3",
         "linkError": "./assets/lianliankan/linkError.mp3"
