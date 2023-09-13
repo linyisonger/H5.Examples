@@ -10,7 +10,8 @@
         "linkError": "./assets/lianliankan/linkError.mp3"
     },
     "mask": "./assets/lianliankan/mask.png",
-    "background": "",
+    "win": "./assets/lianliankan/win.gif",
+    "background": "./assets/lianliankan/background.png",
     "tiles": [
         [
             {
@@ -112,6 +113,48 @@
             {
                 "id": 17,
                 "tile": "./assets/lianliankan/17.jpg"
+            }
+        ],
+        [
+            {
+                "id": 18,
+                "tile": "./assets/lianliankan/18.jpg"
+            }
+        ],
+        [
+            {
+                "id": 19,
+                "tile": "./assets/lianliankan/19.jpg"
+            }
+        ],
+        [
+            {
+                "id": 20,
+                "tile": "./assets/lianliankan/20.jpg"
+            }
+        ],
+        [
+            {
+                "id": 21,
+                "tile": "./assets/lianliankan/21.jpg"
+            }
+        ],
+        [
+            {
+                "id": 22,
+                "tile": "./assets/lianliankan/22.jpg"
+            }
+        ],
+        [
+            {
+                "id": 23,
+                "tile": "./assets/lianliankan/23.jpg"
+            }
+        ],
+        [
+            {
+                "id": 24,
+                "tile": "./assets/lianliankan/24.jpg"
             }
         ]
     ]

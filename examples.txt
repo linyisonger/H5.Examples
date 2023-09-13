@@ -47,4 +47,6 @@
 047.连连看.html
 048.文件转Base64字符串.html
 049.3D旋转 名侦探柯南装备介绍.html
+050.Canvas遮罩绘制.html
+051.帧动画 宝箱开启.html
 index.html

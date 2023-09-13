@@ -22,6 +22,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            background-size: cover;
         }
 
         .tile-container .tile-item {
@@ -40,12 +41,17 @@
             border: 2px solid skyblue;
         }
 
-        #drawLine {
+        #drawLine,
+        #win {
             position: absolute;
             width: 100%;
             height: 100%;
             z-index: 2;
             pointer-events: none;
+        }
+
+        #win {
+            background-size: cover;
         }
     </style>
 </head>
@@ -56,6 +62,7 @@
             <canvas id="drawLine">
                 抱歉，您的浏览器不支持 canvas 元素
             </canvas>
+            <div id="win"></div>
         </div>
     </div>
     <div class="sound-container">
@@ -91,6 +98,9 @@
         // 画线元素
         /** @type {HTMLCanvasElement} */
         let drawLineDom = document.querySelector('#drawLine')
+        // 胜利元素
+        /** @type {HTMLDivElement} */
+        let winDom = document.querySelector('#win')
         // 遮罩数据
         let maskData = []
         // 第一个元素
@@ -147,6 +157,9 @@
             console.log("读取配置", config);
             // 读取配置文件 
             tileContainerDom.setAttribute("style", `width:${config.width}px;height:${config.height}px`);
+            tileContainerDom.style.backgroundImage = `url(${config.background})`
+            winDom.style.backgroundImage = `url(${config.win})`
+            winDom.hidden = true
             // 初始化地图
             for (let x = 0; x < config.rows; x++) {
                 for (let y = 0; y < config.cols; y++) {
@@ -246,7 +259,7 @@
         function checkGameOver() {
             if (Object.values(mapData).filter(a => a).length == 0) {
                 console.log('游戏胜利');
-                // TODO 帧动画
+                winDom.hidden = false;
             }
             // 检查死局
             if (!checkStalemate()) {
