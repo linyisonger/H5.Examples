@@ -212,14 +212,14 @@
             for (let i = 0; i < tile4Count; i++) {
                 let tile = tiles[i];
                 console.log(tile);
-                for (let j = 0; j < Math.pow(minLoopCount, 1 / tile.length); j++) {
+                for (let j = 0; j < ~~(minLoopCount / tile.length); j++) {
                     tileList.push(...tile)
                 }
             }
             for (let i = 0; i < tile2Count; i++) {
                 let tile = tiles[tile4Count + i];
                 console.log(tile);
-                for (let j = 0; j < Math.pow(2, 1 / tile.length); j++) {
+                for (let j = 0; j < ~~(2 / tile.length); j++) {
                     tileList.push(...tile)
                 }
             }
@@ -234,6 +234,9 @@
                 console.log(tileList[i]);
                 tileDom.setAttribute("id", tileList[i].id)
                 tileDom.setAttribute('tile', tileList[i].tile)
+                if (tileList[i].type) {
+                    tileDom.setAttribute('type', tileList[i].type)
+                }
                 tileDom.setAttribute("style", `${tileDom.getAttribute('style')};background-image: url(${tileList[i].tile})`)
                 let x = tileDom.getAttribute('x')
                 let y = tileDom.getAttribute('y')
@@ -249,7 +252,13 @@
                 else lastDom = event.target;
                 event.target.classList.add('active')
                 if (firstDom && lastDom) {
-                    if (firstDom.getAttribute('id') == lastDom.getAttribute('id')) {
+                    let allowLink = firstDom.getAttribute('id') == lastDom.getAttribute('id');
+                    let type = firstDom.getAttribute('type')
+                    // 如果是cp图片不能相同
+                    if (type == 'cp') {
+                        allowLink = allowLink && firstDom.getAttribute('tile') != lastDom.getAttribute('tile')
+                    }
+                    if (allowLink) {
                         let linkPath = getLinkPath(firstDom, lastDom)
                         if (linkPath) {
                             console.log('允许连接');

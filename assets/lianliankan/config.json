@@ -14,7 +14,13 @@
         [
             {
                 "id": 1,
-                "tile": "./assets/lianliankan/1.jpg"
+                "tile": "./assets/lianliankan/cp1.webp",
+                "type": "cp"
+            },
+            {
+                "id": 1,
+                "tile": "./assets/lianliankan/cp2.webp",
+                "type": "cp"
             }
         ],
         [
