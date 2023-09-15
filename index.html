@@ -160,9 +160,13 @@
         // 当宽度小于600判断为移动端 默认收缩左侧栏
         if (document.body.clientWidth < 600) {
             container.style.transition = 'none'
+            leftNavBar.style.transition = 'none'
             leftNavBar.classList.add('hidden')
             container.classList.add('full')
-            setTimeout(() => { container.style.transition = 'all .3s ease-in' }, 100)
+            setTimeout(() => {
+                container.style.transition = 'all .3s ease-in'
+                leftNavBar.style.transition = 'all .3s ease-in'
+            }, 300)
         }
 
 

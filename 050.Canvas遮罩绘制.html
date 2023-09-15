@@ -22,6 +22,10 @@
             opacity: 0;
         }
 
+        #mask_prev {
+            pointer-events: none;
+        }
+
         .toolbar {
             display: flex;
             background-color: #fff;
@@ -56,6 +60,7 @@
             padding: 0px 20px;
             line-height: 30px;
             background-color: #e8e8e8;
+            white-space: nowrap;
         }
 
         .toolbar_item button:active {
@@ -79,70 +84,81 @@
             <input id="height" type="number">
         </div>
         <div class="toolbar_item">
-            <button>更新</button>
-        </div>
-        <div class="toolbar_item">
-            <button>放大</button>
-        </div>
-        <div class="toolbar_item">
-            <button>缩小</button>
+            <button id="reset">更新</button>
         </div>
     </div>
 
-    <script>
+    <script type="module">
+        import { aspectFill, aspectFit, scaleToFill } from "https://gcore.jsdelivr.net/npm/@3r/tool/lib/picture.js";
+
         // 由于1px缩放后展示效果变得特别模糊
-
         // 产生两个canvas 一个用于渲染真是结果另一个  用来渲染展示效果
-
-
-
         let config = {
             w: 10,
-            h: 10
+            h: 10,
+            tw: 400,
+            th: 400
         }
-
+        let scaleList = [400, 500, 600, 700, 800]
+        let currntScale = 0;
         let widthDom = document.querySelector('#width')
         let heightDom = document.querySelector('#height')
-
-        widthDom.value = config.w;
-        heightDom.value = config.h;
+        let resetDom = document.querySelector('#reset')
         /** @type {HTMLCanvasElement} */
         let drawDom = document.querySelector("#mask_draw")
-
-        let sx = drawDom.clientWidth / config.w
-        let sy = drawDom.clientHeight / config.h
-
-        drawDom.width = config.w;
-        drawDom.height = config.h
-        drawDom.style.width = `${config.w}px`;
-        drawDom.style.height = `${config.h}px`
-        drawDom.style.transform = `translate(-50%, -50%) scale(${sx},${sy})`
-
         let ctxDraw = drawDom.getContext('2d')
-        ctxDraw.fillStyle = '#000'
-        ctxDraw.fillRect(0, 0, config.w, config.h)
-
         /** @type {HTMLCanvasElement} */
         let prevDom = document.querySelector("#mask_prev")
-        prevDom.width = prevDom.clientWidth;
-        prevDom.height = prevDom.clientHeight
-
         let ctxPrev = prevDom.getContext('2d')
-        ctxPrev.scale(sx, sy)
-        ctxPrev.fillStyle = '#000'
-        ctxPrev.fillRect(0, 0, config.w, config.h)
-
-        document.body.addEventListener("mousedown", mouseDownFunc)
-        document.body.addEventListener("mousemove", mouseMoveFunc)
-        document.body.addEventListener("mouseup", mouseUpFunc)
-
         let isDraw = false;
 
+        function loadConfig() {
+            console.log("loadConfig", config);
+            widthDom.value = config.w;
+            heightDom.value = config.h;
+
+            drawDom = document.querySelector("#mask_draw")
+
+            let tw = 400;
+            let th = 400;
+            let { width, height } = aspectFill(config.w, config.h, tw, th)
+            let sx = width / config.w
+            let sy = height / config.h
+
+            drawDom.width = config.w;
+            drawDom.height = config.h
+            drawDom.style.width = `${config.w}px`;
+            drawDom.style.height = `${config.h}px`
+            drawDom.style.transform = `translate(-50%, -50%) scale(${sx},${sy})`
+
+            ctxDraw = drawDom.getContext('2d')
+            ctxDraw.fillStyle = '#000'
+            ctxDraw.fillRect(0, 0, config.w, config.h)
+
+            prevDom = document.querySelector("#mask_prev")
+            prevDom.width = width;
+            prevDom.height = height
+            prevDom.style.width = `${width}px`;
+            prevDom.style.height = `${height}px`
+            ctxPrev = prevDom.getContext('2d')
+            ctxPrev.scale(sx, sy)
+            ctxPrev.fillStyle = '#000'
+            ctxPrev.fillRect(0, 0, config.w, config.h)
+
+            drawDom.addEventListener("mousedown", mouseDownFunc)
+            document.body.addEventListener("mousemove", mouseMoveFunc)
+            document.body.addEventListener("mouseup", mouseUpFunc)
+            resetDom.addEventListener("click", resetFunc)
+        }
+        loadConfig();
         function mouseDownFunc(ev) {
-            isDraw = true;
+            if (ev.button === 0) {
+                isDraw = true;
+            }
             if (isDraw && ev.target == drawDom) {
                 let x = ev.offsetX
                 let y = ev.offsetY
+                console.log(x, y);
                 let imgData = ctxDraw.createImageData(1, 1)
                 imgData.data.set([255, 255, 255, 255])
                 ctxDraw.putImageData(imgData, x, y)
@@ -163,6 +179,15 @@
         }
         function mouseUpFunc(ev) {
             isDraw = false;
+        }
+        function resetFunc() {
+            config.w = +widthDom.value
+            config.h = +heightDom.value
+            drawDom.removeEventListener("mousedown", mouseDownFunc)
+            document.body.removeEventListener("mousemove", mouseMoveFunc)
+            document.body.removeEventListener("mouseup", mouseUpFunc)
+            resetDom.removeEventListener("mouseup", mouseUpFunc)
+            loadConfig();
         }
 
     </script>
