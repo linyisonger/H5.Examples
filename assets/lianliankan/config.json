@@ -3,7 +3,7 @@
     "rows": 0,
     "width": 400,
     "height": 400,
-    "adaptation": "aspectFill",
+    "adaptation": "aspectFit",
     "capacity": 0,
     "minLoopCount": 8,
     "sounds": {
