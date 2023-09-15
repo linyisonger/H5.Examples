@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./assets/global.css">
+    <style>
+        #mask_prev,
+        #mask_draw {
+            width: 400px;
+            height: 400px;
+            background-color: #000;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        #mask_draw {
+            opacity: 0;
+        }
+
+        .toolbar {
+            display: flex;
+            background-color: #fff;
+
+
+            position: absolute;
+            left: 50%;
+            top: 80%;
+            transform: translate(-50%, -50%);
+        }
+
+        .toolbar_item {
+            display: flex;
+            align-items: center;
+            height: 40px;
+            margin-right: 10px;
+        }
+
+        .toolbar_item input {
+            outline: none;
+            border: none;
+            background-color: #e8e8e8;
+            padding: 0;
+            font-size: 20px;
+            line-height: 30px;
+            padding-left: 10px;
+            width: 50px;
+        }
+
+        .toolbar_item button {
+            border: none;
+            padding: 0px 20px;
+            line-height: 30px;
+            background-color: #e8e8e8;
+        }
+
+        .toolbar_item button:active {
+            opacity: .7;
+        }
+    </style>
+</head>
+
+<body>
+
+    <canvas id="mask_prev"></canvas>
+    <canvas id="mask_draw"></canvas>
+
+    <div class="toolbar">
+        <div class="toolbar_item">
+            <div class="label">宽：</div>
+            <input id="width" type="number">
+        </div>
+        <div class="toolbar_item">
+            <div class="label">高：</div>
+            <input id="height" type="number">
+        </div>
+        <div class="toolbar_item">
+            <button>更新</button>
+        </div>
+        <div class="toolbar_item">
+            <button>放大</button>
+        </div>
+        <div class="toolbar_item">
+            <button>缩小</button>
+        </div>
+    </div>
+
+    <script>
+        // 由于1px缩放后展示效果变得特别模糊
+
+        // 产生两个canvas 一个用于渲染真是结果另一个  用来渲染展示效果
+
+
+
+        let config = {
+            w: 10,
+            h: 10
+        }
+
+        let widthDom = document.querySelector('#width')
+        let heightDom = document.querySelector('#height')
+
+        widthDom.value = config.w;
+        heightDom.value = config.h;
+        /** @type {HTMLCanvasElement} */
+        let drawDom = document.querySelector("#mask_draw")
+
+        let sx = drawDom.clientWidth / config.w
+        let sy = drawDom.clientHeight / config.h
+
+        drawDom.width = config.w;
+        drawDom.height = config.h
+        drawDom.style.width = `${config.w}px`;
+        drawDom.style.height = `${config.h}px`
+        drawDom.style.transform = `translate(-50%, -50%) scale(${sx},${sy})`
+
+        let ctxDraw = drawDom.getContext('2d')
+        ctxDraw.fillStyle = '#000'
+        ctxDraw.fillRect(0, 0, config.w, config.h)
+
+        /** @type {HTMLCanvasElement} */
+        let prevDom = document.querySelector("#mask_prev")
+        prevDom.width = prevDom.clientWidth;
+        prevDom.height = prevDom.clientHeight
+
+        let ctxPrev = prevDom.getContext('2d')
+        ctxPrev.scale(sx, sy)
+        ctxPrev.fillStyle = '#000'
+        ctxPrev.fillRect(0, 0, config.w, config.h)
+
+        document.body.addEventListener("mousedown", mouseDownFunc)
+        document.body.addEventListener("mousemove", mouseMoveFunc)
+        document.body.addEventListener("mouseup", mouseUpFunc)
+
+        let isDraw = false;
+
+        function mouseDownFunc(ev) {
+            isDraw = true;
+            if (isDraw && ev.target == drawDom) {
+                let x = ev.offsetX
+                let y = ev.offsetY
+                let imgData = ctxDraw.createImageData(1, 1)
+                imgData.data.set([255, 255, 255, 255])
+                ctxDraw.putImageData(imgData, x, y)
+                ctxPrev.fillStyle = '#fff'
+                ctxPrev.fillRect(x, y, 1, 1)
+            }
+        }
+        function mouseMoveFunc(ev) {
+            if (isDraw && ev.target == drawDom) {
+                let x = ev.offsetX
+                let y = ev.offsetY
+                let imgData = ctxDraw.createImageData(1, 1)
+                imgData.data.set([255, 255, 255, 255])
+                ctxDraw.putImageData(imgData, x, y)
+                ctxPrev.fillStyle = '#fff'
+                ctxPrev.fillRect(x, y, 1, 1)
+            }
+        }
+        function mouseUpFunc(ev) {
+            isDraw = false;
+        }
+
+    </script>
+</body>
+
+</html>

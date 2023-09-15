@@ -71,6 +71,7 @@
     <script type="module">
         import { Randoms } from "https://gcore.jsdelivr.net/npm/@3r/tool/lib/randoms.js";
         // import { cloneDeep } from "https://gcore.jsdelivr.net/npm/@3r/tool/lib/common.js";
+        import { aspectFill, aspectFit, scaleToFill } from "https://gcore.jsdelivr.net/npm/@3r/tool/lib/picture.js";
 
         let configPath = './assets/lianliankan/config.json'
         // 配置信息
@@ -93,6 +94,8 @@
                 return this.height + 2 * this.itemHeight
             }
         }
+        // 游戏容器
+        let gameContainerDom = document.querySelector('.game-container')
         // 获取格子容器
         let tileContainerDom = document.querySelector('.tile-container')
         // 画线元素
@@ -156,6 +159,21 @@
         function initConfig() {
             console.log("读取配置", config);
             // 读取配置文件 
+
+            // 自适应
+            if (config.adaptation) {
+                let ow = config.width;
+                let oh = config.height;
+                let tw = gameContainerDom.clientWidth;
+                let th = gameContainerDom.clientHeight;
+                let pictureParams = [ow, oh, tw, th]
+                let pictureFunc = {
+                    aspectFill, aspectFit, scaleToFill
+                }
+                let pictureRes = pictureFunc[config.adaptation](...pictureParams)
+                config.width = pictureRes.width;
+                config.height = pictureRes.height;
+            }
             tileContainerDom.setAttribute("style", `width:${config.width}px;height:${config.height}px`);
             tileContainerDom.style.backgroundImage = `url(${config.background})`
             winDom.style.backgroundImage = `url(${config.win})`

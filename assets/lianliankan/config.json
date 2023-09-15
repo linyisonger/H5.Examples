@@ -3,6 +3,7 @@
     "rows": 0,
     "width": 400,
     "height": 400,
+    "adaptation": "aspectFill",
     "capacity": 0,
     "minLoopCount": 8,
     "sounds": {
@@ -11,7 +12,7 @@
     },
     "mask": "./assets/lianliankan/mask.png",
     "win": "./assets/lianliankan/win.gif",
-    "background": "./assets/lianliankan/background.png",
+    "background": "./assets/lianliankan/background.gif",
     "tiles": [
         [
             {
