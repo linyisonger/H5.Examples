@@ -23,6 +23,7 @@
             align-items: center;
             justify-content: center;
             background-size: cover;
+            background-position: center;
         }
 
         .tile-container .tile-item {
@@ -210,12 +211,14 @@
             console.log(tile4Count);
             for (let i = 0; i < tile4Count; i++) {
                 let tile = tiles[i];
+                console.log(tile);
                 for (let j = 0; j < Math.pow(minLoopCount, 1 / tile.length); j++) {
                     tileList.push(...tile)
                 }
             }
             for (let i = 0; i < tile2Count; i++) {
                 let tile = tiles[tile4Count + i];
+                console.log(tile);
                 for (let j = 0; j < Math.pow(2, 1 / tile.length); j++) {
                     tileList.push(...tile)
                 }
@@ -225,9 +228,10 @@
             tileList = Randoms.getDisorganizeArray(tileList)
             // 加载致DOM层
             let tileDomList = document.querySelectorAll('.tile-item')
-            console.log(tileDomList);
-            for (let i = 0; i < tileDomList.length; i++) {
+            console.log(tileDomList.length, tileList.length);
+            for (let i = 0; i < toEven(tileDomList.length); i++) {
                 const tileDom = tileDomList.item(i)
+                console.log(tileList[i]);
                 tileDom.setAttribute("id", tileList[i].id)
                 tileDom.setAttribute('tile', tileList[i].tile)
                 tileDom.setAttribute("style", `${tileDom.getAttribute('style')};background-image: url(${tileList[i].tile})`)
@@ -604,6 +608,10 @@
             let [x, y] = str.match(/[0-9.]{1,}/g);
             console.log(x, y);
             return [+x, +y]
+        }
+        /** 向下转为偶数 */
+        function toEven(num) {
+            return num % 2 == 0 ? num : num - 1
         }
         // 主程序执行
         function main() {
