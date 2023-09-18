@@ -66,6 +66,11 @@
             position: relative;
         }
 
+        .left-container.mobile{
+            position: fixed;
+            left: 0;
+        }
+
         .left-container .fold {
             position: absolute;
             top: 50%;
@@ -163,6 +168,7 @@
             leftNavBar.style.transition = 'none'
             leftNavBar.classList.add('hidden')
             container.classList.add('full')
+            leftContainer.classList.add('mobile')
             setTimeout(() => {
                 container.style.transition = 'all .3s ease-in'
                 leftNavBar.style.transition = 'all .3s ease-in'
@@ -244,11 +250,11 @@
             unfoldDom.addEventListener("click", () => {
                 if (leftNavBar.classList.contains('hidden')) {
                     leftNavBar.classList.remove('hidden')
-                    container.classList.remove('full')
+                    if (document.body.clientWidth >= 600) container.classList.remove('full')
                 }
                 else {
                     leftNavBar.classList.add('hidden')
-                    container.classList.add('full')
+                    if (document.body.clientWidth >= 600) container.classList.add('full')
                 }
             })
 
