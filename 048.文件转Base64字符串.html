@@ -9,13 +9,15 @@
     <style>
         body {
             display: flex;
+            flex-wrap: wrap;
         }
 
         #drag,
         #base64,
         #prefix {
-            width: 500px;
+            width: 100vmin;
             height: 300px;
+            max-width: 500px;
             border-radius: 10px;
             background-color: #f8f8f8;
             border: 2px dashed #ddd;
@@ -47,7 +49,7 @@
     <div id="drag">拖动至此或点击上传文件</div>
     <div id="base64" onclick="copyToClipboard(this)"></div>
     <div id="prefix" onclick="copyToClipboard(this)"></div>
-    
+
     <script>
         var dragDivDom = document.getElementById('drag');
         var base64Dom = document.getElementById('base64');

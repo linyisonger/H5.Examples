@@ -9,8 +9,8 @@
     <style>
         #mask_prev,
         #mask_draw {
-            width: 400px;
-            height: 400px;
+            width: 100vmin;
+            height: 100vmin;
             background-color: #000;
             position: absolute;
             left: 50%;
@@ -29,7 +29,7 @@
         .toolbar {
             display: flex;
             background-color: #fff;
-
+            padding: 0 40px;
 
             position: absolute;
             left: 50%;
@@ -119,8 +119,9 @@
 
             drawDom = document.querySelector("#mask_draw")
 
-            let tw = 400;
-            let th = 400;
+
+            let tw = Math.min(document.body.clientWidth, 400);
+            let th = Math.min(document.body.clientWidth, 400);
             let { width, height } = aspectFill(config.w, config.h, tw, th)
             let sx = width / config.w
             let sy = height / config.h
