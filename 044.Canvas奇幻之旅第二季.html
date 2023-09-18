@@ -32,6 +32,15 @@
         import { Maths, Randoms, Animation, v2, Vector2 } from "https://unpkg.com/@3r/tool"
         /**
          * 创建画布
+         * @typedef {Object} IRenderParam
+         * @property {HTMLCanvasElement} IRenderParam.canvas
+         * @property {CanvasRenderingContext2D} IRenderParam.context
+         * 
+         * 
+         * @param {Object} params 
+         * @param {number} params.width - 画布宽度
+         * @param {number} params.height - 画布高度
+         * @param {(param:IRenderParam)=>void} params.render - 渲染方法
          */
         function createCanvas({
             width,
@@ -69,7 +78,7 @@
             code.textContent = codeTextContent
             document.body.appendChild(container)
             render({
-                canvas,
+                canvas: canvas,
                 context
             })
         }
@@ -538,6 +547,474 @@
                 context.stroke()
             }
         })
+
+        createCanvas({
+            width: 300,
+            height: 300,
+            render: ({ canvas, context }) => {
+                // 文本渲染
+                context.font = 'bold 20px Arial';
+                context.textBaseline = "top"
+                context.strokeStyle = 'red'
+                context.strokeText("Canvas奇幻之旅", 20, 20)
+                context.fillStyle = 'blue'
+                context.fillText('Canvas奇幻之旅', 20, 80)
+            }
+        })
+
+        createCanvas({
+            width: 300,
+            height: 300,
+            render: ({ canvas, context }) => {
+                // Font属性详解
+                context.textBaseline = "top"
+                context.fillStyle = 'blue'
+                context.font = 'italic normal normal 20px Arial';
+                context.fillText('Canvas奇幻之旅', 20, 20)
+                context.font = 'oblique normal normal 20px Arial';
+                context.fillText('Canvas奇幻之旅', 20, 80)
+                context.font = 'normal small-caps normal 20px Arial';
+                context.fillText('Canvas奇幻之旅', 20, 140)
+                context.font = 'normal normal bold 20px Arial';
+                context.fillText('Canvas奇幻之旅', 20, 200)
+
+            }
+        })
+
+        createCanvas({
+            width: 300,
+            height: 300,
+            render: ({ canvas, context }) => {
+                // textAlign
+                context.textBaseline = "top"
+                context.fillStyle = 'blue'
+                context.textAlign = "left"
+                context.fillText('Canvas奇幻之旅', 150, 20)
+                context.textAlign = "center"
+                context.fillText('Canvas奇幻之旅', 150, 60)
+                context.textAlign = "right"
+                context.fillText('Canvas奇幻之旅', 150, 100)
+                // textBaseLine
+                context.textAlign = "center"
+                context.textBaseline = "top"
+                context.fillText('Canvas奇幻之旅', 150, 140)
+                context.textBaseline = "middle"
+                context.fillText('Canvas奇幻之旅', 150, 180)
+                context.textBaseline = "bottom"
+                context.fillText('Canvas奇幻之旅', 150, 220)
+
+                // 辅助线
+                context.beginPath()
+                context.moveTo(150, 0)
+                context.lineTo(150, 300)
+                context.stroke();
+                context.beginPath()
+                context.moveTo(0, 140)
+                context.lineTo(300, 140)
+                context.stroke();
+                context.beginPath()
+                context.moveTo(0, 180)
+                context.lineTo(300, 180)
+                context.stroke();
+                context.beginPath()
+                context.moveTo(0, 220)
+                context.lineTo(300, 220)
+                context.stroke();
+            }
+        })
+
+        createCanvas({
+            width: 300,
+            height: 300,
+            render: ({ canvas, context }) => {
+                // 文本的度量
+                context.textBaseline = "top"
+                context.fillStyle = 'blue'
+                context.font = 'italic normal normal 20px Arial';
+                context.fillText('Canvas奇幻之旅', 20, 20)
+                let measureText = context.measureText('Canvas奇幻之旅')
+                console.log(measureText.width);
+            }
+        })
+
+        createCanvas({
+            width: 300,
+            height: 300,
+            render: ({ canvas, context }) => {
+                // 阴影效果
+                context.font = 'italic normal 600 20px Arial';
+                context.shadowColor = 'blue';
+                context.shadowOffsetX = 5
+                context.shadowOffsetY = 5
+                context.shadowBlur = 2
+                context.fillText('Canvas奇幻之旅', 20, 150)
+            }
+        })
+
+        createCanvas({
+            width: 300,
+            height: 300,
+            render: ({ canvas, context }) => {
+                // 线性渐变
+                let linearGradient = context.createLinearGradient(0, 0, 150, 150)
+                linearGradient.addColorStop(0, '#0aa')
+                linearGradient.addColorStop(1, '#eef')
+                context.fillStyle = linearGradient;
+                context.fillRect(0, 0, 150, 150)
+                // 径向渐变
+                let radialGradient = context.createRadialGradient(225, 75, 0, 225, 75, 75)
+                radialGradient.addColorStop(0, '#f00')
+                radialGradient.addColorStop(1, '#fff')
+                context.fillStyle = radialGradient;
+                context.fillRect(150, 0, 150, 150)
+            }
+        })
+
+
+        createCanvas({
+            width: 300,
+            height: 300,
+            render: ({ canvas, context }) => {
+                // 彩虹🌈
+                let linearGradient = context.createRadialGradient(150, 150, 50, 150, 150, 75)
+                linearGradient.addColorStop(0, 'purple')
+                linearGradient.addColorStop(0.167, 'blue')
+                linearGradient.addColorStop(0.334, 'turquoise')
+                linearGradient.addColorStop(0.501, 'green')
+                linearGradient.addColorStop(0.668, 'yellow')
+                linearGradient.addColorStop(0.835, 'orange')
+                linearGradient.addColorStop(1, 'red')
+                context.fillStyle = linearGradient;
+
+                context.beginPath()
+                context.arc(150, 150, 50, 0, Math.PI, true)
+                context.arc(150, 150, 75, Math.PI, 0)
+                context.closePath();
+                // context.stroke();
+                context.fill()
+            }
+        })
+
+        createCanvas({
+            width: 300,
+            height: 300,
+            render: ({ canvas, context }) => {
+                // 以图片或画布作为画布背景
+                let image = new Image();
+                image.src = './assets/lianliankan/mask.png'
+                image.style.objectFit = "cover"
+                image.onload = () => {
+                    let patternNo = context.createPattern(image, "no-repeat")
+                    context.fillStyle = patternNo;
+                    context.fillRect(0, 0, 150, 100)
+                    let patternR = context.createPattern(image, "repeat")
+                    context.fillStyle = patternR;
+                    context.fillRect(150, 0, 150, 100)
+
+                    let patternX = context.createPattern(image, "repeat-x")
+                    context.fillStyle = patternX;
+                    context.fillRect(0, 150, 150, 100)
+
+                    let patternY = context.createPattern(image, "repeat-y")
+                    context.fillStyle = patternY;
+                    context.fillRect(150, 150, 150, 100)
+
+                }
+            }
+        })
+
+        createCanvas({
+            width: 300,
+            height: 300,
+            render: ({ canvas, context }) => {
+                // clip裁剪区域
+                context.beginPath();
+                context.fillStyle = '#333'
+                context.fillRect(0, 0, canvas.width, canvas.height)
+                context.closePath();
+
+                context.beginPath();
+                context.arc(150, 150, 40, 0, Math.PI * 2)
+                context.fillStyle = '#fff';
+                context.closePath();
+                context.fill();
+                context.clip();
+
+
+                context.font = 'bold 40px Arial'
+                context.fillStyle = 'blue'
+                context.fillText("Canvas奇幻之旅", 150, 150)
+            }
+        })
+
+        createCanvas({
+            width: 300,
+            height: 300,
+            render: ({ canvas, context }) => {
+                // 探照灯
+                let light = {
+                    x: 150,
+                    y: 150,
+                    R: 40,
+                    vx: 3,
+                    vy: 3
+                }
+                let render = () => {
+                    context.clearRect(0, 0, canvas.width, canvas.height)
+                    context.save();
+
+                    context.beginPath();
+                    context.fillStyle = '#333'
+                    context.fillRect(0, 0, canvas.width, canvas.height)
+                    context.closePath();
+                    context.beginPath();
+                    context.arc(light.x, light.y, light.R, 0, Math.PI * 2)
+                    context.fillStyle = '#fff';
+                    context.closePath();
+                    context.fill();
+                    context.clip();
+
+                    context.font = 'bold 40px Arial'
+                    context.fillStyle = 'blue'
+                    context.fillText("Canvas奇幻之旅", 150, 150)
+                    context.restore();
+
+                }
+                let update = () => {
+                    // light.x += light.vx;
+                    // light.y += light.vy
+                    // // 右
+                    // if (light.x + light.R >= canvas.width) {
+                    //     light.x = canvas.width - light.R;
+                    //     light.vx = -light.vx
+                    // }
+                    // // 左
+                    // if (light.x - light.R <= 0) {
+                    //     light.x = light.R;
+                    //     light.vx = -light.vx
+                    // }
+
+                    // // 下
+                    // if (light.y + light.R >= canvas.height) {
+                    //     light.y = canvas.height - light.R;
+                    //     light.vy = -light.vy
+                    // }
+                    // // 上
+                    // if (light.y - light.R <= 0) {
+                    //     light.y = light.R;
+                    //     light.vy = -light.vy
+                    // }
+
+                    light.R += 2
+                    if (light.R >= 50) {
+                        light.R = 0
+                    }
+                }
+
+
+                let run = () => {
+                    setInterval(() => {
+                        render();
+                        update();
+                    }, 20);
+                }
+
+                run();
+            }
+        })
+
+        createCanvas({
+            width: 300,
+            height: 300,
+            render: ({ canvas, context }) => {
+                // 判断某个点是否在所构建的路径内
+                context.beginPath();
+                context.arc(150, 150, 75, 0, Math.PI * 2)
+                context.closePath();
+                context.stroke();
+
+                let isPointInPathRes = context.isPointInPath(150, 80)
+                console.log(isPointInPathRes);
+                if (isPointInPathRes) {
+                    console.log("在圈内");
+                }
+                else {
+                    console.log("不在圈内");
+                }
+
+                context.fillRect(150, 80, 2, 2)
+            }
+        })
+
+        createCanvas({
+            width: 300,
+            height: 300,
+            render: ({ canvas, context }) => {
+                // 使用isPointInPath实现鼠标交互 
+                canvas.addEventListener("mousedown", (ev) => {
+                    let x = ev.clientX - canvas.getBoundingClientRect().left
+                    let y = ev.clientY - canvas.getBoundingClientRect().top
+
+                    render(x, y)
+                })
+
+                let render = (x, y) => {
+                    context.clearRect(0, 0, canvas.width, canvas.height)
+                    // ⚪
+                    context.beginPath();
+                    context.arc(150, 150, 75, 0, Math.PI * 2)
+                    let isPointInPathRes = context.isPointInPath(x, y)
+                    if (isPointInPathRes) {
+                        context.fillStyle = 'red'
+                    }
+                    else {
+                        context.fillStyle = 'blue'
+                    }
+                    context.closePath();
+                    context.fill();
+
+
+                    // ■
+                    context.beginPath();
+                    context.moveTo(0, 0)
+                    context.lineTo(0, 50)
+                    context.lineTo(50, 50)
+                    context.lineTo(50, 0)
+                    isPointInPathRes = context.isPointInPath(x, y)
+                    if (isPointInPathRes) {
+                        context.fillStyle = 'red'
+                    }
+                    else {
+                        context.fillStyle = 'blue'
+                    }
+                    context.closePath();
+                    context.fill();
+
+                    // ▲
+                    context.beginPath();
+                    context.moveTo(300, 300)
+                    context.lineTo(250, 300)
+                    context.lineTo(300, 250)
+                    isPointInPathRes = context.isPointInPath(x, y)
+                    if (isPointInPathRes) {
+                        context.fillStyle = 'red'
+                    }
+                    else {
+                        context.fillStyle = 'blue'
+                    }
+                    context.closePath();
+                    context.fill();
+                }
+
+                render();
+            }
+        })
+
+        createCanvas({
+            width: 300,
+            height: 300,
+            render: ({ canvas, context }) => {
+                let cy = 75;
+                // globalAlpha属性
+                context.font = 'bold 12px Arial'
+                context.textAlign = "center"
+                context.textBaseline = "top"
+                context.fillText('globalAlpha', 90, cy - 70)
+                context.beginPath();
+                context.arc(75, cy, 60, 0, Math.PI * 2)
+                context.fillStyle = 'purple';
+                context.globalAlpha = .5;
+                context.closePath();
+                context.fill();
+                context.beginPath();
+                context.arc(75 + 30, cy, 60, 0, Math.PI * 2)
+                context.fillStyle = 'blue';
+                context.globalAlpha = .2;
+                context.closePath();
+                context.fill();
+
+
+                // globalCompositeOperation属性
+                let globalCompositeOperationArr = [
+                    'source-over', // 预设值。将新图形放在旧图形之上。
+                    'destination-over', // 将新图形放在旧图形之下。
+                    'source-in', // 只保留新、旧图片重叠的新圆形区域，其余透明。
+                    'destination-in', // 只保留新、旧图片重叠的新圆形区域，其余透明。
+                    'source-out', // 只保留新、旧图像的非重叠的新圆形区域，其余为透明。
+                    'destination-out', // 只保留新、旧图像的非重叠的旧圆形区域，其余为透明。
+                    'source-atop', // 新圆形只在绘制新、旧图像重叠的新圆形区域，然后盖在旧图形之上
+                    'destination-atop', // 旧图形只保留在新、旧图形重叠的旧圆形区域，然后盖在新圆形之上。
+                    'lighter', // 新旧图像重叠区域的颜色，有新、旧图像的颜色吗相加而得
+                    'xor', // 新旧图像重叠区域设为透明
+                    'copy', // 移除其他图像，只保留新图形  
+                ]
+
+                let currentIdx = 0;
+
+
+                setInterval(() => {
+                    context.clearRect(0, 0, canvas.width, canvas.height)
+                    // globalCompositeOperation属性
+                    context.fillStyle = '#000';
+                    context.globalAlpha = 1;
+                    let item = globalCompositeOperationArr[currentIdx]
+                    console.log(item);
+                    context.globalCompositeOperation = item
+                    context.beginPath();
+                    context.arc(75, cy, 60, 0, Math.PI * 2)
+                    context.fillStyle = 'purple';
+                    context.closePath();
+                    context.fill();
+                    context.beginPath();
+                    context.arc(75 + 30, cy, 60, 0, Math.PI * 2)
+                    context.fillStyle = 'blue';
+                    context.closePath();
+                    context.fill();
+                    context.fillText(item, 90, cy - 70)
+                    currentIdx++;
+                    if (currentIdx >= globalCompositeOperationArr.length) {
+                        currentIdx = 0
+                    }
+                }, 2000)
+
+
+            }
+        })
+
+        createCanvas({
+            width: 300,
+            height: 300,
+            render: ({ canvas, context }) => {
+                // 非零环绕规则
+                var w = canvas.width,
+                    h = canvas.height;
+
+                var x = w / 2,
+                    y = h / 2,
+                    r = 100,
+                    start = -Math.PI / 2,
+                    end = Math.PI * 3 / 2;
+
+                context.arc(x, y, r, start, end);
+                context.fillStyle = '#D43D59';
+                context.fill();
+                context.beginPath();
+                context.moveTo(x, y - r);
+                // 顶点连下左
+                context.lineTo(x - r * Math.sin(Math.PI / 5), y + r * Math.cos(Math.PI / 5));
+
+                // 下左连上右
+                context.lineTo(x + r * Math.cos(Math.PI / 10), y - r * Math.sin(Math.PI / 10));
+                // 上右连上左
+                context.lineTo(x - r * Math.cos(Math.PI / 10), y - r * Math.sin(Math.PI / 10));
+                // 上左连下右
+                context.lineTo(x + r * Math.sin(Math.PI / 5), y + r * Math.cos(Math.PI / 5));
+                context.fillStyle = '#246AB2';
+                // fill填充规则---奇偶原则
+                context.fill('evenodd');
+            }
+        })
+
     </script>
 </body>
 
