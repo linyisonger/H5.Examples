@@ -101,7 +101,8 @@
         }
 
         .code-prev-btn,
-        .code-reload-btn {
+        .code-reload-btn,
+        #finicount_views {
             position: absolute;
             right: 20px;
             top: 20px;
@@ -134,11 +135,21 @@
         }
 
         #finicount_views {
+            top: 100px;
+            padding-left: 30px;
+            min-width: 74px;
+            box-sizing: border-box;
+        }
+
+        #finicount_views::before {
             position: absolute;
-            font-size: 13px;
-            text-align: center;
-            bottom: 20px;
-            width: 100%;
+            content: "";
+            width: 20px;
+            height: 20px;
+            left: 6px;
+            background-image: url('./assets/hits.png');
+            background-size: 100% 100%;
+            transform: scaleX(-1);
         }
     </style>
 </head>
@@ -155,7 +166,7 @@
         <iframe id="preview" src="" frameborder="0"></iframe>
         <div class="code-prev-btn">源</div>
         <div class="code-reload-btn">刷新页面</div>
-        <span id="finicount_views"></span>
+        <span id="finicount_views">1</span>
     </div>
 
     <script>
