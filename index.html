@@ -9,6 +9,7 @@
     <!-- 引入默认代码样式，可换其他的 -->
     <link rel="stylesheet" href="./assets/highlight/styles/github-dark.min.css">
     <script src="./assets/highlight/highlight.min.js"></script> <!--引入代码高亮js-->
+    <script async src="//finicounter.eu.org/finicounter.js"></script> <!-- 访问量统计 -->
     <style>
         body {
             margin: 0;
@@ -66,7 +67,7 @@
             position: relative;
         }
 
-        .left-container.mobile{
+        .left-container.mobile {
             position: fixed;
             left: 0;
         }
@@ -131,6 +132,14 @@
         pre {
             margin-top: 0 !important;
         }
+
+        #finicount_views {
+            position: absolute;
+            font-size: 13px;
+            text-align: center;
+            bottom: 20px;
+            width: 100%;
+        }
     </style>
 </head>
 
@@ -146,6 +155,7 @@
         <iframe id="preview" src="" frameborder="0"></iframe>
         <div class="code-prev-btn">源</div>
         <div class="code-reload-btn">刷新页面</div>
+        <span id="finicount_views"></span>
     </div>
 
     <script>
