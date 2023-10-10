@@ -113,7 +113,7 @@ https://linyisonger.github.io/H5.Examples/
 ![](./assets/preview/049.png)
 ##### [**Canvas遮罩绘制**](https://linyisonger.github.io/H5.Examples/?name=./050.Canvas遮罩绘制.html) 
 ![](./assets/preview/050.png)
-##### [**帧动画 宝箱开启**](https://linyisonger.github.io/H5.Examples/?name=./051.帧动画%20宝箱开启.html) 
+##### [**Canvas多边形绘制**](https://linyisonger.github.io/H5.Examples/?name=./051.Canvas多边形绘制.html) 
 ![](./assets/preview/051.png)
 
 

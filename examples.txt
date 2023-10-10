@@ -49,4 +49,5 @@
 049.3D旋转 名侦探柯南装备介绍.html
 050.Canvas遮罩绘制.html
 051.Canvas多边形绘制.html
+052.Canvas绘制胶囊.html
 index.html

@@ -10,13 +10,21 @@
         #drawPolygon {
             width: 100vmin;
             height: 100vmin;
+            background-color: #000;
+            display: flex;
+        }
+        .tooltip{
+            position: absolute;
+            color: #fff;
+            top: 20px;
+            left: 20px;
         }
     </style>
 </head>
 
 <body>
     <canvas id="drawPolygon"></canvas>
-
+    <div class="tooltip">通过鼠标左键在黑色区域绘制</div>
     <script type="module">
         import { aspectFill, aspectFit, scaleToFill } from "https://gcore.jsdelivr.net/npm/@3r/tool/lib/picture.js";
         import { Vector2, v2 } from "https://gcore.jsdelivr.net/npm/@3r/tool/lib/vertor2.js";
@@ -93,7 +101,7 @@
          * 检测是否闭口
          */
         function checkClosePath() {
-            if(points.length > 2){
+            if (points.length > 2) {
                 allowClosePath = Vector2.distance(points[0], points[points.length - 1]) < 5;
             }
         }
