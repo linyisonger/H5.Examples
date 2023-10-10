@@ -115,6 +115,8 @@ https://linyisonger.github.io/H5.Examples/
 ![](./assets/preview/050.png)
 ##### [**Canvas多边形绘制**](https://linyisonger.github.io/H5.Examples/?name=./051.Canvas多边形绘制.html) 
 ![](./assets/preview/051.png)
+##### [**Canvas绘制胶囊**](https://linyisonger.github.io/H5.Examples/?name=./052.Canvas绘制胶囊.html) 
+![](./assets/preview/052.png)
 
 
 ### 开发
