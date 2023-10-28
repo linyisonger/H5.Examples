@@ -20,8 +20,7 @@
     <canvas id="drawCapsule"></canvas>
 
     <script type="module">
-        import { Maths } from "https://unpkg.com/@3r/tool/lib/maths.js";
-        import { Vector2, v2 } from "https://gcore.jsdelivr.net/npm/@3r/tool/lib/vertor2.js";
+        import "https://cdn.jsdelivr.net/npm/@3r/canvas-plus@1.0.1/index.js"
         /** @type {HTMLCanvasElement} */
         let canvas = document.querySelector("#drawCapsule")
         let ctx = canvas.getContext('2d')
@@ -33,39 +32,11 @@
         ctx.strokeStyle = '#f00'
         ctx.lineWidth = 8;
 
-
-        /**
-         * 绘制胶囊
-         */
-        function drawCapsule(x1, y1, x2, y2, radius) {
-            let p1 = v2(x1, y1);
-            let p2 = v2(x2, y2);
-            let p3 = v2((p2.x + p1.x) / 2, (p2.y + p1.y) / 2)
-            let p4 = v2(p2.x - p1.x, p2.y - p1.y)
-            let xAxis = v2(1, 0)
-            let c1 = Vector2.getPointAtDist(p3, p2, radius)
-            let c2 = Vector2.getPointAtDist(p3, p2, -radius)
-            let ang = Vector2.includedAngle(p4, xAxis) * -1 - 90
-            let rad = Maths.degreeToRad(ang)
-
-            this.beginPath();
-            this.moveTo(p1.x, p1.y);
-            this.lineTo(p2.x, p2.y);
-            this.stroke();
-
-            this.beginPath();
-            this.arc(c1.x, c1.y, 20, 0 + rad, Math.PI + rad)
-            this.arc(c2.x, c2.y, 20, Math.PI + rad, rad)
-            this.closePath();
-            this.stroke();
-            this.fill();
-        }
-        drawCapsule.apply(ctx, [200, 300, 500, 500, 50])
+        ctx.drawCapsule(200, 300, 500, 500, 50)
 
         canvas.addEventListener("mousemove", (ev) => {
-            console.log(ev);
             ctx.clearRect(0, 0, width, height)
-            drawCapsule.apply(ctx, [ev.offsetX, ev.offsetY, 500, 500, 50])
+            ctx.drawCapsule(200, 300, ev.offsetX, ev.offsetY, 50)
         })
     </script>
 </body>

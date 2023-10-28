@@ -36,6 +36,7 @@
             justify-content: center;
             background-repeat: no-repeat;
             background-size: cover;
+            background-position: center;
         }
 
         .tile-container .tile-item.active {
@@ -90,10 +91,10 @@
             height: 400,
             capacity: 0, // 容量 
             get itemWidth() {
-                return this.width / this.cols
+                return this.width / this.rows
             },
             get itemHeight() {
-                return this.height / this.rows;
+                return this.height / this.cols;
             },
             get canvasWidth() {
                 return this.width + 2 * this.itemWidth
@@ -147,14 +148,14 @@
                 let colorArrData = group(colorData.data, (item, index) => index % 4)
 
                 maskData = group(colorArrData.shift().map(item => item == 255 ? 1 : 0), (item, index) => index % cv.width);
-
-                config.rows = maskData.length;
-                config.cols = maskData[0].length
+                config.rows = maskImg.width;
+                config.cols = maskImg.height;
                 config.capacity = maskData.flat().filter(item => item).length
                 let maskDataPreview = '预览遮罩数据\n';
                 for (let x = 0; x < config.rows; x++) {
                     for (let y = 0; y < config.cols; y++) {
-                        maskDataPreview += `${maskData[y][x]} `
+                        // console.log(x, y);
+                        maskDataPreview += `${maskData[x][y]} `
                     }
                     maskDataPreview += '\n'
                 }
@@ -170,10 +171,12 @@
 
             // 自适应
             if (config.adaptation) {
+                console.log(config.width, config.height);
                 let ow = config.width;
                 let oh = config.height;
                 let tw = gameContainerDom.clientWidth;
                 let th = gameContainerDom.clientHeight;
+                console.log(tw, th);
                 let pictureParams = [ow, oh, tw, th]
                 let pictureFunc = {
                     aspectFill, aspectFit, scaleToFill
@@ -181,6 +184,7 @@
                 let pictureRes = pictureFunc[config.adaptation](...pictureParams)
                 config.width = pictureRes.width;
                 config.height = pictureRes.height;
+                console.log(config.width, config.height);
             }
             tileContainerDom.setAttribute("style", `width:${config.width}px;height:${config.height}px`);
             tileContainerDom.style.backgroundImage = `url(${config.background})`
@@ -190,6 +194,7 @@
             for (let x = 0; x < config.rows; x++) {
                 for (let y = 0; y < config.cols; y++) {
                     if (maskData[x][y]) {
+                        console.log(config.itemWidth, config.itemHeight);
                         let tileDom = document.createElement('div');
                         tileDom.classList.add('tile-item')
                         tileDom.setAttribute("style", `width:${config.itemWidth}px;height:${config.itemHeight}px;left:${x * config.itemWidth}px;top:${y * config.itemHeight}px`)
@@ -249,6 +254,8 @@
                 let y = tileDom.getAttribute('y')
                 mapData[`(${x},${y})`] = tileList[i].id
             }
+            // 检查无用盒子
+            document.querySelectorAll(`.tile-item:not([id])`).forEach((item) => item.remove())
             console.log(mapData);
         }
         // 砖块点击事件
@@ -519,6 +526,7 @@
             }
 
             if (x1 != x2) {
+                console.log('外二折');
                 if (y1 < y2) {
                     for (let y = y1 - 1; y >= -1; y--) {
                         let path = checkLinkPath(generateStraightLinePath({ x: x1, y: y1 }, { x: x1, y }, { x: x2, y }, { x: x2, y: y2 }))
@@ -534,7 +542,7 @@
                         let path = checkLinkPath(generateStraightLinePath({ x: x2, y: y2 }, { x: x2, y }, { x: x1, y }, { x: x1, y: y1 }))
                         if (path) return path
                     }
-                    for (let y = y1 + 1; y <= config.rows; y++) {
+                    for (let y = y1 + 1; y <= config.cols; y++) {
                         let path = checkLinkPath(generateStraightLinePath({ x: x1, y: y1 }, { x: x1, y }, { x: x2, y }, { x: x2, y: y2 }))
                         if (path) return path
                     }
