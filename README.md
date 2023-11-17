@@ -117,6 +117,8 @@ https://linyisonger.github.io/H5.Examples/
 ![](./assets/preview/051.png)
 ##### [**Canvas绘制胶囊**](https://linyisonger.github.io/H5.Examples/?name=./052.Canvas绘制胶囊.html) 
 ![](./assets/preview/052.png)
+##### [**飞机大战**](https://linyisonger.github.io/H5.Examples/?name=./053.飞机大战.html) 
+![](./assets/preview/053.png)
 
 
 ### 开发
