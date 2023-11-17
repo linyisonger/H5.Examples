@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./assets/global.css">
+    <style>
+        #game {}
+    </style>
+</head>
+
+<body>
+    <canvas id="game"></canvas>
+    <script type="module">
+
+        import { Randoms } from "https://unpkg.com/@3r/tool/lib/randoms.js";
+
+        /** @type {HTMLCanvasElement} */
+        let canvas = document.querySelector("#game")
+
+        let config = {
+            width: 480,
+            height: 852
+        }
+
+        canvas.setAttribute('width', config.width);
+        canvas.setAttribute('height', config.height);
+
+        let ctx = canvas.getContext('2d')
+        let width = canvas.clientWidth;
+        let height = canvas.clientHeight;
+        canvas.width = width;
+        canvas.height = height;
+
+        // 游戏背景
+        let gameBackground = null;
+        // 背景滚动速度
+        let gameBackgroundScrollingSpeed = 2;
+        // 背景滚动位置
+        let gameBackgroundScrollingY = 0
+
+        // 英雄图片
+        let gameHeroSprite = null
+        let gameHeroDieSprite = null
+
+        let gameHero = {
+            x: 0,
+            y: 0,
+            w: 0,
+            h: 0,
+            moveX: 0,
+            speed: 4,
+            score: 0,
+            isFire: true,
+            isDie: false,
+            isDestory: false,
+            get sprite() {
+                if (this.isDie) return gameHeroDieSprite
+                return gameHeroSprite
+            }
+        }
+
+        // 敌人图片
+        let gameEnemySprite = null
+        let gameEnemyDieSprite = null
+
+        let gameEnemy = []
+
+        // 游戏子弹
+        let gameBulletSprite = null;
+        let gameBullet = []
+        let lastGenerateEnemyTime = 0;
+        let lastGenerateBulletTime = 0
+        let isMouseDown = false;
+        let isTouchDown = false;
+
+        let updateIntervalId = null
+
+        let isGameOver = false;
+
+
+        // 判断两矩形是否重叠
+        function isRectOverlap(rect1, rect2) {
+            if (!rect1) return false
+            if (!rect2) return false
+            if (rect1.x + rect1.w < rect2.x) return false
+            if (rect1.y + rect1.h < rect2.y) return false;
+            if (rect2.x + rect2.w < rect1.x) return false
+            if (rect2.y + rect2.h < rect1.y) return false;
+            return true
+        }
+        /**
+         * 加载图
+         * @param {string} src
+         * @returns {HTMLImageElement}
+         */
+        function loadImage(src) {
+            return new Promise((resolve) => {
+                let image = new Image()
+                image.src = src;
+                image.onload = (ev) => {
+                    resolve(image)
+                }
+            })
+        }
+
+        // 滚动背景
+        function scrollingBackgrounds() {
+            gameBackgroundScrollingY += gameBackgroundScrollingSpeed;
+            ctx.drawImage(gameBackground, 0, gameBackgroundScrollingY % config.height)
+            ctx.drawImage(gameBackground, 0, gameBackgroundScrollingY % config.height - config.height)
+        }
+
+        // 更新玩家信息
+        function updateHero() {
+            if (gameHero.isDestory) return gameOver();
+            if (!gameHero.isDie) {
+                gameHero.x += gameHero.moveX * gameHero.speed;
+                if (gameHero.x < 0) {
+                    gameHero.x = 0
+                }
+                else if (gameHero.x + gameHero.w > config.width) {
+                    gameHero.x = config.width - gameHero.w
+                }
+                let x = gameHero.x;
+                let y = gameHero.y;
+                let w = gameHero.w;
+                let h = gameHero.h
+            }
+            ctx.drawImage(gameHero.sprite, gameHero.x, gameHero.y)
+        }
+
+        // 敌人速度区间
+        const ENEMY_MIN_SPEED = 3;
+        const ENEMY_MAX_SPEED = 10;
+        // 40帧 1个
+        const ENEMY_GENERATE_SPEED = 40;
+        // 生成敌人
+        function generateEnemy() {
+            lastGenerateEnemyTime++;
+            if (lastGenerateEnemyTime % ENEMY_GENERATE_SPEED == 0) {
+                let x = Randoms.getRandomInt(0, config.width - gameEnemySprite.width)
+                let y = -gameEnemySprite.height;
+                let w = gameEnemySprite.width;
+                let h = gameEnemySprite.height;
+                let moveY = 1;
+                let speed = Randoms.getRandomInt(ENEMY_MIN_SPEED, ENEMY_MAX_SPEED);
+                let isDie = false
+                let isDestory = false
+
+                gameEnemy.push({
+                    x, y, w, h, moveY, speed, isDie, isDestory,
+                    get sprite() {
+                        if (this.isDie) return gameEnemyDieSprite
+                        return gameEnemySprite
+                    }
+                })
+                console.log("生成一个敌人", gameEnemy);
+            }
+        }
+        // 更新敌人信息
+        function updateEnemy() {
+            gameEnemy = gameEnemy.filter(e => e && !e.isDestory)
+            for (let i = 0; i < gameEnemy.length; i++) {
+                const tempEnemy = gameEnemy[i];
+                tempEnemy.y += tempEnemy.moveY * tempEnemy.speed;
+                let x = tempEnemy.x;
+                let y = tempEnemy.y;
+                let w = tempEnemy.w;
+                let h = tempEnemy.h
+                ctx.drawImage(tempEnemy.sprite, x, y)
+
+                if (tempEnemy.y > config.height) {
+                    gameEnemy[i] = undefined
+                }
+
+                if (isRectOverlap(gameHero, tempEnemy)) {
+                    die.call(gameHero)
+                    die.call(tempEnemy)
+                }
+
+            }
+        }
+
+        // 子弹速度
+        const BULLET_SPEED = 8;
+        // 子弹方向
+        const BULLET_DIRECTION = -1
+        // 子弹起始点与飞机的位置Y轴偏移量
+        const BULLET_OFFSET_Y = 2
+        // 开火
+        function fire() {
+            let self = this;
+            if (!self.isFire) return;
+            let x = self.x + self.w / 2 - gameBulletSprite.width / 2
+            let y = self.y - gameBulletSprite.height - BULLET_OFFSET_Y;
+            let w = gameBulletSprite.width;
+            let h = gameBulletSprite.height;
+            let moveY = BULLET_DIRECTION;
+            let speed = BULLET_SPEED;
+            gameBullet.push({
+                x, y, w, h, moveY, speed
+            })
+            console.log("生成一发子弹", gameBullet);
+        }
+
+        // 死亡延迟 200ms
+        const DIE_DELAY = 200
+        // 死亡
+        function die() {
+            let self = this;
+            self.isDie = true;
+            self.moveY = 0;
+            self.isFire = false;
+            setTimeout(() => {
+                self.isDestory = true;
+            }, DIE_DELAY);
+        }
+
+        // 游戏结束
+        function gameOver() {
+            clearInterval(updateIntervalId);
+
+            ctx.fillStyle = 'rgba(255,255,255,.4)'
+            ctx.fillRect(0, 0, config.width, config.height)
+
+            ctx.fillStyle = '#000'
+            ctx.textAlign = "center"
+            ctx.font = "bold 36px serif"
+            ctx.fillText(`游戏结束`, config.width / 2, config.height * .3)
+
+            ctx.font = "500 26px serif"
+            ctx.fillText(`得分为: ${gameHero.score}分`, config.width / 2, config.height * .4, config.width * .7)
+            ctx.fillText(`点击屏幕，再来一局`, config.width / 2, config.height * .6 + 50, config.width * .7)
+
+            isGameOver = true
+        }
+        // 20帧 1个
+        const BULLET_GENERATE_SPEED = 20;
+
+        // 生成子弹
+        function generateBullet() {
+            lastGenerateBulletTime++;
+            if (lastGenerateBulletTime % BULLET_GENERATE_SPEED == 0) {
+                fire.call(gameHero)
+            }
+        }
+
+        // 更新子弹信息
+        function updateBullet() {
+            gameBullet = gameBullet.filter(e => e)
+            let tempGameEnemy = gameEnemy.filter(e => e && !e.isDie)
+            for (let i = 0; i < gameBullet.length; i++) {
+                const tempBullet = gameBullet[i];
+                tempBullet.y += tempBullet.moveY * tempBullet.speed;
+                let x = tempBullet.x;
+                let y = tempBullet.y;
+                let w = tempBullet.w;
+                let h = tempBullet.h
+                ctx.drawImage(gameBulletSprite, x, y)
+
+                // 检查是否击中
+                for (let j = 0; j < tempGameEnemy.length; j++) {
+                    const tempEnemy = tempGameEnemy[j];
+                    if (isRectOverlap(tempBullet, tempEnemy)) {
+                        die.call(tempEnemy)
+                        gameBullet[i].moveY = 0;
+                        gameBullet[i] = undefined
+                        gameHero.score++;
+                    }
+                }
+
+                if (tempBullet.y < -h) {
+                    gameBullet[i] = undefined
+                }
+            }
+        }
+
+        // 更新得分
+        function updateScore() {
+            ctx.textAlign = 'left'
+            ctx.textBaseline = "top"
+            ctx.font = "bold 28px serif"
+            ctx.fillText(`得分：${gameHero.score}`, 10, 10)
+        }
+
+        // 鼠标操作
+        function mousedown(e) {
+            if (isGameOver) start()
+            else isMouseDown = true;
+            gameHero.moveX = Math.sign(e.offsetX - config.width / 2)
+        }
+        function mousemove(e) {
+            if (isMouseDown)
+                gameHero.moveX = Math.sign(e.offsetX - config.width / 2)
+        }
+        function mouseup(e) {
+            gameHero.moveX = 0
+            isMouseDown = false;
+        }
+
+        // 手机操作
+        function touchstart(e) {
+            if (isGameOver) start()
+            else isTouchDown = true;
+            let [touch] = e.changedTouches
+            gameHero.moveX = Math.sign(touch.clientX - config.width / 2)
+        }
+        function touchmove(e) {
+            if (isTouchDown) {
+                let [touch] = e.changedTouches
+                gameHero.moveX = Math.sign(touch.clientX - config.width / 2)
+            }
+        }
+        function touchend(e) {
+            gameHero.moveX = 0
+            isTouchDown = false;
+        }
+
+        // 开始
+        async function start() {
+            isGameOver = false;
+            // 禁止长按浮窗
+            canvas.addEventListener("contextmenu", (e) => {
+                e.preventDefault()
+            })
+
+            gameBackground = gameBackground || await loadImage('./assets/plane-wars/background.png')
+            gameHeroSprite = gameHeroSprite || await loadImage('./assets/plane-wars/hero.png')
+            gameHeroDieSprite = gameHeroDieSprite || await loadImage('./assets/plane-wars/hero_die.png')
+            gameEnemySprite = gameEnemySprite || await loadImage('./assets/plane-wars/enemy.png')
+            gameEnemyDieSprite = gameEnemyDieSprite || await loadImage('./assets/plane-wars/enemy_die.png')
+            gameBulletSprite = gameBulletSprite || await loadImage('./assets/plane-wars/bullet.png')
+
+            gameHero = {
+                x: 0,
+                y: 0,
+                w: 0,
+                h: 0,
+                moveX: 0,
+                speed: 4,
+                score: 0,
+                isFire: true,
+                isDie: false,
+                isDestory: false,
+                get sprite() {
+                    if (this.isDie) return gameHeroDieSprite
+                    return gameHeroSprite
+                }
+            }
+            gameBullet = []
+            gameEnemy = []
+
+            gameHero.w = gameHeroSprite.width;
+            gameHero.h = gameHeroSprite.height;
+
+            gameHero.x = - gameHero.w / 2 + config.width / 2
+            gameHero.y = config.height * 4 / 5
+
+
+            canvas.removeEventListener("mousedown", mousedown)
+            canvas.removeEventListener("mousemove", mousemove)
+            document.removeEventListener("mouseup", mouseup)
+            canvas.removeEventListener("touchstart", touchstart)
+            canvas.removeEventListener("touchmove", touchmove)
+            document.removeEventListener("touchend", touchend)
+
+            canvas.addEventListener("mousedown", mousedown)
+            canvas.addEventListener("mousemove", mousemove)
+            document.addEventListener("mouseup", mouseup)
+            canvas.addEventListener("touchstart", touchstart)
+            canvas.addEventListener("touchmove", touchmove)
+            document.addEventListener("touchend", touchend)
+
+            updateIntervalId = setInterval(update, 1000 / 60);
+        }
+
+        // 更新
+        function update() {
+            ctx.clearRect(0, 0, config.width, config.height)
+            scrollingBackgrounds();
+            generateEnemy();
+            updateEnemy();
+            updateHero();
+            generateBullet();
+            updateBullet();
+            updateScore();
+        }
+
+        start()
+
+    </script>
+</body>
+
+</html>
