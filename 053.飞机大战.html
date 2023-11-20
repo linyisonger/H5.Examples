@@ -7,7 +7,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./assets/global.css">
     <style>
-        #game {}
+        body {
+            height: 100vh;
+            width: 100vw;
+        }
+
+        #game {
+            user-select: none;
+        }
     </style>
 </head>
 
@@ -16,6 +23,7 @@
     <script type="module">
 
         import { Randoms } from "https://unpkg.com/@3r/tool/lib/randoms.js";
+        import { aspectFill, aspectFit, scaleToFill } from "https://unpkg.com/@3r/tool/lib/picture.js";
 
         /** @type {HTMLCanvasElement} */
         let canvas = document.querySelector("#game")
@@ -25,14 +33,9 @@
             height: 852
         }
 
-        canvas.setAttribute('width', config.width);
-        canvas.setAttribute('height', config.height);
-
         let ctx = canvas.getContext('2d')
         let width = canvas.clientWidth;
         let height = canvas.clientHeight;
-        canvas.width = width;
-        canvas.height = height;
 
         // 游戏背景
         let gameBackground = null;
@@ -80,6 +83,10 @@
 
         let isGameOver = false;
 
+        // 禁止长按浮窗
+        canvas.addEventListener("contextmenu", (e) => {
+            e.preventDefault()
+        })
 
         // 判断两矩形是否重叠
         function isRectOverlap(rect1, rect2) {
@@ -109,8 +116,10 @@
         // 滚动背景
         function scrollingBackgrounds() {
             gameBackgroundScrollingY += gameBackgroundScrollingSpeed;
-            ctx.drawImage(gameBackground, 0, gameBackgroundScrollingY % config.height)
-            ctx.drawImage(gameBackground, 0, gameBackgroundScrollingY % config.height - config.height)
+            let gameBackgroundHeight = gameBackground.height;
+            ctx.drawImage(gameBackground, 0, gameBackgroundScrollingY % gameBackgroundHeight - gameBackgroundHeight)
+            ctx.drawImage(gameBackground, 0, gameBackgroundScrollingY % gameBackgroundHeight)
+            ctx.drawImage(gameBackground, 0, gameBackgroundScrollingY % gameBackgroundHeight + gameBackgroundHeight)
         }
 
         // 更新玩家信息
@@ -322,10 +331,6 @@
         // 开始
         async function start() {
             isGameOver = false;
-            // 禁止长按浮窗
-            canvas.addEventListener("contextmenu", (e) => {
-                e.preventDefault()
-            })
 
             gameBackground = gameBackground || await loadImage('./assets/plane-wars/background.png')
             gameHeroSprite = gameHeroSprite || await loadImage('./assets/plane-wars/hero.png')
@@ -333,6 +338,20 @@
             gameEnemySprite = gameEnemySprite || await loadImage('./assets/plane-wars/enemy.png')
             gameEnemyDieSprite = gameEnemyDieSprite || await loadImage('./assets/plane-wars/enemy_die.png')
             gameBulletSprite = gameBulletSprite || await loadImage('./assets/plane-wars/bullet.png')
+
+            // 展示长边
+            let aspectFitRes = aspectFit(gameBackground.width, gameBackground.height, document.body.clientWidth, document.body.clientHeight)
+            config.width = aspectFitRes.width;
+            config.height = Math.max(aspectFitRes.height, document.body.clientHeight)
+
+            canvas.setAttribute('width', config.width);
+            canvas.setAttribute('height', config.height);
+            ctx = canvas.getContext('2d')
+            width = canvas.clientWidth;
+            height = canvas.clientHeight;
+            canvas.width = width;
+            canvas.height = height;
+
 
             gameHero = {
                 x: 0,
