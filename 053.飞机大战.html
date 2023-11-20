@@ -7,10 +7,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./assets/global.css">
     <style>
+        * {
+            -webkit-touch-callout: none;
+        }
+
         body {
             height: 100vh;
             width: 100vw;
-            -webkit-touch-callout: none;
+
             -webkit-user-select: none;
             -khtml-user-select: none;
             -moz-user-select: none;
@@ -314,6 +318,7 @@
 
         // 手机操作
         function touchstart(e) {
+            e.preventDefault();
             if (isGameOver) start()
             else isTouchDown = true;
             let [touch] = e.changedTouches
