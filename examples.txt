@@ -51,4 +51,5 @@
 051.Canvas多边形绘制.html
 052.Canvas绘制胶囊.html
 053.飞机大战.html
+054.浏览器多窗口堆叠特效.html
 index.html

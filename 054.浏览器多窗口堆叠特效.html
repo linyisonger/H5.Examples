@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./assets/global.css">
+    <style>
+        :root {}
+
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .circle {
+            width: 600px;
+            height: 600px;
+            background-color: #000;
+            border-radius: 50%;
+            position: absolute;
+            top: calc(400px - var(--offset-y));
+            left: calc(400px - var(--offset-x))
+        }
+    </style>
+</head>
+
+<body>
+    <div class="circle"></div>
+
+    <script>
+        let circle = document.querySelector('.circle');
+
+        (async () => {
+            window.requestAnimationFrame(update)
+        })()
+
+        async function update() {
+            const screenX = window.screenX
+            const screenY = window.screenY
+
+            circle.style.setProperty('--offset-x', `${screenX}px`)
+            circle.style.setProperty('--offset-y', `${screenY}px`)
+
+            window.requestAnimationFrame(update)
+        }
+    </script>
+</body>
+
+</html>
