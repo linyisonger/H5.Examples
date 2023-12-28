@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./assets/global.css">
+
+    <style>
+        .map_container {
+            display: grid;
+        }
+
+        .map_container .tile_item {
+            cursor: pointer;
+        }
+
+        .map_container .tile_item:not(.wall):not(.via):not(.start):not(.end):hover {
+            background-color: #36a;
+        }
+
+        .map_container .tile_item.start {
+            background-color: #88ff00;
+        }
+
+        .map_container .tile_item.via {
+            background-color: #cefa08;
+        }
+
+        .map_container .tile_item.end {
+            background-color: #ff8800;
+        }
+
+        .map_container .tile_item.wall {
+            background-color: #777;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="map_container">
+    </div>
+
+
+
+    <script>
+        //其中的map是二维数组
+        const map = [
+            [0, 0, 0, 0, 0],
+            [0, 1, 0, 0, 0],
+            [0, 1, 0, 0, 0],
+            [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0],
+        ]
+        const rows = 5;
+        const cols = 5;
+        // 来源于 https://www.cnblogs.com/huansky/p/5572631.html
+        function searchRoad(startX, startY, endX, endY) {
+            var openList = [],    //开启列表
+                closeList = [],   //关闭列表
+                result = [],      //结果数组
+                resultIndex;   //结果数组在开启列表中的序号
+
+            openList.push({ x: startX, y: startY, G: 0 });//把当前点加入到开启列表中，并且G是0
+
+            do {
+                // 正在删除并返回 `openList` 数组中的最后一个元素。该元素表示 A*  搜索算法中正在评估的当前点。 
+                var currentPoint = openList.pop();
+                closeList.push(currentPoint);
+                var surroundPointRes = surroundPoint(currentPoint);
+                for (var i in surroundPointRes) {
+                    var item = surroundPointRes[i];                //获得周围的八个点
+                    if (
+                        item.x >= 0 &&                            //判断是否在地图上
+                        item.y >= 0 &&
+                        item.x < rows &&
+                        item.y < cols &&
+                        map[item.x][item.y] != 1 &&         //判断是否是障碍物
+                        !existList(item, closeList) &&          //判断是否在关闭列表中
+                        map[item.x][currentPoint.y] != 1 &&   //判断之间是否有障碍物，如果有障碍物是过不去的
+                        map[currentPoint.x][item.y] != 1) {
+                        //g 到父节点的位置
+                        //如果是上下左右位置的则g等于10，斜对角的就是14
+                        var g = currentPoint.G + ((currentPoint.x - item.x) * (currentPoint.y - item.y) == 0 ? 10 : 14);
+                        if (!existList(item, openList)) {       //如果不在开启列表中
+                            //计算H，通过水平和垂直距离进行确定
+                            item['H'] = Math.abs(endX - item.x) * 10 + Math.abs(endY - item.y) * 10;
+                            item['G'] = g;
+                            item['F'] = item.H + item.G;
+                            item['parent'] = currentPoint;
+                            openList.push(item);
+                        }
+                        else {                                  //存在在开启列表中，比较目前的g值和之前的g的大小
+                            var index = existList(item, openList);
+                            //如果当前点的g更小
+                            if (g < openList[index].G) {
+                                openList[index].parent = currentPoint;
+                                openList[index].G = g;
+                                openList[index].F = g + openList[index].H;
+                            }
+
+                        }
+                    }
+                }
+                //如果开启列表空了，没有通路，结果为空
+                if (openList.length == 0) {
+                    break;
+                }
+                openList.sort(sortF);//这一步是为了循环回去的时候，找出 F 值最小的, 将它从 "开启列表" 中移掉
+            } while (!(resultIndex = existList({ x: endX, y: endY }, openList)));
+
+            //判断结果列表是否为空
+            if (!resultIndex) {
+                result = [];
+            }
+            else {
+                var currentObj = openList[resultIndex];
+                do {
+                    //把路劲节点添加到result当中
+                    result.unshift({
+                        x: currentObj.x,
+                        y: currentObj.y
+                    });
+                    currentObj = currentObj.parent;
+                } while (currentObj.x != startX || currentObj.y != startY);
+
+            }
+            return result;
+
+        }
+        //用F值对数组排序
+        function sortF(a, b) {
+            return b.F - a.F;
+        }
+        //获取周围八个点的值
+        function surroundPoint(curPoint) {
+            var x = curPoint.x, y = curPoint.y;
+            return [
+                { x: x - 1, y: y - 1 },
+                { x: x, y: y - 1 },
+                { x: x + 1, y: y - 1 },
+                { x: x + 1, y: y },
+                { x: x + 1, y: y + 1 },
+                { x: x, y: y + 1 },
+                { x: x - 1, y: y + 1 },
+                { x: x - 1, y: y }
+            ]
+        }
+        //判断点是否存在在列表中，是的话返回的是序列号
+        function existList(point, list) {
+            for (var i in list) {
+                if (point.x == list[i].x && point.y == list[i].y) {
+                    return i;
+                }
+            }
+            return false;
+        }
+        // 渲染地图瓷砖
+        function drawMapTile() {
+            let tileWidth = 40;
+            let tileHeight = 40;
+
+            let mapContainerDom = document.querySelector('.map_container')
+            mapContainerDom.innerHTML = ''
+            mapContainerDom.setAttribute('style', `grid-template-rows: repeat(${rows}, ${tileWidth}px);grid-template-columns: repeat(${cols}, ${tileHeight}px)`)
+            for (let y = 0; y < map.length; y++) {
+                for (let x = 0; x < map[y].length; x++) {
+                    const tileType = map[y][x];
+                    let mapTileDom = document.createElement('div')
+                    mapTileDom.classList.add('tile_item')
+                    mapTileDom.setAttribute('x', x)
+                    mapTileDom.setAttribute('y', y)
+                    mapContainerDom.appendChild(mapTileDom)
+                    if (tileType == 1) {
+                        mapTileDom.classList.add('wall')
+                    }
+                }
+            }
+
+
+        }
+        // 渲染路线
+        function drawRoad(start, end) {
+            let roadList = searchRoad(start.x, start.y, end.x, end.y)
+            if (roadList.length) {
+                let startDom = document.querySelector(`.tile_item[x='${start.x}'][y='${start.y}']`)
+                let endDom = document.querySelector(`.tile_item[x='${end.x}'][y='${end.y}']`)
+                startDom.className = 'tile_item start'
+                endDom.className = 'tile_item end'
+                for (let i = 0; i < roadList.length - 1; i++) {
+                    const via = roadList[i];
+                    const viaDom = document.querySelector(`.tile_item[x='${via.x}'][y='${via.y}']`)
+                    viaDom.className = 'tile_item via'
+                }
+            }
+        }
+        drawMapTile();
+        drawRoad({ x: 0, y: 0 }, { x: 4, y: 4 }) 
+    </script>
+</body>
+
+</html>
