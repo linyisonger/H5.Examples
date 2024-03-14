@@ -76,19 +76,14 @@
 		renderer.toneMapping = THREE.ACESFilmicToneMapping;
 		container.appendChild(renderer.domElement);
 
+
+
 		const GRAVITY = 30;
-
 		const SPHERE_RADIUS = 0.2;
-
 		const STEPS_PER_FRAME = 5;
-
 		const worldOctree = new Octree();
-
 		const playerBornPoint = { x: -2, z: -2 }
-
-
 		const playerCollider = new Capsule(new THREE.Vector3(playerBornPoint.x, 0.35, playerBornPoint.z), new THREE.Vector3(playerBornPoint.x, 1.8, playerBornPoint.z), 0.35);
-
 		const playerVelocity = new THREE.Vector3();
 		const playerDirection = new THREE.Vector3();
 
@@ -264,8 +259,6 @@
 			scene.add(helper);
 			animate();
 		})
-
-
 		loader.load('小老鼠.glb',
 			(gltf) => {
 				scene.add(gltf.scene);
@@ -310,6 +303,7 @@
 
 				teleportPlayerIfOob();
 
+				checkBeforeObjects()
 			}
 
 			renderer.render(scene, camera);
@@ -318,6 +312,17 @@
 
 		}
 
+		// 检测面前物体
+		function checkBeforeObjects() {
+			// 检查屏幕中间对应的物体
+			const beforeRaycaster = new THREE.Raycaster();
+			beforeRaycaster.setFromCamera({ x: 0, y: 0 }, camera);
+			const intersects = beforeRaycaster.intersectObjects(scene.children);
+			if (intersects.length > 0) {
+				console.log(intersects[0].object.name)
+				// 激活F键 唤起详情弹框
+			}
+		}
 	</script>
 </body>
 
