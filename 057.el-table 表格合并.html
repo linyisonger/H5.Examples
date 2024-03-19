@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./assets/global.css">
+
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="./assets/element-ui/lib/theme-chalk/index.css">
+</head>
+
+<body>
+    <div id="app">
+        <el-table :data="tableData" :span-method="handleSpanMethod" border style="width: 100%">
+            <el-table-column prop="id" label="ID" width="180">
+            </el-table-column>
+            <el-table-column prop="name" label="姓名">
+            </el-table-column>
+            <el-table-column prop="amount1" sortable label="数值 1">
+            </el-table-column>
+            <el-table-column prop="amount2" sortable label="数值 2">
+            </el-table-column>
+            <el-table-column prop="amount3" sortable label="数值 3">
+            </el-table-column>
+        </el-table>
+
+    </div>
+</body>
+<!-- import Vue before Element -->
+<script src="./assets/vue@2/dist/vue.js"></script>
+<!-- import JavaScript -->
+<script src="./assets/element-ui/lib/index.js"></script>
+
+<script>
+
+    new Vue({
+        el: '#app',
+        data: function () {
+            return {
+                tableData: [{
+                    id: '12987122',
+                    name: '王小虎',
+                    amount1: '234',
+                    amount2: '3.2',
+                    amount3: 10
+                }, {
+                    id: '12987123',
+                    name: '王小虎',
+                    amount1: '165',
+                    amount2: '4.43',
+                    amount3: 12
+                }, {
+                    id: '12987124',
+                    name: '王小丫',
+                    amount1: '324',
+                    amount2: '1.9',
+                    amount3: 9
+                }, {
+                    id: '12987125',
+                    name: '王小丫',
+                    amount1: '621',
+                    amount2: '2.2',
+                    amount3: 17
+                }, {
+                    id: '12987126',
+                    name: '王小丫',
+                    amount1: '539',
+                    amount2: '4.1',
+                    amount3: 15
+                }]
+            }
+        },
+        mounted() {
+        },
+        methods: {
+            handleSpanMethod({ row, column, rowIndex, columnIndex }) {
+                // console.log(this.mergeByName(this.tableData, 1));
+                // return this.mergeByRectangle(0, 0, 0, 2)(columnIndex, rowIndex)
+                return this.mergeByRectangleList([[2, 2, 4, 4]])(columnIndex, rowIndex)
+                // return this.mergeByRectangleList(this.mergeByName(this.tableData, 1))(columnIndex, rowIndex)
+            },
+            /* 矩形合并单元格子
+             * (sx,sy) 开始坐标
+             * (ex,ey) 结束坐标
+             */
+            mergeByRectangle(sx, sy, ex, ey) {
+                return function (x, y) {
+                    if (x == sx && y == sy) {
+                        return {
+                            rowspan: (ey - sy) + 1,
+                            colspan: (ex - sx) + 1
+                        }
+                    }
+                    if (sx <= x && x <= ex && sy <= y && y <= ey) {
+                        return {
+                            rowspan: 0,
+                            colspan: 0
+                        }
+                    }
+                }
+            },
+            /* 矩形合并单元格
+             * @param {[[]]} arraylist
+             */
+            mergeByRectangleList(arraylist) {
+                const that = this;
+                return function (x, y) {
+                    for (let i = 0; i < arraylist.length; i++) {
+                        const arr = arraylist[i];
+                        const res = that.mergeByRectangle(...arr)(x, y)
+                        if (res) return res
+                    }
+                }
+            },
+            /* 通过名称计算合并单元格
+             */
+            mergeByName(tableData, column) {
+                let arraylist = []
+                let sx = column;
+                let sy = 0;
+                let ex = column;
+                let ey = 0;
+                let c = 0;
+                let i = 1;
+
+                while (i < tableData.length) {
+                    const curr = tableData[c];
+                    const next = tableData[i]
+                    if (curr.name == next.name) {
+                        ey++;
+                    }
+
+                    if (curr.name != next.name || i == tableData.length - 1) {
+                        arraylist.push([sx, sy, ex, ey])
+                        c = i
+                        sy = c
+                        ey = c
+                    }
+                    i++;
+                }
+                return arraylist
+            }
+
+        }
+    })
+
+
+</script>
+
+</html>
