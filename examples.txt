@@ -55,4 +55,6 @@
 055.A星寻路.html
 056.Three 3D展馆.html
 057.el-table 表格合并.html
+058.tesseract.js 图片转文字.html
+059.Canvas 签名.html
 index.html

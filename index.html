@@ -102,7 +102,8 @@
 
         .code-prev-btn,
         .code-reload-btn,
-        #finicount_views {
+        #finicount_views,
+        .github-shield {
             position: absolute;
             right: 20px;
             top: 20px;
@@ -136,16 +137,34 @@
 
         #finicount_views {
             top: 100px;
-            padding-left: 30px;
+            padding-left: 20px;
+            padding-right: 10px;
             min-width: 74px;
             box-sizing: border-box;
+            text-align: right;
         }
+
+        .github-shield {
+            top: auto;
+            bottom: 20px;
+            padding: 0;
+            display: flex;
+        }
+
+        .github-shield a {
+            display: flex;
+        }
+
+        .github-shield.star {
+            right: 80px;
+        }
+
 
         #finicount_views::before {
             position: absolute;
             content: "";
-            width: 20px;
-            height: 20px;
+            width: 14px;
+            height: 14px;
             left: 6px;
             background-image: url('./assets/hits.png');
             background-size: 100% 100%;
@@ -167,6 +186,18 @@
         <div class="code-prev-btn">源</div>
         <div class="code-reload-btn">刷新页面</div>
         <span id="finicount_views">1</span>
+        <div class="github-shield fork">
+            <a href="https://github.com/linyisonger/H5.Examples/fork">
+                <img alt="GitHub forks"
+                    src="https://img.shields.io/github/forks/linyisonger/H5.Examples?style=flat-square">
+            </a>
+        </div>
+        <div class="github-shield star">
+            <a href="https://github.com/linyisonger/H5.Examples">
+                <img alt="GitHub forks"
+                    src="https://img.shields.io/github/stars/linyisonger/H5.Examples?style=flat-square">
+            </a>
+        </div>
     </div>
 
     <script>
