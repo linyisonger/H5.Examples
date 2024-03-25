@@ -264,8 +264,8 @@
             let navList = []
             let name = getQueryParam('name');
             for (const nav of navData) {
-                let navNum = nav.split('.')[0]
-                let navName = nav.split('.')[1]
+                let navNum = nav.split('.').shift()
+                let navName = nav.match(/[\d]{1,}.(.*?).html$/)[1]
                 let navSrc = './' + nav
                 navList.push({
                     navNum,
