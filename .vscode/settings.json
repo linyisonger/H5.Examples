@@ -5,5 +5,8 @@
     },
     "python.formatting.provider": "none",
     "docwriter.style": "Auto-detect",
-    "docwriter.language": "Chinese"
+    "docwriter.language": "Chinese",
+    // "liveServer.settings.https": {
+    //     "enable": true
+    // }
 }
