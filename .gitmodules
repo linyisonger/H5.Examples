@@ -1,0 +1,3 @@
+[submodule "server/socket.io"]
+	path = server/socket.io
+	url = git@github.com:linyisonger/SocketIO.Examples.git
