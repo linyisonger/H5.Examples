@@ -17,7 +17,7 @@ if __name__ == '__main__':
         index+=1
     
     index = f'{index}'.zfill(3)
-    newFileName =f'{index}.{args[0]}.html' 
+    newFileName =f'{index}.{" ".join(args)}.html' 
     shutil.copy(os.path.join(os.getcwd(), 'build', 'template.html'),os.path.join(os.getcwd(), newFileName))
     
     print('新建文件成功', newFileName)
