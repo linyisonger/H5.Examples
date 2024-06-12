@@ -17,6 +17,8 @@ git add examples.txt
 新建示例文件
 ```shell
 echo '' > "058.tesseract.js 文字识别.html"
+# 或者
+python .\build\new.py 思绪万千
 ```
 
 #### 示例截图
