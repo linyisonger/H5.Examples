@@ -6,10 +6,129 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./assets/global.css">
+
+    <style>
+        .box-container {
+            position: relative;
+            overflow: hidden;
+            width: 400px;
+            height: 400px;
+
+            transform: scale(2.5);
+        }
+
+        .box-container>div[class*="box"] {
+            position: absolute;
+            width: 100px;
+            height: 40px;
+        }
+
+        .box1 {
+            background-color: #f01;
+            left: 120px;
+            top: 120px;
+        }
+
+        .box2 {
+            background-color: #27d627;
+
+
+            left: 100px;
+            top: 200px;
+        }
+
+        .box3 {
+            background-color: #7067ee;
+
+            left: 140px;
+            top: 200px;
+        }
+
+        #line-canvas {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
 </head>
 
 <body>
-    
+    <div class="box-container">
+        <canvas id="line-canvas"></canvas>
+        <div class="box1"></div>
+        <div class="box2"></div>
+        <div class="box3"></div>
+    </div>
+    <script type="module">
+        // 关系位置逻辑
+        
+        // 没想好怎么写 ,,ԾㅂԾ,,
+
+
+
+
+
+
+        // 关系线逻辑
+
+        /** @type {HTMLCanvasElement} */
+        let canvas = document.querySelector("#line-canvas")
+        let ctx = canvas.getContext('2d')
+        let width = canvas.clientWidth;
+        let height = canvas.clientHeight;
+        canvas.width = width;
+        canvas.height = height;
+
+        let linkList = [
+            {
+                from: '.box1',
+                to: '.box2'
+            },
+            {
+                from: '.box1',
+                to: '.box3'
+            }
+        ]
+
+        for (const linkItem of linkList) {
+            let fromDom = document.querySelector(linkItem.from)
+            let toDom = document.querySelector(linkItem.to)
+
+            let fx = fromDom.offsetLeft
+            let fy = fromDom.offsetTop
+            let fh = fromDom.clientHeight
+            let fw = fromDom.clientWidth
+
+            let tx = toDom.offsetLeft
+            let ty = toDom.offsetTop
+            let th = toDom.clientHeight
+            let tw = toDom.clientWidth
+
+
+
+            let fxc = fw / 2 + fx;
+            let fyc = fh / 2 + fy;
+
+            let txc = tw / 2 + tx;
+            let tyc = th / 2 + ty;
+
+            console.log(fromDom, toDom);
+
+            ctx.beginPath()
+            ctx.moveTo(fxc, fyc)
+            // 经停线
+            let cy = ty - (ty - fy - fh) / 2
+            let cx = fxc
+            ctx.lineTo(cx, cy)
+            // 直角
+            ctx.lineTo(txc, cy)
+
+            ctx.lineTo(txc, tyc)
+            ctx.stroke()
+        }
+
+    </script>
+
 </body>
 
 </html>
