@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./assets/global.css">
+
+    <style>
+        .table-line {
+            border-top: 1px solid #000;
+            border-left: 1px solid #000;
+            border-collapse: collapse;
+
+        }
+
+        .table-line td {
+            border-right: 1px solid #000;
+            border-bottom: 1px solid #000;
+            min-width: 100px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <table class="table-line">
+        <tr>
+            <td rowspan="2">A</td>
+            <td rowspan="2">B</td>
+            <td colspan="5">C</td>
+        </tr>
+        <tr>
+            <td>C1</td>
+            <td>C2</td>
+            <td>C3</td>
+            <td>C4</td>
+            <td>C5</td>
+        </tr>
+
+    </table>
+</body>
+
+</html>
