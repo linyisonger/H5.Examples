@@ -19,6 +19,8 @@ git add examples.txt
 echo '' > "058.tesseract.js 文字识别.html"
 # 或者
 python .\build\new.py 思绪万千
+# 或者
+new 思绪万千
 ```
 
 #### 示例截图
@@ -43,4 +45,15 @@ conda activate h5-build-310
 pip install -r requirements.txt -i https://pypi.douban.com/simple/
 # 生成截图，但是有些截图可能存在问题，将其删除重新执行python index.py即可
 python index.py
+```
+
+
+#### 打包new命令行
+```shell
+# 切换环境
+conda activate h5-build-310
+# 安装依赖
+pip install -i https://pypi.tuna.tsinghua.edu.cn/simple pyinstaller
+# 打包命令
+Pyinstaller -F 
 ```
