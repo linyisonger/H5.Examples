@@ -67,4 +67,5 @@
 067.粒子扩散效果.html
 068.Cavnas 盒子连线.html
 069.table 表格合并.html
+070.提取图片主题色.html
 index.html

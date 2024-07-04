@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./assets/global.css">
+
+    <style>
+        #image {
+            width: 200px;
+            height: 200px;
+            background-color: #f90;
+            position: absolute;
+            top: -100%;
+        }
+
+        #preview {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            left: 0;
+            top: 0;
+        }
+
+        .choose-image {
+            position: relative;
+            display: flex;
+            padding: 40px;
+            border: 1px dashed #666;
+            cursor: pointer;
+            height: 400px;
+            width: 600px;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+        }
+
+        img[src=''],
+        img:not([src]) {
+            visibility: hidden;
+        }
+
+        .result-color {
+            display: flex;
+            flex-direction: column;
+            width: 600px;
+        }
+
+        .result-color-item {
+            height: 40px;
+            display: flex;
+            justify-content: flex-end;
+            align-items: flex-end;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="image"></canvas>
+
+    <div class="choose-image">
+        选择图片
+        <img id="preview" src="">
+    </div>
+
+    <div class="result-color">
+    </div>
+
+    <script type="module">
+        import { Convertor } from "https://unpkg.com/@3r/tool/lib/convertor.js"
+
+        /** @type {HTMLCanvasElement} */
+        let canvas = document.querySelector("#image")
+        /** @type {HTMLImageElement} */
+        let preview = document.querySelector("#preview")
+
+        let chooseImageBtnDom = document.querySelector(".choose-image")
+
+        let resultColorListDom = document.querySelector(".result-color")
+
+        preview.addEventListener("load", (ev) => {
+            let ctx = canvas.getContext('2d')
+            let width = ev.target.width;
+            let height = ev.target.height;
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+            canvas.width = width;
+            canvas.height = height;
+            ctx.drawImage(ev.target, 0, 0)
+
+            let imageData = ctx.getImageData(0, 0, width, height)
+
+            let startTime = +new Date()
+
+            let pixels = []
+
+            let colors = {}
+            let colorList = []
+
+            for (let y = 0; y < height; y++) {
+                for (let x = 0; x < width; x++) {
+                    let r = imageData.data[0 + (width * y + x) * 4];
+                    let g = imageData.data[1 + (width * y + x) * 4];
+                    let b = imageData.data[2 + (width * y + x) * 4];
+                    let a = imageData.data[3 + (width * y + x) * 4];
+                    // let key = [r, g, b, a].toString();
+                    let key = [r, g, b].toString();
+
+                    pixels.push([r, g, b, a])
+
+                    if (+a > 0)  // 透明剔除
+                        colors[key] = (colors[key] ?? 0) + 1
+                }
+            }
+
+            for (const key in colors) {
+                colorList.push({
+                    key,
+                    value: colors[key]
+                })
+            }
+
+            colorList.sort((a, b) => b.value - a.value)
+
+            resultColorListDom.innerHTML = ''
+
+
+            const offsetMaxValue = 32
+
+            for (let i = 0; i < colorList.length - 1; i++) {
+                let forward = colorList[i]
+                if (forward.value === 0) continue;
+                for (let j = i + 1; j < colorList.length; j++) {
+                    let current = colorList[j]
+                    if (current.value === 0) continue;
+                    let maxVal = contrastColor(forward.key.split(','), current.key.split(','))
+                    if (maxVal < offsetMaxValue) {
+                        forward.value += current.value;
+                        current.value = 0;
+                    }
+                }
+            }
+
+            colorList = colorList.filter(item => item.value > 0)
+
+            colorList.sort((a, b) => b.value - a.value)
+
+            let resultColorList = colorList.slice(0, 8)
+
+            resultColorList.map(color => {
+                let colorKeyArr = color.key.split(',')
+                let colorItemDom = document.createElement('div')
+                let colorRgbVal = colorKeyArr.slice(0, 3).join(',')
+                console.log(`rgb(${colorRgbVal})`);
+                colorItemDom.classList.add('result-color-item')
+                colorItemDom.style.background = `rgba(${color.key})`
+                colorItemDom.style.color = `rgb(${invertColor(colorKeyArr)})`
+                colorItemDom.textContent = Convertor.rgbToHex(`rgb(${colorRgbVal})`)
+
+                resultColorListDom.appendChild(colorItemDom)
+            })
+
+
+
+            let endTime = +new Date()
+            let second = (endTime - startTime) / 1000
+
+
+
+            console.log('消耗时间', second);
+            console.log('结果', pixels);
+            console.log('结果', colors);
+            console.log('结果', resultColorList);
+
+
+        })
+
+        chooseImageBtnDom.addEventListener("click", async (ev) => {
+            chooseImage().then((chooseImageRes) => {
+                preview.setAttribute('src', chooseImageRes.url)
+            })
+        })
+
+        function chooseImage() {
+            return new Promise((resolve) => {
+                const fileInput = document.createElement('input');
+                fileInput.setAttribute('type', 'file');
+                fileInput.setAttribute('accept', 'image/*');
+                fileInput.addEventListener('change', () => {
+                    const file = fileInput.files[0];
+                    const reader = new FileReader();
+                    reader.readAsDataURL(file);
+                    reader.addEventListener("load", (res) => {
+                        resolve({
+                            url: res.target.result
+                        })
+                    })
+                });
+                fileInput.click();
+            })
+        }
+
+        /**
+         * 颜色插值
+         * @param {string} color1 [255,255,255]
+         * @param {string} color2 [255,255,255]
+         */
+        function contrastColor(color1, color2) {
+            let color1Rgb = color1.map(item => +item)
+            let color2Rgb = color2.map(item => +item)
+
+            let maxVal = 0;
+
+            for (let i = 0; i < 3; i++) {
+                let val = Math.abs(color1Rgb[i] - color2Rgb[i]);
+                maxVal = Math.max(maxVal, val)
+            }
+
+            return maxVal
+        }
+
+        /**
+         * 反转色
+         */
+        function invertColor(color) {
+            return color.map(item => 255 - +item).join()
+        }
+    </script>
+</body>
+
+</html>
