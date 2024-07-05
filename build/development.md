@@ -42,7 +42,7 @@ conda create --name h5-build-310 python==3.10
 # 切换环境
 conda activate h5-build-310
 # 安装依赖
-pip install -r requirements.txt -i https://pypi.douban.com/simple/
+pip install -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple/
 # 生成截图，但是有些截图可能存在问题，将其删除重新执行python index.py即可
 python index.py
 ```

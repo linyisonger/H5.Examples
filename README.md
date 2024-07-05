@@ -119,6 +119,40 @@ https://linyisonger.github.io/H5.Examples/
 ![](./assets/preview/052.png)
 ##### [**飞机大战**](https://linyisonger.github.io/H5.Examples/?name=./053.飞机大战.html) 
 ![](./assets/preview/053.png)
+##### [**浏览器多窗口堆叠特效**](https://linyisonger.github.io/H5.Examples/?name=./054.浏览器多窗口堆叠特效.html) 
+![](./assets/preview/054.png)
+##### [**A星寻路**](https://linyisonger.github.io/H5.Examples/?name=./055.A星寻路.html) 
+![](./assets/preview/055.png)
+##### [**Three 3D展馆**](https://linyisonger.github.io/H5.Examples/?name=./056.Three%203D展馆.html) 
+![](./assets/preview/056.png)
+##### [**el-table 表格合并**](https://linyisonger.github.io/H5.Examples/?name=./057.el-table%20表格合并.html) 
+![](./assets/preview/057.png)
+##### [**tesseract**](https://linyisonger.github.io/H5.Examples/?name=./058.tesseract.js%20图片转文字.html) 
+![](./assets/preview/058.png)
+##### [**Canvas 签名**](https://linyisonger.github.io/H5.Examples/?name=./059.Canvas%20签名.html) 
+![](./assets/preview/059.png)
+##### [**Canvas 手写单词识别**](https://linyisonger.github.io/H5.Examples/?name=./060.Canvas%20手写单词识别.html) 
+![](./assets/preview/060.png)
+##### [**音乐播放器**](https://linyisonger.github.io/H5.Examples/?name=./061.音乐播放器.html) 
+![](./assets/preview/061.png)
+##### [**百度地图 BMapGL点聚合**](https://linyisonger.github.io/H5.Examples/?name=./062.百度地图%20BMapGL点聚合.html) 
+![](./assets/preview/062.png)
+##### [**年度总结 Animate**](https://linyisonger.github.io/H5.Examples/?name=./063.年度总结%20Animate.css.html) 
+![](./assets/preview/063.png)
+##### [**2048**](https://linyisonger.github.io/H5.Examples/?name=./064.2048.html) 
+![](./assets/preview/064.png)
+##### [**el-table 表格宽度拖拽**](https://linyisonger.github.io/H5.Examples/?name=./065.el-table%20表格宽度拖拽.html) 
+![](./assets/preview/065.png)
+##### [**猜位置**](https://linyisonger.github.io/H5.Examples/?name=./066.猜位置.html) 
+![](./assets/preview/066.png)
+##### [**粒子扩散效果**](https://linyisonger.github.io/H5.Examples/?name=./067.粒子扩散效果.html) 
+![](./assets/preview/067.png)
+##### [**Cavnas 盒子连线**](https://linyisonger.github.io/H5.Examples/?name=./068.Cavnas%20盒子连线.html) 
+![](./assets/preview/068.png)
+##### [**table 表格合并**](https://linyisonger.github.io/H5.Examples/?name=./069.table%20表格合并.html) 
+![](./assets/preview/069.png)
+##### [**提取图片主题色**](https://linyisonger.github.io/H5.Examples/?name=./070.提取图片主题色.html) 
+![](./assets/preview/070.png)
 
 
 ### 开发
@@ -135,6 +169,15 @@ https://linyisonger.github.io/H5.Examples/
 # 复制文件进入文件夹
 ls -R  *.html > examples.txt
 git add examples.txt
+```
+
+新建示例文件
+```shell
+echo '' > "058.tesseract.js 文字识别.html"
+# 或者
+python .\build\new.py 思绪万千
+# 或者
+new 思绪万千
 ```
 
 #### 示例截图
@@ -156,7 +199,18 @@ conda create --name h5-build-310 python==3.10
 # 切换环境
 conda activate h5-build-310
 # 安装依赖
-pip install -r requirements.txt -i https://pypi.douban.com/simple/
+pip install -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple/
 # 生成截图，但是有些截图可能存在问题，将其删除重新执行python index.py即可
 python index.py
+```
+
+
+#### 打包new命令行
+```shell
+# 切换环境
+conda activate h5-build-310
+# 安装依赖
+pip install -i https://pypi.tuna.tsinghua.edu.cn/simple pyinstaller
+# 打包命令
+Pyinstaller -F 
 ```

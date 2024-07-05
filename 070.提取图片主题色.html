@@ -63,6 +63,7 @@
 
     <div class="choose-image">
         选择图片
+
         <img id="preview" src="">
     </div>
 
@@ -157,7 +158,7 @@
                 console.log(`rgb(${colorRgbVal})`);
                 colorItemDom.classList.add('result-color-item')
                 colorItemDom.style.background = `rgba(${color.key})`
-                colorItemDom.style.color = `rgb(${invertColor(colorKeyArr)})`
+                colorItemDom.style.color = `rgb(${darkenColor(colorKeyArr)})`
                 colorItemDom.textContent = Convertor.rgbToHex(`rgb(${colorRgbVal})`)
 
                 resultColorListDom.appendChild(colorItemDom)
@@ -183,6 +184,9 @@
                 preview.setAttribute('src', chooseImageRes.url)
             })
         })
+
+        preview.setAttribute('src', './assets/mnls.jpg')
+
 
         function chooseImage() {
             return new Promise((resolve) => {
@@ -228,6 +232,14 @@
         function invertColor(color) {
             return color.map(item => 255 - +item).join()
         }
+
+        /**
+         * 加深色
+         */
+        function darkenColor(color) {
+            return color.map(item => +item > 128 ? Math.abs(+item + 32) : Math.abs(+item - 32)).join()
+        }
+
     </script>
 </body>
 

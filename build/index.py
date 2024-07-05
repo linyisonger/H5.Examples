@@ -17,7 +17,7 @@ async def screencut(url, no):
     await page.goto(url)
     await page.setViewport({'width': 1920, 'height': 1080})
     height = await page.evaluate('() => document.body.clientHeight')
-    time.sleep(1)
+    time.sleep(3)
     await page.setViewport({'width': 1920, 'height': height})
     await page.screenshot({'path': screencutImagePathTemplate.format(no)})
     await browser.close()
