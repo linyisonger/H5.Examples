@@ -84,13 +84,16 @@
 
         preview.addEventListener("load", (ev) => {
             let ctx = canvas.getContext('2d')
-            let width = ev.target.width;
-            let height = ev.target.height;
+            let width = ev.target.width / 10;
+            let height = ev.target.height / 10;
             canvas.style.width = width + 'px';
             canvas.style.height = height + 'px';
+
+
             canvas.width = width;
             canvas.height = height;
-            ctx.drawImage(ev.target, 0, 0)
+
+            ctx.drawImage(ev.target, 0, 0, width, height)
 
             let imageData = ctx.getImageData(0, 0, width, height)
 
@@ -123,6 +126,7 @@
                     value: colors[key]
                 })
             }
+
 
             colorList.sort((a, b) => b.value - a.value)
 
@@ -158,7 +162,7 @@
                 console.log(`rgb(${colorRgbVal})`);
                 colorItemDom.classList.add('result-color-item')
                 colorItemDom.style.background = `rgba(${color.key})`
-                colorItemDom.style.color = `rgb(${darkenColor(colorKeyArr)})`
+                colorItemDom.style.color = `rgb(${invertColor(colorKeyArr)})`
                 colorItemDom.textContent = Convertor.rgbToHex(`rgb(${colorRgbVal})`)
 
                 resultColorListDom.appendChild(colorItemDom)
@@ -230,15 +234,9 @@
          * 反转色
          */
         function invertColor(color) {
-            return color.map(item => 255 - +item).join()
+            return color.map(item => 255 - +item).reverse()
         }
 
-        /**
-         * 加深色
-         */
-        function darkenColor(color) {
-            return color.map(item => +item > 128 ? Math.abs(+item + 32) : Math.abs(+item - 32)).join()
-        }
 
     </script>
 </body>
