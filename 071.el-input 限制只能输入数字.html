@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./assets/global.css">
+
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="./assets/element-ui/lib/theme-chalk/index.css">
+</head>
+
+<body>
+    <div id="app">
+        输入框
+        <el-input v-model="num" v-only-number></el-input>
+        预览值
+        <div>{{num}}</div>
+    </div>
+</body>
+<!-- import Vue before Element -->
+<script src="./assets/vue@2/dist/vue.js"></script>
+<!-- import JavaScript -->
+<script src="./assets/element-ui/lib/index.js"></script>
+
+<script>
+
+    new Vue({
+        el: '#app',
+        data: function () {
+            return {
+                num: ''
+            }
+        },
+        directives: {
+            onlyNumber: {
+                inserted: function (el, binding, vnode) {
+                    vnode.elm.addEventListener('input', function (e) {
+                        // 取出原始值
+                        let value = e.target.value.replace(/[^0-9]/g, '')
+                        // 重置原始值
+                        e.target.value = value
+                        // 向上更新
+                        vnode.componentInstance.$emit('input', value)
+                    })
+                }
+            }
+        }
+    })
+
+
+</script>
+
+</html>
