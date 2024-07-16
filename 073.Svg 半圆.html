@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./assets/global.css">
+
+    <style>
+        .circle-progress-bar {
+            --width: 300px;
+            --stroke-width: 12px;
+            --height: calc((var(--width) + var(--stroke-width)) / 2);
+            width: var(--width);
+            height: var(--height);
+
+            overflow: hidden;
+            position: relative;
+        }
+
+        .circle-progress-bar .circle-progress-text {
+            font-size: 30px;
+            position: absolute;
+            bottom: 0px;
+            width: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+        }
+
+        .circle-progress-bar .circle-progress-svg {
+            width: var(--width);
+            height: var(--width);
+            transform: rotate(180deg);
+        }
+
+        .circle-progress-bar .circle-progress-circle {
+            stroke-dasharray: 628;
+            stroke-dashoffset: 333;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="circle-progress-bar">
+        <svg class="circle-progress-svg">
+            <circle class="circle-progress-circle-back" stroke-linecap="round" cx="150" cy="150" r="144"
+                fill="transparent" stroke-width="12" stroke="grey" />
+            <circle class="circle-progress-circle" stroke-linecap="round" cx="150" cy="150" r="144" fill="transparent"
+                stroke-width="12" stroke="grey" />
+
+        </svg>
+        <div class="circle-progress-text">60%</div>
+    </div>
+
+    <script type="module">
+        let circleProgressBarDom = document.querySelector('.circle-progress-bar')
+        let circleProgressCircleDom = document.querySelector('.circle-progress-circle')
+        let circleProgressCircleBackDom = document.querySelector('.circle-progress-circle-back')
+
+        let circleProgressTextDom = document.querySelector('.circle-progress-text')
+        let width = 200;
+        let strokeWidth = 20
+        let r = width / 2 - strokeWidth / 2
+        let perimeter = (r * 2 * Math.PI).toFixed(0)
+        let ratio = .66;
+        let backgroundColor = 'rgb(168, 168, 168)'
+        let color = 'rgb(255, 181, 54)'
+
+
+        circleProgressBarDom.setAttribute('style', `--width: ${width}px; --stroke-width: ${strokeWidth}px`)
+
+        circleProgressCircleBackDom.setAttribute('cx', width / 2)
+        circleProgressCircleBackDom.setAttribute('cy', width / 2)
+        circleProgressCircleBackDom.setAttribute('r', r)
+        circleProgressCircleBackDom.setAttribute('stroke-width', strokeWidth)
+        circleProgressCircleBackDom.setAttribute('style', `stroke-dasharray: ${perimeter};stroke-dashoffset: ${perimeter / 2 * 0 + perimeter / 2}`)
+        circleProgressCircleBackDom.setAttribute('stroke', backgroundColor)
+
+        circleProgressCircleDom.setAttribute('cx', width / 2)
+        circleProgressCircleDom.setAttribute('cy', width / 2)
+        circleProgressCircleDom.setAttribute('r', r)
+        circleProgressCircleDom.setAttribute('stroke-width', strokeWidth)
+        circleProgressCircleDom.setAttribute('style', `stroke-dasharray: ${perimeter};stroke-dashoffset: ${perimeter / 2 * (1 - ratio) + perimeter / 2}`)
+        circleProgressCircleDom.setAttribute('stroke', color)
+
+        circleProgressTextDom.textContent = ratio * 100 + '%'
+
+    </script>
+
+</body>
+
+</html>
