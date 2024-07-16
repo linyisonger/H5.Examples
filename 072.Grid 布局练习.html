@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./assets/global.css">
+
+    <style>
+        .grid {
+            display: grid;
+            grid-template-columns: 42% 25% 33%;
+            grid-template-rows: 285px 406px 320px 190px;
+            row-gap: 20px;
+            column-gap: 20px;
+        }
+
+        .grid>div {
+            background-color: #41f;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 80px;
+            color: #fff;
+        }
+
+
+        .g3 {
+            grid-column: 3;
+            grid-row-start: 1;
+            grid-row-end: 3;
+        }
+
+        .g4 {
+            grid-row: 2;
+            grid-column-start: 1;
+            grid-column-end: 3;
+        }
+
+
+        .g6 {
+            grid-column: 2;
+            grid-row-start: 3;
+            grid-row-end: 5;
+        }
+
+        .g7 {
+            grid-column: 3;
+            grid-row-start: 3;
+            grid-row-end: 5;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="grid">
+        <div class="g1">1</div>
+        <div class="g2">2</div>
+        <div class="g3">3</div>
+        <div class="g4">4</div>
+        <div class="g5">5</div>
+        <div class="g6">6</div>
+        <div class="g7">7</div>
+        <div class="g8">8</div>
+    </div>
+
+
+    <script type="module">
+        import { Randoms } from "https://gcore.jsdelivr.net/npm/@3r/tool/lib/randoms.js";
+        document.querySelectorAll('.grid > div').forEach(item => {
+            item.style.backgroundColor = Randoms.getRandomColor()
+        })
+    </script>
+</body>
+
+</html>
