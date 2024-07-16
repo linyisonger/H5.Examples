@@ -36,7 +36,9 @@
         }
 
         .circle-progress-bar .circle-progress-circle {
+            /* 周长 */
             stroke-dasharray: 628;
+            /* 偏移 */
             stroke-dashoffset: 333;
         }
     </style>
@@ -49,42 +51,40 @@
                 fill="transparent" stroke-width="12" stroke="grey" />
             <circle class="circle-progress-circle" stroke-linecap="round" cx="150" cy="150" r="144" fill="transparent"
                 stroke-width="12" stroke="grey" />
-
         </svg>
         <div class="circle-progress-text">60%</div>
     </div>
 
     <script type="module">
-        let circleProgressBarDom = document.querySelector('.circle-progress-bar')
-        let circleProgressCircleDom = document.querySelector('.circle-progress-circle')
-        let circleProgressCircleBackDom = document.querySelector('.circle-progress-circle-back')
+        let circleProgressBarDom = document.querySelector('.circle-progress-bar')               // 整体的容器
+        let circleProgressCircleDom = document.querySelector('.circle-progress-circle')         // 前面弧线DOM
+        let circleProgressCircleBackDom = document.querySelector('.circle-progress-circle-back')// 后面弧线DOM
+        let circleProgressTextDom = document.querySelector('.circle-progress-text')             // 文字DOM
+        let width = 200;                            // 盒子宽度
+        let strokeWidth = 20                        // 线宽
+        let r = width / 2 - strokeWidth / 2         // 半径
+        let perimeter = (r * 2 * Math.PI).toFixed(0)// 周长
+        let ratio = .66;                            // 占比 小数
+        let backgroundColor = 'rgb(168, 168, 168)'  // 后面弧线的颜色
+        let color = 'rgb(255, 181, 54)'             // 前面弧线的颜色
 
-        let circleProgressTextDom = document.querySelector('.circle-progress-text')
-        let width = 200;
-        let strokeWidth = 20
-        let r = width / 2 - strokeWidth / 2
-        let perimeter = (r * 2 * Math.PI).toFixed(0)
-        let ratio = .66;
-        let backgroundColor = 'rgb(168, 168, 168)'
-        let color = 'rgb(255, 181, 54)'
-
-
+        // 设置宽度、线宽
         circleProgressBarDom.setAttribute('style', `--width: ${width}px; --stroke-width: ${strokeWidth}px`)
-
+        // 设置中心点、半径、线宽、占比、颜色
         circleProgressCircleBackDom.setAttribute('cx', width / 2)
         circleProgressCircleBackDom.setAttribute('cy', width / 2)
         circleProgressCircleBackDom.setAttribute('r', r)
         circleProgressCircleBackDom.setAttribute('stroke-width', strokeWidth)
         circleProgressCircleBackDom.setAttribute('style', `stroke-dasharray: ${perimeter};stroke-dashoffset: ${perimeter / 2 * 0 + perimeter / 2}`)
         circleProgressCircleBackDom.setAttribute('stroke', backgroundColor)
-
+        // 设置中心点、半径、线宽、占比、颜色
         circleProgressCircleDom.setAttribute('cx', width / 2)
         circleProgressCircleDom.setAttribute('cy', width / 2)
         circleProgressCircleDom.setAttribute('r', r)
         circleProgressCircleDom.setAttribute('stroke-width', strokeWidth)
         circleProgressCircleDom.setAttribute('style', `stroke-dasharray: ${perimeter};stroke-dashoffset: ${perimeter / 2 * (1 - ratio) + perimeter / 2}`)
         circleProgressCircleDom.setAttribute('stroke', color)
-
+        // 设置文字
         circleProgressTextDom.textContent = ratio * 100 + '%'
 
     </script>
