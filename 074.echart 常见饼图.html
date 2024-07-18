@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./assets/global.css">
+    <script src="./assets/echarts/echarts.min.js"></script>
+
+
+    <style>
+        #pie1 {
+            width: 400px;
+            height: 400px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="pie1"></div>
+
+
+    <script>
+        const pie1Dom = document.getElementById('pie1');
+        const pie1Chart = echarts.init(pie1Dom);
+        const pie1Colors = ['#1492E6', '#1AD598']
+
+        pie1Chart.setOption({
+
+            title: {
+                text: '总人数',
+                subtext: 1048 + 735,
+                left: 'center',
+                top: '43%',
+                textStyle: {
+                    fontSize: 14,
+                    color: '#000',
+                    align: 'center'
+                },
+                subtextStyle: {
+                    fontFamily: "微软雅黑",
+                    fontSize: 24,
+                    color: '#000',
+                }
+            },
+            tooltip: {
+                trigger: 'item'
+            },
+            series: [
+                {
+                    color: pie1Colors,
+                    type: 'pie',
+                    center: ['50%', '50%'],
+                    radius: ['30%', '50%'],
+                    data: [
+                        { value: 1048, name: '学习人数' },
+                        { value: 735, name: '未学习人数' },
+                    ],
+                    label: {
+                        formatter: (params, index) => {
+                            console.log(params, index);
+                            return `{name|${params.name}}\n{value|${params.value}人}`
+                        },
+                        rich: {
+                            name: {
+                                color: 'inherit'
+                            }
+                        }
+                    },
+                    emphasis: {
+                        itemStyle: {
+                            shadowBlur: 10,
+                            shadowOffsetX: 0,
+                            shadowColor: 'rgba(0, 0, 0, 0.5)'
+                        }
+                    }
+                }
+            ]
+        });
+
+    </script>
+</body>
+
+</html>
