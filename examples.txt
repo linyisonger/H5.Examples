@@ -68,4 +68,8 @@
 068.Cavnas 盒子连线.html
 069.table 表格合并.html
 070.提取图片主题色.html
+071.el-input 限制只能输入数字.html
+072.Grid 布局练习.html
+073.Svg 半圆.html
+074.echart 常见饼图.html
 index.html
