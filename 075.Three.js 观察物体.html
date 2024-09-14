@@ -306,8 +306,15 @@
         let raycaster = new THREE.Raycaster();
         // 模型点击事件
         function onmodelclick(event) {
-            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+            if (event.type == 'touchstart') {
+                let touch = event.changedTouches[0]
+                mouse.x = (touch.clientX / window.innerWidth) * 2 - 1;
+                mouse.y = -(touch.clientY / window.innerHeight) * 2 + 1;
+            }
+            else {
+                mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+                mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+            }
 
             raycaster.setFromCamera(mouse, camera);
             const intersects = raycaster.intersectObjects(scene.children);
@@ -357,7 +364,12 @@
             }
 
         }
-        window.addEventListener("click", onmodelclick);
+        if (navigator.userAgent.includes('Android') || navigator.userAgent.includes('iPhone') || navigator.userAgent.includes('iPad')) {
+            window.addEventListener("touchstart", onmodelclick)
+        }
+        else {
+            window.addEventListener("click", onmodelclick);
+        }
         // 是否在范围内
         function isRange(x, y, z) {
             let maxX = maximumSize / 2;
