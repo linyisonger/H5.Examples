@@ -7,15 +7,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./assets/global.css">
     <style>
+        body {
+            user-select: none;
+        }
+
         .panel-container {
             position: absolute;
             top: 0;
             left: 0;
-            height: 200px;
+            /* height: 200px; */
             width: 100%;
             background-color: rgba(255, 255, 255, .8);
             padding: 20px;
             box-sizing: border-box;
+            display: flex;
+            justify-content: space-between;
         }
 
         .mode-switch {
@@ -42,6 +48,63 @@
         .mode-switch .mode-switch-item.del.active {
             background-color: #cc3333;
         }
+
+        .mode-switch-item.clear {
+            font-size: 12px;
+            display: inline-block;
+            padding: 0 8px;
+            background-color: #cc3333;
+            line-height: 32px;
+            border-radius: 6px;
+            color: #fff;
+        }
+
+        .panel-container.bottom {
+            top: auto;
+            bottom: 0;
+            padding-top: 32px;
+        }
+
+        .front-view,
+        .top-view,
+        .left-view {
+            width: 20vmin;
+            height: 20vmin;
+            position: relative;
+        }
+
+        .front-view::before,
+        .top-view::before,
+        .left-view::before {
+            position: absolute;
+            font-size: 12px;
+            top: -16px;
+        }
+
+        .front-view::before {
+            content: "正视图";
+        }
+
+        .top-view::before {
+            content: "顶视图";
+        }
+
+        .left-view::before {
+            content: "左视图";
+        }
+
+
+        .view-cude {
+            position: absolute;
+            background-image: url('./assets/cubeTexture.jpg');
+            background-size: 110%;
+            background-position: center;
+            transform: translateY(-100%);
+        }
+
+        .view-cude.active {
+            background: #404040;
+        }
     </style>
 </head>
 
@@ -60,6 +123,13 @@
             <div class="mode-switch-item new">新增模式</div>
             <div class="mode-switch-item del">删除模式</div>
         </div>
+        <div class="mode-switch-item clear">清空方块</div>
+    </div>
+
+    <div class="panel-container bottom">
+        <div class="front-view"></div>
+        <div class="top-view"></div>
+        <div class="left-view"></div>
     </div>
 
 
@@ -70,8 +140,13 @@
 
         let newModeDom = document.querySelector('.mode-switch-item.new')
         let delModeDom = document.querySelector('.mode-switch-item.del')
+        let cleModeDom = document.querySelector('.mode-switch-item.clear')
 
-        let isNew = true;
+        let isNew = true; // 是否新增
+        let cubeMap = {}; // 方块存储
+        let maximumSize = 4;  // 新建底座 4 x 4 
+        let cubeMaterial = null;  // 方块材质
+
         newModeDom.addEventListener('click', () => {
             isNew = true;
             newModeDom.classList.add('active')
@@ -82,58 +157,45 @@
             delModeDom.classList.add('active')
             newModeDom.classList.remove('active')
         })
+        cleModeDom.addEventListener('click', () => {
+            if (cubeMap) {
+                for (const cude of Object.values(cubeMap)) {
+                    scene.remove(cude)
+                }
+                cubeMap = {}
+            }
+        })
         newModeDom.click()
 
         const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x88ccee);
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.set(-10.5, 5, -10.5);
 
         const renderer = new THREE.WebGLRenderer();
+
+        scene.background = new THREE.Color(0x88ccee);
+        camera.position.set(-10.5, 5, -10.5);
         renderer.shadowMap.enabled = true;
         renderer.setSize(window.innerWidth, window.innerHeight);
 
         document.body.appendChild(renderer.domElement);
 
+        // 创建平行光
         const directionalLight = new THREE.DirectionalLight(0xffffff, 0.3);
         directionalLight.position.set(4, 4, -4)
         directionalLight.castShadow = true;
         scene.add(directionalLight);
-
         // 创建环境光源
         const ambientLight = new THREE.AmbientLight(0x404040); // 灰色的环境光
         scene.add(ambientLight);
 
-        let cubeMaterial = null
-
-        let loader = new THREE.TextureLoader();
-        loader.load("./assets/cubeTexture.jpg", texture => {
+        // 材质获取
+        const textareaLoader = new THREE.TextureLoader();
+        textareaLoader.load("./assets/cubeTexture.jpg", texture => {
             cubeMaterial = new THREE.MeshLambertMaterial({
                 map: texture //材质的贴图为加载的图片
             });
         })
-
-        // 新建底座 
-        // 4 x 4
-        const MaximumSize = 4;
-
-        // 方块存储
-        const cubeMap = {}
-
-        for (let x = 0; x < MaximumSize; x++) {
-            for (let z = 0; z < MaximumSize; z++) {
-                console.log(x, z);
-                const planeMaterial = new THREE.MeshStandardMaterial({ color: 0x999999, side: THREE.DoubleSide });
-                const plane = new THREE.Mesh(new THREE.BoxGeometry(1, .01, 1), planeMaterial);
-                plane.position.x = x - MaximumSize / 2;
-                plane.position.z = z - MaximumSize / 2;
-                plane.name = `plane(${x},${z})`
-                plane.receiveShadow = true;
-
-                scene.add(plane);
-            }
-        }
-
+        // 模型加载
         const gltfLoader = new GLTFLoader().setPath('./assets/observing-objects/');
         gltfLoader.load('left.glb', (gltf) => {
             gltf.scene.position.x = 4.5;
@@ -154,6 +216,81 @@
             scene.add(gltf.scene);
         })
 
+        // 平面预设
+        for (let x = 0; x < maximumSize; x++) {
+            for (let z = 0; z < maximumSize; z++) {
+                console.log(x, z);
+                const planeMaterial = new THREE.MeshStandardMaterial({ color: 0x999999, side: THREE.DoubleSide });
+                const plane = new THREE.Mesh(new THREE.BoxGeometry(1, .01, 1), planeMaterial);
+                plane.position.x = x - maximumSize / 2;
+                plane.position.z = z - maximumSize / 2;
+                plane.name = `plane(${x},${z})`
+                plane.receiveShadow = true;
+                scene.add(plane);
+            }
+        }
+
+        // <div class="front-view"></div>
+        // <div class="top-view"></div>
+        // <div class="left-view"></div>
+        // 三视图预设
+        let frontViewDom = document.querySelector('.front-view')
+        let topViewDom = document.querySelector('.top-view')
+        let leftViewDom = document.querySelector('.left-view')
+
+        // 创建视图方块
+        function createViewCude(x, y) {
+            let viewCudeDom = document.createElement('div')
+            viewCudeDom.classList.add('view-cude')
+            viewCudeDom.style.width = `${100 / maximumSize}%`
+            viewCudeDom.style.height = `${100 / maximumSize}%`
+            viewCudeDom.style.left = (x * 100 / maximumSize) + '%'
+            viewCudeDom.style.top = (100 - y * 100 / maximumSize) + '%'
+            viewCudeDom.setAttribute('x', x)
+            viewCudeDom.setAttribute('y', y)
+
+            if (x == 1 && y == 1) {
+                viewCudeDom.classList.add('active')
+            }
+            return viewCudeDom
+        }
+
+        for (let i = 0; i < maximumSize; i++) {
+            for (let j = 0; j < maximumSize; j++) {
+                frontViewDom.appendChild(createViewCude(j, i))
+                topViewDom.appendChild(createViewCude(j, i))
+                leftViewDom.appendChild(createViewCude(j, i))
+            }
+        }
+        // 刷新视图
+        function refreshView() {
+            console.log(cubeMap);
+            let cubeMapKeys = Object.keys(cubeMap)
+            // 正视图
+            for (let i = 0; i < frontViewDom.children.length; i++) {
+                const viewCudeDom = frontViewDom.children.item(i);
+                let tmpX = viewCudeDom.getAttribute('x')
+                let tmpY = viewCudeDom.getAttribute('y')
+                if (cubeMapKeys.find(key => key.startsWith(`${tmpX},${tmpY}`))) viewCudeDom.classList.add('active')
+                else viewCudeDom.classList.remove('active')
+            }
+            // 顶视图
+            for (let i = 0; i < topViewDom.children.length; i++) {
+                const viewCudeDom = topViewDom.children.item(i);
+                let tmpX = viewCudeDom.getAttribute('x')
+                let tmpZ = viewCudeDom.getAttribute('y')
+                if (cubeMapKeys.find(key => key.startsWith(`${tmpX}`) && key.endsWith(`${tmpZ}`))) viewCudeDom.classList.add('active')
+                else viewCudeDom.classList.remove('active')
+            }
+            // 左视图
+            for (let i = 0; i < leftViewDom.children.length; i++) {
+                const viewCudeDom = leftViewDom.children.item(i);
+                let tmpZ = maximumSize - 1 - +viewCudeDom.getAttribute('x')
+                let tmpY = viewCudeDom.getAttribute('y')
+                if (cubeMapKeys.find(key => key.endsWith(`${tmpY},${tmpZ}`))) viewCudeDom.classList.add('active')
+                else viewCudeDom.classList.remove('active')
+            }
+        }
 
 
         // 控制器
@@ -182,28 +319,26 @@
 
             if (lastObject) { // 存在
                 let lastObjectNormal = lastObject.normal // 点击的方向 
-                let lastObjectPosition = lastObject.object.position // 物体的位置
-                console.log(lastObjectNormal, lastObjectPosition);
-                let isPlane = lastObject.object.name.startsWith('plane');
+                let lastObjectPosition = lastObject.object.position // 物体的位置 
+                let isPlane = lastObject.object.name.startsWith('plane'); // 是否点击的是平面
 
-                if (isNew) {
+
+                if (isNew) { // 是否是新增
+                    let cube = createCube(); // 新建物体
                     let x = lastObjectNormal.x + lastObjectPosition.x
                     let y = lastObjectNormal.y + lastObjectPosition.y - (isPlane ? .5 : 0)
                     let z = lastObjectNormal.z + lastObjectPosition.z
-                    let cube = createCube();
-                    console.log(x, y, z);
-                    let checkUnderHasCudeRes = checkUnderHasCude(x, y, z)
-
-                    if (isRange(x, y, z) && checkUnderHasCudeRes) {
-                        x = checkUnderHasCudeRes.x
-                        y = checkUnderHasCudeRes.y
-                        z = checkUnderHasCudeRes.z
+                    let checkCanPlaceRes = checkCanPlace(x, y, z)
+                    if (isRange(x, y, z) && checkCanPlaceRes) {
+                        x = checkCanPlaceRes.x
+                        y = checkCanPlaceRes.y
+                        z = checkCanPlaceRes.z
 
                         cube.position.x = x
                         cube.position.y = y
                         cube.position.z = z
 
-                        let standardKey = positionConversion(x, y, z)
+                        let standardKey = positionConversion(x, y, z) // 获取x,y,z的标准
                         cubeMap[standardKey] = cube
                         cube.name = `cube(${x},${y},${z})`
                         scene.add(cube)
@@ -213,20 +348,23 @@
                     }
                 }
                 else if (!isPlane) {
-                    scene.remove(lastObject.object)
-                    console.log('需要删除的物体', lastObject);
+                    let x = lastObjectPosition.x
+                    let y = lastObjectPosition.y
+                    let z = lastObjectPosition.z
+                    removeUpperAndSelf(x, y, z)
                 }
+                refreshView()
             }
 
         }
         window.addEventListener("click", onmodelclick);
         // 是否在范围内
         function isRange(x, y, z) {
-            let maxX = MaximumSize / 2;
-            let minX = -MaximumSize / 2;
-            let maxZ = MaximumSize / 2;
-            let minZ = -MaximumSize / 2;
-            let maxY = MaximumSize;
+            let maxX = maximumSize / 2;
+            let minX = -maximumSize / 2;
+            let maxZ = maximumSize / 2;
+            let minZ = -maximumSize / 2;
+            let maxY = maximumSize;
             let minY = 0;
 
             if (y > maxY) return false
@@ -237,14 +375,18 @@
             if (z < minZ) return false;
             return true;
         }
-        // 检测是否下面有物体
-        function checkUnderHasCude(x, y, z) {
+        // 检查当前位置是否存在物体
+        function checkPositionExist(key) {
+            return cubeMap[key]
+        }
+
+        // 检测是否可以放置
+        function checkCanPlace(x, y, z) {
             let standardKey = positionConversion(x, y, z)
             let standerdY = +standardKey.split(',')[1]
-            console.log("standerdY", standerdY);
+
             for (let i = 0; i <= standerdY; i++) {
-                let tmpStandardKey = positionConversion(x, i, z)
-                if (!cubeMap[tmpStandardKey]) {
+                if (!checkPositionExist(positionConversion(x, i, z))) {
                     return {
                         x,
                         y: y - standerdY + i,
@@ -254,14 +396,29 @@
             }
             return false
         }
+        // 删除它上面的物体及自身
+        function removeUpperAndSelf(x, y, z) {
+            let standardKey = positionConversion(x, y, z)
+            let standerdY = +standardKey.split(',')[1]
+            for (let i = standerdY; i < maximumSize; i++) {
+                let tmpStandardKey = positionConversion(x, i, z)
+                let cube = checkPositionExist(tmpStandardKey)
+
+                if (cube) {
+                    delete cubeMap[tmpStandardKey]
+                    scene.remove(cube)
+                }
+            }
+        }
+
+
 
         // 坐标处理 便于存储
         function positionConversion(x, y, z) {
             y = Math.floor(y)
-            x = x + MaximumSize / 2;
-            z = z + MaximumSize / 2;
+            x = x * -1 + maximumSize / 2 - 1;
+            z = z + maximumSize / 2;
             return `${x},${y},${z}`
-            console.log(x, y, z);
         }
         // 创建方块
         function createCube() {
@@ -276,9 +433,6 @@
         function animate() {
             renderer.render(scene, camera);
             requestAnimationFrame(animate);
-
-            // cube.rotation.x += 0.01;
-            // cube.rotation.y += 0.01;
 
         }
         animate();
