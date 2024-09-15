@@ -49,15 +49,23 @@
             background-color: #cc3333;
         }
 
-        .mode-switch-item.clear {
-            font-size: 12px;
+        .mode-switch-item.clear.active,
+        .mode-switch-item.again.active {
             display: inline-block;
-            padding: 0 8px;
+        }
+
+        .mode-switch-item.clear,
+        .mode-switch-item.again {
+            display: none;
+        }
+
+        .mode-switch-item.clear.active,
+        .mode-switch-item.del.active {
             background-color: #cc3333;
-            line-height: 32px;
-            border-radius: 6px;
             color: #fff;
         }
+
+
 
         .panel-container.bottom {
             top: auto;
@@ -68,8 +76,8 @@
         .front-view,
         .top-view,
         .left-view {
-            width: 20vmin;
-            height: 20vmin;
+            width: 25vmin;
+            height: 25vmin;
             position: relative;
         }
 
@@ -94,6 +102,25 @@
         }
 
 
+
+        .front-view.right::after,
+        .top-view.right::after,
+        .left-view.right::after {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            z-index: 0;
+            background-color: rgba(255, 255, 255, .8);
+            background-image: url('./assets/observing-objects/right.png');
+            background-size: 50%;
+            background-repeat: no-repeat;
+            background-position: center;
+            content: '';
+        }
+
+
         .view-cude {
             position: absolute;
             background-image: url('./assets/cubeTexture.jpg');
@@ -104,6 +131,35 @@
 
         .view-cude.active {
             background: #404040;
+        }
+
+        .hint-container {
+            position: absolute;
+            top: 72px;
+            color: #cc3333;
+            opacity: .6;
+            line-height: 20px;
+            font-size: 12px;
+            padding: 10px 10px;
+        }
+
+        .win-container {
+            position: absolute;
+            top: 72px;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: rgba(255, 255, 255, .8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            display: none
+        }
+
+        .win-container img {
+            width: 50%;
+            height: 80%;
+            object-fit: contain;
         }
     </style>
 </head>
@@ -122,9 +178,14 @@
         <div class="mode-switch">
             <div class="mode-switch-item new">新增模式</div>
             <div class="mode-switch-item del">删除模式</div>
+            <div class="mode-switch-item que">答题模式</div>
         </div>
-        <div class="mode-switch-item clear">清空方块</div>
+        <div class="mode-switch">
+            <div class="mode-switch-item again">再来一题</div>
+            <div class="mode-switch-item clear">清空方块</div>
+        </div>
     </div>
+    <div class="hint-container">提示：答题模式无法编辑添加方块，通过观察立方体，单击三视图中的方块显示和隐藏来回答问题。</div>
 
     <div class="panel-container bottom">
         <div class="front-view"></div>
@@ -132,30 +193,60 @@
         <div class="left-view"></div>
     </div>
 
+    <div class="win-container">
+        <img src="./assets/rainbow-fart/1.gif">
+        <img src="./assets/rainbow-fart/2.gif">
+    </div>
+
 
     <script type="module">
         import * as THREE from 'three';
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
         import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+        import { Randoms } from "https://gcore.jsdelivr.net/npm/@3r/tool/lib/randoms.js";
+
+
+
+
 
         let newModeDom = document.querySelector('.mode-switch-item.new')
         let delModeDom = document.querySelector('.mode-switch-item.del')
+        let queModeDom = document.querySelector('.mode-switch-item.que')
         let cleModeDom = document.querySelector('.mode-switch-item.clear')
-
-        let isNew = true; // 是否新增
+        let agaModeDom = document.querySelector('.mode-switch-item.again')
+        let opeModeLis = [newModeDom, delModeDom, queModeDom, cleModeDom, agaModeDom]
         let cubeMap = {}; // 方块存储
         let maximumSize = 4;  // 新建底座 4 x 4 
         let cubeMaterial = null;  // 方块材质
+        let mode = 'new' // new 新增 del 删除 que 答题 
 
+        function removeActiveOpeMode() {
+            opeModeLis.forEach(item =>
+                item.classList.remove('active')
+            )
+        }
         newModeDom.addEventListener('click', () => {
-            isNew = true;
+            mode = 'new';
+            removeActiveOpeMode()
             newModeDom.classList.add('active')
-            delModeDom.classList.remove('active')
+            cleModeDom.classList.add('active')
+            refreshView()
+            winHide()
         })
         delModeDom.addEventListener('click', () => {
-            isNew = false;
+            mode = 'del';
+            removeActiveOpeMode()
             delModeDom.classList.add('active')
-            newModeDom.classList.remove('active')
+            cleModeDom.classList.add('active')
+            refreshView()
+            winHide()
+        })
+        queModeDom.addEventListener('click', () => {
+            mode = 'que';
+            removeActiveOpeMode()
+            queModeDom.classList.add('active')
+            agaModeDom.classList.add('active')
+            agaModeDom.click()
         })
         cleModeDom.addEventListener('click', () => {
             if (cubeMap) {
@@ -163,10 +254,18 @@
                     scene.remove(cude)
                 }
                 cubeMap = {}
+                refreshView()
             }
         })
-        newModeDom.click()
+        agaModeDom.addEventListener('click', () => {
+            winHide()
+            cleModeDom.click();
+            randomMap()
+        })
 
+
+
+        // newModeDom.click()
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
@@ -194,6 +293,10 @@
             cubeMaterial = new THREE.MeshLambertMaterial({
                 map: texture //材质的贴图为加载的图片
             });
+
+
+            // 材质加载完成
+            queModeDom.click();
         })
         // 模型加载
         const gltfLoader = new GLTFLoader().setPath('./assets/observing-objects/');
@@ -230,6 +333,7 @@
             }
         }
 
+
         // <div class="front-view"></div>
         // <div class="top-view"></div>
         // <div class="left-view"></div>
@@ -237,7 +341,7 @@
         let frontViewDom = document.querySelector('.front-view')
         let topViewDom = document.querySelector('.top-view')
         let leftViewDom = document.querySelector('.left-view')
-
+        let viewDomLis = [frontViewDom, topViewDom, leftViewDom]
         // 创建视图方块
         function createViewCude(x, y) {
             let viewCudeDom = document.createElement('div')
@@ -248,6 +352,18 @@
             viewCudeDom.style.top = (100 - y * 100 / maximumSize) + '%'
             viewCudeDom.setAttribute('x', x)
             viewCudeDom.setAttribute('y', y)
+
+            viewCudeDom.addEventListener('click', function () {
+                if (mode == 'que') {
+                    if (viewCudeDom.classList.contains('active')) {
+                        viewCudeDom.classList.remove("active")
+                    }
+                    else {
+                        viewCudeDom.classList.add("active")
+                    }
+                    checkQuestionIsRight()
+                }
+            })
             return viewCudeDom
         }
 
@@ -262,6 +378,12 @@
         function refreshView() {
             console.log(cubeMap);
             let cubeMapKeys = Object.keys(cubeMap)
+
+            // 移除正确标签 
+            viewDomLis.map(item => {
+                item.classList.remove('right')
+            })
+
             // 正视图
             for (let i = 0; i < frontViewDom.children.length; i++) {
                 const viewCudeDom = frontViewDom.children.item(i);
@@ -285,6 +407,21 @@
                 let tmpY = viewCudeDom.getAttribute('y')
                 if (cubeMapKeys.find(key => key.endsWith(`${tmpY},${tmpZ}`))) viewCudeDom.classList.add('active')
                 else viewCudeDom.classList.remove('active')
+            }
+        }
+
+        let winDom = document.querySelector('.win-container')   // 胜利
+        function winHide() {
+            winDom.setAttribute('style', 'display:none')
+        }
+        function winShow() {
+            winDom.setAttribute('style', 'display:flex')
+            let winImgCount = winDom.children.length
+            let winImgShowIndex = Randoms.getRandomInt(0, winImgCount) // 随机高度 [)
+
+            for (let i = 0; i < winImgCount; i++) {
+                const winImg = winDom.children.item(i);
+                winImg.setAttribute('style', winImgShowIndex == i ? 'display:flex' : 'display:none')
             }
         }
 
@@ -314,7 +451,6 @@
 
             raycaster.setFromCamera(mouse, camera);
             const intersects = raycaster.intersectObjects(scene.children);
-            console.log(intersects);
             const lastObject = intersects.find(o =>
                 o.object.name.startsWith('plane') ||
                 o.object.name.startsWith('cube')
@@ -325,9 +461,7 @@
                 let lastObjectPosition = lastObject.object.position // 物体的位置 
                 let isPlane = lastObject.object.name.startsWith('plane'); // 是否点击的是平面
 
-
-                if (isNew) { // 是否是新增
-                    let cube = createCube(); // 新建物体
+                if (mode == 'new') { // 是否是新增 
                     let x = lastObjectNormal.x + lastObjectPosition.x
                     let y = lastObjectNormal.y + lastObjectPosition.y - (isPlane ? .5 : 0)
                     let z = lastObjectNormal.z + lastObjectPosition.z
@@ -336,27 +470,26 @@
                         x = checkCanPlaceRes.x
                         y = checkCanPlaceRes.y
                         z = checkCanPlaceRes.z
-
-                        cube.position.x = x
-                        cube.position.y = y
-                        cube.position.z = z
-
-                        let standardKey = positionConversion(x, y, z) // 获取x,y,z的标准
-                        cubeMap[standardKey] = cube
-                        cube.name = `cube(${x},${y},${z})`
-                        scene.add(cube)
+                        createCube(x, y, z); // 新建物体 
                     }
                     else {
                         console.log('不能添加');
                     }
+                    refreshView()
                 }
-                else if (!isPlane) {
+                else if (mode == 'del' && !isPlane) {
                     let x = lastObjectPosition.x
                     let y = lastObjectPosition.y
                     let z = lastObjectPosition.z
                     removeUpperAndSelf(x, y, z)
+                    refreshView()
                 }
-                refreshView()
+
+
+                console.log('当前地图', Object.keys(cubeMap).map(v => {
+                    let [x, y, z] = v.split(',').map(p => +p)
+                    return { x, y, z }
+                }));
             }
 
         }
@@ -390,11 +523,11 @@
 
         // 检测是否可以放置
         function checkCanPlace(x, y, z) {
-            let standardKey = positionConversion(x, y, z)
+            let standardKey = mapStandardKey(x, y, z)
             let standerdY = +standardKey.split(',')[1]
 
             for (let i = 0; i <= standerdY; i++) {
-                if (!checkPositionExist(positionConversion(x, i, z))) {
+                if (!checkPositionExist(mapStandardKey(x, i, z))) {
                     return {
                         x,
                         y: y - standerdY + i,
@@ -406,10 +539,10 @@
         }
         // 删除它上面的物体及自身
         function removeUpperAndSelf(x, y, z) {
-            let standardKey = positionConversion(x, y, z)
+            let standardKey = mapStandardKey(x, y, z)
             let standerdY = +standardKey.split(',')[1]
             for (let i = standerdY; i < maximumSize; i++) {
-                let tmpStandardKey = positionConversion(x, i, z)
+                let tmpStandardKey = mapStandardKey(x, i, z)
                 let cube = checkPositionExist(tmpStandardKey)
 
                 if (cube) {
@@ -419,30 +552,274 @@
             }
         }
 
-
-
         // 坐标处理 便于存储
-        function positionConversion(x, y, z) {
+        function mapStandardKey(x, y, z) {
             y = Math.floor(y)
             x = x * -1 + maximumSize / 2 - 1;
             z = z + maximumSize / 2;
             return `${x},${y},${z}`
         }
+
+        // 标准位置 用于3d展示
+        function standardToScene(x, y, z) {
+            y += .5
+            x = x * -1 + maximumSize / 2 - 1;
+            z = z - maximumSize / 2;
+            return {
+                x, y, z
+            }
+        }
+
+
+
+
         // 创建方块
-        function createCube() {
+        function createCube(x, y, z) {
             const geometry = new THREE.BoxGeometry(1, 1, 1);
             const material = cubeMaterial || new THREE.MeshStandardMaterial({ color: 0x00ff00 });
             const cube = new THREE.Mesh(geometry, material);
             cube.receiveShadow = true
             cube.castShadow = true;
+
+            cube.position.x = x
+            cube.position.y = y
+            cube.position.z = z
+
+            let standardKey = mapStandardKey(x, y, z) // 获取x,y,z的标准
+            cubeMap[standardKey] = cube
+            cube.name = `cube(${x},${y},${z})`
+            scene.add(cube)
             return cube
         }
+
+        // 出一题
+        function randomMap() {
+            // 题库出题
+            let questionList = [
+                [
+                    {
+                        "x": 0,
+                        "y": 0,
+                        "z": 2
+                    },
+                    {
+                        "x": 1,
+                        "y": 0,
+                        "z": 2
+                    },
+                    {
+                        "x": 2,
+                        "y": 0,
+                        "z": 2
+                    },
+                    {
+                        "x": 3,
+                        "y": 0,
+                        "z": 2
+                    },
+                    {
+                        "x": 1,
+                        "y": 1,
+                        "z": 2
+                    }
+                ],
+                [
+                    {
+                        "x": 1,
+                        "y": 0,
+                        "z": 2
+                    },
+                    {
+                        "x": 0,
+                        "y": 0,
+                        "z": 1
+                    },
+                    {
+                        "x": 1,
+                        "y": 0,
+                        "z": 1
+                    },
+                    {
+                        "x": 2,
+                        "y": 0,
+                        "z": 1
+                    },
+                    {
+                        "x": 1,
+                        "y": 1,
+                        "z": 1
+                    }
+                ],
+                [
+                    {
+                        "x": 0,
+                        "y": 0,
+                        "z": 2
+                    },
+                    {
+                        "x": 1,
+                        "y": 0,
+                        "z": 2
+                    },
+                    {
+                        "x": 2,
+                        "y": 0,
+                        "z": 2
+                    },
+                    {
+                        "x": 0,
+                        "y": 1,
+                        "z": 2
+                    },
+                    {
+                        "x": 1,
+                        "y": 0,
+                        "z": 1
+                    }
+                ],
+                [
+                    {
+                        "x": 0,
+                        "y": 0,
+                        "z": 3
+                    },
+                    {
+                        "x": 0,
+                        "y": 0,
+                        "z": 2
+                    },
+                    {
+                        "x": 0,
+                        "y": 0,
+                        "z": 1
+                    },
+                    {
+                        "x": 1,
+                        "y": 0,
+                        "z": 2
+                    },
+                    {
+                        "x": 1,
+                        "y": 0,
+                        "z": 3
+                    },
+                    {
+                        "x": 2,
+                        "y": 0,
+                        "z": 3
+                    },
+                    {
+                        "x": 0,
+                        "y": 1,
+                        "z": 3
+                    },
+                    {
+                        "x": 0,
+                        "y": 1,
+                        "z": 2
+                    },
+                    {
+                        "x": 0,
+                        "y": 2,
+                        "z": 3
+                    },
+                    {
+                        "x": 1,
+                        "y": 1,
+                        "z": 3
+                    }
+                ]
+            ]
+            let queIndex = Randoms.getRandomInt(0, questionList.length)
+            let que = questionList[queIndex]
+            for (let i = 0; i < que.length; i++) {
+                let { x, y, z } = que[i];
+                createCube(...Object.values(standardToScene(x, y, z)))
+            }
+
+            // 随机出题
+            // for (let i = 0; i < maximumSize; i++) {
+            //     for (let j = 0; j < maximumSize; j++) {
+            //         let h = Randoms.getRandomInt(0, maximumSize + 1) // 随机高度 [)
+            //         console.log(h);
+            //         for (let k = 0; k < h; k++) {
+            //             let { x, y, z } = standardToScene(j, k, i) // 输出的坐标
+            //             console.log(x, y, z);
+            //             createCube(x, y, z)
+            //         }
+            //     }
+            // }
+        }
+
+        // 检查问题是否正确
+        function checkQuestionIsRight() {
+            let cubeMapKeys = Object.keys(cubeMap)
+            let frontViewIsRight = true;
+            let topViewIsRight = true
+            let leftViewIsRight = true
+            // 正视图
+            for (let i = 0; i < frontViewDom.children.length; i++) {
+                const viewCudeDom = frontViewDom.children.item(i);
+                let tmpX = viewCudeDom.getAttribute('x')
+                let tmpY = viewCudeDom.getAttribute('y')
+                let active = viewCudeDom.classList.contains('active')
+                let userActive = !!cubeMapKeys.find(key => key.startsWith(`${tmpX},${tmpY}`))
+                console.log(tmpX, tmpY, active, userActive);
+                if (active != userActive) {
+                    frontViewIsRight = false;
+                    break;
+                }
+            }
+            // 顶视图
+            for (let i = 0; i < topViewDom.children.length; i++) {
+                const viewCudeDom = topViewDom.children.item(i);
+                let tmpX = viewCudeDom.getAttribute('x')
+                let tmpZ = viewCudeDom.getAttribute('y')
+                let active = viewCudeDom.classList.contains('active')
+                let userActive = !!cubeMapKeys.find(key => key.startsWith(`${tmpX}`) && key.endsWith(`${tmpZ}`))
+                if (active != userActive) {
+                    topViewIsRight = false;
+                    break;
+                }
+            }
+
+            // 左视图
+            for (let i = 0; i < leftViewDom.children.length; i++) {
+                const viewCudeDom = leftViewDom.children.item(i);
+                let tmpZ = maximumSize - 1 - +viewCudeDom.getAttribute('x')
+                let tmpY = viewCudeDom.getAttribute('y')
+                let active = viewCudeDom.classList.contains('active')
+                let userActive = !!cubeMapKeys.find(key => key.endsWith(`${tmpY},${tmpZ}`))
+                if (active != userActive) {
+                    leftViewIsRight = false;
+                    break;
+                }
+            }
+
+            if (frontViewIsRight) {
+                frontViewDom.classList.add('right')
+            }
+            if (topViewIsRight) {
+                topViewDom.classList.add('right')
+            }
+            if (leftViewIsRight) {
+                leftViewDom.classList.add('right')
+            }
+            if (frontViewIsRight && topViewIsRight && leftViewIsRight) {
+                winShow();
+            }
+        }
+
+
+
+
         // 渲染动画
         function animate() {
             renderer.render(scene, camera);
             requestAnimationFrame(animate);
 
         }
+
         animate();
     </script>
 
