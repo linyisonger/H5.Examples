@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./assets/global.css">
+</head>
+
+<body>
+    <script type="module">
+        
+        // import "https://gcore.jsdelivr.net/npm/@3r/tool@1.5.0/lib/randoms.js";
+        import { Fakery } from "https://gcore.jsdelivr.net/npm/@3r/tool@1.5.1/lib/fakery.js";
+
+        // 创建假数据组
+        function createFakeryGroup() {
+            console.log('身份证号码', Fakery.citizenIdentificationNumber());
+            console.log('社会统一信用代码', Fakery.usci());
+            console.log('手机号码', Fakery.phoneNumber());
+            console.log('姓名', Fakery.fullName());
+            console.log('银行卡号码 [工商银行卡号]', Fakery.bankCardNumber());
+        }
+
+        createFakeryGroup()
+    </script>
+</body>
+
+</html>
