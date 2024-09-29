@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./assets/global.css" />
+
+    <style>
+      .card {
+        position: relative;
+        top: 100px;
+        margin: 0 auto;
+        width: 300px;
+        height: 416px;
+
+        transform-style: preserve-3d;
+        perspective: 800px;
+        transform: rotateX(0) rotateY(0) rotateZ(20deg);
+      }
+
+      .card-content {
+        overflow: hidden;
+        border-radius: 12px;
+        display: flex;
+        box-shadow: 2px 2px 6px 0px rgba(0, 0, 0, 0.5);
+        transition: all 0.5s;
+      }
+
+      .card-content img {
+        width: 100%;
+        height: 100%;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="card">
+      <div class="card-content">
+        <img src="./assets/movie-poster/m-gnh.jpg" />
+      </div>
+    </div>
+    <script type="module">
+      // 初始偏移
+      const initOffsetRotateX = 10;
+      const initOffsetRotateY = -10;
+      const cardContentDom = document.querySelector(".card-content");
+      // 初始化
+      requestAnimationFrame(function () {
+        cardContentDom.style.transform = `rotateX(${initOffsetRotateX}) rotateY(${initOffsetRotateY})`;
+      });
+      // 偏移
+      cardContentDom.addEventListener("mousemove", (e) => {
+        requestAnimationFrame(function () {
+          let rect = cardContentDom.getBoundingClientRect();
+          let x = e.clientX;
+          let y = e.clientY;
+          // 鼠标位置 - 卡片中心点 / 偏移量
+          let rotateX = (y - rect.y - rect.height / 2) / 20;
+          let rotateY = ((x - rect.x - rect.width / 2) / 10) * -1;
+
+          // 给偏移值加上初始偏移
+          rotateX += initOffsetRotateX;
+          rotateY += initOffsetRotateY;
+
+          cardContentDom.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+        });
+      });
+      // 复位
+      cardContentDom.addEventListener("mouseleave", (e) => {
+        window.requestAnimationFrame(function () {
+          cardContentDom.style.transform = `rotateX(${initOffsetRotateX}) rotateY(${initOffsetRotateY})`;
+        });
+      });
+    </script>
+  </body>
+</html>
