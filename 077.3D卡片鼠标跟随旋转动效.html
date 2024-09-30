@@ -86,7 +86,7 @@
       });
       // 复位
       cardContentDom.addEventListener("mouseleave", (e) => {
-        window.requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
           cardContentDom.style.transform = `rotateX(${initOffsetRotateX}deg) rotateY(${initOffsetRotateY}deg)`;
         });
       });
