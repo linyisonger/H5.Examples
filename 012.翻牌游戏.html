@@ -34,8 +34,9 @@
         }
 
         .flip .epilog {
-            margin-top: 40px;
-            font-size: 5vw;
+            margin-top: 20px;
+            width: calc(min(100vw, 400px));
+            font-size: 20px;
             color: #333;
             opacity: 0;
             transition: all .5s;
@@ -72,9 +73,8 @@
 
     </div>
     <script type="module">
-        import { Maths } from "https://unpkg.com/@3r/tool/lib/maths.js";
-        import { Randoms } from "https://unpkg.com/@3r/tool/lib/randoms.js";
-
+        import { Maths } from "https://gcore.jsdelivr.net/npm/@3r/tool/lib/maths.js";
+        import { Randoms } from "https://gcore.jsdelivr.net/npm/@3r/tool/lib/randoms.js";
         // 参数
         let params = {
             cards: [
@@ -87,6 +87,9 @@
                 '要不然怎么会这么甜~'
             ]
         }
+        // 最大宽度
+        let maxWidth = Math.min(document.body.clientWidth, 400)
+
         // 背景
         let cardBack = params.back || '#a1e8e4'
         // 翻牌容器
@@ -95,7 +98,7 @@
         let cardDoms = [];
         // 获取因数
         let { a, b } = Maths.getFactorsByApproach(params.cards.length * 2)[0]
-        let cardWidth = Math.floor(document.body.clientWidth / b);
+        let cardWidth = Math.floor(maxWidth / b);
         let cardHeight = Math.round(cardWidth * 1.5);
         // 塞入临时dom节点中
         for (let card of [...params.cards, ...params.cards]) {

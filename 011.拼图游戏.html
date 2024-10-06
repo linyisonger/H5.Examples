@@ -458,8 +458,11 @@
             let img = document.createElement('img');
             img.setAttribute("src", params.image)
             img.onload = function (e) {
-                params.width = document.body.clientWidth;
-                params.height = document.body.clientWidth / img.naturalWidth * img.naturalHeight // 通过图片原始宽高来获取宽高 计算比例
+                // 最大宽度
+                let maxWidth = Math.min(document.body.clientWidth, 400)
+
+                params.width = maxWidth;
+                params.height = maxWidth / img.naturalWidth * img.naturalHeight // 通过图片原始宽高来获取宽高 计算比例
                 // 调用初始化拼图
                 initJigsaw();
             }
