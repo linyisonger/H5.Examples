@@ -1,30 +1,150 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./assets/global.css" />
 
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="./assets/global.css">
-</head>
+    <style>
+      .fakery-box {
+        padding: 20px;
+      }
+      .fakery-subtitle {
+        font-size: 13px;
+        color: #c45e5e;
+        margin-bottom: 10px;
+      }
+      .fakery-title {
+        font-size: 18px;
+        color: #333;
+      }
+      .fakery-item {
+        display: flex;
+        padding: 5px 0;
+        cursor: pointer;
+      }
+      .fakery-label {
+        width: 120px;
+        font-size: 14px;
+        color: #333;
+      }
+      .fakery-btn {
+        margin-top: 10px;
+        padding: 10px 20px;
+        display: inline-flex;
+        color: #fff;
+        background-color: #fd9651;
+        cursor: pointer;
+        user-select: none;
+      }
+      .ps {
+        color: #333;
+        font-size: 12px;
+      }
+      .fakery-value.active {
+        color: #c45e5e;
+      }
+      .fakery-value.active::after {
+        margin-left: 20px;
+        content: "复制成功~";
+        font-size: 12px;
+      }
+    </style>
+  </head>
 
-<body>
+  <body>
+    <div class="fakery-box">
+      <div class="fakery-header">
+        <div class="fakery-title">随机数据</div>
+      </div>
+      <div class="fakery-subtitle">点击下面想要的数据即可复制到剪贴板上面</div>
+      <div class="fakery-item">
+        <div class="fakery-label"></div>
+        <div class="fakery-value"></div>
+      </div>
+      <div class="fakery-item">
+        <div class="fakery-label"></div>
+        <div class="fakery-value"></div>
+      </div>
+      <div class="fakery-item">
+        <div class="fakery-label"></div>
+        <div class="fakery-value"></div>
+      </div>
+      <div class="fakery-item">
+        <div class="fakery-label"></div>
+        <div class="fakery-value"></div>
+      </div>
+      <div class="fakery-item">
+        <div class="fakery-label"></div>
+        <div class="fakery-value"></div>
+      </div>
+
+      <div class="fakery-btn again">再来一组</div>
+      <div class="ps">ps: 如果要在代码开发测试也可以使用@3r/tool这个包😏</div>
+    </div>
+
     <script type="module">
-        
-        // import "https://gcore.jsdelivr.net/npm/@3r/tool@1.5.0/lib/randoms.js";
-        import { Fakery } from "https://gcore.jsdelivr.net/npm/@3r/tool@1.5.1/lib/fakery.js";
+      // import "https://gcore.jsdelivr.net/npm/@3r/tool@1.5.0/lib/randoms.js";
+      import { Fakery } from "https://gcore.jsdelivr.net/npm/@3r/tool@1.5.1/lib/fakery.js";
 
-        // 创建假数据组
-        function createFakeryGroup() {
-            console.log('身份证号码', Fakery.citizenIdentificationNumber());
-            console.log('社会统一信用代码', Fakery.usci());
-            console.log('手机号码', Fakery.phoneNumber());
-            console.log('姓名', Fakery.fullName());
-            console.log('银行卡号码 [工商银行卡号]', Fakery.bankCardNumber());
+      // 创建假数据组
+      function createFakeryGroup() {
+        return {
+          name: Fakery.fullName(),
+          phone: Fakery.phoneNumber(),
+          idCard: Fakery.citizenIdentificationNumber(),
+          backCard: Fakery.bankCardNumber(),
+          usci: Fakery.usci(),
+        };
+      }
+      // 更新卡片
+      function updateCard(fakery) {
+        let box = document.querySelector(".fakery-box");
+        let fakeryList = box.querySelectorAll(".fakery-item");
+        let fakeryKeys = Object.keys(fakery);
+        let zh = {
+          name: "姓名",
+          phone: "手机号码",
+          idCard: "身份证号码",
+          backCard: "社会统一信用代码",
+          usci: "工商银行卡号码",
+        };
+        for (let i = 0; i < fakeryList.length; i++) {
+          const fakeryItem = fakeryList.item(i);
+          const fakeryKey = fakeryKeys[i];
+          const fakeryLabel = fakeryItem.querySelector(".fakery-label");
+          const fakeryValue = fakeryItem.querySelector(".fakery-value");
+          fakeryValue.onclick = copyToClipboard;
+          fakeryLabel.textContent = zh[fakeryKey];
+          fakeryValue.textContent = fakery[fakeryKey];
         }
+      }
 
-        createFakeryGroup()
+      /**
+       * 复制到剪贴板
+       */
+      function copyToClipboard(e) {
+        let input =
+          document.querySelector(".copy-input") ||
+          document.createElement("input");
+        input.className = "copy-input";
+        input.value = e.target.textContent;
+        input.style = `position: fixed;top: -100%;`;
+        document.body.append(input);
+        input.select();
+        document.execCommand("copy");
+        e.target.classList.add("active");
+        setTimeout(() => {
+          e.target.classList.remove("active");
+        }, 1000);
+      }
+
+      const againBtn = document.querySelector(".again");
+      againBtn.onclick = () => {
+        updateCard(createFakeryGroup());
+      };
+      againBtn.click();
     </script>
-</body>
-
+  </body>
 </html>
