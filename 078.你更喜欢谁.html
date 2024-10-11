@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./assets/global.css" />
+    <style>
+      .pk-container {
+        display: flex;
+        align-items: center;
+        height: 100vh;
+        max-width: 400px;
+        width: 100%;
+        overflow: hidden;
+      }
+
+      .pk-cards {
+        display: flex;
+        align-items: center;
+        position: relative;
+      }
+
+      .pk-card {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+      }
+
+      .pk-card img {
+        width: 100%;
+        object-fit: cover;
+        user-select: none;
+      }
+
+      .pk-vs {
+        font-size: 40px;
+        font-weight: bold;
+        padding: 0 20px;
+      }
+
+      .moveIn {
+        animation-duration: 0.5s;
+        animation-timing-function: ease-in-out;
+        animation-fill-mode: forwards;
+      }
+
+      .pk-card {
+        animation-name: leftCardMoveIn;
+      }
+
+      .pk-card:last-child {
+        animation-name: rightCardMoveIn;
+      }
+
+      .pk-vs {
+        animation-name: vsFadeMoveIn;
+      }
+
+      .moveOut {
+        animation-duration: 0.5s;
+        animation-timing-function: ease-in-out;
+        animation-fill-mode: forwards;
+        animation-direction: reverse;
+      }
+
+      .like-btn {
+        position: absolute;
+        bottom: -30px;
+      }
+
+      @keyframes leftCardMoveIn {
+        0% {
+          transform: translateX(-200px);
+        }
+        100% {
+          transform: translateX(0);
+        }
+      }
+
+      @keyframes rightCardMoveIn {
+        0% {
+          transform: translateX(200px);
+        }
+        100% {
+          transform: translateX(0);
+        }
+      }
+
+      @keyframes vsFadeMoveIn {
+        0% {
+          opacity: 0;
+          transform: translateY(-100px);
+        }
+        100% {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="pk-container">
+      <div class="pk-cards">
+        <div class="pk-card moveIn">
+          <img src="./assets/movie-poster/m-byxz.jpg" />
+        </div>
+        <div class="pk-vs moveIn">VS</div>
+        <div class="pk-card moveIn">
+          <img src="./assets/movie-poster/m-dbs.jpg" />
+        </div>
+      </div>
+    </div>
+
+    <script type="module"></script>
+  </body>
+</html>
