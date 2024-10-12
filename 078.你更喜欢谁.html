@@ -192,8 +192,10 @@
         .then((res) => res.text())
         .then((res) => {
           let stars = [];
-          let label = res.split("\r\n").filter((a) => a);
+          let label = res.split("\n").filter((a) => a);
 
+          console.log(label);
+          
           stars = label.map((n) => {
             let tmpArr = n.split("_");
             return {
