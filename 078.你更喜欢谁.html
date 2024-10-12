@@ -217,6 +217,9 @@
           // 确认按钮
           let confirmBtnDom = document.querySelector(".confirm-btn");
 
+          // 标题
+          let titleDom = document.querySelector(".pk-container h2");
+
           nextStar(leftCardDom);
           nextStar(rightCardDom);
           // 下一个明星
@@ -237,6 +240,7 @@
                 document
                   .querySelector(".pk-card.like")
                   .classList.remove("like");
+                titleDom.textContent = "你更喜欢TA";
               }, 0.5);
               return;
             }
