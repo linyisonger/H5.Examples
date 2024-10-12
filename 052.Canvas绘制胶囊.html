@@ -1,45 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="./assets/global.css">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./assets/global.css" />
     <style>
-        #drawCapsule {
-            width: 100vmin;
-            height: 100vmin;
-            background-color: #000;
-            display: flex;
-        }
+      #drawCapsule {
+        width: 100vmin;
+        height: 100vmin;
+        background-color: #000;
+        display: flex;
+      }
     </style>
-</head>
+  </head>
 
-<body>
+  <body>
     <canvas id="drawCapsule"></canvas>
 
     <script type="module">
-        import "https://cdn.jsdelivr.net/npm/@3r/canvas-plus@1.0.1/index.js"
-        /** @type {HTMLCanvasElement} */
-        let canvas = document.querySelector("#drawCapsule")
-        let ctx = canvas.getContext('2d')
-        let width = canvas.clientWidth;
-        let height = canvas.clientHeight;
-        canvas.width = width;
-        canvas.height = height;
+      import "https://gcore.jsdelivr.net/npm/@3r/canvas-plus@1.0.1/index.js";
+      /** @type {HTMLCanvasElement} */
+      let canvas = document.querySelector("#drawCapsule");
+      let ctx = canvas.getContext("2d");
+      let width = canvas.clientWidth;
+      let height = canvas.clientHeight;
+      canvas.width = width;
+      canvas.height = height;
 
-        ctx.strokeStyle = '#f00'
-        ctx.lineWidth = 8;
+      ctx.strokeStyle = "#f00";
+      ctx.lineWidth = 8;
 
-        ctx.drawCapsule(200, 300, 500, 500, 50)
+      ctx.drawCapsule(200, 300, 500, 500, 50);
 
-        canvas.addEventListener("mousemove", (ev) => {
-            ctx.clearRect(0, 0, width, height)
-            ctx.drawCapsule(200, 300, ev.offsetX, ev.offsetY, 50)
-        })
+      canvas.addEventListener("mousemove", (ev) => {
+        ctx.clearRect(0, 0, width, height);
+        ctx.drawCapsule(200, 300, ev.offsetX, ev.offsetY, 50);
+      });
     </script>
-</body>
-
-
+  </body>
 </html>

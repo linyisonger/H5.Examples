@@ -1,322 +1,338 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>H5 示例</title>
     <!-- 引入默认代码样式，可换其他的 -->
-    <link rel="stylesheet" href="./assets/highlight/styles/github-dark.min.css">
-    <script src="./assets/highlight/highlight.min.js"></script> <!--引入代码高亮js-->
-    <script async src="//finicounter.eu.org/finicounter.js"></script> <!-- 访问量统计 -->
+    <link
+      rel="stylesheet"
+      href="./assets/highlight/styles/github-dark.min.css"
+    />
+    <script src="./assets/highlight/highlight.min.js"></script>
+    <!--引入代码高亮js-->
+    <script async src="//finicounter.eu.org/finicounter.js"></script>
+    <!-- 访问量统计 -->
     <style>
-        body {
-            margin: 0;
-            display: flex;
-            height: 100vh;
-            background-color: #f8f8f8;
-        }
+      body {
+        margin: 0;
+        display: flex;
+        height: 100vh;
+        background-color: #f8f8f8;
+      }
 
+      ::-webkit-scrollbar {
+        width: 1px;
+        height: 1px;
+      }
 
-        ::-webkit-scrollbar {
-            width: 1px;
-            height: 1px;
-        }
+      ::-webkit-scrollbar-thumb {
+        background-color: var(--theme-color);
+      }
 
-        ::-webkit-scrollbar-thumb {
-            background-color: var(--theme-color);
-        }
+      ::-webkit-scrollbar-track {
+        background: var(--theme-smoke);
+      }
 
-        ::-webkit-scrollbar-track {
-            background: var(--theme-smoke);
-        }
+      .left-navbar {
+        padding: 0;
+        margin: 0;
+        position: relative;
+        list-style: none;
+        max-height: 100vh;
+        background-color: #f1f1f1;
+        width: 240px;
+        overflow-y: auto;
+        overflow-x: auto;
+        font-size: 14px;
+        transition: all 0.5s ease-in;
+      }
 
-        .left-navbar {
-            padding: 0;
-            margin: 0;
-            position: relative;
-            list-style: none;
-            max-height: 100vh;
-            background-color: #f1f1f1;
-            width: 240px;
-            overflow-y: auto;
-            overflow-x: auto;
-            font-size: 14px;
-            transition: all .5s ease-in;
-        }
+      .left-navbar.hidden {
+        width: 0;
+      }
 
-        .left-navbar.hidden {
-            width: 0;
-        }
+      .left-navbar li {
+        padding-inline-start: 0px;
+        margin-block-start: 0em;
+        margin-block-end: 0em;
+        padding: 8px 10px;
+        white-space: nowrap;
+      }
 
-        .left-navbar li {
-            padding-inline-start: 0px;
-            margin-block-start: 0em;
-            margin-block-end: 0em;
-            padding: 8px 10px;
-            white-space: nowrap;
-        }
+      .left-navbar .active {
+        color: #f1f1f1;
+        background-color: rgb(15, 126, 185);
+      }
 
-        .left-navbar .active {
-            color: #f1f1f1;
-            background-color: rgb(15, 126, 185);
-        }
+      .left-container {
+        position: relative;
+      }
 
-        .left-container {
-            position: relative;
-        }
+      .left-container.mobile {
+        position: fixed;
+        left: 0;
+      }
 
-        .left-container.mobile {
-            position: fixed;
-            left: 0;
-        }
+      .left-container .fold {
+        position: absolute;
+        top: 50%;
+        right: 0px;
+        width: 20px;
+        height: 60px;
+        transform: translate(50%, -50%);
+        background-color: rgb(15, 126, 185);
+        z-index: 10;
+      }
 
-        .left-container .fold {
-            position: absolute;
-            top: 50%;
-            right: 0px;
-            width: 20px;
-            height: 60px;
-            transform: translate(50%, -50%);
-            background-color: rgb(15, 126, 185);
-            z-index: 10;
-        }
+      .container {
+        width: calc(100% - 240px);
+        height: 100vh;
+        transition: all 0.5s ease-in;
+      }
 
-        .container {
-            width: calc(100% - 240px);
-            height: 100vh;
-            transition: all .5s ease-in;
-        }
+      .container.full {
+        width: 100%;
+      }
 
-        .container.full {
-            width: 100%;
-        }
+      iframe,
+      .code {
+        display: none;
+        width: 100%;
+        height: 100%;
+      }
 
-        iframe,
-        .code {
-            display: none;
-            width: 100%;
-            height: 100%;
-        }
+      .code-prev-btn,
+      .code-reload-btn,
+      #finicount_views,
+      .github-shield {
+        position: absolute;
+        right: 20px;
+        top: 20px;
+        /* width: 40px; */
+        /* line-height: 30px; */
+        border: 1px solid #ddd;
+        border-radius: 2px;
+        text-align: center;
+        background-color: rgba(255, 255, 255, 0.8);
+        user-select: none;
+        font-size: 13px;
+        padding: 6px 10px;
+      }
 
-        .code-prev-btn,
-        .code-reload-btn,
-        #finicount_views,
-        .github-shield {
-            position: absolute;
-            right: 20px;
-            top: 20px;
-            /* width: 40px; */
-            /* line-height: 30px; */
-            border: 1px solid #ddd;
-            border-radius: 2px;
-            text-align: center;
-            background-color: rgba(255, 255, 255, .8);
-            user-select: none;
-            font-size: 13px;
-            padding: 6px 10px;
-        }
+      .code-reload-btn:active,
+      .code-prev-btn:active {
+        opacity: 0.7;
+      }
 
-        .code-reload-btn:active,
-        .code-prev-btn:active {
-            opacity: .7;
-        }
+      .code-reload-btn {
+        top: 60px;
+      }
 
-        .code-reload-btn {
-            top: 60px;
-        }
+      .code {
+        overflow-y: scroll;
+      }
 
-        .code {
-            overflow-y: scroll;
-        }
+      pre {
+        margin-top: 0 !important;
+      }
 
-        pre {
-            margin-top: 0 !important;
-        }
+      #finicount_views {
+        top: 100px;
+        padding-left: 20px;
+        padding-right: 10px;
+        min-width: 74px;
+        box-sizing: border-box;
+        text-align: right;
+      }
 
-        #finicount_views {
-            top: 100px;
-            padding-left: 20px;
-            padding-right: 10px;
-            min-width: 74px;
-            box-sizing: border-box;
-            text-align: right;
-        }
+      .github-shield {
+        top: auto;
+        bottom: 20px;
+        padding: 0;
+        display: flex;
+      }
 
-        .github-shield {
-            top: auto;
-            bottom: 20px;
-            padding: 0;
-            display: flex;
-        }
+      .github-shield a {
+        display: flex;
+      }
 
-        .github-shield a {
-            display: flex;
-        }
+      .github-shield.star {
+        right: 80px;
+      }
 
-        .github-shield.star {
-            right: 80px;
-        }
-
-
-        #finicount_views::before {
-            position: absolute;
-            content: "";
-            width: 14px;
-            height: 14px;
-            left: 6px;
-            background-image: url('./assets/hits.png');
-            background-size: 100% 100%;
-            transform: scaleX(-1);
-        }
+      #finicount_views::before {
+        position: absolute;
+        content: "";
+        width: 14px;
+        height: 14px;
+        left: 6px;
+        background-image: url("./assets/hits.png");
+        background-size: 100% 100%;
+        transform: scaleX(-1);
+      }
     </style>
-</head>
+  </head>
 
-<body>
+  <body>
     <div class="left-container">
-        <ul class="left-navbar">
-        </ul>
+      <ul class="left-navbar"></ul>
     </div>
     <div class="container">
-        <div class="code">
-            <pre><code class="hljs language-html"></code></pre>
-        </div>
-        <iframe id="preview" src="" frameborder="0"></iframe>
-        <div class="code-prev-btn">源</div>
-        <div class="code-reload-btn">刷新页面</div>
-        <span id="finicount_views">1</span>
-        <div class="github-shield fork">
-            <a href="https://github.com/linyisonger/H5.Examples/fork">
-                <img alt="GitHub forks"
-                    src="https://img.shields.io/github/forks/linyisonger/H5.Examples?style=flat-square">
-            </a>
-        </div>
-        <div class="github-shield star">
-            <a href="https://github.com/linyisonger/H5.Examples">
-                <img alt="GitHub forks"
-                    src="https://img.shields.io/github/stars/linyisonger/H5.Examples?style=flat-square">
-            </a>
-        </div>
+      <div class="code">
+        <pre><code class="hljs language-html"></code></pre>
+      </div>
+      <iframe id="preview" src="" frameborder="0"></iframe>
+      <div class="code-prev-btn">源</div>
+      <div class="code-reload-btn">刷新页面</div>
+      <span id="finicount_views">1</span>
+      <div class="github-shield fork">
+        <a href="https://github.com/linyisonger/H5.Examples/fork">
+          <img
+            alt="GitHub forks"
+            src="https://img.shields.io/github/forks/linyisonger/H5.Examples?style=flat-square"
+          />
+        </a>
+      </div>
+      <div class="github-shield star">
+        <a href="https://github.com/linyisonger/H5.Examples">
+          <img
+            alt="GitHub forks"
+            src="https://img.shields.io/github/stars/linyisonger/H5.Examples?style=flat-square"
+          />
+        </a>
+      </div>
     </div>
 
     <script>
-        hljs.initHighlightingOnLoad(); // 初始化
-        let leftContainer = document.querySelector('.left-container')
-        let container = document.querySelector('.container')
-        let leftNavBar = document.querySelector('.left-navbar')
-        let iframe = document.querySelector('#preview')
-        let codePrevBtn = document.querySelector('.code-prev-btn')
-        let codeReloadBtn = document.querySelector('.code-reload-btn')
-        let code = document.querySelector('.code')
-        let preCode = document.querySelector('.code > pre > code')
-        let lastActiveNav = null
-        let r = new XMLHttpRequest();
-        let isPreview = false
+      hljs.initHighlightingOnLoad(); // 初始化
+      let leftContainer = document.querySelector(".left-container");
+      let container = document.querySelector(".container");
+      let leftNavBar = document.querySelector(".left-navbar");
+      let iframe = document.querySelector("#preview");
+      let codePrevBtn = document.querySelector(".code-prev-btn");
+      let codeReloadBtn = document.querySelector(".code-reload-btn");
+      let code = document.querySelector(".code");
+      let preCode = document.querySelector(".code > pre > code");
+      let lastActiveNav = null;
+      let r = new XMLHttpRequest();
+      let isPreview = false;
 
-        // 当宽度小于600判断为移动端 默认收缩左侧栏
-        if (document.body.clientWidth < 600) {
-            container.style.transition = 'none'
-            leftNavBar.style.transition = 'none'
-            leftNavBar.classList.add('hidden')
-            container.classList.add('full')
-            leftContainer.classList.add('mobile')
-            setTimeout(() => {
-                container.style.transition = 'all .3s ease-in'
-                leftNavBar.style.transition = 'all .3s ease-in'
-            }, 300)
+      // 当宽度小于600判断为移动端 默认收缩左侧栏
+      if (document.body.clientWidth < 600) {
+        container.style.transition = "none";
+        leftNavBar.style.transition = "none";
+        leftNavBar.classList.add("hidden");
+        container.classList.add("full");
+        leftContainer.classList.add("mobile");
+        setTimeout(() => {
+          container.style.transition = "all .3s ease-in";
+          leftNavBar.style.transition = "all .3s ease-in";
+        }, 300);
+      }
+
+      function getQueryParam(key) {
+        var query = location.search.substring(1);
+        var arr = query.split("&");
+        for (var i = 0; i < arr.length; i++) {
+          var pair = arr[i].split("=");
+          if (pair[0] == key) {
+            return pair[1];
+          }
+        }
+        return undefined;
+      }
+
+      codePrevBtn.addEventListener("click", () => {
+        isPreview = !isPreview;
+        code.setAttribute(
+          "style",
+          `${!isPreview ? "display:block" : "display:none"}`
+        );
+        iframe.setAttribute(
+          "style",
+          `${isPreview ? "display:block" : "display:none"}`
+        );
+        codePrevBtn.textContent = isPreview ? "查看源码" : "预览效果";
+        if (!isPreview) {
+          let xhl = new XMLHttpRequest();
+          xhl.open("get", getQueryParam("name"));
+          xhl.onloadend = () => {
+            preCode.textContent = xhl.responseText;
+            hljs.highlightBlock(preCode);
+          };
+          xhl.send();
+        }
+      });
+
+      codePrevBtn.click();
+
+      r.open("get", "./examples.txt");
+      r.onloadend = () => {
+        let navData = r.responseText
+          .split("\n")
+          .filter((a) => a && !a.includes("index"));
+        let navList = [];
+        let name = getQueryParam("name");
+
+        for (const nav of navData) {
+          let navNum = nav.split(".").shift();
+          let navName = nav.match(/[\d]{1,}.(.*?).html/)[1];
+          let navSrc = "./" + nav?.replace("\r", "");
+          navList.push({
+            navNum,
+            navName,
+            navSrc,
+          });
+        }
+        navList.sort((a, b) => b.navNum - a.navNum);
+        for (const navItem of navList) {
+          var navDom = document.createElement("li");
+          navDom.textContent = navItem.navName;
+          navDom.addEventListener("click", function () {
+            iframe.setAttribute("src", navItem.navSrc);
+            history.replaceState(
+              { result: true },
+              "",
+              location.origin + location.pathname + "?name=" + navItem.navSrc
+            );
+            if (lastActiveNav) lastActiveNav.setAttribute("class", "");
+            this.setAttribute("class", "active");
+            lastActiveNav = this;
+            if (!isPreview) codePrevBtn.click();
+          });
+
+          leftNavBar.appendChild(navDom);
+
+          if (name && decodeURIComponent(name) === navItem.navSrc) {
+            navDom.click();
+          }
+          if (!name && lastActiveNav == null) {
+            navDom.click();
+          }
         }
 
+        const unfoldDom = document.createElement("div");
+        unfoldDom.classList.add("fold");
+        leftContainer.appendChild(unfoldDom);
+        unfoldDom.addEventListener("click", () => {
+          if (leftNavBar.classList.contains("hidden")) {
+            leftNavBar.classList.remove("hidden");
+            if (document.body.clientWidth >= 600)
+              container.classList.remove("full");
+          } else {
+            leftNavBar.classList.add("hidden");
+            if (document.body.clientWidth >= 600)
+              container.classList.add("full");
+          }
+        });
 
-        function getQueryParam(key) {
-            var query = location.search.substring(1)
-            var arr = query.split('&')
-            for (var i = 0; i < arr.length; i++) {
-                var pair = arr[i].split('=')
-                if (pair[0] == key) {
-                    return pair[1]
-                }
-            }
-            return undefined
-        }
-
-        codePrevBtn.addEventListener('click', () => {
-            isPreview = !isPreview
-            code.setAttribute('style', `${!isPreview ? 'display:block' : 'display:none'}`)
-            iframe.setAttribute('style', `${isPreview ? 'display:block' : 'display:none'}`)
-            codePrevBtn.textContent = isPreview ? '查看源码' : '预览效果'
-            if (!isPreview) {
-                let xhl = new XMLHttpRequest();
-                xhl.open('get', getQueryParam('name'))
-                xhl.onloadend = () => {
-                    preCode.textContent = xhl.responseText
-                    hljs.highlightBlock(preCode)
-                }
-                xhl.send()
-            }
-        })
-
-        codePrevBtn.click();
-
-        r.open("get", "./examples.txt");
-        r.onloadend = () => {
-            let navData = r.responseText.split('\n').filter(a => a && !a.includes('index'))
-            let navList = []
-            let name = getQueryParam('name');
-            for (const nav of navData) {
-                let navNum = nav.split('.').shift()
-                let navName = nav.match(/[\d]{1,}.(.*?).html$/)[1]
-                let navSrc = './' + nav
-                navList.push({
-                    navNum,
-                    navName,
-                    navSrc
-                })
-            }
-            navList.sort((a, b) => b.navNum - a.navNum)
-            for (const navItem of navList) {
-                var navDom = document.createElement('li')
-                navDom.textContent = navItem.navName;
-                navDom.addEventListener('click', function () {
-                    iframe.setAttribute('src', navItem.navSrc)
-                    history.replaceState({ result: true }, '', location.origin + location.pathname + '?name=' + navItem.navSrc)
-                    if (lastActiveNav) lastActiveNav.setAttribute('class', '')
-                    this.setAttribute('class', 'active')
-                    lastActiveNav = this;
-                    if (!isPreview) codePrevBtn.click()
-                })
-
-                leftNavBar.appendChild(navDom)
-
-                if (name && decodeURIComponent(name) === navItem.navSrc) {
-                    navDom.click()
-                }
-                if (!name && lastActiveNav == null) {
-                    navDom.click()
-                }
-            }
-
-            const unfoldDom = document.createElement('div')
-            unfoldDom.classList.add('fold')
-            leftContainer.appendChild(unfoldDom)
-            unfoldDom.addEventListener("click", () => {
-                if (leftNavBar.classList.contains('hidden')) {
-                    leftNavBar.classList.remove('hidden')
-                    if (document.body.clientWidth >= 600) container.classList.remove('full')
-                }
-                else {
-                    leftNavBar.classList.add('hidden')
-                    if (document.body.clientWidth >= 600) container.classList.add('full')
-                }
-            })
-
-            codeReloadBtn.addEventListener('click', () => {
-                console.log(iframe.contentWindow.location.reload(true));
-            })
-
-        }
-        r.send(); 
+        codeReloadBtn.addEventListener("click", () => {
+          console.log(iframe.contentWindow.location.reload(true));
+        });
+      };
+      r.send();
     </script>
-</body>
-
+  </body>
 </html>
