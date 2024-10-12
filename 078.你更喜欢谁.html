@@ -8,11 +8,13 @@
     <style>
       .pk-container {
         display: flex;
-        align-items: center;
+        justify-content: center;
+        flex-direction: column;
         height: 100vh;
         max-width: 400px;
         width: 100%;
         overflow: hidden;
+        user-select: none;
       }
 
       .pk-cards {
@@ -23,10 +25,11 @@
 
       .pk-card {
         flex: 1;
-        display: flex;
+        display: inline-flex;
         align-items: center;
         justify-content: center;
         flex-direction: column;
+        position: relative;
       }
 
       .pk-card img {
@@ -41,29 +44,38 @@
         padding: 0 20px;
       }
 
-      .moveIn {
+      .leftCardMoveIn {
+        animation-name: leftCardMoveIn;
+        animation-duration: 0.5s;
+        animation-timing-function: ease-in-out;
+        animation-fill-mode: forwards;
+      }
+      .leftCardMoveOut {
+        animation-name: leftCardMoveOut;
         animation-duration: 0.5s;
         animation-timing-function: ease-in-out;
         animation-fill-mode: forwards;
       }
 
-      .pk-card {
-        animation-name: leftCardMoveIn;
+      .rightCardMoveIn {
+        animation-name: rightCardMoveIn;
+        animation-duration: 0.5s;
+        animation-timing-function: ease-in-out;
+        animation-fill-mode: forwards;
       }
 
-      .pk-card:last-child {
-        animation-name: rightCardMoveIn;
+      .rightCardMoveOut {
+        animation-name: rightCardMoveOut;
+        animation-duration: 0.5s;
+        animation-timing-function: ease-in-out;
+        animation-fill-mode: forwards;
       }
 
       .pk-vs {
         animation-name: vsFadeMoveIn;
-      }
-
-      .moveOut {
         animation-duration: 0.5s;
         animation-timing-function: ease-in-out;
         animation-fill-mode: forwards;
-        animation-direction: reverse;
       }
 
       .like-btn {
@@ -79,13 +91,28 @@
           transform: translateX(0);
         }
       }
-
+      @keyframes leftCardMoveOut {
+        0% {
+          transform: translateX(0);
+        }
+        100% {
+          transform: translateX(-200px);
+        }
+      }
       @keyframes rightCardMoveIn {
         0% {
           transform: translateX(200px);
         }
         100% {
           transform: translateX(0);
+        }
+      }
+      @keyframes rightCardMoveOut {
+        0% {
+          transform: translateX(0);
+        }
+        100% {
+          transform: translateX(200px);
         }
       }
 
@@ -99,22 +126,147 @@
           transform: translateY(0);
         }
       }
+
+      .pk-btns {
+        margin-top: 20px;
+        display: flex;
+        justify-content: flex-end;
+      }
+      .confirm-btn {
+        display: inline-block;
+        padding: 20px 40px;
+        background-color: #3575cf;
+        color: azure;
+        border-radius: 50px;
+        cursor: pointer;
+        user-select: none;
+      }
+      .confirm-btn:active {
+        opacity: 0.7;
+      }
+
+      .pk-card.like::after {
+        position: absolute;
+        border: 10px solid #e13b1e;
+        content: "";
+        left: 0;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        user-select: none;
+      }
+      .pk-card span {
+        position: absolute;
+        left: 12px;
+        bottom: 12px;
+        width: 20px;
+        color: #fff;
+        text-shadow: 2px 2px #000000;
+      }
     </style>
   </head>
 
   <body>
     <div class="pk-container">
+      <h2>你更喜欢哪个？</h2>
       <div class="pk-cards">
-        <div class="pk-card moveIn">
+        <div class="pk-card leftCardMoveIn">
           <img src="./assets/movie-poster/m-byxz.jpg" />
+          <span>xxx</span>
         </div>
-        <div class="pk-vs moveIn">VS</div>
-        <div class="pk-card moveIn">
+        <div class="pk-vs">VS</div>
+        <div class="pk-card rightCardMoveIn">
           <img src="./assets/movie-poster/m-dbs.jpg" />
+          <span>xxx</span>
         </div>
+      </div>
+      <div class="pk-btns">
+        <div class="confirm-btn">确定</div>
       </div>
     </div>
 
-    <script type="module"></script>
+    <script type="module">
+      import { Randoms } from "https://gcore.jsdelivr.net/npm/@3r/tool/lib/randoms.js";
+      // 加载配置数据
+      fetch("./assets/stars/label.txt")
+        .then((res) => res.text())
+        .then((res) => {
+          let stars = [];
+          let label = res.split("\r\n").filter((a) => a);
+
+          stars = label.map((n) => {
+            let tmpArr = n.split("_");
+            return {
+              name: tmpArr[2],
+              img: `./assets/stars/${tmpArr[1]}.jpg`,
+            };
+          });
+
+          // 卡片元素
+          let cardDom = document.querySelectorAll(".pk-card");
+          // 随机抽取10条数据
+          let pkStars = Randoms.getDisorganizeArray(stars).slice(0, 10);
+          // 左/右卡片
+          let leftCardDom = cardDom.item(0);
+          let rightCardDom = cardDom.item(1);
+          let vsTextDom = document.querySelector(".pk-vs");
+          // 确认按钮
+          let confirmBtnDom = document.querySelector(".confirm-btn");
+
+          nextStar(leftCardDom);
+          nextStar(rightCardDom);
+          // 下一个明星
+          function nextStar(dom) {
+            let star = pkStars.shift();
+            let animName =
+              dom === leftCardDom ? "leftCardMove" : "rightCardMove";
+
+            dom.classList.add(`${animName}Out`);
+            dom.classList.remove(`${animName}In`);
+
+            if (!star) {
+              console.log("对比结束");
+              setTimeout(() => {
+                dom.remove();
+                vsTextDom.remove();
+                confirmBtnDom.remove();
+                document
+                  .querySelector(".pk-card.like")
+                  .classList.remove("like");
+              }, 0.5);
+              return;
+            }
+
+            setTimeout(() => {
+              let img = dom.querySelector("img");
+              let span = dom.querySelector("span");
+              img.setAttribute("src", star.img);
+              span.textContent = star.name;
+              dom.classList.add(`${animName}In`);
+              dom.classList.remove(`${animName}Out`);
+            }, 0.5);
+          }
+
+          leftCardDom.addEventListener("click", (ev) => {
+            rightCardDom.classList.remove("like");
+            leftCardDom.classList.add("like");
+          });
+
+          rightCardDom.addEventListener("click", (ev) => {
+            leftCardDom.classList.remove("like");
+            rightCardDom.classList.add("like");
+          });
+
+          confirmBtnDom.addEventListener("click", (ev) => {
+            if (leftCardDom.classList.contains("like")) {
+              nextStar(rightCardDom);
+            } else if (rightCardDom.classList.contains("like")) {
+              nextStar(leftCardDom);
+            }
+          });
+          console.log(cardDom, pkStars);
+          console.log(stars);
+        });
+    </script>
   </body>
 </html>
