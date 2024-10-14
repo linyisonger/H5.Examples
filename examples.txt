@@ -65,7 +65,7 @@
 065.el-table 表格宽度拖拽.html
 066.猜位置.html
 067.粒子扩散效果.html
-068.Cavnas 盒子连线.html
+068.Canvas 盒子连线.html
 069.table 表格合并.html
 070.提取图片主题色.html
 071.el-input 限制只能输入数字.html
@@ -76,4 +76,5 @@
 076.随机数据.html
 077.3D卡片鼠标跟随旋转动效.html
 078.你更喜欢谁.html
+079.Canvas 击败怪兽.html
 index.html
