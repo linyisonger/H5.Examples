@@ -167,17 +167,17 @@
   </head>
 
   <body>
-    <div class="pk-container">
+    <div class="pk-container" hidden>
       <h2>你更喜欢哪个？</h2>
       <div class="pk-cards">
         <div class="pk-card leftCardMoveIn">
           <img />
-          <span>xxx</span>
+          <span></span>
         </div>
         <div class="pk-vs">VS</div>
         <div class="pk-card rightCardMoveIn">
           <img />
-          <span>xxx</span>
+          <span></span>
         </div>
       </div>
       <div class="pk-btns">
@@ -190,7 +190,7 @@
       // 加载配置数据
       fetch("./assets/stars/label.txt")
         .then((res) => res.text())
-        .then((res) => {
+        .then(async (res) => {
           let stars = [];
           let label = res.split("\n").filter((a) => a);
 
@@ -203,13 +203,17 @@
               img: `./assets/stars/${tmpArr[1]}.jpg`,
             };
           });
+          // 容器
+          let container = document.querySelector(".pk-container");
 
           // 卡片元素
           let cardDom = document.querySelectorAll(".pk-card");
           // 随机抽取10条数据
           let pkStars = Randoms.getDisorganizeArray(stars).slice(0, 10);
           // 预加载图片
-          pkStars.forEach((s) => fetch(s.img));
+          await Promise.all(pkStars.map((s) => fetch(s.img)));
+          container.hidden = false;
+
           // 左/右卡片
           let leftCardDom = cardDom.item(0);
           let rightCardDom = cardDom.item(1);
