@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./assets/global.css">
+
+    <style>
+        .content textarea {
+            width: 200px;
+            resize: none;
+        }
+
+        #preview {
+            width: 1920px;
+            height: 1080px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="content">
+        <textarea rows="2">你好</textarea>
+    </div>
+
+    <canvas id="preview"></canvas>
+    <script type="module">
+        import { Randoms } from "https://gcore.jsdelivr.net/npm/@3r/tool/lib/randoms.js";
+
+        /** @type {HTMLCanvasElement} */
+        let canvas = document.querySelector("#preview")
+        let ctx = canvas.getContext('2d')
+
+
+        /**
+         * 随机人物
+         */
+        function randomPerson() {
+            let length = 41;
+            let width = 80;
+            let height = 165
+            let index = Randoms.int(0, length)
+            return {
+                sx: index * width,
+                sy: 0,
+                sw: width,
+                sh: height,
+            }
+        }
+
+        /**
+         * 绘制字符
+         */
+        function drawChar(char, x, y, w, h) {
+            let charCenterX = x + 38
+            let charCenterY = y + 28
+            ctx.drawImage(image, ...Object.values(randomPerson()), x, y, w, h)
+            ctx.font = '18px Helvetica'
+            ctx.textAlign = "center"
+            ctx.textBaseline = "middle"
+            ctx.save();
+            ctx.translate(charCenterX, charCenterY);
+            ctx.rotate(Math.PI / 6);
+            ctx.fillText(char, 0, 0)
+            ctx.restore();
+        }
+
+        /**
+         * 渲染文字
+         * 1.分行决定渲染图片大小
+         * 2.逐行偏移
+         */
+        function drawText(text) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height)
+
+            let rows = text.split('\n')
+            // 预处理
+            let drawCharParams = []
+            let maxX = 0;
+            let maxY = 0;
+            let width = 80;
+            let height = 165;
+            for (let i = 0; i < rows.length; i++) {
+                let cols = rows[i].split('')
+                let offsetX = (rows.length - i - 1) * (width / 2)
+                let offsetY = i * (width / 2);
+                for (let j = 0; j < cols.length; j++) {
+                    const char = cols[j];
+                    if (char === ' ') continue // 空字符跳过 
+                    let x = j * 40 + offsetX;
+                    let y = j * 15 + offsetY;
+                    maxX = Math.max(maxX, x)
+                    maxY = Math.max(maxY, y)
+                    drawCharParams.push([char, x, y, width, height])
+                }
+            }
+            // 更新画布大小
+            canvas.setAttribute('style', `width:${maxX + width}px;height:${maxY + height}px`)
+            canvas.width = canvas.clientWidth;
+            canvas.height = canvas.clientHeight;
+            // 处理
+            for (let i = 0; i < drawCharParams.length; i++) {
+                drawChar(...drawCharParams[i])
+            }
+
+        }
+
+
+        let image = new Image()
+        image.src = './assets/upup.png'
+
+        let textareaDom = document.querySelector(".content textarea")
+        textareaDom.addEventListener('change', (e) => {
+            let text = e.target.value
+            drawText(text)
+        })
+    </script>
+</body>
+
+</html>
