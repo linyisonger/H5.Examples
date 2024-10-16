@@ -8,24 +8,44 @@
     <link rel="stylesheet" href="./assets/global.css">
 
     <style>
-        .content textarea {
-            width: 200px;
-            resize: none;
+        .content {
+            display: flex;
         }
 
-        #preview {
-            width: 1920px;
-            height: 1080px;
+        .content textarea {
+            width: 300px;
+            resize: none;
+            border-radius: 0;
+            outline: none;
+            border-right-width: 0;
+        }
+
+        .content .save-btn {
+            padding: 10px;
+            background-color: #eefdfd;
+            font-size: 15px;
+            cursor: pointer;
+            user-select: none;
+            border-color: rgb(133, 133, 133);
+            border-width: 1px; 
+        }
+
+        .content .save-btn:disabled {
+            background-color: #b3b3b3;
         }
     </style>
 </head>
 
 <body>
     <div class="content">
-        <textarea rows="2">你好</textarea>
+        <textarea rows="2" placeholder="请输入需要生成的举牌文字"></textarea>
+
+        <button class="save-btn" disabled>保存图片</button>
     </div>
 
     <canvas id="preview"></canvas>
+
+
     <script type="module">
         import { Randoms } from "https://gcore.jsdelivr.net/npm/@3r/tool/lib/randoms.js";
 
@@ -116,6 +136,30 @@
             let text = e.target.value
             drawText(text)
         })
+
+        let saveBtnDom = document.querySelector('.save-btn')
+        saveBtnDom.addEventListener('click', (e) => {
+            let a = document.createElement('a');
+            a.href = window.URL.createObjectURL(base64ToBlob(canvas.toDataURL("image/png", 0.8)));
+            a.setAttribute('download', '举牌小人.png');
+            a.click();
+        })
+
+        image.onload = () => {
+            saveBtnDom.disabled = false
+        }
+        // base64 转 Blob
+        function base64ToBlob(base64) {
+            let arr = base64.split(',');
+            let mime = arr[0].match(/:(.*?);/)[1];
+            let bstr = atob(arr[1]);
+            let n = bstr.length;
+            let u8arr = new Uint8Array(n);
+            while (n--) {
+                u8arr[n] = bstr.charCodeAt(n);
+            }
+            return new Blob([u8arr], { type: mime })
+        }
     </script>
 </body>
 
