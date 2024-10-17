@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./assets/global.css">
+    <title>H5.Examples - 🌈包含文字溢出省略号、字体渐变、雪碧图、flex布局、刮刮卡、WebSQL、翻牌游戏、五子棋、拖拽上传、贪吃蛇、推箱子、拖拽换位、大富翁、飞机大战、连连看、猜位置、2048、观察物体等前端简单示例代码。
+    </title>
+    <style>
+        .home-container {
+            background-color: #000;
+            /* height: 100vh; */
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .iphone {
+            top: 50%;
+            transform: translateY(-50%);
+            --scale: .7;
+            width: calc(534px * var(--scale));
+            height: calc(1102px * var(--scale));
+            position: absolute;
+            right: 12%;
+            user-select: none;
+        }
+
+        .iphone_mask {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .iphone_back {
+            position: absolute;
+            left: 10px;
+            top: 10px;
+            border-radius: 40px;
+            width: calc(100% - 20px);
+            height: calc(100% - 20px);
+            pointer-events: none;
+
+        }
+
+        .iphone_status {
+            position: absolute;
+            left: 55px;
+            right: 45px;
+            top: 32px;
+            color: #fff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: Helvetica;
+            font-size: 18px;
+            pointer-events: none;
+        }
+
+        .iphone_status_right {
+            height: 12px;
+        }
+
+        .iphone_bottom {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            width: 85%;
+            height: 88px;
+            border-radius: 34px;
+            background-color: rgba(244, 244, 244, 0.705);
+            box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.04);
+            position: absolute;
+            bottom: 25px;
+            left: 50%;
+            box-sizing: border-box;
+            transform: translateX(-50%);
+            padding: 0 5px;
+        }
+
+        .iphone_app_icon {
+            width: 55px;
+            height: 55px;
+        }
+
+        .first-screen {
+            display: flex;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .first-screen video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .first-screen .first-screen-content {
+            position: absolute;
+            color: #fff;
+            font-family: Helvetica;
+            left: 12%;
+            top: 50%;
+            transform: translate(0%, -50%);
+        }
+
+
+
+        .first-screen .fsc-title {
+            font-size: 40px;
+            font-weight: bold;
+        }
+
+        .first-screen .fsc-subtitle {
+            margin-top: 12px;
+            font-size: 30px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="home-container">
+        <div class="first-screen">
+            <video src="./assets/mxj.mp4" muted autoplay loop></video>
+
+            <div class="first-screen-content">
+                <div class="fsc-title">做你自己，因为别人都有人做了。</div>
+                <div class="fsc-subtitle">Be yourself, everyone else is already taken.</div>
+            </div>
+        </div>
+        <div class="iphone">
+            <img class="iphone_back" src="./assets/iphoneBack.jpeg">
+            <img class="iphone_mask" src="./assets/iphoneMask.png">
+            <div class="iphone_status">
+                <div class="iphone_time"></div>
+                <img class="iphone_status_right" src="./assets/iphoneStatusRight.png">
+            </div>
+
+            <div class="iphone_bottom">
+                <img class="iphone_app_icon" src="./assets/icon/message.png">
+                <img class="iphone_app_icon" src="./assets/icon/wechat.png">
+                <img class="iphone_app_icon" src="./assets/icon/qq.png">
+                <img class="iphone_app_icon" src="./assets/icon/alipay.png">
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        // 更新时间
+        function updateTime() {
+            let timeDom = document.querySelector('.iphone_time')
+            let now = new Date()
+            let minutes = now.getMinutes()
+            let hours = now.getHours()
+            if (hours < 10) hours = '0' + hours
+            if (minutes < 10) minutes = '0' + minutes
+            timeDom.textContent = `${hours}:${minutes}`
+        }
+        updateTime()
+        setInterval(updateTime, 30 * 1000);
+
+
+
+
+    </script>
+</body>
+
+</html>

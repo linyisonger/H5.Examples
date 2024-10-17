@@ -78,4 +78,5 @@
 078.你更喜欢谁.html
 079.Canvas 爆炸粒子效果.html
 080.Canvas 举牌小人.html
+blog.html
 index.html
