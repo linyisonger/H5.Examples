@@ -6,7 +6,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./assets/global.css">
-    <title>H5.Examples - 🌈包含文字溢出省略号、字体渐变、雪碧图、flex布局、刮刮卡、WebSQL、翻牌游戏、五子棋、拖拽上传、贪吃蛇、推箱子、拖拽换位、大富翁、飞机大战、连连看、猜位置、2048、观察物体等前端简单示例代码。
+    <title>H5.Examples -
+        🌈包含文字溢出省略号、字体渐变、雪碧图、flex布局、刮刮卡、WebSQL、翻牌游戏、五子棋、拖拽上传、贪吃蛇、推箱子、拖拽换位、大富翁、飞机大战、连连看、猜位置、2048、观察物体等前端简单示例代码。
     </title>
     <style>
         .home-container {
@@ -85,6 +86,12 @@
         .iphone_app_icon {
             width: 55px;
             height: 55px;
+            position: relative;
+        }
+
+        .iphone_app_icon:active,
+        .iphone_app_icon:hover {
+            filter: brightness(60%)
         }
 
         .first-screen {
@@ -121,6 +128,58 @@
             margin-top: 12px;
             font-size: 30px;
         }
+
+        .iphone_menu {
+            display: flex;
+            position: absolute;
+            left: 15px;
+            padding: 0 15px 85px;
+            top: 90px;
+            width: calc(534px * var(--scale) - 30px);
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        .iphone_menu_track {
+            display: flex;
+            pointer-events: none;
+        }
+
+        .iphone_menu_track.anim {
+            transition: transform .5s ease-in-out;
+        }
+
+        .iphone_app_grid {
+            display: grid;
+            width: calc(534px * var(--scale) - 60px);
+            grid-template-columns: repeat(4, 25%);
+            margin-right: 30px;
+            row-gap: 20px;
+        }
+
+        .iphone_app {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .iphone_app .iphone_app_icon {
+            border-radius: 15px;
+            object-fit: cover;
+            pointer-events: all
+        }
+
+        .iphone_app .iphone_app_text {
+            text-align: center;
+            font-size: 14px;
+            margin-top: 5px;
+            width: 100%;
+            color: #fff;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            word-break: break-all;
+            white-space: nowrap;
+        }
     </style>
 </head>
 
@@ -148,6 +207,10 @@
                 <img class="iphone_app_icon" src="./assets/icon/qq.png">
                 <img class="iphone_app_icon" src="./assets/icon/alipay.png">
             </div>
+
+            <div class="iphone_menu">
+                <div class="iphone_menu_track"></div>
+            </div>
         </div>
     </div>
 
@@ -165,8 +228,93 @@
         updateTime()
         setInterval(updateTime, 30 * 1000);
 
+        // 加载菜单
+        let r = new XMLHttpRequest();
+        r.open("get", "./examples.txt");
+        r.onloadend = () => {
+            let navData = r.responseText
+                .split("\n")
+                .filter((a) => a && !a.includes("index") && !a.includes("blog"));
+            let navList = [];
+
+            for (const nav of navData) {
+                let navNum = nav.split(".").shift();
+                let navName = nav.match(/[\d]{1,}.(.*?).html/)[1];
+                let navSrc = "./" + nav?.replace("\r", "");
+                navList.push({
+                    navNum,
+                    navName,
+                    navSrc,
+                });
+            }
+            navList.sort((a, b) => b.navNum - a.navNum);
+
+            let iphoneMenuDom = document.querySelector('.iphone_menu')
+            let iphoneMenuTrackDom = document.querySelector('.iphone_menu_track')
 
 
+            let iphoneAppGridDom = null;
+            for (let i = 0; i < navList.length; i++) {
+                const navItem = navList[i];
+                if (iphoneAppGridDom == null) {
+                    iphoneAppGridDom = document.createElement('div')
+                    iphoneAppGridDom.classList.add('iphone_app_grid')
+                }
+                const iphoneAppDom = document.createElement("div");
+                const iphoneAppImgDom = document.createElement('img')
+                const iphoneAppTextDom = document.createElement('div')
+
+                iphoneAppDom.classList.add('iphone_app')
+                iphoneAppImgDom.classList.add('iphone_app_icon')
+                iphoneAppTextDom.classList.add('iphone_app_text')
+                iphoneAppDom.appendChild(iphoneAppImgDom)
+                iphoneAppDom.appendChild(iphoneAppTextDom)
+
+                iphoneAppImgDom.setAttribute("src", `./assets/preview/${navItem.navNum}.png`);
+                iphoneAppTextDom.textContent = navItem.navName;
+                iphoneAppImgDom.addEventListener("click", function () {
+                    open(location.origin + navItem.navSrc.slice(1))
+                });
+
+                iphoneAppGridDom.appendChild(iphoneAppDom)
+                // 每到20个一页
+                if (iphoneAppGridDom.children.length === 20) {
+                    iphoneMenuTrackDom.appendChild(iphoneAppGridDom)
+                    iphoneAppGridDom = null;
+                }
+            }
+            let translateX = 0;
+            let lastTranslateX = 0
+            let sx = 0;
+            let allowMove = false;
+            document.addEventListener('mousedown', (e) => {
+                console.log(e);
+                if (e.target === iphoneMenuDom) {
+                    allowMove = true;
+                    sx = e.x;
+                }
+                iphoneMenuTrackDom.classList.remove('anim')
+            })
+            document.addEventListener("mousemove", (e) => {
+                if (allowMove) {
+                    translateX = e.x - sx + lastTranslateX
+                    iphoneMenuTrackDom.setAttribute(`style`, `transform:translateX(${translateX}px);`)
+                }
+            })
+
+            document.addEventListener("mouseup", (e) => {
+                allowMove = false;
+                console.log(translateX);
+                let gridWidth = 343;
+                if (translateX > gridWidth / 2 * -1) translateX = 0
+                else translateX = Math.round(translateX / gridWidth) * gridWidth
+                lastTranslateX = translateX
+                iphoneMenuTrackDom.setAttribute(`style`, `transform:translateX(${translateX}px);`)
+                iphoneMenuTrackDom.classList.add('anim')
+            })
+
+        };
+        r.send();
 
     </script>
 </body>
