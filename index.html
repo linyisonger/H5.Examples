@@ -272,7 +272,7 @@
       r.onloadend = () => {
         let navData = r.responseText
           .split("\n")
-          .filter((a) => a && !a.includes("index"));
+          .filter((a) => a && !a.includes("index") && !a.includes("blog"));
         let navList = [];
         let name = getQueryParam("name");
 
