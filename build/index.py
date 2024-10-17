@@ -39,7 +39,7 @@ try:
     development = developmentFile.readlines()
     readmeFile.writelines(template)
     for line in lines:
-        if not line.startswith('index'):
+        if not line.startswith('index') and not line.startswith('blog'):
             # try:
             asyncio.set_event_loop_policy(
                 asyncio.WindowsSelectorEventLoopPolicy())

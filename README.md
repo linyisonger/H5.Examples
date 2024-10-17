@@ -173,9 +173,6 @@ https://linyisonger.github.io/H5.Examples/
 ![](./assets/preview/079.png)
 ##### [**Canvas 举牌小人**](https://linyisonger.github.io/H5.Examples/?name=./080.Canvas%20举牌小人.html) 
 ![](./assets/preview/080.png)
-##### [**html
-**](https://linyisonger.github.io/H5.Examples/?name=./blog.html) 
-![](./assets/preview/blog.png)
 
 
 ### 开发
