@@ -27,7 +27,7 @@
             cursor: pointer;
             user-select: none;
             border-color: rgb(133, 133, 133);
-            border-width: 1px; 
+            border-width: 1px;
         }
 
         .content .save-btn:disabled {
@@ -147,6 +147,7 @@
 
         image.onload = () => {
             saveBtnDom.disabled = false
+            drawText("你好呀~\n我是林一")
         }
         // base64 转 Blob
         function base64ToBlob(base64) {
