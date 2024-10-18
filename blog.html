@@ -273,7 +273,7 @@
                 iphoneAppImgDom.setAttribute("src", `./assets/preview/${navItem.navNum}.png`);
                 iphoneAppTextDom.textContent = navItem.navName;
                 iphoneAppImgDom.addEventListener("click", function () {
-                    open(location.origin + navItem.navSrc.slice(1))
+                    open(location.href.replace('/blog.html', '') + navItem.navSrc.slice(1))
                 });
 
                 iphoneAppGridDom.appendChild(iphoneAppDom)
