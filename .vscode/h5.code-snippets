@@ -18,6 +18,12 @@
     "body": ["import { Randoms } from \"https://gcore.jsdelivr.net/npm/@3r/tool/lib/randoms.js\";"],
     "description": "引入随机函数"
   },
+  "3r.Tool.Maths": {
+    "scope": "javascript",
+    "prefix": "maths",
+    "body": ["import { Maths } from \"https://gcore.jsdelivr.net/npm/@3r/tool/lib/maths.js\";"],
+    "description": "引入数学拓展函数"
+  },
   "Canvas.Example": {
     "scope": "html",
     "prefix": "canvas",

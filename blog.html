@@ -186,7 +186,7 @@
 <body>
     <div class="home-container">
         <div class="first-screen">
-            <video src="./assets/mxj.mp4" muted autoplay loop></video>
+            <video src="./assets/mxj.mp4" muted autoplay loop preload="metadata"></video>
 
             <div class="first-screen-content">
                 <div class="fsc-title">做你自己，因为别人都有人做了。</div>
@@ -287,14 +287,20 @@
             let lastTranslateX = 0
             let sx = 0;
             let allowMove = false;
-            document.addEventListener('mousedown', (e) => {
-                console.log(e);
-                if (e.target === iphoneMenuDom) {
-                    allowMove = true;
-                    sx = e.x;
-                }
+
+            iphoneMenuDom.addEventListener('mousedown', (e) => {
+                allowMove = true;
+                sx = e.x;
                 iphoneMenuTrackDom.classList.remove('anim')
             })
+            // document.addEventListener('mousedown', (e) => {
+            //     console.log(e);
+            //     if (e.target === iphoneMenuDom) {
+            //         allowMove = true;
+            //         sx = e.x;
+            //     }
+            //     iphoneMenuTrackDom.classList.remove('anim')
+            // })
             document.addEventListener("mousemove", (e) => {
                 if (allowMove) {
                     translateX = e.x - sx + lastTranslateX
@@ -304,7 +310,6 @@
 
             document.addEventListener("mouseup", (e) => {
                 allowMove = false;
-                console.log(translateX);
                 let gridWidth = 343;
                 if (translateX > gridWidth / 2 * -1) translateX = 0
                 else translateX = Math.round(translateX / gridWidth) * gridWidth

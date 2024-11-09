@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./assets/global.css">
+
+
+    <style>
+        .game-container {
+            position: relative;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        .map-container {
+            position: absolute;
+            left: 0;
+            top: 0;
+            background-size: contain;
+        }
+
+        .log-container {
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            height: 50%;
+            width: 500px;
+            background-color: rgba(255, 255, 255, .7);
+            transition: bottom .5s ease-in;
+        }
+
+        .log-container .log-header-title {
+            line-height: 50px;
+            font-size: 20px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .log-container .log-body {
+            margin: 0 20px 20px;
+            height: calc(100% - 70px);
+            overflow-y: auto;
+        }
+
+        .log-container .log-icon-close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+        }
+
+        .log-container.close {
+            bottom: calc(-50% + 50px);
+        }
+
+        .log-container.close .log-icon-close {
+            transform: rotate(180deg);
+        }
+
+
+        .dice-container {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 500px;
+            background-color: rgba(255, 255, 255, .9);
+            transition: bottom .5s ease-in;
+        }
+
+        .dice-container .dice-header-title {
+            line-height: 50px;
+            font-size: 20px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .dice-container .dice-body {
+            margin: 0 20px 20px;
+            overflow-y: auto;
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .dice-container .dice-item {
+            width: 50px;
+            height: 50px;
+            background-repeat: no-repeat;
+            background-size: 100%;
+            margin-bottom: 20px;
+        }
+
+        .dice-container .dice-item:nth-child(n+2) {
+            margin-left: 20px;
+        }
+
+        .dice-container .dice-item-container {
+            display: flex;
+        }
+
+        .dice-container.close {
+            top: -100%;
+        }
+
+        .dice-container .dice-item.hidden {
+            display: none;
+        }
+
+        .game-btn-confirm {
+            display: inline-flex;
+            padding: 0 20px;
+            line-height: 40px;
+            background-color: #2776ec;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .game-btn-confirm:active {
+            opacity: .7;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="game-container">
+        <div class="map-container"></div>
+
+
+        <div class="log-container">
+            <div class="log-header">
+                <div class="log-header-title">
+                    游戏日志
+                </div>
+                <div class="log-icon-close">
+                    <svg t="1731152986974" class="icon" viewBox="0 0 1024 1024" version="1.1"
+                        xmlns="http://www.w3.org/2000/svg" p-id="2631" width="20" height="20">
+                        <path
+                            d="M512.0512 768c3.456 0.042667 6.741333-0.554667 10.112-1.322667 1.450667-0.341333 2.858667-0.554667 4.266667-1.066666 6.954667-2.304 13.525333-5.717333 18.688-11.477334l382.762666-427.178666a42.461867 42.461867 0 0 0-3.754666-60.288c-17.834667-15.573333-45.312-13.909333-61.098667 3.712L512.0512 662.101333l-351.061333-391.722666c-15.786667-17.621333-43.264-19.285333-61.098667-3.712a42.461867 42.461867 0 0 0-3.754667 60.288l382.848 427.178666c5.162667 5.76 11.733333 9.173333 18.688 11.477334 1.408 0.512 2.816 0.725333 4.266667 1.066666 3.370667 0.768 6.656 1.365333 10.112 1.322667"
+                            fill="#515152" p-id="2632"></path>
+                    </svg>
+                </div>
+            </div>
+            <div class="log-body">
+            </div>
+        </div>
+
+        <div class="dice-container close">
+            <div class="dice-header">
+                <div class="dice-header-title">
+                    掷骰子
+                </div>
+            </div>
+            <div class="dice-body">
+                <div class="dice-item-container">
+                    <div class="dice-item"></div>
+                    <div class="dice-item"></div>
+                </div>
+                <div class="game-btn-confirm">开始转动</div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { Maths } from "https://gcore.jsdelivr.net/npm/@3r/tool/lib/maths.js";
+        import { Randoms } from "https://gcore.jsdelivr.net/npm/@3r/tool/lib/randoms.js";
+        /** 
+         * 获取数字
+         * @param {string} str 
+         */
+        function getNumber(str) {
+            return +str.match(/[-\d]{0,}/)[0]
+        }
+
+        /**
+         * 加载图
+         * @param {string} src
+         * @returns {Promise<HTMLImageElement>}
+         */
+        function loadImage(src) {
+            return new Promise((resolve) => {
+                let image = new Image()
+                image.src = src;
+                image.onload = (ev) => {
+                    resolve(image)
+                }
+            })
+        }
+
+        /** 
+         * 拖拽元素
+         * @param {HTMLImageElement} dom
+         * @param {{minX:number,maxX:number,minY:number,maxY:number}} options
+         */
+        function dragging(dom, options) {
+            // 开始坐标位置
+            let startX = 0;
+            let startY = 0;
+            let startLeft = 0;
+            let startTop = 0;
+            let isMove = false;
+
+            dom.addEventListener("mousedown", ev => {
+                startX = ev.x;
+                startY = ev.y;
+                startLeft = getNumber(dom.style.left);
+                startTop = getNumber(dom.style.top);
+                isMove = true;
+            })
+
+            dom.addEventListener("mousemove", ev => {
+                if (!isMove) return;
+                let left = startLeft + ev.x - startX;
+                let top = startTop + ev.y - startY;
+                left = Maths.inRange(left, options.minX, options.maxX)
+                top = Maths.inRange(top, options.minY, options.maxY)
+                dom.style.left = left + 'px';
+                dom.style.top = top + 'px';
+            })
+
+            dom.addEventListener("mouseup", ev => {
+                isMove = false;
+            })
+        }
+
+        /** 
+         * 等待多久 
+         */
+        function wait(ms) {
+            return new Promise((resolve) => {
+                setTimeout(resolve, ms)
+            })
+        }
+        // 日志控件
+        let logContainer = function () {
+            let logContainerDom = document.querySelector('.log-container')
+            let closeDom = logContainerDom.querySelector('.log-icon-close')
+            let logContainerBodyDom = document.querySelector('.log-container .log-body')
+
+            closeDom.addEventListener('click', () => {
+                if (logContainerDom.classList.contains('close'))
+                    logContainerDom.classList.remove('close')
+                else
+                    logContainerDom.classList.add('close')
+            })
+
+            /**
+             * @param {string} str
+             */
+            const log = (str) => {
+                let dom = document.createElement('div')
+                dom.classList.add('log-item')
+                dom.textContent = str
+                logContainerBodyDom.appendChild(dom)
+                logContainerBodyDom.scrollTop = Number.MAX_SAFE_INTEGER;
+            }
+
+            return {
+                log
+            }
+        }();
+
+        // 骰子控件
+        let diceContainer = await async function () {
+            const numUrls = [
+                './assets/monopoly/1.png',
+                './assets/monopoly/2.png',
+                './assets/monopoly/3.png',
+                './assets/monopoly/4.png',
+                './assets/monopoly/5.png',
+                './assets/monopoly/6.png',
+            ]
+            const numImages = await Promise.all(numUrls.map(u => loadImage(u)))
+            /** @type {HTMLDivElement} */
+            const diceContainerDom = document.querySelector('.dice-container')
+            /** @type {HTMLDivElement} */
+            const diceItemContainerDom = document.querySelector('.dice-item-container')
+            /** @type {HTMLDivElement} */
+            const confirmDom = diceContainerDom.querySelector('.game-btn-confirm')
+            /** 
+             * 回调函数
+             * @param {number} total
+             */
+            let cb = (total) => { }
+
+            confirmDom.addEventListener("click", async () => {
+                // 执行🎲
+                const diceItemDomList = diceItemContainerDom.querySelectorAll('.dice-item:not(.hidden)')
+                // 结果
+                const result = {}
+                // 循环15次约等于1.5s
+                for (let i = 0; i < 15; i++) {
+                    await wait(100);
+                    for (let j = 0; j < diceItemDomList.length; j++) {
+                        /** @type {HTMLDivElement} */
+                        const diceItemDom = diceItemDomList.item(j);
+                        const val = Randoms.int(0, 6)
+                        diceItemDom.style.backgroundImage = `url(${numImages[val].src})`
+                        result[j] = val + 1
+                    }
+                }
+                const total = Maths.sum(Object.values(result))
+                cb?.(total)
+            })
+            /**
+             * @param {number} count
+             * @param {(total: number) => void} callback
+             */
+            const open = (count, callback) => {
+                cb = callback
+                for (let i = 0; i < diceItemContainerDom.children.length; i++) {
+                    const dom = diceItemContainerDom.children.item(i)
+                    dom.classList.add('hidden')
+                }
+                for (let i = 0; i < count; i++) {
+                    /** @type {HTMLDivElement} */
+                    const dom = diceItemContainerDom.children.item(i)
+                    dom.classList.remove('hidden')
+                    dom.style.backgroundImage = `url(${numImages[0].src})`
+                }
+                diceContainerDom.classList.remove('close')
+            }
+
+            const close = () => {
+                diceContainerDom.classList.add('close')
+            }
+            return {
+                open,
+                close
+            }
+        }()
+
+        /** @type {HTMLDivElement} */
+        let mapContainerDom = document.querySelector('.map-container')
+
+
+        // 初始化游戏内容
+        async function initGame() {
+            let screenWidth = document.body.clientWidth
+            let screenHeight = document.body.clientHeight
+            // 初始日志框
+            logContainer.log("游戏日志框初始化完成")
+            // 加载图片背景
+            let mapImage = await loadImage('./assets/monopoly-life/map.jpg')
+            mapContainerDom.style.backgroundImage = `url(${mapImage.src})`
+            mapContainerDom.style.width = mapImage.width / 2 + 'px'
+            mapContainerDom.style.height = mapImage.height / 2 + 'px'
+            // 溢出距离
+            let overflowDistance = 100
+            dragging(mapContainerDom, { minX: -mapImage.width / 2 + screenWidth - overflowDistance, maxX: 0 + overflowDistance, minY: -mapImage.height / 2 + screenHeight - overflowDistance, maxY: 0 + overflowDistance })
+            logContainer.log("游戏加载图片背景完成")
+            // 掷骰子
+            diceContainer.open(1, (total) => {
+                // 执行事件
+                logContainer.log(`XXX 掷得 ${total} 点`)
+                // 
+            })
+
+            // 
+        }
+
+        initGame();
+
+    </script>
+</body>
+
+</html>
