@@ -14,6 +14,7 @@
             overflow: hidden;
             width: 100vw;
             height: 100vh;
+            user-select: none;
         }
 
         .map-container {
@@ -81,7 +82,6 @@
         .dice-container .dice-body {
             margin: 0 20px 20px;
             overflow-y: auto;
-
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -111,6 +111,63 @@
             display: none;
         }
 
+
+        .role-container {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(255, 255, 255, .9);
+            transition: bottom .5s ease-in;
+        }
+
+        .role-container .role-header-title {
+            line-height: 50px;
+            font-size: 20px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .role-container .role-body {
+            margin: 0 20px 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .role-container .role-item-container {
+            display: flex;
+        }
+
+        .role-container .role-item {
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            margin: 20px 10px;
+        }
+
+        .role-container .role-item.active {
+            background-color: #2776ec2f;
+        }
+
+        .role-container .role-item-name {
+            margin-top: 10px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .role-container .role-item-avatar {
+            height: 60px;
+            width: 60px;
+            border-radius: 50%;
+            background-size: contain;
+        }
+
+        .role-container.close {
+            display: none;
+        }
+
         .game-btn-confirm {
             display: inline-flex;
             padding: 0 20px;
@@ -129,8 +186,6 @@
 <body>
     <div class="game-container">
         <div class="map-container"></div>
-
-
         <div class="log-container">
             <div class="log-header">
                 <div class="log-header-title">
@@ -148,7 +203,6 @@
             <div class="log-body">
             </div>
         </div>
-
         <div class="dice-container close">
             <div class="dice-header">
                 <div class="dice-header-title">
@@ -163,9 +217,23 @@
                 <div class="game-btn-confirm">开始转动</div>
             </div>
         </div>
+        <div class="role-container close">
+            <div class="role-header">
+                <div class="role-header-title">
+                    角色选择
+                </div>
+            </div>
+            <div class="role-body">
+                <div class="role-item-container"></div>
+                <div class="game-btn-confirm">确认选择</div>
+            </div>
+        </div>
+
+
     </div>
 
     <script type="module">
+
         import { Maths } from "https://gcore.jsdelivr.net/npm/@3r/tool/lib/maths.js";
         import { Randoms } from "https://gcore.jsdelivr.net/npm/@3r/tool/lib/randoms.js";
         /** 
@@ -258,7 +326,7 @@
                 logContainerBodyDom.appendChild(dom)
                 logContainerBodyDom.scrollTop = Number.MAX_SAFE_INTEGER;
             }
-
+            log("日志框初始化完成")
             return {
                 log
             }
@@ -324,7 +392,7 @@
                 }
                 diceContainerDom.classList.remove('close')
             }
-
+            logContainer.log("骰子控件加载完成")
             const close = () => {
                 diceContainerDom.classList.add('close')
             }
@@ -334,6 +402,86 @@
             }
         }()
 
+        // 角色控件
+        let roleContainer = await async function () {
+            const roleList = [
+                {
+                    name: '小黑',
+                    avatar: './assets/monopoly/black.jpg',
+                    color: 'black'
+                },
+                {
+                    name: '小红',
+                    avatar: './assets/monopoly/red.jpg',
+                    color: 'red'
+                },
+                {
+                    name: '小黄',
+                    avatar: './assets/monopoly/yellow.jpg',
+                    color: 'yellow'
+                },
+                {
+                    name: '小蓝',
+                    avatar: './assets/monopoly/blue.jpg',
+                    color: 'blue'
+                }
+            ]
+            await Promise.all(roleList.map(r => loadImage(r.avatar)))
+
+            const roleContainerDom = document.querySelector('.role-container')
+            const roleItemContainerDom = roleContainerDom.querySelector('.role-item-container')
+            /** @type {HTMLDivElement} */
+            const confirmDom = roleContainerDom.querySelector('.game-btn-confirm')
+
+            for (let i = 0; i < roleList.length; i++) {
+                const role = roleList[i];
+                const dom = document.createElement('div')
+                dom.classList.add('role-item')
+                dom.classList.add('active')
+                const avatarDom = document.createElement('div')
+                avatarDom.classList.add('role-item-avatar')
+                avatarDom.style.backgroundImage = `url(${role.avatar})`
+                const nameDom = document.createElement('div')
+                nameDom.classList.add('role-item-name')
+                nameDom.textContent = role.name
+                dom.appendChild(avatarDom)
+                dom.appendChild(nameDom)
+                dom.addEventListener('click', function () {
+                    if (dom.classList.contains('active')) {
+                        if (roleItemContainerDom.querySelectorAll('.role-item.active').length < 3) return
+                        dom.classList.remove('active')
+                    }
+                    else {
+                        dom.classList.add('active')
+                    }
+                })
+                roleItemContainerDom.appendChild(dom)
+            }
+
+            let cb = (roles) => { }
+            // let roles = roleItemContainerDom.querySelectorAll()
+            confirmDom.addEventListener("click", () => {
+                console.log('选中角色');
+
+
+                cb?.();
+            })
+            logContainer.log('角色控件加载完成')
+            /**
+             * @param {(roles:[])=>{}} callback
+             */
+            const open = (callback) => {
+                cb = callback
+                roleContainerDom.classList.remove('close')
+            }
+            return {
+                open
+            }
+        }()
+
+
+
+
         /** @type {HTMLDivElement} */
         let mapContainerDom = document.querySelector('.map-container')
 
@@ -342,8 +490,6 @@
         async function initGame() {
             let screenWidth = document.body.clientWidth
             let screenHeight = document.body.clientHeight
-            // 初始日志框
-            logContainer.log("游戏日志框初始化完成")
             // 加载图片背景
             let mapImage = await loadImage('./assets/monopoly-life/map.jpg')
             mapContainerDom.style.backgroundImage = `url(${mapImage.src})`
@@ -352,15 +498,24 @@
             // 溢出距离
             let overflowDistance = 100
             dragging(mapContainerDom, { minX: -mapImage.width / 2 + screenWidth - overflowDistance, maxX: 0 + overflowDistance, minY: -mapImage.height / 2 + screenHeight - overflowDistance, maxY: 0 + overflowDistance })
-            logContainer.log("游戏加载图片背景完成")
-            // 掷骰子
-            diceContainer.open(1, (total) => {
-                // 执行事件
-                logContainer.log(`XXX 掷得 ${total} 点`)
-                // 
-            })
+            logContainer.log("加载地图背景完成")
 
+
+
+
+
+            // 掷骰子
+            // diceContainer.open(1, (total) => {
+            //     // 执行事件
+            //     logContainer.log(`XXX 掷得 ${total} 点`)
+            //     // 
+            // }) 
             // 
+
+            // 选择角色
+            roleContainer.open((roles) => {
+                console.log(roles);
+            })
         }
 
         initGame();
