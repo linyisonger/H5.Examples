@@ -168,6 +168,28 @@
             display: none;
         }
 
+
+        .players-container {
+            display: flex;
+        }
+
+        .players-container .player-item {
+            display: flex;
+        }
+
+        .players-container .player-base-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .players-container .player-base-info>div {
+            display: flex;
+        }
+
+        .players-container .player-base-info>div>.player-icon {
+            margin-right: 10px;
+        }
+
         .game-btn-confirm {
             display: inline-flex;
             padding: 0 20px;
@@ -192,12 +214,7 @@
                     游戏日志
                 </div>
                 <div class="log-icon-close">
-                    <svg t="1731152986974" class="icon" viewBox="0 0 1024 1024" version="1.1"
-                        xmlns="http://www.w3.org/2000/svg" p-id="2631" width="20" height="20">
-                        <path
-                            d="M512.0512 768c3.456 0.042667 6.741333-0.554667 10.112-1.322667 1.450667-0.341333 2.858667-0.554667 4.266667-1.066666 6.954667-2.304 13.525333-5.717333 18.688-11.477334l382.762666-427.178666a42.461867 42.461867 0 0 0-3.754666-60.288c-17.834667-15.573333-45.312-13.909333-61.098667 3.712L512.0512 662.101333l-351.061333-391.722666c-15.786667-17.621333-43.264-19.285333-61.098667-3.712a42.461867 42.461867 0 0 0-3.754667 60.288l382.848 427.178666c5.162667 5.76 11.733333 9.173333 18.688 11.477334 1.408 0.512 2.816 0.725333 4.266667 1.066666 3.370667 0.768 6.656 1.365333 10.112 1.322667"
-                            fill="#515152" p-id="2632"></path>
-                    </svg>
+                    <object data="./assets/monopoly-life/arrow.svg"></object>
                 </div>
             </div>
             <div class="log-body">
@@ -228,7 +245,37 @@
                 <div class="game-btn-confirm">确认选择</div>
             </div>
         </div>
-
+        <div class="players-container">
+            <div class="player-item">
+                <div class="player-avatar"></div>
+                <div class="player-base-info">
+                    <div class="player-riches">
+                        <div class="player-icon">
+                            <object data="./assets/monopoly-life/riches.svg"></object>
+                        </div>
+                        <div>5000</div>
+                    </div>
+                    <div class="player-salary">
+                        <div class="player-icon">
+                            <object data="./assets/monopoly-life/salary.svg"></object>
+                        </div>
+                        <div>2000</div>
+                    </div>
+                    <div class="player-repute">
+                        <div class="player-icon">
+                            <object data="./assets/monopoly-life/repute.svg"></object>
+                        </div>
+                        <div>0</div>
+                    </div>
+                    <div class="player-happy">
+                        <div class="player-icon">
+                            <object data="./assets/monopoly-life/happy.svg"></object>
+                        </div>
+                        <div>0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
     </div>
 
@@ -303,6 +350,70 @@
                 setTimeout(resolve, ms)
             })
         }
+
+        class Role {
+            name = ''
+            avatar = ''
+            color = ''
+            targetRiches = 0
+            targetRepute = 0;
+            targetHapply = 0
+            /**
+             * @param {Role} role
+             */
+            constructor(role) {
+                for (const key in role) {
+                    this[key] = role[key]
+                }
+            }
+        }
+
+        class Player extends Role {
+            /** 财富 */
+            riches = 5000
+            /** 薪水 */
+            salary = 2000
+            /** 声望 */
+            repute = 0;
+            /** 幸福 */
+            happy = 0;
+            /**
+             * @param {Player} player
+             */
+            constructor(player) {
+                super(player)
+                for (const key in player) {
+                    this[key] = role[key]
+                }
+            }
+        }
+
+
+        console.log(new Player({}));
+
+        // 玩家控件
+        let playerContainer = function () {
+
+            let players = []
+
+            /**
+             * @param {Role[]} roles
+             */
+            let join = (roles) => {
+                players = roles.map(r => new Player(r))
+            }
+
+            let upd = () => {
+
+            }
+
+            return {
+                join
+            }
+        }();
+
+
+
         // 日志控件
         let logContainer = function () {
             let logContainerDom = document.querySelector('.log-container')
@@ -405,26 +516,26 @@
         // 角色控件
         let roleContainer = await async function () {
             const roleList = [
-                {
+                new Role({
                     name: '小黑',
                     avatar: './assets/monopoly/black.jpg',
                     color: 'black'
-                },
-                {
+                }),
+                new Role({
                     name: '小红',
                     avatar: './assets/monopoly/red.jpg',
                     color: 'red'
-                },
-                {
+                }),
+                new Role({
                     name: '小黄',
                     avatar: './assets/monopoly/yellow.jpg',
                     color: 'yellow'
-                },
-                {
+                }),
+                new Role({
                     name: '小蓝',
                     avatar: './assets/monopoly/blue.jpg',
                     color: 'blue'
-                }
+                })
             ]
             await Promise.all(roleList.map(r => loadImage(r.avatar)))
 
@@ -462,8 +573,6 @@
             // let roles = roleItemContainerDom.querySelectorAll()
             confirmDom.addEventListener("click", () => {
                 console.log('选中角色');
-
-
                 cb?.();
             })
             logContainer.log('角色控件加载完成')
@@ -479,12 +588,8 @@
             }
         }()
 
-
-
-
         /** @type {HTMLDivElement} */
         let mapContainerDom = document.querySelector('.map-container')
-
 
         // 初始化游戏内容
         async function initGame() {
@@ -492,16 +597,14 @@
             let screenHeight = document.body.clientHeight
             // 加载图片背景
             let mapImage = await loadImage('./assets/monopoly-life/map.jpg')
-            mapContainerDom.style.backgroundImage = `url(${mapImage.src})`
+            // mapContainerDom.style.backgroundImage = `url(${mapImage.src})`
             mapContainerDom.style.width = mapImage.width / 2 + 'px'
             mapContainerDom.style.height = mapImage.height / 2 + 'px'
             // 溢出距离
             let overflowDistance = 100
             dragging(mapContainerDom, { minX: -mapImage.width / 2 + screenWidth - overflowDistance, maxX: 0 + overflowDistance, minY: -mapImage.height / 2 + screenHeight - overflowDistance, maxY: 0 + overflowDistance })
+
             logContainer.log("加载地图背景完成")
-
-
-
 
 
             // 掷骰子
@@ -513,9 +616,9 @@
             // 
 
             // 选择角色
-            roleContainer.open((roles) => {
-                console.log(roles);
-            })
+            // roleContainer.open((roles) => {
+            //     console.log(roles);
+            // })
         }
 
         initGame();
