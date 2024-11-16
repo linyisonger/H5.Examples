@@ -9,6 +9,10 @@
 
 
     <style>
+        body {
+            height: 100vh;
+        }
+
         .game-container {
             position: relative;
             overflow: hidden;
@@ -117,8 +121,10 @@
             left: 50%;
             top: 50%;
             transform: translate(-50%, -50%);
-            background-color: rgba(255, 255, 255, .9);
-            transition: bottom .5s ease-in;
+            background-color: rgba(255, 255, 255, 1);
+            width: 600px;
+            height: 415px;
+            transition: top 1.5s linear;
         }
 
         .role-container .role-header-title {
@@ -134,14 +140,20 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            overflow-x: hidden;
         }
 
         .role-container .role-item-container {
             display: flex;
+            width: 100%;
+            justify-content: space-between;
         }
 
         .role-container .role-item {
             display: flex;
+            flex: 1;
+            justify-content: center;
+            align-items: center;
             flex-direction: column;
             padding: 20px;
             margin: 20px 10px;
@@ -164,17 +176,84 @@
             background-size: contain;
         }
 
+        .role-container .target-item-container {
+            display: flex;
+            width: 100%;
+            padding-bottom: 20px;
+        }
+
+        .role-container .target-item {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            align-items: center;
+        }
+
+        .role-container .target-item input {
+            width: 70px;
+            outline: none;
+            border-top: 0;
+            border-left: 0;
+            border-right: 0;
+            border-width: 1px;
+            border-color: #2e2e2e;
+            background-color: transparent;
+            margin-left: 5px;
+            text-align: center;
+        }
+
+        .role-container .target-item.error input {
+            border-color: #cc0000;
+        }
+
+        .role-container .target-item.valid input {
+            border-color: #00cc00;
+        }
+
+
+        .role-container .target-item-content {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .role-container .target-hint {
+            width: 100%;
+            font-size: 14px;
+            margin-bottom: 20px;
+            margin-left: 20px;
+        }
+
+
+
         .role-container.close {
-            display: none;
+            top: -100%;
         }
 
 
         .players-container {
             display: flex;
+            position: absolute;
+            top: 0px;
+            right: 0;
+            background-color: #ffffffcc;
         }
 
         .players-container .player-item {
             display: flex;
+            padding: 10px 10px 10px 20px;
+            width: 228px;
+            height: 120px;
+            align-items: center;
+            box-sizing: border-box;
+        }
+
+        .players-container .player-avatar {
+            margin: 10px;
+            width: 60px;
+            height: 60px;
+            background-size: contain;
+            border-radius: 50%;
         }
 
         .players-container .player-base-info {
@@ -190,6 +269,11 @@
             margin-right: 10px;
         }
 
+        .players-container.close {
+            transform: 0;
+        }
+
+
         .game-btn-confirm {
             display: inline-flex;
             padding: 0 20px;
@@ -202,83 +286,14 @@
         .game-btn-confirm:active {
             opacity: .7;
         }
+
+        object {
+            pointer-events: none;
+        }
     </style>
 </head>
 
 <body>
-    <div class="game-container">
-        <div class="map-container"></div>
-        <div class="log-container">
-            <div class="log-header">
-                <div class="log-header-title">
-                    游戏日志
-                </div>
-                <div class="log-icon-close">
-                    <object data="./assets/monopoly-life/arrow.svg"></object>
-                </div>
-            </div>
-            <div class="log-body">
-            </div>
-        </div>
-        <div class="dice-container close">
-            <div class="dice-header">
-                <div class="dice-header-title">
-                    掷骰子
-                </div>
-            </div>
-            <div class="dice-body">
-                <div class="dice-item-container">
-                    <div class="dice-item"></div>
-                    <div class="dice-item"></div>
-                </div>
-                <div class="game-btn-confirm">开始转动</div>
-            </div>
-        </div>
-        <div class="role-container close">
-            <div class="role-header">
-                <div class="role-header-title">
-                    角色选择
-                </div>
-            </div>
-            <div class="role-body">
-                <div class="role-item-container"></div>
-                <div class="game-btn-confirm">确认选择</div>
-            </div>
-        </div>
-        <div class="players-container">
-            <div class="player-item">
-                <div class="player-avatar"></div>
-                <div class="player-base-info">
-                    <div class="player-riches">
-                        <div class="player-icon">
-                            <object data="./assets/monopoly-life/riches.svg"></object>
-                        </div>
-                        <div>5000</div>
-                    </div>
-                    <div class="player-salary">
-                        <div class="player-icon">
-                            <object data="./assets/monopoly-life/salary.svg"></object>
-                        </div>
-                        <div>2000</div>
-                    </div>
-                    <div class="player-repute">
-                        <div class="player-icon">
-                            <object data="./assets/monopoly-life/repute.svg"></object>
-                        </div>
-                        <div>0</div>
-                    </div>
-                    <div class="player-happy">
-                        <div class="player-icon">
-                            <object data="./assets/monopoly-life/happy.svg"></object>
-                        </div>
-                        <div>0</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-    </div>
-
     <script type="module">
 
         import { Maths } from "https://gcore.jsdelivr.net/npm/@3r/tool/lib/maths.js";
@@ -351,6 +366,19 @@
             })
         }
 
+
+        /**
+         * 创建容器
+         * @param {string} html 
+         */
+        function createFragment(html) {
+            const fragment = document.createDocumentFragment();
+            const div = document.createElement("div");
+            div.innerHTML = html;
+            fragment.appendChild(div.children.item(0))
+            return fragment;
+        }
+
         class Role {
             name = ''
             avatar = ''
@@ -383,24 +411,62 @@
             constructor(player) {
                 super(player)
                 for (const key in player) {
-                    this[key] = role[key]
+                    this[key] = player[key]
                 }
             }
         }
 
-
-        console.log(new Player({}));
-
         // 玩家控件
-        let playerContainer = function () {
-
+        const playerContainer = function () {
+            const template = `
+                <div class="players-container close"></div>
+            `
+            const fragment = createFragment(template)
+            const playerContainerDom = fragment.querySelector('.players-container')
             let players = []
-
             /**
              * @param {Role[]} roles
              */
-            let join = (roles) => {
+            let join = async (roles) => {
                 players = roles.map(r => new Player(r))
+
+                for (const player of players) {
+                    let playerItemTemplate = `
+                        <div class="player-item">
+                            <div class="player-avatar" style="background-image:url(${player.avatar})"></div>
+                            <div class="player-base-info">
+                                <div class="player-riches">
+                                    <div class="player-icon">
+                                        <object data="./assets/monopoly-life/riches.svg"></object>
+                                    </div>
+                                    <div>${player.riches}</div>
+                                </div>
+                                <div class="player-salary">
+                                    <div class="player-icon">
+                                        <object data="./assets/monopoly-life/salary.svg"></object>
+                                    </div>
+                                    <div>${player.salary}</div>
+                                </div>
+                                <div class="player-repute">
+                                    <div class="player-icon">
+                                        <object data="./assets/monopoly-life/repute.svg"></object>
+                                    </div>
+                                    <div>${player.repute}</div>
+                                </div>
+                                <div class="player-happy">
+                                    <div class="player-icon">
+                                        <object data="./assets/monopoly-life/happy.svg"></object>
+                                    </div>
+                                    <div>${player.happy}</div>
+                                </div>
+                            </div>
+                        </div>
+                    `
+                    let playerFragment = createFragment(playerItemTemplate)
+                    playerContainerDom.appendChild(playerFragment)
+                }
+                // await wait(300);
+                playerContainerDom.classList.remove('close')
             }
 
             let upd = () => {
@@ -408,23 +474,35 @@
             }
 
             return {
+                fragment,
                 join
             }
         }();
 
-
-
         // 日志控件
-        let logContainer = function () {
-            let logContainerDom = document.querySelector('.log-container')
-            let closeDom = logContainerDom.querySelector('.log-icon-close')
-            let logContainerBodyDom = document.querySelector('.log-container .log-body')
+        const logContainer = function () {
+            const template = `
+                <div class="log-container">
+                    <div class="log-header">
+                        <div class="log-header-title">
+                            游戏日志
+                        </div>
+                        <div class="log-icon-close">
+                            <object data="./assets/monopoly-life/arrow.svg"></object>
+                        </div>
+                    </div>
+                    <div class="log-body">
+                    </div>
+                </div>
+            `
+            const fragment = createFragment(template)
+            const logContainerDom = fragment.querySelector('.log-container')
+            const closeDom = logContainerDom.querySelector('.log-icon-close')
+            const logContainerBodyDom = logContainerDom.querySelector('.log-body')
 
             closeDom.addEventListener('click', () => {
-                if (logContainerDom.classList.contains('close'))
-                    logContainerDom.classList.remove('close')
-                else
-                    logContainerDom.classList.add('close')
+                console.log('点击关闭按钮');
+                logContainerDom.classList.toggle('close')
             })
 
             /**
@@ -439,12 +517,31 @@
             }
             log("日志框初始化完成")
             return {
+                fragment,
                 log
             }
         }();
 
         // 骰子控件
-        let diceContainer = await async function () {
+        const diceContainer = await async function () {
+
+            const template = `
+                <div class="dice-container close">
+                    <div class="dice-header">
+                        <div class="dice-header-title">
+                            掷骰子
+                        </div>
+                    </div>
+                    <div class="dice-body">
+                        <div class="dice-item-container">
+                            <div class="dice-item"></div>
+                            <div class="dice-item"></div>
+                        </div>
+                        <div class="game-btn-confirm">开始转动</div>
+                    </div>
+                </div>
+            `
+            const fragment = createFragment(template)
             const numUrls = [
                 './assets/monopoly/1.png',
                 './assets/monopoly/2.png',
@@ -455,9 +552,9 @@
             ]
             const numImages = await Promise.all(numUrls.map(u => loadImage(u)))
             /** @type {HTMLDivElement} */
-            const diceContainerDom = document.querySelector('.dice-container')
+            const diceContainerDom = fragment.querySelector('.dice-container')
             /** @type {HTMLDivElement} */
-            const diceItemContainerDom = document.querySelector('.dice-item-container')
+            const diceItemContainerDom = fragment.querySelector('.dice-item-container')
             /** @type {HTMLDivElement} */
             const confirmDom = diceContainerDom.querySelector('.game-btn-confirm')
             /** 
@@ -484,6 +581,8 @@
                 }
                 const total = Maths.sum(Object.values(result))
                 cb?.(total)
+
+
             })
             /**
              * @param {number} count
@@ -504,17 +603,20 @@
                 diceContainerDom.classList.remove('close')
             }
             logContainer.log("骰子控件加载完成")
+
             const close = () => {
                 diceContainerDom.classList.add('close')
             }
+
             return {
+                fragment,
                 open,
                 close
             }
         }()
 
         // 角色控件
-        let roleContainer = await async function () {
+        const roleContainer = await async function () {
             const roleList = [
                 new Role({
                     name: '小黑',
@@ -538,25 +640,61 @@
                 })
             ]
             await Promise.all(roleList.map(r => loadImage(r.avatar)))
-
-            const roleContainerDom = document.querySelector('.role-container')
-            const roleItemContainerDom = roleContainerDom.querySelector('.role-item-container')
-            /** @type {HTMLDivElement} */
-            const confirmDom = roleContainerDom.querySelector('.game-btn-confirm')
-
+            let roleItemHtml = ``
+            let targetItemHtml = ``
             for (let i = 0; i < roleList.length; i++) {
                 const role = roleList[i];
-                const dom = document.createElement('div')
-                dom.classList.add('role-item')
-                dom.classList.add('active')
-                const avatarDom = document.createElement('div')
-                avatarDom.classList.add('role-item-avatar')
-                avatarDom.style.backgroundImage = `url(${role.avatar})`
-                const nameDom = document.createElement('div')
-                nameDom.classList.add('role-item-name')
-                nameDom.textContent = role.name
-                dom.appendChild(avatarDom)
-                dom.appendChild(nameDom)
+                roleItemHtml += `
+                    <div class="role-item active">
+                        <div class="role-item-avatar" style="background-image:url(${role.avatar})"></div>
+                        <div class="role-item-name">${role.name}</div>
+                    </div> 
+                `
+
+                targetItemHtml += `
+                    <div class="target-item">
+                        <div class="target-item-content">
+                            <object data="./assets/monopoly-life/riches.svg"></object>
+                            <input type="number" placeholder="财富" max="60" min="0" step="1"/>
+                        </div>
+                        <div class="target-item-content">
+                            <object data="./assets/monopoly-life/repute.svg"></object>
+                            <input type="number" placeholder="名誉" max="60" min="0" step="1"/>
+                        </div>
+                        <div class="target-item-content">
+                            <object data="./assets/monopoly-life/happy.svg"></object>
+                            <input type="number" placeholder="快乐" max="60" min="0" step="1"/>
+                        </div>
+                    </div>
+                `
+            }
+
+            const template = `
+                <div class="role-container close">
+                    <div class="role-header">
+                        <div class="role-header-title">
+                            角色选择
+                        </div>
+                    </div>
+                    <div class="role-body">
+                        <div class="role-item-container">
+                            ${roleItemHtml}
+                        </div>
+                        <div class="target-item-container">
+                            ${targetItemHtml}
+                        </div>
+                        <div class="target-hint">
+                            输入财富、名誉、快乐的预定目标，财富1000元为1分，三项目标加起来必须刚好60分。
+                        </div>
+                        <div class="game-btn-confirm">确认选择</div>
+                    </div>
+                </div>
+            `
+            const fragment = createFragment(template)
+            const roleContainerDom = fragment.querySelector('.role-container')
+            const roleItemContainerDom = roleContainerDom.querySelector('.role-item-container')
+            const targetItemContainerDom = roleContainerDom.querySelector('.target-item-container')
+            roleItemContainerDom.querySelectorAll('.role-item').forEach((dom) => {
                 dom.addEventListener('click', function () {
                     if (dom.classList.contains('active')) {
                         if (roleItemContainerDom.querySelectorAll('.role-item.active').length < 3) return
@@ -566,14 +704,47 @@
                         dom.classList.add('active')
                     }
                 })
-                roleItemContainerDom.appendChild(dom)
-            }
+            })
 
+            /** @type {HTMLDivElement} */
+            const confirmDom = roleContainerDom.querySelector('.game-btn-confirm')
             let cb = (roles) => { }
-            // let roles = roleItemContainerDom.querySelectorAll()
             confirmDom.addEventListener("click", () => {
                 console.log('选中角色');
-                cb?.();
+                let selected = []
+                let roles = roleItemContainerDom.querySelectorAll('.role-item')
+                let targets = targetItemContainerDom.querySelectorAll('.target-item')
+                let valid = true
+                roles.forEach((role, roleIndex) => {
+                    let target = targets.item(roleIndex)
+                    target.classList.remove('error')
+                    target.classList.remove('valid')
+                    if (role.classList.contains('active')) {
+                        let inputs = target.querySelectorAll('input')
+                        let targetRiches = +inputs.item(0).value
+                        let targetRepute = +inputs.item(1).value
+                        let targetHapply = +inputs.item(2).value
+                        selected.push(new Role({
+                            ...roleList[roleIndex],
+                            targetRiches,
+                            targetRepute,
+                            targetHapply
+                        }))
+                        if (targetRiches + targetRepute + targetHapply != 60) {
+                            target.classList.add('error')
+                            valid = false;
+                        }
+                        else {
+                            target.classList.add('valid')
+                            valid = true
+                        }
+                    }
+                })
+
+                if (valid) {
+                    cb?.(selected);
+                }
+
             })
             logContainer.log('角色控件加载完成')
             /**
@@ -584,28 +755,49 @@
                 roleContainerDom.classList.remove('close')
             }
             return {
+                fragment,
                 open
             }
         }()
 
-        /** @type {HTMLDivElement} */
-        let mapContainerDom = document.querySelector('.map-container')
+        // 地图控件
+        const mapContainer = await async function () {
+            let template = `
+                <div class="map-container"></div>
+            `;
+            let fragment = createFragment(template)
 
-        // 初始化游戏内容
-        async function initGame() {
+
+            /** @type {HTMLDivElement} */
+            let mapContainerDom = fragment.querySelector('.map-container')
             let screenWidth = document.body.clientWidth
             let screenHeight = document.body.clientHeight
+            console.log(screenHeight);
             // 加载图片背景
             let mapImage = await loadImage('./assets/monopoly-life/map.jpg')
-            // mapContainerDom.style.backgroundImage = `url(${mapImage.src})`
+            mapContainerDom.style.backgroundImage = `url(${mapImage.src})`
             mapContainerDom.style.width = mapImage.width / 2 + 'px'
             mapContainerDom.style.height = mapImage.height / 2 + 'px'
             // 溢出距离
             let overflowDistance = 100
             dragging(mapContainerDom, { minX: -mapImage.width / 2 + screenWidth - overflowDistance, maxX: 0 + overflowDistance, minY: -mapImage.height / 2 + screenHeight - overflowDistance, maxY: 0 + overflowDistance })
-
             logContainer.log("加载地图背景完成")
+            return {
+                fragment
+            }
+        }()
 
+        // 初始化游戏内容
+        async function initGame() {
+            let gameContainerDom = document.createElement('div')
+            gameContainerDom.classList.add('game-container')
+            document.body.appendChild(gameContainerDom)
+
+            gameContainerDom.appendChild(mapContainer.fragment)
+            gameContainerDom.appendChild(logContainer.fragment)
+            gameContainerDom.appendChild(diceContainer.fragment)
+            gameContainerDom.appendChild(roleContainer.fragment)
+            gameContainerDom.appendChild(playerContainer.fragment)
 
             // 掷骰子
             // diceContainer.open(1, (total) => {
@@ -619,6 +811,24 @@
             // roleContainer.open((roles) => {
             //     console.log(roles);
             // })
+            playerContainer.join([
+                {
+                    "name": "小黑",
+                    "avatar": "./assets/monopoly/black.jpg",
+                    "color": "black",
+                    "targetRiches": 60,
+                    "targetRepute": 0,
+                    "targetHapply": 0
+                },
+                {
+                    "name": "小红",
+                    "avatar": "./assets/monopoly/red.jpg",
+                    "color": "red",
+                    "targetRiches": 60,
+                    "targetRepute": 0,
+                    "targetHapply": 0
+                }
+            ])
         }
 
         initGame();
