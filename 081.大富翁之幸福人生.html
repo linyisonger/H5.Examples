@@ -35,7 +35,6 @@
             height: 50%;
             width: 500px;
             background-color: rgba(255, 255, 255, .7);
-            transition: bottom .5s ease-in;
         }
 
         .log-container .log-header-title {
@@ -73,7 +72,6 @@
             transform: translate(-50%, -50%);
             width: 500px;
             background-color: rgba(255, 255, 255, .9);
-            transition: bottom .5s ease-in;
         }
 
         .dice-container .dice-header-title {
@@ -124,7 +122,6 @@
             background-color: rgba(255, 255, 255, 1);
             width: 600px;
             height: 415px;
-            transition: top 1.5s linear;
         }
 
         .role-container .role-header-title {
@@ -437,25 +434,25 @@
                             <div class="player-base-info">
                                 <div class="player-riches">
                                     <div class="player-icon">
-                                        <object data="./assets/monopoly-life/riches.svg"></object>
+                                        <img src="./assets/monopoly-life/riches.svg" /> 
                                     </div>
                                     <div>${player.riches}</div>
                                 </div>
                                 <div class="player-salary">
                                     <div class="player-icon">
-                                        <object data="./assets/monopoly-life/salary.svg"></object>
+                                        <img src="./assets/monopoly-life/salary.svg" />  
                                     </div>
                                     <div>${player.salary}</div>
                                 </div>
                                 <div class="player-repute">
                                     <div class="player-icon">
-                                        <object data="./assets/monopoly-life/repute.svg"></object>
+                                        <img src="./assets/monopoly-life/repute.svg" />   
                                     </div>
                                     <div>${player.repute}</div>
                                 </div>
                                 <div class="player-happy">
                                     <div class="player-icon">
-                                        <object data="./assets/monopoly-life/happy.svg"></object>
+                                        <img src="./assets/monopoly-life/happy.svg" /> 
                                     </div>
                                     <div>${player.happy}</div>
                                 </div>
@@ -488,7 +485,7 @@
                             游戏日志
                         </div>
                         <div class="log-icon-close">
-                            <object data="./assets/monopoly-life/arrow.svg"></object>
+                            <img src="./assets/monopoly-life/arrow.svg" />  
                         </div>
                     </div>
                     <div class="log-body">
@@ -654,15 +651,15 @@
                 targetItemHtml += `
                     <div class="target-item">
                         <div class="target-item-content">
-                            <object data="./assets/monopoly-life/riches.svg"></object>
+                            <img src="./assets/monopoly-life/riches.svg" />   
                             <input type="number" placeholder="财富" max="60" min="0" step="1"/>
                         </div>
                         <div class="target-item-content">
-                            <object data="./assets/monopoly-life/repute.svg"></object>
+                            <img src="./assets/monopoly-life/repute.svg" />   
                             <input type="number" placeholder="名誉" max="60" min="0" step="1"/>
                         </div>
                         <div class="target-item-content">
-                            <object data="./assets/monopoly-life/happy.svg"></object>
+                            <img src="./assets/monopoly-life/happy.svg" />   
                             <input type="number" placeholder="快乐" max="60" min="0" step="1"/>
                         </div>
                     </div>
@@ -786,6 +783,10 @@
                 fragment
             }
         }()
+
+        // 地块控件 
+
+
 
         // 初始化游戏内容
         async function initGame() {
