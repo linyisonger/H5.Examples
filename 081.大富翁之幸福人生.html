@@ -764,7 +764,6 @@
             `;
             let fragment = createFragment(template)
 
-
             /** @type {HTMLDivElement} */
             let mapContainerDom = fragment.querySelector('.map-container')
             let screenWidth = document.body.clientWidth
@@ -779,8 +778,33 @@
             let overflowDistance = 100
             dragging(mapContainerDom, { minX: -mapImage.width / 2 + screenWidth - overflowDistance, maxX: 0 + overflowDistance, minY: -mapImage.height / 2 + screenHeight - overflowDistance, maxY: 0 + overflowDistance })
             logContainer.log("加载地图背景完成")
+
+            // 外圈
+            let outerRing = [
+                {
+                    name: '发薪日',
+                    description: "经过或者停留此处，可领取与当前薪级相当的薪水"
+                }
+
+
+            ]
+
+
+
+            // 内圈
+
+
+
+
+            // 玩家加入
+            let join = () => {
+
+
+            }
+
             return {
-                fragment
+                fragment,
+                join
             }
         }()
 
