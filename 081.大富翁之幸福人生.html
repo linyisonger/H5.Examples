@@ -287,6 +287,31 @@
         object {
             pointer-events: none;
         }
+
+        .map-container .outer-ring-item {
+            position: absolute;
+            border: 2px solid #00cc00;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .map-container .player-item {
+            display: inline-flex;
+        }
+
+        .map-container .player-avatar {
+            margin: 10px;
+            width: 60px;
+            height: 60px;
+            background-size: contain;
+            border-radius: 50%;
+        }
+
+        .map-container .player-item.active .player-avatar {
+            border-width: 5px;
+            border-style: solid;
+        }
     </style>
 </head>
 
@@ -363,7 +388,6 @@
             })
         }
 
-
         /**
          * 创建容器
          * @param {string} html 
@@ -376,7 +400,14 @@
             return fragment;
         }
 
+        /** 位置类型枚举 */
+        const PositionTypeEnum = {
+            /** 外圈 */
+            OUTER_RING: 1
+        }
+
         class Role {
+            id = Randoms.uuid()
             name = ''
             avatar = ''
             color = ''
@@ -402,6 +433,12 @@
             repute = 0;
             /** 幸福 */
             happy = 0;
+
+            /** 位置 */
+            position = 0;
+            /** 位置类型 */
+            positionType = 0
+
             /**
              * @param {Player} player
              */
@@ -413,6 +450,7 @@
             }
         }
 
+
         // 玩家控件
         const playerContainer = function () {
             const template = `
@@ -420,13 +458,15 @@
             `
             const fragment = createFragment(template)
             const playerContainerDom = fragment.querySelector('.players-container')
-            let players = []
-            /**
-             * @param {Role[]} roles
-             */
-            let join = async (roles) => {
-                players = roles.map(r => new Player(r))
 
+            /**
+             * @type {NodeListOf<HTMLDivElement>}
+             */
+            let playerListDom = []
+            /**
+             * @param {Player[]} players
+             */
+            let join = async (players) => {
                 for (const player of players) {
                     let playerItemTemplate = `
                         <div class="player-item">
@@ -464,6 +504,7 @@
                 }
                 // await wait(300);
                 playerContainerDom.classList.remove('close')
+                playerListDom = playerContainerDom.querySelectorAll('.player-item')
             }
 
             let upd = () => {
@@ -782,29 +823,381 @@
             // 外圈
             let outerRing = [
                 {
+                    id: "1",
+                    left: "83.3%",
+                    top: "83.3%",
+                    width: "15.34%",
+                    height: "15.34%",
                     name: '发薪日',
                     description: "经过或者停留此处，可领取与当前薪级相当的薪水"
+                },
+                {
+                    id: "2",
+                    left: "73.7%",
+                    top: "83.3%",
+                    width: "9.5%",
+                    height: "15.34%",
+                    name: '机会',
+                    description: ""
+                },
+                {
+                    id: "3",
+                    left: "64.1%",
+                    top: "83.3%",
+                    width: "9.5%",
+                    height: "15.34%",
+                    name: '所有人付所得税',
+                    description: ""
+                },
+                {
+                    id: "4",
+                    left: "54.6%",
+                    top: "83.3%",
+                    width: "9.5%",
+                    height: "15.34%",
+                    name: '机会',
+                    description: ""
+                },
+                {
+                    id: "5",
+                    left: "45.1%",
+                    top: "83.3%",
+                    width: "9.5%",
+                    height: "15.34%",
+                    name: '农业开荒就业入口',
+                    description: ""
+                },
+                {
+                    id: "6",
+                    left: "35.5%",
+                    top: "83.3%",
+                    width: "9.5%",
+                    height: "15.34%",
+                    name: '机会',
+                    description: ""
+                },
+                {
+                    id: "7",
+                    left: "26%",
+                    top: "83.3%",
+                    width: "9.5%",
+                    height: "15.34%",
+                    name: '购买彩票',
+                    description: ""
+                },
+                {
+                    id: "8",
+                    left: "16.4%",
+                    top: "83.3%",
+                    width: "9.5%",
+                    height: "15.34%",
+                    name: '大学进修就业入口',
+                    description: ""
+                },
+                {
+                    id: "9",
+                    left: "1%",
+                    top: "83.3%",
+                    width: "15.34%",
+                    height: "15.34%",
+                    name: '医院',
+                    description: ""
+                },
+                {
+                    id: "10",
+                    left: "1%",
+                    top: "73.6%",
+                    width: "15.34%",
+                    height: "9.5%",
+                    name: '所有人付娱乐费',
+                    description: ""
+                },
+                {
+                    id: "11",
+                    left: "1%",
+                    top: "64%",
+                    width: "15.34%",
+                    height: "9.5%",
+                    name: '机会',
+                    description: ""
+                },
+                {
+                    id: "12",
+                    left: "1%",
+                    top: "54.7%",
+                    width: "15.34%",
+                    height: "9.2%",
+                    name: '企业经营就业入口',
+                    description: ""
+                },
+                {
+                    id: "13",
+                    left: "1%",
+                    top: "45.2%",
+                    width: "15.34%",
+                    height: "9.4%",
+                    name: '机会',
+                    description: ""
+                },
+                {
+                    id: "14",
+                    left: "1%",
+                    top: "35.6%",
+                    width: "15.34%",
+                    height: "9.5%",
+                    name: '画廊',
+                    description: ""
+                },
+                {
+                    id: "15",
+                    left: "1%",
+                    top: "26.2%",
+                    width: "15.34%",
+                    height: "9.4%",
+                    name: '航海就业入口',
+                    description: ""
+                },
+                {
+                    id: "16",
+                    left: "1%",
+                    top: "16.6%",
+                    width: "15.34%",
+                    height: "9.4%",
+                    name: '机会',
+                    description: ""
+                },
+                {
+                    id: "17",
+                    left: "1%",
+                    top: "1.2%",
+                    width: "15.34%",
+                    height: "15.34%",
+                    name: '三亚度假',
+                    description: ""
+                },
+                {
+                    id: "18",
+                    left: "16.5%",
+                    top: "1.2%",
+                    width: "9.4%",
+                    height: "15.34%",
+                    name: '机会',
+                    description: ""
+                },
+                {
+                    id: "19",
+                    left: "26%",
+                    top: "1.2%",
+                    width: "9.4%",
+                    height: "15.34%",
+                    name: '汽车展销会',
+                    description: ""
+                },
+                {
+                    id: "20",
+                    left: "35.5%",
+                    top: "1.2%",
+                    width: "9.4%",
+                    height: "15.34%",
+                    name: '公益事业就业入口',
+                    description: ""
+                },
+                {
+                    id: "21",
+                    left: "45%",
+                    top: "1.2%",
+                    width: "9.6%",
+                    height: "15.34%",
+                    name: '机会',
+                    description: ""
+                },
+                {
+                    id: "22",
+                    left: "54.7%",
+                    top: "1.2%",
+                    width: "9.4%",
+                    height: "15.34%",
+                    name: '商场',
+                    description: ""
+                },
+                {
+                    id: "23",
+                    left: "64.2%",
+                    top: "1.2%",
+                    width: "9.4%",
+                    height: "15.34%",
+                    name: '电影拍摄就业入口',
+                    description: ""
+                },
+                {
+                    id: "24",
+                    left: "73.7%",
+                    top: "1.2%",
+                    width: "9.4%",
+                    height: "15.34%",
+                    name: '机会',
+                    description: ""
+                },
+                {
+                    id: "25",
+                    left: "83.2%",
+                    top: "1.2%",
+                    width: "15.44%",
+                    height: "15.34%",
+                    name: '公园板凳',
+                    description: ""
+                },
+                {
+                    id: "26",
+                    left: "83.2%",
+                    top: "16.6%",
+                    width: "15.44%",
+                    height: "9.5%",
+                    name: '机会',
+                    description: ""
+                },
+                {
+                    id: "27",
+                    left: "83.2%",
+                    top: "26.2%",
+                    width: "15.44%",
+                    height: "9.5%",
+                    name: '股票市场',
+                    description: ""
+                },
+                {
+                    id: "28",
+                    left: "83.2%",
+                    top: "35.8%",
+                    width: "15.44%",
+                    height: "9.4%",
+                    name: '采矿开发就业入口',
+                    description: ""
+                },
+                {
+                    id: "29",
+                    left: "83.2%",
+                    top: "45.3%",
+                    width: "15.44%",
+                    height: "9.4%",
+                    name: '机会',
+                    description: ""
+                },
+                {
+                    id: "30",
+                    left: "83.2%",
+                    top: "54.8%",
+                    width: "15.44%",
+                    height: "9.4%",
+                    name: '许愿井',
+                    description: ""
+                },
+                {
+                    id: "31",
+                    left: "83.2%",
+                    top: "64.3%",
+                    width: "15.44%",
+                    height: "9.4%",
+                    name: '太空探险就业入口',
+                    description: ""
+                },
+                {
+                    id: "32",
+                    left: "83.2%",
+                    top: "73.8%",
+                    width: "15.44%",
+                    height: "9.4%",
+                    name: '获诺贝尔奖',
+                    description: ""
                 }
-
-
             ]
-
-
 
             // 内圈
 
 
+            /**
+             * @type {HTMLDivElement}
+             */
+            let currPlayerDom = null;
+            /**
+             * @type {NodeListOf<HTMLDivElement>}
+             */
+            let playerItemList = []
+            let outerRingItemList = []
 
+            for (const outerRingItem of outerRing) {
+                let outerRingItemDom = document.createElement("div")
+                outerRingItemDom.classList.add('outer-ring-item')
+                outerRingItemDom.style.left = outerRingItem.left
+                outerRingItemDom.style.top = outerRingItem.top
+                outerRingItemDom.style.width = outerRingItem.width
+                outerRingItemDom.style.height = outerRingItem.height
+                mapContainerDom.appendChild(outerRingItemDom)
+                outerRingItemList.push(outerRingItemDom)
+            }
 
-            // 玩家加入
-            let join = () => {
+            /**
+             * 玩家加入
+             * @param {Player[]} players
+             */
+            let join = async (players) => {
+                for (const player of players) {
+                    let playerItemTemplate = `
+                        <div class="player-item" data-id="${player.id}">
+                            <div class="player-avatar" style="background-image:url(${player.avatar});border-color:${player.color}"></div>
+                        </div>
+                    `
+                    let playerFragment = createFragment(playerItemTemplate)
+                    // 起点出发
+                    outerRingItemList[0].appendChild(playerFragment)
+                }
 
+                playerItemList = mapContainerDom.querySelectorAll('.player-item')
+            }
 
+            /**
+             * 选择玩家
+             * @param {Player} player
+             */
+            let getDom = (player) => {
+                for (let i = 0; i < playerItemList.length; i++) {
+                    const dom = playerItemList.item(i);
+                    if (dom.getAttribute('data-id') === player.id) return dom
+                }
+                return null
+            }
+
+            /**
+             * 玩家移动
+             * @param {Player} player
+             * @param {number} count
+             */
+            let move = async (player, count) => {
+                for (let i = 0; i < count; i++) {
+                    await wait(500);
+                    player.position++
+                    outerRingItemList[player.position % outerRingItemList.length].appendChild(currPlayerDom)
+                }
+                
+            }
+
+            /**
+             * 下一个玩家
+             * @param {Player} player 
+             */
+            let next = async (player) => {
+                if (currPlayerDom) {
+                    currPlayerDom.classList.remove('active')
+                }
+                currPlayerDom = getDom(player)
+                currPlayerDom.classList.add('active')
             }
 
             return {
                 fragment,
-                join
+                join,
+                move,
+                next
             }
         }()
 
@@ -836,7 +1229,9 @@
             // roleContainer.open((roles) => {
             //     console.log(roles);
             // })
-            playerContainer.join([
+
+            // 选中的角色
+            let roles = [
                 {
                     "name": "小黑",
                     "avatar": "./assets/monopoly/black.jpg",
@@ -853,7 +1248,29 @@
                     "targetRepute": 0,
                     "targetHapply": 0
                 }
-            ])
+            ]
+            // 当前的玩家
+            let players = roles.map(r => new Player(r))
+
+
+            playerContainer.join(players)
+            mapContainer.join(players)
+
+            const queue = {
+                players,
+                next: function () {
+                    let player = this.players.shift()
+                    mapContainer.next(player)
+                    logContainer.log(`玩家[${player.name}]开始掷骰子🎲`)
+                    diceContainer.open(2, async (total) => {
+                        logContainer.log(`玩家[${player.name}]投掷数为[${total}]`)
+                        mapContainer.move(player, total)
+                    })
+                },
+            }
+
+            queue.next()
+
         }
 
         initGame();
