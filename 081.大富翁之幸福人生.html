@@ -450,7 +450,11 @@
             }
         }
 
-
+        class Station {
+            players = []
+            via‌ = (player) => { }
+            stop = (player) => { }
+        }
         // 玩家控件
         const playerContainer = function () {
             const template = `
@@ -821,7 +825,7 @@
             logContainer.log("加载地图背景完成")
 
             // 外圈
-            let outerRing = [
+            let outerRingList = [
                 {
                     id: "1",
                     left: "83.3%",
@@ -829,7 +833,7 @@
                     width: "15.34%",
                     height: "15.34%",
                     name: '发薪日',
-                    description: "经过或者停留此处，可领取与当前薪级相当的薪水"
+                    description: "经过或者停留此处，可领取与当前薪级相当的薪水",
                 },
                 {
                     id: "2",
@@ -1114,18 +1118,26 @@
 
             // 内圈
 
-
+            /**
+             * 玩家列表
+             * @type {Player[]}
+             */
+            let playerItemList = []
             /**
              * @type {HTMLDivElement}
              */
-            let currPlayerDom = null;
+            let playerItemDom = null;
             /**
              * @type {NodeListOf<HTMLDivElement>}
              */
-            let playerItemList = []
-            let outerRingItemList = []
+            let playerItemDomList = []
+            /**
+             * 外圈元素
+             * @type {NodeListOf<HTMLDivElement>}
+             */
+            let outerRingItemDomList = []
 
-            for (const outerRingItem of outerRing) {
+            for (const outerRingItem of outerRingList) {
                 let outerRingItemDom = document.createElement("div")
                 outerRingItemDom.classList.add('outer-ring-item')
                 outerRingItemDom.style.left = outerRingItem.left
@@ -1133,7 +1145,7 @@
                 outerRingItemDom.style.width = outerRingItem.width
                 outerRingItemDom.style.height = outerRingItem.height
                 mapContainerDom.appendChild(outerRingItemDom)
-                outerRingItemList.push(outerRingItemDom)
+                outerRingItemDomList.push(outerRingItemDom)
             }
 
             /**
@@ -1141,6 +1153,7 @@
              * @param {Player[]} players
              */
             let join = async (players) => {
+                playerItemList = players;
                 for (const player of players) {
                     let playerItemTemplate = `
                         <div class="player-item" data-id="${player.id}">
@@ -1149,10 +1162,9 @@
                     `
                     let playerFragment = createFragment(playerItemTemplate)
                     // 起点出发
-                    outerRingItemList[0].appendChild(playerFragment)
+                    outerRingItemDomList[0].appendChild(playerFragment)
                 }
-
-                playerItemList = mapContainerDom.querySelectorAll('.player-item')
+                playerItemDomList = mapContainerDom.querySelectorAll('.player-item')
             }
 
             /**
@@ -1160,8 +1172,8 @@
              * @param {Player} player
              */
             let getDom = (player) => {
-                for (let i = 0; i < playerItemList.length; i++) {
-                    const dom = playerItemList.item(i);
+                for (let i = 0; i < playerItemDomList.length; i++) {
+                    const dom = playerItemDomList.item(i);
                     if (dom.getAttribute('data-id') === player.id) return dom
                 }
                 return null
@@ -1176,9 +1188,8 @@
                 for (let i = 0; i < count; i++) {
                     await wait(500);
                     player.position++
-                    outerRingItemList[player.position % outerRingItemList.length].appendChild(currPlayerDom)
+                    outerRingItemDomList[player.position % outerRingItemDomList.length].appendChild(playerItemDom)
                 }
-                
             }
 
             /**
@@ -1186,11 +1197,11 @@
              * @param {Player} player 
              */
             let next = async (player) => {
-                if (currPlayerDom) {
-                    currPlayerDom.classList.remove('active')
+                if (playerItemDom) {
+                    playerItemDom.classList.remove('active')
                 }
-                currPlayerDom = getDom(player)
-                currPlayerDom.classList.add('active')
+                playerItemDom = getDom(player)
+                playerItemDom.classList.add('active')
             }
 
             return {
@@ -1200,9 +1211,6 @@
                 next
             }
         }()
-
-        // 地块控件 
-
 
 
         // 初始化游戏内容
@@ -1249,15 +1257,16 @@
                     "targetHapply": 0
                 }
             ]
-            // 当前的玩家
-            let players = roles.map(r => new Player(r))
 
-
-            playerContainer.join(players)
-            mapContainer.join(players)
-
+            // 队列
             const queue = {
-                players,
+                players: [], // 玩家列表
+                join: function (players) {
+                    this.players = players;
+                    playerContainer.join(players)
+                    mapContainer.join(players)
+                    return this;
+                },
                 next: function () {
                     let player = this.players.shift()
                     mapContainer.next(player)
@@ -1269,7 +1278,7 @@
                 },
             }
 
-            queue.next()
+            queue.join(roles.map(r => new Player(r))).next()
 
         }
 
