@@ -450,10 +450,51 @@
             }
         }
 
+        class SceneStation {
+            /** @type {Player} */
+            curPlayer = null
+            /** @type {Player[]} */
+            allPlayers = []
+            dicePoints = 0
+        }
+
         class Station {
-            players = []
-            via‌ = (player) => { }
-            stop = (player) => { }
+            /** @type {string} */
+            id = ""
+            /** @type {string} */
+            left = ""
+            /** @type {string} */
+            top = ""
+            /** @type {string} */
+            width = ""
+            /** @type {string} */
+            height = ""
+            /** @type {string} */
+            name = ""
+            /** @type {string} */
+            description = ""
+            /** @type {HTMLDivElement} */
+            dom = null
+            /**
+             * 经过
+             * @param {SceneStation} scene
+             */
+            via‌ = (scene) => { }
+            /**
+             * 停止
+             * @param {SceneStation} scene
+             */
+            stop = (scene) => { }
+
+
+            /**
+             * @param {Station} station
+             */
+            constructor(station) {
+                for (const key in station) {
+                    this[key] = station[key]
+                }
+            }
         }
         // 玩家控件
         const playerContainer = function () {
@@ -1114,28 +1155,31 @@
                     name: '获诺贝尔奖',
                     description: ""
                 }
-            ]
+            ].map((item) => new Station(item))
 
             // 内圈
 
-            /**
-             * 玩家列表
-             * @type {Player[]}
-             */
-            let playerItemList = []
-            /**
-             * @type {HTMLDivElement}
-             */
-            let playerItemDom = null;
-            /**
-             * @type {NodeListOf<HTMLDivElement>}
-             */
-            let playerItemDomList = []
-            /**
-             * 外圈元素
-             * @type {NodeListOf<HTMLDivElement>}
-             */
-            let outerRingItemDomList = []
+
+
+
+
+
+            
+            outerRingList.filter(or => ["1"].includes(or.id)).map(s => {
+                s.via‌ = function (scene) {
+                    logContainer.log(`玩家[${scene.curPlayer.name}]经过[${s.name}], 领取${scene.curPlayer.salary}元`)
+                    scene.curPlayer.riches += scene.curPlayer.salary
+                }
+                s.stop = function (scene) {
+                    logContainer.log(`玩家[${scene.curPlayer.name}]停留[${s.name}], 领取${scene.curPlayer.salary}元`)
+                    scene.curPlayer.riches += scene.curPlayer.salary
+                }
+                return s
+            })
+
+
+
+            let scene = new SceneStation();
 
             for (const outerRingItem of outerRingList) {
                 let outerRingItemDom = document.createElement("div")
@@ -1145,7 +1189,7 @@
                 outerRingItemDom.style.width = outerRingItem.width
                 outerRingItemDom.style.height = outerRingItem.height
                 mapContainerDom.appendChild(outerRingItemDom)
-                outerRingItemDomList.push(outerRingItemDom)
+                outerRingItem.dom = outerRingItemDom
             }
 
             /**
@@ -1153,7 +1197,7 @@
              * @param {Player[]} players
              */
             let join = async (players) => {
-                playerItemList = players;
+                scene.allPlayers = players;
                 for (const player of players) {
                     let playerItemTemplate = `
                         <div class="player-item" data-id="${player.id}">
@@ -1162,34 +1206,29 @@
                     `
                     let playerFragment = createFragment(playerItemTemplate)
                     // 起点出发
-                    outerRingItemDomList[0].appendChild(playerFragment)
+                    outerRingList[0].dom.appendChild(playerFragment)
                 }
-                playerItemDomList = mapContainerDom.querySelectorAll('.player-item')
             }
-
-            /**
-             * 选择玩家
-             * @param {Player} player
-             */
-            let getDom = (player) => {
-                for (let i = 0; i < playerItemDomList.length; i++) {
-                    const dom = playerItemDomList.item(i);
-                    if (dom.getAttribute('data-id') === player.id) return dom
-                }
-                return null
-            }
-
             /**
              * 玩家移动
              * @param {Player} player
              * @param {number} count
              */
             let move = async (player, count) => {
+                scene.curPlayer = player;
+                scene.dicePoints = count;
+
+                let currDom = mapContainerDom.querySelector(`.player-item[data-id="${player.id}"]`);
                 for (let i = 0; i < count; i++) {
                     await wait(500);
                     player.position++
-                    outerRingItemDomList[player.position % outerRingItemDomList.length].appendChild(playerItemDom)
+                    let station = outerRingList[player.position % outerRingList.length];
+                    station.dom.appendChild(currDom)
+
+                    if (count - i > 1) await station.via‌?.(scene) // 经过
+                    else await station.stop?.(scene)  // 停留
                 }
+
             }
 
             /**
@@ -1197,11 +1236,10 @@
              * @param {Player} player 
              */
             let next = async (player) => {
-                if (playerItemDom) {
-                    playerItemDom.classList.remove('active')
-                }
-                playerItemDom = getDom(player)
-                playerItemDom.classList.add('active')
+                let lastDom = mapContainerDom.querySelector('.player-item.active');
+                let currDom = mapContainerDom.querySelector(`.player-item[data-id="${player.id}"]`);
+                if (lastDom) lastDom.classList.remove('active')
+                currDom.classList.add('active')
             }
 
             return {
@@ -1269,11 +1307,14 @@
                 },
                 next: function () {
                     let player = this.players.shift()
+                    this.players.push(player);
                     mapContainer.next(player)
                     logContainer.log(`玩家[${player.name}]开始掷骰子🎲`)
                     diceContainer.open(2, async (total) => {
                         logContainer.log(`玩家[${player.name}]投掷数为[${total}]`)
-                        mapContainer.move(player, total)
+                        diceContainer.close()
+                        await mapContainer.move(player, total)
+                        this.next()
                     })
                 },
             }
