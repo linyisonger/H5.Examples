@@ -245,13 +245,30 @@
             box-sizing: border-box;
         }
 
+        .players-container .player-item.active .player-avatar::after {
+            position: absolute;
+            background-image: url('./assets/monopoly-life/dice.svg');
+            background-size: 20px 20px;
+            background-repeat: no-repeat;
+            width: 20px;
+            height: 20px;
+            right: 0;
+            bottom: 0;
+
+            content: "";
+        }
+
         .players-container .player-avatar {
             margin: 10px;
             width: 60px;
             height: 60px;
             background-size: contain;
             border-radius: 50%;
+            position: relative;
         }
+
+
+
 
         .players-container .player-base-info {
             display: flex;
@@ -289,7 +306,7 @@
         }
 
         .map-container.anim {
-            transition: left top .2s linear;
+            transition: all .2s linear;
         }
 
         .map-container .outer-ring-item {
@@ -432,8 +449,24 @@
 
         /** 位置类型枚举 */
         const PositionTypeEnum = {
-            /** 外圈 */
-            OUTER_RING: 1
+            /** 环道 */
+            LOOP: 1,
+            /** 农业 */
+            AGRICULTURE: 2,
+            /** 大学 */
+            UNIVERSITY: 3,
+            /** 企业 */
+            ENTERPRISE: 4,
+            /** 航行 */
+            VOYAGE: 5,
+            /** 公益 */
+            WELFARE: 6,
+            /** 影视 */
+            MOVIES: 7,
+            /** 采矿 */
+            MINING: 8,
+            /** 太空 */
+            SPACE: 9
         }
 
         class Role {
@@ -590,10 +623,21 @@
                 }
             }
 
+            /**
+             * @param {Player} player
+             */
+            let next = async (player) => {
+                let lastDom = playerContainerDom.querySelector('.player-item.active');
+                let currDom = playerContainerDom.querySelector(`.player-item[data-id="${player.id}"]`);
+                if (lastDom) lastDom.classList.remove('active')
+                currDom.classList.add('active')
+            }
+
             return {
                 fragment,
                 join,
-                upd
+                upd,
+                next
             }
         }();
 
@@ -901,7 +945,7 @@
             logContainer.log("加载地图背景完成")
 
             // 外圈
-            let outerRingList = [
+            let loopStations = [
                 {
                     id: "1",
                     left: "83.3%",
@@ -1198,9 +1242,8 @@
 
 
 
-
             // 工资
-            outerRingList.filter(or => ["1"].includes(or.id)).map(s => {
+            loopStations.filter(or => ["1"].includes(or.id)).map(s => {
                 s.via‌ = function (scene) {
                     logContainer.log(`玩家[${scene.curPlayer.name}]经过[${s.name}], 领取${scene.curPlayer.salary}元`)
                     scene.curPlayer.riches += scene.curPlayer.salary
@@ -1216,7 +1259,7 @@
 
             let scene = new SceneStation();
 
-            for (const outerRingItem of outerRingList) {
+            for (const outerRingItem of loopStations) {
                 let outerRingItemDom = document.createElement("div")
                 outerRingItemDom.classList.add('outer-ring-item')
                 outerRingItemDom.style.left = outerRingItem.left
@@ -1241,7 +1284,7 @@
                     `
                     let playerFragment = createFragment(playerItemTemplate)
                     // 起点出发
-                    outerRingList[0].dom.appendChild(playerFragment)
+                    loopStations[0].dom.appendChild(playerFragment)
                 }
             }
             /**
@@ -1257,7 +1300,7 @@
                 for (let i = 0; i < count; i++) {
                     await wait(500);
                     player.position++
-                    let station = outerRingList[player.position % outerRingList.length];
+                    let station = loopStations[player.position % loopStations.length];
                     station.dom.appendChild(currDom)
 
                     if (count - i > 1) await station.via‌?.(scene) // 经过
@@ -1347,6 +1390,7 @@
                     let player = this.players.shift()
                     this.players.push(player);
                     mapContainer.next(player)
+                    playerContainer.next(player)
                     logContainer.log(`玩家[${player.name}]开始掷骰子🎲`)
                     diceContainer.open(2, async (total) => {
                         logContainer.log(`玩家[${player.name}]投掷数为[${total}]`)
