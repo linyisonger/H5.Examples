@@ -356,6 +356,7 @@
             let startTop = 0;
             let isMove = false;
 
+
             dom.addEventListener("mousedown", ev => {
                 startX = ev.x;
                 startY = ev.y;
@@ -377,6 +378,25 @@
             dom.addEventListener("mouseup", ev => {
                 isMove = false;
             })
+
+            let screenWidth = document.body.clientWidth
+            let screenHeight = document.body.clientHeight
+
+            /**
+             * @param {HTMLDivElement} target
+             */
+            const lookAt = async function (target) {
+                let left = - (target.offsetLeft + target.offsetWidth / 2 - screenWidth / 2)
+                let top = - (target.offsetTop + target.offsetHeight / 2 - screenHeight / 2)
+                left = Maths.inRange(left, options.minX, options.maxX)
+                top = Maths.inRange(top, options.minY, options.maxY)
+                dom.style.left = left + 'px';
+                dom.style.top = top + 'px';
+            }
+
+            return {
+                lookAt
+            }
         }
 
         /** 
@@ -503,43 +523,38 @@
             `
             const fragment = createFragment(template)
             const playerContainerDom = fragment.querySelector('.players-container')
-
-            /**
-             * @type {NodeListOf<HTMLDivElement>}
-             */
-            let playerListDom = []
             /**
              * @param {Player[]} players
              */
             let join = async (players) => {
                 for (const player of players) {
                     let playerItemTemplate = `
-                        <div class="player-item">
+                        <div class="player-item" data-id="${player.id}">
                             <div class="player-avatar" style="background-image:url(${player.avatar})"></div>
                             <div class="player-base-info">
                                 <div class="player-riches">
                                     <div class="player-icon">
                                         <img src="./assets/monopoly-life/riches.svg" /> 
                                     </div>
-                                    <div>${player.riches}</div>
+                                    <div class="player-value">${player.riches}</div>
                                 </div>
                                 <div class="player-salary">
                                     <div class="player-icon">
                                         <img src="./assets/monopoly-life/salary.svg" />  
                                     </div>
-                                    <div>${player.salary}</div>
+                                    <div class="player-value">${player.salary}</div>
                                 </div>
                                 <div class="player-repute">
                                     <div class="player-icon">
                                         <img src="./assets/monopoly-life/repute.svg" />   
                                     </div>
-                                    <div>${player.repute}</div>
+                                    <div class="player-value">${player.repute}</div>
                                 </div>
                                 <div class="player-happy">
                                     <div class="player-icon">
                                         <img src="./assets/monopoly-life/happy.svg" /> 
                                     </div>
-                                    <div>${player.happy}</div>
+                                    <div class="player-value">${player.happy}</div>
                                 </div>
                             </div>
                         </div>
@@ -549,16 +564,26 @@
                 }
                 // await wait(300);
                 playerContainerDom.classList.remove('close')
-                playerListDom = playerContainerDom.querySelectorAll('.player-item')
             }
 
-            let upd = () => {
 
+            /**
+             * @param {Player[]} players
+             */
+            let upd = async (players) => {
+                for (const player of players) {
+                    let dom = playerContainerDom.querySelector(`.player-item[data-id="${player.id}"]`)
+                    dom.querySelector('.player-riches .player-value').textContent = player.riches
+                    dom.querySelector('.player-salary .player-value').textContent = player.salary
+                    dom.querySelector('.player-repute .player-value').textContent = player.repute
+                    dom.querySelector('.player-happy .player-value').textContent = player.happy
+                }
             }
 
             return {
                 fragment,
-                join
+                join,
+                upd
             }
         }();
 
@@ -862,7 +887,7 @@
             mapContainerDom.style.height = mapImage.height / 2 + 'px'
             // 溢出距离
             let overflowDistance = 100
-            dragging(mapContainerDom, { minX: -mapImage.width / 2 + screenWidth - overflowDistance, maxX: 0 + overflowDistance, minY: -mapImage.height / 2 + screenHeight - overflowDistance, maxY: 0 + overflowDistance })
+            let { lookAt } = dragging(mapContainerDom, { minX: -mapImage.width / 2 + screenWidth - overflowDistance, maxX: 0 + overflowDistance, minY: -mapImage.height / 2 + screenHeight - overflowDistance, maxY: 0 + overflowDistance })
             logContainer.log("加载地图背景完成")
 
             // 外圈
@@ -1164,7 +1189,7 @@
 
 
 
-            
+            // 工资
             outerRingList.filter(or => ["1"].includes(or.id)).map(s => {
                 s.via‌ = function (scene) {
                     logContainer.log(`玩家[${scene.curPlayer.name}]经过[${s.name}], 领取${scene.curPlayer.salary}元`)
@@ -1227,6 +1252,8 @@
 
                     if (count - i > 1) await station.via‌?.(scene) // 经过
                     else await station.stop?.(scene)  // 停留
+                    lookAt(currDom.parentNode) // 镜头跟随 
+                    playerContainer.upd(scene.allPlayers) // 更新
                 }
 
             }
@@ -1240,6 +1267,7 @@
                 let currDom = mapContainerDom.querySelector(`.player-item[data-id="${player.id}"]`);
                 if (lastDom) lastDom.classList.remove('active')
                 currDom.classList.add('active')
+                lookAt(currDom.parentNode) // 镜头跟随
             }
 
             return {
