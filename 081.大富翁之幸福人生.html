@@ -288,6 +288,10 @@
             pointer-events: none;
         }
 
+        .map-container.anim {
+            transition: left top .2s linear;
+        }
+
         .map-container .outer-ring-item {
             position: absolute;
             border: 2px solid #00cc00;
@@ -356,8 +360,12 @@
             let startTop = 0;
             let isMove = false;
 
+            dom.classList.add('anim')
 
             dom.addEventListener("mousedown", ev => {
+                // 移除动画标签
+                dom.classList.remove('anim')
+
                 startX = ev.x;
                 startY = ev.y;
                 startLeft = getNumber(dom.style.left);
@@ -376,6 +384,8 @@
             })
 
             dom.addEventListener("mouseup", ev => {
+                // 增加动画标签
+                dom.classList.add('anim')
                 isMove = false;
             })
 
