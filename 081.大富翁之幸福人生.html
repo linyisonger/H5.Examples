@@ -308,7 +308,7 @@
             transition: all .2s linear;
         }
 
-        .map-container .loop-station {
+        .map-container .station-item {
             position: absolute;
             border: 2px solid #00cc00;
             display: flex;
@@ -412,12 +412,12 @@
              * @param {HTMLDivElement} target
              */
             const lookAt = async function (target) {
-                let left = - (target.offsetLeft + target.offsetWidth / 2 - screenWidth / 2)
-                let top = - (target.offsetTop + target.offsetHeight / 2 - screenHeight / 2)
-                left = Maths.inRange(left, options.minX, options.maxX)
-                top = Maths.inRange(top, options.minY, options.maxY)
-                dom.style.left = left + 'px';
-                dom.style.top = top + 'px';
+                // let left = - (target.offsetLeft + target.offsetWidth / 2 - screenWidth / 2)
+                // let top = - (target.offsetTop + target.offsetHeight / 2 - screenHeight / 2)
+                // left = Maths.inRange(left, options.minX, options.maxX)
+                // top = Maths.inRange(top, options.minY, options.maxY)
+                // dom.style.left = left + 'px';
+                // dom.style.top = top + 'px';
             }
 
             return {
@@ -570,6 +570,54 @@
             }
         }
 
+
+        /**
+         * 日志控件 左下角
+         * @author 	 linyisonger
+         * @date 	 2024-11-29
+         */
+        const logContainer = function () {
+            const template = `
+                <div class="log-container">
+                    <div class="log-header">
+                        <div class="log-header-title">
+                            游戏日志
+                        </div>
+                        <div class="log-icon-close">
+                            <img src="./assets/monopoly-life/arrow.svg" />  
+                        </div>
+                    </div>
+                    <div class="log-body">
+                    </div>
+                </div>
+            `
+            const fragment = createFragment(template)
+            const logContainerDom = fragment.querySelector('.log-container')
+            const closeDom = logContainerDom.querySelector('.log-icon-close')
+            const logContainerBodyDom = logContainerDom.querySelector('.log-body')
+
+            closeDom.addEventListener('click', () => {
+                console.log('点击关闭按钮');
+                logContainerDom.classList.toggle('close')
+            })
+
+            /**
+             * @param {string} str
+             */
+            const log = (str) => {
+                let dom = createFragment(`<div class="log-item">${str}</div>`).querySelector('.log-item')
+                logContainerBodyDom.appendChild(dom)
+                logContainerBodyDom.scrollTop = Number.MAX_SAFE_INTEGER;
+            }
+            log("日志框初始化完成")
+
+            return {
+                fragment,
+                log
+            }
+        }();
+
+
         /**
          * 玩家控件 右上角
          * @author 	 linyisonger
@@ -647,57 +695,12 @@
                 currDom.classList.add('active')
             }
 
+            logContainer.log('玩家控件初始化完成')
             return {
                 fragment,
                 join,
                 upd,
                 next
-            }
-        }();
-
-        /**
-         * 日志控件 左下角
-         * @author 	 linyisonger
-         * @date 	 2024-11-29
-         */
-        const logContainer = function () {
-            const template = `
-                <div class="log-container">
-                    <div class="log-header">
-                        <div class="log-header-title">
-                            游戏日志
-                        </div>
-                        <div class="log-icon-close">
-                            <img src="./assets/monopoly-life/arrow.svg" />  
-                        </div>
-                    </div>
-                    <div class="log-body">
-                    </div>
-                </div>
-            `
-            const fragment = createFragment(template)
-            const logContainerDom = fragment.querySelector('.log-container')
-            const closeDom = logContainerDom.querySelector('.log-icon-close')
-            const logContainerBodyDom = logContainerDom.querySelector('.log-body')
-
-            closeDom.addEventListener('click', () => {
-                console.log('点击关闭按钮');
-                logContainerDom.classList.toggle('close')
-            })
-
-            /**
-             * @param {string} str
-             */
-            const log = (str) => {
-                let dom = createFragment(`<div class="log-item">${str}</div>`).querySelector('.log-item')
-                logContainerBodyDom.appendChild(dom)
-                logContainerBodyDom.scrollTop = Number.MAX_SAFE_INTEGER;
-            }
-            log("日志框初始化完成")
-
-            return {
-                fragment,
-                log
             }
         }();
 
@@ -1316,9 +1319,456 @@
                 }
             ].map((item) => new Station(item))
 
-            // 内圈
-            
- 
+            /**
+             * 内圈
+             * @type {{ [x: number]: Station[];}}
+             * @author 	 linyisonger
+             * @date 	 2024-11-30
+             */
+            let insideStations = {
+                // 农业
+                [PositionTypeEnum.AGRICULTURE]: [
+                    {
+                        id: "1",
+                        left: "45.1%",
+                        top: "78.5%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '土地肥沃适合耕种',
+                        description: "+2♥",
+                    },
+                    {
+                        id: "2",
+                        left: "45.1%",
+                        top: "73.7%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '研发新种改良作物',
+                        description: "抽两张经验卡"
+                    },
+                    {
+                        id: "3",
+                        left: "45.1%",
+                        top: "69.01%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '发展环保农业',
+                        description: "+5♥"
+                    },
+                    {
+                        id: "4",
+                        left: "45.1%",
+                        top: "64.31%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '夏季收成',
+                        description: "+🎲×1000元"
+                    },
+                    {
+                        id: "5",
+                        left: "40.4%",
+                        top: "64.31%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '有机饲料家畜健康',
+                        description: "+2🎖4♥"
+                    },
+                    {
+                        id: "6",
+                        left: "35.6%",
+                        top: "64.31%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '发生家畜传染病',
+                        description: "-3000元"
+                    },
+                    {
+                        id: "7",
+                        left: "35.6%",
+                        top: "69.11%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '秋季大丰收',
+                        description: "+5000元"
+                    },
+                    {
+                        id: "8",
+                        left: "35.6%",
+                        top: "73.86%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '大雪导致家禽冻死',
+                        description: "-♥/2"
+                    },
+                    {
+                        id: "9",
+                        left: "35.6%",
+                        top: "78.56%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '成立生技实验室',
+                        description: "加一千元薪级别"
+                    }
+                ].map((item) => new Station(item)),
+                // 大学
+                [PositionTypeEnum.UNIVERSITY]: [
+                    {
+                        id: "1",
+                        left: "21.2%",
+                        top: "78.5%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '结识同学',
+                        description: "+4♥"
+                    },
+                    {
+                        id: "2",
+                        left: "21.2%",
+                        top: "73.65%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '期中考睡过头',
+                        description: "暂停一次"
+                    },
+                    {
+                        id: "3",
+                        left: "26.0%",
+                        top: "73.65%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '代表学校参加比赛',
+                        description: "+2🎖"
+                    },
+                    {
+                        id: "4",
+                        left: "26.0%",
+                        top: "68.85%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '交错报告',
+                        description: "-🎲×♥"
+                    },
+                    {
+                        id: "5",
+                        left: "26.0%",
+                        top: "64.15%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '成绩优异获奖学金',
+                        description: "+1000元"
+                    },
+                    {
+                        id: "6",
+                        left: "21.2%",
+                        top: "64.15%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '获选为学生会长',
+                        description: "+6🎖"
+                    },
+                    {
+                        id: "7",
+                        left: "16.5%",
+                        top: "64.15%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '毕业旅行',
+                        description: "抽两张机会卡"
+                    },
+                ].map((item) => new Station(item)),
+                // 企业
+                [PositionTypeEnum.ENTERPRISE]: [
+                    {
+                        id: "1",
+                        left: "16.5%",
+                        top: "54.7%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '通过实习',
+                        description: "抽两张经验卡"
+                    },
+                    {
+                        id: "2",
+                        left: "21.2%",
+                        top: "54.7%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '简报优异',
+                        description: "+4♥"
+                    },
+                    {
+                        id: "3",
+                        left: "26%",
+                        top: "54.7%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '全勤奖金',
+                        description: "+3000元"
+                    },
+                    {
+                        id: "4",
+                        left: "30.8%",
+                        top: "54.7%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '误会客户失去合约',
+                        description: "暂停一次"
+                    },
+                    {
+                        id: "5",
+                        left: "30.8%",
+                        top: "50%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '研发新品备受瞩目',
+                        description: "+6🎖"
+                    },
+                    {
+                        id: "6",
+                        left: "30.8%",
+                        top: "45.2%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '成功扩展网店商场',
+                        description: "+8000元"
+                    },
+                    {
+                        id: "7",
+                        left: "30.8%",
+                        top: "40.4%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '投资准确',
+                        description: "+4000元"
+                    },
+                    {
+                        id: "8",
+                        left: "26.1%",
+                        top: "40.4%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '表现突出担任经理',
+                        description: "+2🎖4♥"
+                    },
+                    {
+                        id: "9",
+                        left: "21.4%",
+                        top: "40.4%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '金融风暴周转失灵',
+                        description: "马上移到公园"
+                    },
+                    {
+                        id: "10",
+                        left: "21.4%",
+                        top: "45.2%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '品管不周客户退货',
+                        description: "-元/2"
+                    },
+                    {
+                        id: "11",
+                        left: "16.55%",
+                        top: "45.2%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '年终奖金',
+                        description: "+6000元"
+                    },
+                ].map((item) => new Station(item)),
+                // 航海
+                [PositionTypeEnum.VOYAGE]: [
+                    {
+                        id: "1",
+                        left: "16.5%",
+                        top: "30.9%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '严重晕船',
+                        description: "马上移到医院"
+                    },
+                    {
+                        id: "2",
+                        left: "21.25%",
+                        top: "30.9%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '与海豚一同玩乐',
+                        description: "+2♥"
+                    },
+                    {
+                        id: "3",
+                        left: "26%",
+                        top: "30.9%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '发现神秘海岛',
+                        description: "抽两张经验卡"
+                    },
+                    {
+                        id: "4",
+                        left: "30.7%",
+                        top: "30.9%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '遭遇暴风雨',
+                        description: "-🎲×♥"
+                    },
+                    {
+                        id: "5",
+                        left: "30.8%",
+                        top: "26.2%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '击退海盗救回同伴',
+                        description: "+6🎖"
+                    },
+                    {
+                        id: "6",
+                        left: "30.8%",
+                        top: "21.45%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '荣升大副',
+                        description: "+6🎖"
+                    },
+                    {
+                        id: "7",
+                        left: "26%",
+                        top: "21.45%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '打捞深海宝藏',
+                        description: "+🎲×1000元"
+                    },
+                    {
+                        id: "8",
+                        left: "21.3%",
+                        top: "21.45%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '雾中迷航顺利脱险',
+                        description: "+2🎖4♥"
+                    },
+                    {
+                        id: "9",
+                        left: "21.3%",
+                        top: "16.75%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '平安返乡',
+                        description: "加一千元薪级"
+                    },
+                ].map((item) => new Station(item)),
+                // 公益
+                [PositionTypeEnum.WELFARE]: [
+                    {
+                        id: "1",
+                        left: "40.3%",
+                        top: "16.75%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '清扫街道美化市容',
+                        description: "+2♥"
+                    },
+                    {
+                        id: "2",
+                        left: "40.3%",
+                        top: "21.5%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '植树造林',
+                        description: "+🎲×♥"
+                    },
+                    {
+                        id: "3",
+                        left: "40.3%",
+                        top: "26.2%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '倡导环保',
+                        description: "+🎲×🎖"
+                    },
+                    {
+                        id: "4",
+                        left: "40.3%",
+                        top: "30.9%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '协助医师下乡义诊',
+                        description: "+4🎖"
+                    },
+                    {
+                        id: "5",
+                        left: "45%",
+                        top: "30.9%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '热心过度体力不支',
+                        description: "马上移到医院"
+                    },
+                    {
+                        id: "6",
+                        left: "49.8%",
+                        top: "30.9%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '建设农村电力管线',
+                        description: "抽两张经验卡"
+                    },
+                    {
+                        id: "7",
+                        left: "54.6%",
+                        top: "30.9%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '捐款助学',
+                        description: "+🎲×1000元"
+                    },
+                    {
+                        id: "8",
+                        left: "54.6%",
+                        top: "26.2%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '爱心捐赠弱势群体',
+                        description: "+6🎖"
+                    },
+                    {
+                        id: "9",
+                        left: "54.6%",
+                        top: "21.5%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '遭遇天灾',
+                        description: "马上移到公园"
+                    },
+                    {
+                        id: "10",
+                        left: "49.8%",
+                        top: "21.5%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '深入灾区救助难民',
+                        description: "+10♥"
+                    },
+                    {
+                        id: "11",
+                        left: "49.8%",
+                        top: "16.7%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '造桥铺路',
+                        description: "+3♥3🎖"
+                    },
+                ].map((item) => new Station(item)),
+
+                
+            }
+
+
             // 工资
             loopStations.filter(or => ["1"].includes(or.id)).map(s => {
                 s.via‌ = function (scene) {
@@ -1336,14 +1786,15 @@
 
             let scene = new SceneStation();
 
-            for (const loopStation of loopStations) {
-                let loopStationDom = createFragment(`<div class="loop-station"></div>`).querySelector(".loop-station")
-                loopStationDom.style.left = loopStation.left
-                loopStationDom.style.top = loopStation.top
-                loopStationDom.style.width = loopStation.width
-                loopStationDom.style.height = loopStation.height
-                mapContainerDom.appendChild(loopStationDom)
-                loopStation.dom = loopStationDom
+
+            for (const station of [...loopStations, ...Object.values(insideStations).flat()]) {
+                let stationDom = createFragment(`<div class="station-item"></div>`).querySelector(".station-item")
+                stationDom.style.left = station.left
+                stationDom.style.top = station.top
+                stationDom.style.width = station.width
+                stationDom.style.height = station.height
+                mapContainerDom.appendChild(stationDom)
+                station.dom = stationDom
             }
 
             /**
@@ -1466,7 +1917,6 @@
                 },
                 next: function () {
                     let player = this.players.shift()
-                    this.players.push(player);
                     mapContainer.next(player)
                     playerContainer.next(player)
                     logContainer.log(`玩家[${player.name}]开始掷骰子🎲`)
@@ -1475,6 +1925,7 @@
                         logContainer.log(`玩家[${player.name}]投掷数为[${total}]`)
                         diceContainer.close()
                         await mapContainer.move(player, total)
+                        this.players.push(player);
                         this.next()
                     })
                 },
