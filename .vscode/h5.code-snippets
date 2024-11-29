@@ -9,25 +9,60 @@
   "H5.Example": {
     "scope": "html",
     "prefix": "h5",
-    "body": ["<!DOCTYPE html>", "<html lang=\"en\">", "", "<head>", "\t<meta charset=\"UTF-8\">", "\t<meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">", "\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">", "\t<link rel=\"stylesheet\" href=\"./assets/global.css\">", "</head>", "", "<body>", "", "</body>", "", "</html>"],
+    "body": [
+      "<!DOCTYPE html>",
+      "<html lang=\"en\">",
+      "",
+      "<head>",
+      "\t<meta charset=\"UTF-8\">",
+      "\t<meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">",
+      "\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">",
+      "\t<link rel=\"stylesheet\" href=\"./assets/global.css\">",
+      "</head>",
+      "",
+      "<body>",
+      "",
+      "</body>",
+      "",
+      "</html>"
+    ],
     "description": "新建h5示例文件"
   },
   "3r.Tool.Randoms": {
     "scope": "javascript",
     "prefix": "random",
-    "body": ["import { Randoms } from \"https://gcore.jsdelivr.net/npm/@3r/tool/lib/randoms.js\";"],
+    "body": [
+      "import { Randoms } from \"https://gcore.jsdelivr.net/npm/@3r/tool/lib/randoms.js\";"
+    ],
     "description": "引入随机函数"
   },
   "3r.Tool.Maths": {
     "scope": "javascript",
     "prefix": "maths",
-    "body": ["import { Maths } from \"https://gcore.jsdelivr.net/npm/@3r/tool/lib/maths.js\";"],
+    "body": [
+      "import { Maths } from \"https://gcore.jsdelivr.net/npm/@3r/tool/lib/maths.js\";"
+    ],
     "description": "引入数学拓展函数"
   },
   "Canvas.Example": {
     "scope": "html",
     "prefix": "canvas",
-    "body": ["<canvas id=\"$1\"></canvas>", "<script type=\"module\">", "	/** @type {HTMLCanvasElement} */", "	let canvas = document.querySelector(\"#$1\")", "	let ctx = canvas.getContext('2d')", "	let width = canvas.clientWidth;", "	let height = canvas.clientHeight;", "	canvas.width = width;", "	canvas.height = height;", "</script>"],
+    "body": [
+      "<canvas id=\"$1\"></canvas>",
+      "<script type=\"module\">", "	/** @type {HTMLCanvasElement} */", "	let canvas = document.querySelector(\"#$1\")", "	let ctx = canvas.getContext('2d')", "	let width = canvas.clientWidth;", "	let height = canvas.clientHeight;", "	canvas.width = width;", "	canvas.height = height;",
+      "</script>"
+    ],
     "description": "新建canvas片段"
+  },
+  "Me": {
+    "scope": "javascript",
+    "prefix": "me",
+    "body": [
+      "/**",
+      " * $1",
+      " * @author \t linyisonger",
+      " * @date \t $CURRENT_YEAR-$CURRENT_MONTH-$CURRENT_DATE",
+      " */",
+    ]
   }
 }

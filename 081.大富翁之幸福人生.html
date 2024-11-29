@@ -254,7 +254,6 @@
             height: 20px;
             right: 0;
             bottom: 0;
-
             content: "";
         }
 
@@ -309,7 +308,7 @@
             transition: all .2s linear;
         }
 
-        .map-container .outer-ring-item {
+        .map-container .loop-station {
             position: absolute;
             border: 2px solid #00cc00;
             display: flex;
@@ -501,6 +500,8 @@
             position = 0;
             /** 位置类型 */
             positionType = 0
+            /** 历史记录 */
+            history = []
 
             /**
              * @param {Player} player
@@ -510,7 +511,16 @@
                 for (const key in player) {
                     this[key] = player[key]
                 }
+
+                this.save = function () {
+                    this.history.push({
+                        position: this.position,
+                        positionType: this.positionType
+                    })
+                }
             }
+
+
         }
 
         class SceneStation {
@@ -559,7 +569,12 @@
                 }
             }
         }
-        // 玩家控件
+
+        /**
+         * 玩家控件 右上角
+         * @author 	 linyisonger
+         * @date 	 2024-11-29
+         */
         const playerContainer = function () {
             const template = `
                 <div class="players-container close"></div>
@@ -605,7 +620,6 @@
                     let playerFragment = createFragment(playerItemTemplate)
                     playerContainerDom.appendChild(playerFragment)
                 }
-                // await wait(300);
                 playerContainerDom.classList.remove('close')
             }
 
@@ -641,7 +655,11 @@
             }
         }();
 
-        // 日志控件
+        /**
+         * 日志控件 左下角
+         * @author 	 linyisonger
+         * @date 	 2024-11-29
+         */
         const logContainer = function () {
             const template = `
                 <div class="log-container">
@@ -671,20 +689,23 @@
              * @param {string} str
              */
             const log = (str) => {
-                let dom = document.createElement('div')
-                dom.classList.add('log-item')
-                dom.textContent = str
+                let dom = createFragment(`<div class="log-item">${str}</div>`).querySelector('.log-item')
                 logContainerBodyDom.appendChild(dom)
                 logContainerBodyDom.scrollTop = Number.MAX_SAFE_INTEGER;
             }
             log("日志框初始化完成")
+
             return {
                 fragment,
                 log
             }
         }();
 
-        // 骰子控件
+        /**
+         * 骰子控件 弹窗
+         * @author 	 linyisonger
+         * @date 	 2024-11-29
+         */
         const diceContainer = await async function () {
 
             const template = `
@@ -704,15 +725,14 @@
                 </div>
             `
             const fragment = createFragment(template)
-            const numUrls = [
+            const diceImages = await Promise.all([
                 './assets/monopoly/1.png',
                 './assets/monopoly/2.png',
                 './assets/monopoly/3.png',
                 './assets/monopoly/4.png',
                 './assets/monopoly/5.png',
                 './assets/monopoly/6.png',
-            ]
-            const numImages = await Promise.all(numUrls.map(u => loadImage(u)))
+            ].map(u => loadImage(u)))
             /** @type {HTMLDivElement} */
             const diceContainerDom = fragment.querySelector('.dice-container')
             /** @type {HTMLDivElement} */
@@ -737,7 +757,7 @@
                         /** @type {HTMLDivElement} */
                         const diceItemDom = diceItemDomList.item(j);
                         const val = Randoms.int(0, 6)
-                        diceItemDom.style.backgroundImage = `url(${numImages[val].src})`
+                        diceItemDom.style.backgroundImage = `url(${diceImages[val].src})`
                         result[j] = val + 1
                     }
                 }
@@ -760,7 +780,7 @@
                     /** @type {HTMLDivElement} */
                     const dom = diceItemContainerDom.children.item(i)
                     dom.classList.remove('hidden')
-                    dom.style.backgroundImage = `url(${numImages[0].src})`
+                    dom.style.backgroundImage = `url(${diceImages[0].src})`
                 }
                 diceContainerDom.classList.remove('close')
             }
@@ -777,7 +797,12 @@
             }
         }()
 
-        // 角色控件
+
+        /**
+         * 角色控件 弹窗
+         * @author 	 linyisonger
+         * @date 	 2024-11-29
+         */
         const roleContainer = await async function () {
             const roleList = [
                 new Role({
@@ -922,7 +947,62 @@
             }
         }()
 
-        // 地图控件
+
+        /**
+         * 战斗控件
+         * @author 	 linyisonger
+         * @date 	 2024-11-29
+         */
+        const fightContainer = await async function () {
+
+
+            const open = () => {
+                // p1 vs p2
+
+                // 掷骰子
+
+                // 结果
+            }
+
+            return {
+                open
+            }
+        }()
+
+
+        /**
+         * 获取机会[经验]卡控件
+         * @author 	 linyisonger
+         * @date 	 2024-11-29
+         */
+        const chanceContainer = await async function () {
+
+        }()
+
+
+        /**
+         * 卡包控件
+         * @author 	 linyisonger
+         * @date 	 2024-11-29
+         */
+        const cardHolderContainer = await async function () {
+
+            const open = function () {
+
+            }
+
+            return {
+                open
+            }
+
+        }()
+
+
+        /**
+         * 地图控件
+         * @author 	 linyisonger
+         * @date 	 2024-11-29
+         */
         const mapContainer = await async function () {
             let template = `
                 <div class="map-container"></div>
@@ -1237,11 +1317,8 @@
             ].map((item) => new Station(item))
 
             // 内圈
-
-
-
-
-
+            
+ 
             // 工资
             loopStations.filter(or => ["1"].includes(or.id)).map(s => {
                 s.via‌ = function (scene) {
@@ -1259,15 +1336,14 @@
 
             let scene = new SceneStation();
 
-            for (const outerRingItem of loopStations) {
-                let outerRingItemDom = document.createElement("div")
-                outerRingItemDom.classList.add('outer-ring-item')
-                outerRingItemDom.style.left = outerRingItem.left
-                outerRingItemDom.style.top = outerRingItem.top
-                outerRingItemDom.style.width = outerRingItem.width
-                outerRingItemDom.style.height = outerRingItem.height
-                mapContainerDom.appendChild(outerRingItemDom)
-                outerRingItem.dom = outerRingItemDom
+            for (const loopStation of loopStations) {
+                let loopStationDom = createFragment(`<div class="loop-station"></div>`).querySelector(".loop-station")
+                loopStationDom.style.left = loopStation.left
+                loopStationDom.style.top = loopStation.top
+                loopStationDom.style.width = loopStation.width
+                loopStationDom.style.height = loopStation.height
+                mapContainerDom.appendChild(loopStationDom)
+                loopStation.dom = loopStationDom
             }
 
             /**
@@ -1300,12 +1376,12 @@
                 for (let i = 0; i < count; i++) {
                     await wait(500);
                     player.position++
+                    player.save() // 暂存位置信息
                     let station = loopStations[player.position % loopStations.length];
                     station.dom.appendChild(currDom)
-
                     if (count - i > 1) await station.via‌?.(scene) // 经过
                     else await station.stop?.(scene)  // 停留
-                    lookAt(currDom.parentNode) // 镜头跟随 
+                    lookAt(currDom.parentNode) // 镜头跟随
                     playerContainer.upd(scene.allPlayers) // 更新
                 }
 
@@ -1332,17 +1408,19 @@
         }()
 
 
-        // 初始化游戏内容
+        /**
+         * 初始化游戏内容
+         * @author 	 linyisonger
+         * @date 	 2024-11-29
+         */
         async function initGame() {
-            let gameContainerDom = document.createElement('div')
-            gameContainerDom.classList.add('game-container')
-            document.body.appendChild(gameContainerDom)
-
+            let gameContainerDom = createFragment(`<div class="game-container"></div>`).querySelector('.game-container')
             gameContainerDom.appendChild(mapContainer.fragment)
             gameContainerDom.appendChild(logContainer.fragment)
             gameContainerDom.appendChild(diceContainer.fragment)
             gameContainerDom.appendChild(roleContainer.fragment)
             gameContainerDom.appendChild(playerContainer.fragment)
+            document.body.appendChild(gameContainerDom)
 
             // 掷骰子
             // diceContainer.open(1, (total) => {
@@ -1392,6 +1470,7 @@
                     mapContainer.next(player)
                     playerContainer.next(player)
                     logContainer.log(`玩家[${player.name}]开始掷骰子🎲`)
+
                     diceContainer.open(2, async (total) => {
                         logContainer.log(`玩家[${player.name}]投掷数为[${total}]`)
                         diceContainer.close()
