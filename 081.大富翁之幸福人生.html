@@ -1027,7 +1027,26 @@
             let { lookAt } = dragging(mapContainerDom, { minX: -mapImage.width / 2 + screenWidth - overflowDistance, maxX: 0 + overflowDistance, minY: -mapImage.height / 2 + screenHeight - overflowDistance, maxY: 0 + overflowDistance })
             logContainer.log("加载地图背景完成")
 
-            // 外圈
+
+
+            // 领取工资
+            
+
+            // 
+
+
+
+
+
+
+
+
+            /**
+             * 外圈
+             * @type {Station[]}
+             * @author 	 linyisonger
+             * @date 	 2024-12-02
+             */
             let loopStations = [
                 {
                     id: "1",
@@ -1764,8 +1783,312 @@
                         description: "+3♥3🎖"
                     },
                 ].map((item) => new Station(item)),
-
-                
+                // 电影
+                [PositionTypeEnum.MOVIES]: [
+                    {
+                        id: "1",
+                        left: "64.2%",
+                        top: "16.75%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '参加考试',
+                        description: "抽两张经验卡"
+                    },
+                    {
+                        id: "2",
+                        left: "64.2%",
+                        top: "21.5%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '广告出道一鸣惊人',
+                        description: "+4🎖"
+                    },
+                    {
+                        id: "3",
+                        left: "64.2%",
+                        top: "26.3%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '获得电影演出机会',
+                        description: "+🎲×1000元"
+                    },
+                    {
+                        id: "4",
+                        left: "64.2%",
+                        top: "31%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '绯闻曝光',
+                        description: "-♥/2"
+                    },
+                    {
+                        id: "5",
+                        left: "68.9%",
+                        top: "31%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '粉丝成立后援会',
+                        description: "+3🎖3♥"
+                    },
+                    {
+                        id: "6",
+                        left: "73.6%",
+                        top: "31%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '不实报道丑化形象',
+                        description: "-🎖/2"
+                    },
+                    {
+                        id: "7",
+                        left: "73.6%",
+                        top: "26.3%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '电影上映大受欢迎',
+                        description: "加一千元薪级"
+                    },
+                    {
+                        id: "8",
+                        left: "73.6%",
+                        top: "21.5%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '成为杂志封面人物',
+                        description: "+6000元"
+                    },
+                    {
+                        id: "9",
+                        left: "78.4%",
+                        top: "21.5%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '荣获金马奖',
+                        description: "+4🎖4♥"
+                    },
+                ].map((item) => new Station(item)),
+                // 采矿
+                [PositionTypeEnum.MINING]: [
+                    {
+                        id: "1",
+                        left: "78.4%",
+                        top: "40.5%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '矿区采样',
+                        description: "-2000元"
+                    },
+                    {
+                        id: "2",
+                        left: "73.6%",
+                        top: "40.5%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '坑道整顿',
+                        description: "再行动一次"
+                    },
+                    {
+                        id: "3",
+                        left: "68.8%",
+                        top: "40.5%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '山崩',
+                        description: "暂定一次"
+                    },
+                    {
+                        id: "4",
+                        left: "64.1%",
+                        top: "40.5%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '发现黄金',
+                        description: "+2🎖4♥"
+                    },
+                    {
+                        id: "5",
+                        left: "64.1%",
+                        top: "45.3%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '地质分析',
+                        description: "-🎲×1000元"
+                    },
+                    {
+                        id: "6",
+                        left: "64.1%",
+                        top: "50%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '意外发现文明遗迹',
+                        description: "+10♥"
+                    },
+                    {
+                        id: "7",
+                        left: "64.1%",
+                        top: "54.7%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '引发尘暴',
+                        description: "马上移到医院"
+                    },
+                    {
+                        id: "8",
+                        left: "68.8%",
+                        top: "54.7%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '发现石油',
+                        description: "+8000元"
+                    },
+                    {
+                        id: "9",
+                        left: "73.6%",
+                        top: "54.7%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '研发秘密输送管线',
+                        description: "抽两张经验卡"
+                    },
+                    {
+                        id: "10",
+                        left: "73.6%",
+                        top: "50%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '发现钻石',
+                        description: "+6000元"
+                    },
+                    {
+                        id: "11",
+                        left: "78.4%",
+                        top: "50%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '成立跨国采矿集团',
+                        description: "+10000元"
+                    },
+                ].map((item) => new Station(item)),
+                // 航天
+                [PositionTypeEnum.SPACE]: [
+                    {
+                        id: "1",
+                        left: "78.4%",
+                        top: "64.2%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '协助建造航天飞机',
+                        description: "+6♥"
+                    },
+                    {
+                        id: "2",
+                        left: "73.6%",
+                        top: "64.2%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '成功发射航天飞机',
+                        description: "抽两张经验卡"
+                    },
+                    {
+                        id: "3",
+                        left: "68.9%",
+                        top: "64.2%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '压力不适导致呕吐',
+                        description: "-4🎖"
+                    },
+                    {
+                        id: "4",
+                        left: "64.2%",
+                        top: "64.2%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '通讯故障',
+                        description: "-3000元"
+                    },
+                    {
+                        id: "5",
+                        left: "59.5%",
+                        top: "64.2%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '紧急抢修',
+                        description: "+2🎖+4♥"
+                    },
+                    {
+                        id: "6",
+                        left: "54.7%",
+                        top: "64.2%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '闪避陨石',
+                        description: "+6🎖"
+                    },
+                    {
+                        id: "7",
+                        left: "54.7%",
+                        top: "69%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '登陆火星',
+                        description: "+🎲×♥"
+                    },
+                    {
+                        id: "8",
+                        left: "54.7%",
+                        top: "73.8%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '发现火星特有细菌',
+                        description: "+4000元"
+                    },
+                    {
+                        id: "9",
+                        left: "59.5%",
+                        top: "73.8%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '测量地形',
+                        description: "+10♥"
+                    },
+                    {
+                        id: "10",
+                        left: "64.2%",
+                        top: "73.8%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '发现神秘文明遗迹',
+                        description: "+10🎖"
+                    },
+                    {
+                        id: "11",
+                        left: "68.9%",
+                        top: "73.8%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '航天服破裂',
+                        description: "马上移动医院"
+                    },
+                    {
+                        id: "12",
+                        left: "73.6%",
+                        top: "73.8%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '返航地球',
+                        description: "+6🎖+4♥"
+                    },
+                    {
+                        id: "13",
+                        left: "73.6%",
+                        top: "78.5%",
+                        width: "4.7%",
+                        height: "4.7%",
+                        name: '将经历写成小说',
+                        description: "+6000元"
+                    },
+                ].map((item) => new Station(item)),
             }
 
 
