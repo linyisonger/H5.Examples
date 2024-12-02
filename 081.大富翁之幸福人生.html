@@ -64,6 +64,17 @@
             transform: rotate(180deg);
         }
 
+        .log-container .log-item-table {
+            border-top: 1px solid #000;
+            border-left: 1px solid #000;
+            border-collapse: collapse;
+        }
+
+        .log-container .log-item-table td {
+            border-right: 1px solid #000;
+            border-bottom: 1px solid #000;
+            text-align: center;
+        }
 
         .dice-container {
             position: absolute;
@@ -1028,12 +1039,53 @@
             logContainer.log("加载地图背景完成")
 
 
+            function span(str, color) {
+                return `<span style="color:${color}">${str}</span>`
+            }
 
-            // 领取工资
-            
+            function table() {
+                // 是否纯文本
+                let isText = !/<.*?>/.test(this.description);
+                let description = this.description;
+                if (isText) description = `<tr><td>${description}</td></tr>`
+                const table = `
+                    <table class="log-item-table">
+                        <tbody>
+                            <tr>
+                                <td colspan="${isText ? 1 : 2}">${this.name}</td>
+                            </tr>
+                            ${description}
+                        </tbody>
+                    </table>
+                `
+                logContainer.log(`玩家[${scene.curPlayer.name}]触发事件${table}`)
+            }
 
-            // 
+            /**
+             * 领取工资
+             * @param {SceneStation} scene 
+             */
+            function salaryCollection(scene) {
+                table.call(this)
+                logContainer.log(`玩家[${scene.curPlayer.name}]${span("+" + scene.curPlayer.salary, "green")}元`)
+                scene.curPlayer.riches += scene.curPlayer.salary;
+            }
 
+            /**
+             * 付所得税
+             * @param {SceneStation} scene 
+             */
+            function payIncomeTax(scene) {
+                table.call(this)
+                for (const player of [scene.curPlayer, ...scene.allPlayers]) {
+                    let tax = 0
+                    if (player.salary < 3000) tax = -150;
+                    if (player.salary >= 4000 && player.salary <= 6000) tax = -1500
+                    if (player.salary > 6000) tax = -3000;
+                    logContainer.log(`玩家[${player.name}]${span(tax, "red")}元`)
+                    player.riches += tax;
+                }
+            }
 
 
 
@@ -1056,6 +1108,8 @@
                     height: "15.34%",
                     name: '发薪日',
                     description: "经过或者停留此处，可领取与当前薪级相当的薪水",
+                    via‌: salaryCollection,
+                    stop: salaryCollection
                 },
                 {
                     id: "2",
@@ -1073,7 +1127,25 @@
                     width: "9.5%",
                     height: "15.34%",
                     name: '所有人付所得税',
-                    description: ""
+                    description: ` 
+                        <tr>
+                            <td>薪级</td>
+                            <td>需付税款</td>
+                        </tr>
+                        <tr>
+                            <td>3千以下</td>
+                            <td>200元</td>
+                        </tr>
+                        <tr>
+                            <td>4千到6千</td>
+                            <td>1500元</td>
+                        </tr>
+                        <tr>
+                            <td>6千元以上</td>
+                            <td>3000元</td>
+                        </tr>
+                    `,
+                    stop: payIncomeTax
                 },
                 {
                     id: "4",
@@ -2093,17 +2165,17 @@
 
 
             // 工资
-            loopStations.filter(or => ["1"].includes(or.id)).map(s => {
-                s.via‌ = function (scene) {
-                    logContainer.log(`玩家[${scene.curPlayer.name}]经过[${s.name}], 领取${scene.curPlayer.salary}元`)
-                    scene.curPlayer.riches += scene.curPlayer.salary
-                }
-                s.stop = function (scene) {
-                    logContainer.log(`玩家[${scene.curPlayer.name}]停留[${s.name}], 领取${scene.curPlayer.salary}元`)
-                    scene.curPlayer.riches += scene.curPlayer.salary
-                }
-                return s
-            })
+            // loopStations.filter(or => ["1"].includes(or.id)).map(s => {
+            //     s.via‌ = function (scene) {
+            //         logContainer.log(`玩家[${scene.curPlayer.name}]经过[${s.name}], 领取${scene.curPlayer.salary}元`)
+            //         scene.curPlayer.riches += scene.curPlayer.salary
+            //     }
+            //     s.stop = function (scene) {
+            //         logContainer.log(`玩家[${scene.curPlayer.name}]停留[${s.name}], 领取${scene.curPlayer.salary}元`)
+            //         scene.curPlayer.riches += scene.curPlayer.salary
+            //     }
+            //     return s
+            // })
 
 
 
@@ -2143,12 +2215,14 @@
              * @param {number} count
              */
             let move = async (player, count) => {
+                count = loopStations.length + 2
+
                 scene.curPlayer = player;
                 scene.dicePoints = count;
 
                 let currDom = mapContainerDom.querySelector(`.player-item[data-id="${player.id}"]`);
                 for (let i = 0; i < count; i++) {
-                    await wait(500);
+                    // await wait(500); // 测试加速
                     player.position++
                     player.save() // 暂存位置信息
                     let station = loopStations[player.position % loopStations.length];
