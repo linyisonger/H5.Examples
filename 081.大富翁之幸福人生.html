@@ -13,6 +13,12 @@
             height: 100vh;
         }
 
+        .flex-center {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
         .game-container {
             position: relative;
             overflow: hidden;
@@ -258,7 +264,7 @@
 
         .players-container .player-item.active .player-avatar::after {
             position: absolute;
-            background-image: url('./assets/monopoly-life/dice.svg');
+            background-image: url('./assets/monopoly-life/dice.png');
             background-size: 20px 20px;
             background-repeat: no-repeat;
             width: 20px;
@@ -479,6 +485,15 @@
             SPACE: 9
         }
 
+        /** 图片配置 */
+        const ICON_CONFIG = {
+            RICHES: `<img src="./assets/monopoly-life/riches.png" />`,
+            SALARY: `<img src="./assets/monopoly-life/salary.png" />`,
+            REPUTE: `<img src="./assets/monopoly-life/repute.png" />`,
+            HAPPY: `<img src="./assets/monopoly-life/happy.png" /> `,
+            ARROW: `<img src="./assets/monopoly-life/arrow.png" />`
+        }
+
         class Role {
             id = Randoms.uuid()
             name = ''
@@ -595,7 +610,7 @@
                             游戏日志
                         </div>
                         <div class="log-icon-close">
-                            <img src="./assets/monopoly-life/arrow.svg" />  
+                            ${ICON_CONFIG.ARROW}
                         </div>
                     </div>
                     <div class="log-body">
@@ -651,25 +666,25 @@
                             <div class="player-base-info">
                                 <div class="player-riches">
                                     <div class="player-icon">
-                                        <img src="./assets/monopoly-life/riches.svg" /> 
+                                         ${ICON_CONFIG.RICHES}
                                     </div>
                                     <div class="player-value">${player.riches}</div>
                                 </div>
                                 <div class="player-salary">
                                     <div class="player-icon">
-                                        <img src="./assets/monopoly-life/salary.svg" />  
+                                        ${ICON_CONFIG.SALARY}
                                     </div>
                                     <div class="player-value">${player.salary}</div>
                                 </div>
                                 <div class="player-repute">
                                     <div class="player-icon">
-                                        <img src="./assets/monopoly-life/repute.svg" />   
+                                        ${ICON_CONFIG.REPUTE}  
                                     </div>
                                     <div class="player-value">${player.repute}</div>
                                 </div>
                                 <div class="player-happy">
                                     <div class="player-icon">
-                                        <img src="./assets/monopoly-life/happy.svg" /> 
+                                        ${ICON_CONFIG.HAPPY}
                                     </div>
                                     <div class="player-value">${player.happy}</div>
                                 </div>
@@ -855,15 +870,15 @@
                 targetItemHtml += `
                     <div class="target-item">
                         <div class="target-item-content">
-                            <img src="./assets/monopoly-life/riches.svg" />   
+                            ${ICON_CONFIG.RICHES}
                             <input type="number" placeholder="财富" max="60" min="0" step="1"/>
                         </div>
                         <div class="target-item-content">
-                            <img src="./assets/monopoly-life/repute.svg" />   
+                            ${ICON_CONFIG.REPUTE}  
                             <input type="number" placeholder="名誉" max="60" min="0" step="1"/>
                         </div>
                         <div class="target-item-content">
-                            <img src="./assets/monopoly-life/happy.svg" />   
+                            ${ICON_CONFIG.HAPPY}
                             <input type="number" placeholder="快乐" max="60" min="0" step="1"/>
                         </div>
                     </div>
@@ -1012,6 +1027,14 @@
         }()
 
 
+
+        /**
+         * 对话框控件
+         * @author 	 linyisonger
+         * @date 	 2024-12-03
+         */
+
+
         /**
          * 地图控件
          * @author 	 linyisonger
@@ -1039,11 +1062,45 @@
             logContainer.log("加载地图背景完成")
 
 
-            function span(str, color) {
-                return `<span style="color:${color}">${str}</span>`
+            class PlayerChanged {
+                /** 财富 */
+                riches = 0
+                /** 薪水 */
+                salary = 0
+                /** 声望 */
+                repute = 0
+                /** 幸福 */
+                happy = 0
             }
 
-            function table() {
+
+            /**
+             * 数值变化
+             * @param {Player} player
+             * @param {PlayerChanged} changed
+             */
+            function playerChange(player, changed) {
+                if (Maths.sum(Object.values(changed)) == 0) {
+                    logContainer.log(`玩家[${player.name}]没有任何变化`)
+                    return
+                }; // 没有发生改变
+                let str = `<div class="flex-center">玩家[${player.name}]`
+                if (changed.riches) {
+                    str += `${ICON_CONFIG.RICHES}`
+                    if (changed.riches > 0) str += `<span style="color:red">+${changed.riches}元</span>`
+                    else str += `<span style="color:green">${changed.riches}元</span>`
+                    player.riches += changed.riches
+                }
+                str += '</div>'
+                logContainer.log(str)
+                playerContainer.upd([player])
+            }
+
+            /**
+             * 表格展示
+             * @param {SceneStation} scene 
+             */
+            function table(scene) {
                 // 是否纯文本
                 let isText = !/<.*?>/.test(this.description);
                 let description = this.description;
@@ -1066,9 +1123,8 @@
              * @param {SceneStation} scene 
              */
             function salaryCollection(scene) {
-                table.call(this)
-                logContainer.log(`玩家[${scene.curPlayer.name}]${span("+" + scene.curPlayer.salary, "green")}元`)
-                scene.curPlayer.riches += scene.curPlayer.salary;
+                table.call(this, scene)
+                playerChange(scene.curPlayer, { riches: scene.curPlayer.salary })
             }
 
             /**
@@ -1076,19 +1132,39 @@
              * @param {SceneStation} scene 
              */
             function payIncomeTax(scene) {
-                table.call(this)
+                table.call(this, scene)
                 for (const player of [scene.curPlayer, ...scene.allPlayers]) {
                     let tax = 0
                     if (player.salary < 3000) tax = -150;
                     if (player.salary >= 4000 && player.salary <= 6000) tax = -1500
                     if (player.salary > 6000) tax = -3000;
-                    logContainer.log(`玩家[${player.name}]${span(tax, "red")}元`)
-                    player.riches += tax;
+                    playerChange(player, { riches: tax })
                 }
             }
 
+            /**
+             * 付娱乐税
+             * @param {SceneStation} scene 
+             */
+            function payEntertainmentTax(scene) {
+                table.call(this, scene)
+                for (const player of [scene.curPlayer, ...scene.allPlayers]) {
+                    let tax = 0
+                    if (player.happy > 20) tax = -1000;
+                    else if (player.happy > 5) tax = -2000;
+                    else if (player.happy > 1) tax = -3000;
+                    playerChange(player, { riches: tax })
+                }
+            }
 
+            /**
+            * 就业入口
+            * @param {SceneStation} scene 
+            */
+            function employmentEntrance(params) {
+                table.call(this, scene)
 
+            }
 
 
 
@@ -1163,7 +1239,8 @@
                     width: "9.5%",
                     height: "15.34%",
                     name: '农业开荒就业入口',
-                    description: ""
+                    description: "就业条件：付500元务农资本或已有农业经验",
+                    stop: employmentEntrance
                 },
                 {
                     id: "6",
@@ -1208,7 +1285,25 @@
                     width: "15.34%",
                     height: "9.5%",
                     name: '所有人付娱乐费',
-                    description: ""
+                    description: `
+                        <tr>
+                            <td><div class="flex-center">所持有${ICON_CONFIG.HAPPY}</div></td>
+                            <td>需付款</td>
+                        </tr>
+                        <tr>
+                            <td><div class="flex-center">1~5${ICON_CONFIG.HAPPY}</div></td>
+                            <td>3000元</td>
+                        </tr>
+                        <tr>
+                            <td><div class="flex-center">6~20${ICON_CONFIG.HAPPY}</div></td>
+                            <td>2000元</td>
+                        </tr>
+                        <tr>
+                            <td><div class="flex-center">21${ICON_CONFIG.HAPPY}以上</div></td>
+                            <td>1000元</td>
+                        </tr>
+                    `,
+                    stop: payEntertainmentTax
                 },
                 {
                     id: "11",
@@ -2164,21 +2259,6 @@
             }
 
 
-            // 工资
-            // loopStations.filter(or => ["1"].includes(or.id)).map(s => {
-            //     s.via‌ = function (scene) {
-            //         logContainer.log(`玩家[${scene.curPlayer.name}]经过[${s.name}], 领取${scene.curPlayer.salary}元`)
-            //         scene.curPlayer.riches += scene.curPlayer.salary
-            //     }
-            //     s.stop = function (scene) {
-            //         logContainer.log(`玩家[${scene.curPlayer.name}]停留[${s.name}], 领取${scene.curPlayer.salary}元`)
-            //         scene.curPlayer.riches += scene.curPlayer.salary
-            //     }
-            //     return s
-            // })
-
-
-
             let scene = new SceneStation();
 
 
@@ -2215,8 +2295,7 @@
              * @param {number} count
              */
             let move = async (player, count) => {
-                count = loopStations.length + 2
-
+                count = loopStations.length + 4
                 scene.curPlayer = player;
                 scene.dicePoints = count;
 
@@ -2230,7 +2309,6 @@
                     if (count - i > 1) await station.via‌?.(scene) // 经过
                     else await station.stop?.(scene)  // 停留
                     lookAt(currDom.parentNode) // 镜头跟随
-                    playerContainer.upd(scene.allPlayers) // 更新
                 }
 
             }
