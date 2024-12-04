@@ -349,6 +349,38 @@
             border-width: 5px;
             border-style: solid;
         }
+
+
+
+        .dialog-container {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(255, 255, 255, 1);
+            border-radius: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);
+            width: 500px;
+        }
+
+        .dialog-container .dialog-header-title {
+            line-height: 50px;
+            font-size: 20px;
+            font-weight: bold;
+            text-align: center;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+            margin: 0 20px;
+        }
+
+        .dialog-container .dialog-body {
+            padding-top: 20px;
+            margin: 0 20px 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+        }
     </style>
 </head>
 
@@ -1015,7 +1047,6 @@
          * @date 	 2024-11-29
          */
         const cardHolderContainer = await async function () {
-
             const open = function () {
 
             }
@@ -1033,7 +1064,71 @@
          * @author 	 linyisonger
          * @date 	 2024-12-03
          */
+        const dialogContainer = function () {
+            const template = `
+                <div class="dialog-container">
+                    <div class="dialog-header">
+                        <div class="dialog-header-title">
+                            对话框
+                        </div>
+                    </div>
+                    <div class="dialog-body">
+                        <div class="dialog-body-content">
+                            请选择你想要的选项
+                        </div>
+                        <div class="dialog-body-options">
+                            <div class="dialog-body-option">
+                                A
+                            </div>
+                            <div class="dialog-body-option">
+                                B
+                            </div>
+                            <div class="dialog-body-option">
+                                C
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `
+            const fragment = createFragment(template)
+            const dialogContainerDom = fragment.querySelector('.dialog-container')
+            class DialogOpenConfig {
+                title = ''
+                content = ''
+                options = []
+            }
 
+            /**
+             * 打开弹窗
+             * @param {DialogOpenConfig} config
+             */
+            const open = function (config) {
+                return new Promise((resolve) => {
+                    const titleDom = dialogContainerDom.querySelector('.dialog-header-title')
+                    const contentDom = dialogContainerDom.querySelector('.dialog-body-content')
+                    const optionsDom = dialogContainerDom.querySelector('.dialog-body-options')
+                    titleDom.textContent = config.title;
+                    contentDom.innerHTML = config.content
+                    optionsDom.innerHTML = '';
+                    for (let i = 0; i < config.options.length; i++) {
+                        const option = config.options[i];
+                        const optionDom = document.createElement('div')
+                        optionDom.classList.add('dialog-body-option')
+                        optionDom.innerHTML = option
+                        optionDom.addEventListener("click", function () {
+                            resolve(i)
+                        })
+                        optionsDom.appendChild(optionDom)
+                    }
+                })
+
+            }
+
+            return {
+                fragment,
+                open
+            }
+        }()
 
         /**
          * 地图控件
@@ -1073,6 +1168,10 @@
                 happy = 0
             }
 
+            class EmploymentEntranceCondition {
+                /** 财富 */
+                riches = 0
+            }
 
             /**
              * 数值变化
@@ -2341,11 +2440,12 @@
          */
         async function initGame() {
             let gameContainerDom = createFragment(`<div class="game-container"></div>`).querySelector('.game-container')
-            gameContainerDom.appendChild(mapContainer.fragment)
+            // gameContainerDom.appendChild(mapContainer.fragment)
             gameContainerDom.appendChild(logContainer.fragment)
-            gameContainerDom.appendChild(diceContainer.fragment)
-            gameContainerDom.appendChild(roleContainer.fragment)
-            gameContainerDom.appendChild(playerContainer.fragment)
+            gameContainerDom.appendChild(dialogContainer.fragment)
+            // gameContainerDom.appendChild(diceContainer.fragment)
+            // gameContainerDom.appendChild(roleContainer.fragment)
+            // gameContainerDom.appendChild(playerContainer.fragment)
             document.body.appendChild(gameContainerDom)
 
             // 掷骰子
@@ -2406,7 +2506,16 @@
                 },
             }
 
-            queue.join(roles.map(r => new Player(r))).next()
+            // queue.join(roles.map(r => new Player(r))).next()
+
+
+            let selected = await dialogContainer.open({
+                title: '提示',
+                content: '请选择想要的选项',
+                options: ["A", "B", "C"]
+            })
+            console.log(selected);
+
 
         }
 
