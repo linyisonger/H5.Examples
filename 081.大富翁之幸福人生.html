@@ -19,6 +19,14 @@
             justify-content: center;
         }
 
+        .flex-column-center {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+
         .game-container {
             position: relative;
             overflow: hidden;
@@ -41,6 +49,7 @@
             height: 50%;
             width: 500px;
             background-color: rgba(255, 255, 255, .7);
+            border-radius: 20px 20px 0 0;
         }
 
         .log-container .log-header-title {
@@ -89,6 +98,7 @@
             transform: translate(-50%, -50%);
             width: 500px;
             background-color: rgba(255, 255, 255, .9);
+            border-radius: 20px;
         }
 
         .dice-container .dice-header-title {
@@ -250,7 +260,7 @@
             position: absolute;
             top: 0px;
             right: 0;
-            background-color: #ffffffcc;
+            background-color: rgba(255, 255, 255, .9);
         }
 
         .players-container .player-item {
@@ -260,6 +270,7 @@
             height: 120px;
             align-items: center;
             box-sizing: border-box;
+            position: relative;
         }
 
         .players-container .player-item.active .player-avatar::after {
@@ -272,6 +283,42 @@
             right: 0;
             bottom: 0;
             content: "";
+        }
+
+        .players-container .player-item:hover .player-more {
+            display: block;
+        }
+
+        .players-container .player-more {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background-color: rgba(255, 255, 255, .9);
+        }
+
+        .players-container .player-target-container,
+        .players-container .player-exp-container {
+            display: flex;
+            flex-direction: column;
+            padding: 5px 10px 0;
+        }
+
+        .players-container .player-target-body,
+        .players-container .player-exp-body {
+            display: flex;
+            padding: 5px 0px 0;
+        }
+
+        .players-container .player-exp-body {
+            padding-bottom: 5px;
+        }
+
+        .players-container .player-target-item {
+            display: flex;
+            flex: 1;
+            justify-content: center;
         }
 
         .players-container .player-avatar {
@@ -295,7 +342,7 @@
             display: flex;
         }
 
-        .players-container .player-base-info>div>.player-icon {
+        .players-container .player-icon {
             margin-right: 10px;
         }
 
@@ -312,6 +359,9 @@
             color: #fff;
             cursor: pointer;
         }
+
+
+
 
         .game-btn-confirm:active {
             opacity: .7;
@@ -363,6 +413,11 @@
             width: 500px;
         }
 
+        .dialog-container.close {
+            top: -100%;
+        }
+
+
         .dialog-container .dialog-header-title {
             line-height: 50px;
             font-size: 20px;
@@ -380,6 +435,25 @@
             flex-direction: column;
             align-items: center;
             overflow-x: hidden;
+        }
+
+        .dialog-container .dialog-body-option {
+            margin-top: 10px;
+            display: flex;
+            padding: 0 20px;
+            line-height: 40px;
+            background-color: #2776ec;
+            color: #fff;
+            cursor: pointer;
+            justify-content: center;
+        }
+
+        .dialog-container .dialog-body-option:nth-child(2) {
+            background-color: #a1a1a1;
+        }
+
+        .dialog-container .dialog-body-content img {
+            width: 100%;
         }
     </style>
 </head>
@@ -461,12 +535,12 @@
              * @param {HTMLDivElement} target
              */
             const lookAt = async function (target) {
-                // let left = - (target.offsetLeft + target.offsetWidth / 2 - screenWidth / 2)
-                // let top = - (target.offsetTop + target.offsetHeight / 2 - screenHeight / 2)
-                // left = Maths.inRange(left, options.minX, options.maxX)
-                // top = Maths.inRange(top, options.minY, options.maxY)
-                // dom.style.left = left + 'px';
-                // dom.style.top = top + 'px';
+                let left = - (target.offsetLeft + target.offsetWidth / 2 - screenWidth / 2)
+                let top = - (target.offsetTop + target.offsetHeight / 2 - screenHeight / 2)
+                left = Maths.inRange(left, options.minX, options.maxX)
+                top = Maths.inRange(top, options.minY, options.maxY)
+                dom.style.left = left + 'px';
+                dom.style.top = top + 'px';
             }
 
             return {
@@ -523,7 +597,15 @@
             SALARY: `<img src="./assets/monopoly-life/salary.png" />`,
             REPUTE: `<img src="./assets/monopoly-life/repute.png" />`,
             HAPPY: `<img src="./assets/monopoly-life/happy.png" /> `,
-            ARROW: `<img src="./assets/monopoly-life/arrow.png" />`
+            ARROW: `<img src="./assets/monopoly-life/arrow.png" />`,
+            AGRICULTURE: `<img src="./assets/monopoly-life/agriculture.png"/>`,
+            UNIVERSITY: `<img src="./assets/monopoly-life/university.png"/>`,
+            ENTERPRISE: `<img src="./assets/monopoly-life/enterprise.png"/>`,
+            VOYAGE: `<img src="./assets/monopoly-life/voyage.png"/>`,
+            WELFARE: `<img src="./assets/monopoly-life/welfare.png"/>`,
+            MOVIES: `<img src="./assets/monopoly-life/movies.png"/>`,
+            MINING: `<img src="./assets/monopoly-life/mining.png"/>`,
+            SPACE: `<img src="./assets/monopoly-life/space.png"/>`,
         }
 
         class Role {
@@ -557,7 +639,7 @@
             /** 位置 */
             position = 0;
             /** 位置类型 */
-            positionType = 0
+            positionType = PositionTypeEnum.LOOP
             /** 历史记录 */
             history = []
 
@@ -587,6 +669,8 @@
             /** @type {Player[]} */
             allPlayers = []
             dicePoints = 0
+            /** @type {Station}  */
+            prevStation = null
         }
 
         class Station {
@@ -719,6 +803,44 @@
                                         ${ICON_CONFIG.HAPPY}
                                     </div>
                                     <div class="player-value">${player.happy}</div>
+                                </div>
+                            </div>
+
+                            <div class="player-more">
+                                <div class="player-target-container">
+                                    <div class="player-target-title">
+                                        目标值
+                                    </div>
+                                    <div class="player-target-body">
+                                        <div class="player-target-item">
+                                            <div class="player-icon">
+                                                ${ICON_CONFIG.RICHES}
+                                            </div>
+                                            <div class="player-value">${player.targetRiches}000</div>
+                                        </div>
+                                        <div class="player-target-item">
+                                            <div class="player-icon">
+                                                ${ICON_CONFIG.REPUTE}
+                                            </div>
+                                            <div class="player-value">${player.targetRepute}</div>
+                                        </div>
+                                        <div class="player-target-item">
+                                            <div class="player-icon">
+                                                ${ICON_CONFIG.HAPPY}
+                                            </div>
+                                            <div class="player-value">${player.targetHapply}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="player-exp-container">
+                                    <div class="player-exp-title">
+                                        经验
+                                    </div>
+                                    <div class="player-exp-body">
+                                        <div class="player-icon">
+                                            无
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1066,7 +1188,7 @@
          */
         const dialogContainer = function () {
             const template = `
-                <div class="dialog-container">
+                <div class="dialog-container close">
                     <div class="dialog-header">
                         <div class="dialog-header-title">
                             对话框
@@ -1104,6 +1226,7 @@
              */
             const open = function (config) {
                 return new Promise((resolve) => {
+                    dialogContainerDom.classList.remove('close')
                     const titleDom = dialogContainerDom.querySelector('.dialog-header-title')
                     const contentDom = dialogContainerDom.querySelector('.dialog-body-content')
                     const optionsDom = dialogContainerDom.querySelector('.dialog-body-options')
@@ -1116,6 +1239,7 @@
                         optionDom.classList.add('dialog-body-option')
                         optionDom.innerHTML = option
                         optionDom.addEventListener("click", function () {
+                            dialogContainerDom.classList.add('close')
                             resolve(i)
                         })
                         optionsDom.appendChild(optionDom)
@@ -1258,11 +1382,46 @@
 
             /**
             * 就业入口
-            * @param {SceneStation} scene 
+            * @param {keyof PositionTypeEnum} type 
             */
-            function employmentEntrance(params) {
-                table.call(this, scene)
+            function employmentEntrance(type) {
+                /**
+                * 就业入口
+                * @param {SceneStation} scene 
+                */
+                return async function (scene) {
+                    table.call(this, scene)
+                    // 检查是否有经验 
+                    let isHasExp = false;
+                    let options = []
 
+                    if (isHasExp) options.push('进入道路')
+                    else options.push('进入道路(-500元)')
+                    options.push('不进入')
+                    
+                    let selected = await dialogContainer.open({
+                        title: "提示",
+                        content: `
+                            <div class="flex-column-center">
+                                <div style="width:100px">
+                                    ${ICON_CONFIG[type]}
+                                </div>
+                                <div>
+                                    到达[${this.name}]请选择
+                                </div>
+                                <div>
+                                    ${this.description}
+                                </div>
+                            </div>
+                        `,
+                        options
+                    })
+
+                    if (selected == 0) {
+                        scene.curPlayer.positionType = PositionTypeEnum[type];
+                        scene.curPlayer.position = -1;
+                    }
+                }
             }
 
 
@@ -1339,7 +1498,7 @@
                     height: "15.34%",
                     name: '农业开荒就业入口',
                     description: "就业条件：付500元务农资本或已有农业经验",
-                    stop: employmentEntrance
+                    stop: employmentEntrance("AGRICULTURE")
                 },
                 {
                     id: "6",
@@ -1366,7 +1525,8 @@
                     width: "9.5%",
                     height: "15.34%",
                     name: '大学进修就业入口',
-                    description: ""
+                    description: "入学条件：付500元学费",
+                    stop: employmentEntrance("UNIVERSITY")
                 },
                 {
                     id: "9",
@@ -1420,7 +1580,8 @@
                     width: "15.34%",
                     height: "9.2%",
                     name: '企业经营就业入口',
-                    description: ""
+                    description: "就业条件：付5000元雇佣员工或已有普通学位或已有企业经验",
+                    stop: employmentEntrance("ENTERPRISE")
                 },
                 {
                     id: "13",
@@ -1447,7 +1608,8 @@
                     width: "15.34%",
                     height: "9.4%",
                     name: '航海就业入口',
-                    description: ""
+                    description: "",
+                    stop: employmentEntrance("VOYAGE")
                 },
                 {
                     id: "16",
@@ -1492,7 +1654,8 @@
                     width: "9.4%",
                     height: "15.34%",
                     name: '公益事业就业入口',
-                    description: ""
+                    description: "",
+                    stop: employmentEntrance("WELFARE")
                 },
                 {
                     id: "21",
@@ -1519,7 +1682,8 @@
                     width: "9.4%",
                     height: "15.34%",
                     name: '电影拍摄就业入口',
-                    description: ""
+                    description: "",
+                    stop: employmentEntrance("MOVIES")
                 },
                 {
                     id: "24",
@@ -1564,7 +1728,9 @@
                     width: "15.44%",
                     height: "9.4%",
                     name: '采矿开发就业入口',
-                    description: ""
+                    description: "",
+                    stop: employmentEntrance("MINING")
+
                 },
                 {
                     id: "29",
@@ -1591,7 +1757,8 @@
                     width: "15.44%",
                     height: "9.4%",
                     name: '太空探险就业入口',
-                    description: ""
+                    description: "",
+                    stop: employmentEntrance("SPACE")
                 },
                 {
                     id: "32",
@@ -2357,6 +2524,27 @@
                 ].map((item) => new Station(item)),
             }
 
+            /**
+             * 离开内圈到达外圈的位置
+             */
+            let exitInsidePosition = {
+                // 农业
+                [PositionTypeEnum.AGRICULTURE]: 5,
+                // 大学
+                [PositionTypeEnum.UNIVERSITY]: 10,
+                // 企业
+                [PositionTypeEnum.ENTERPRISE]: 12,
+                // 航海
+                [PositionTypeEnum.VOYAGE]: 17,
+                // 公益
+                [PositionTypeEnum.WELFARE]: 20,
+                // 电影
+                [PositionTypeEnum.MOVIES]: 25,
+                // 采矿 
+                [PositionTypeEnum.MOVIES]: 28,
+                // 航天
+                [PositionTypeEnum.SPACE]: 1
+            }
 
             let scene = new SceneStation();
 
@@ -2394,17 +2582,39 @@
              * @param {number} count
              */
             let move = async (player, count) => {
-                count = loopStations.length + 4
+                // count = 4 //loopStations.length + 
+
                 scene.curPlayer = player;
                 scene.dicePoints = count;
 
                 let currDom = mapContainerDom.querySelector(`.player-item[data-id="${player.id}"]`);
                 for (let i = 0; i < count; i++) {
-                    // await wait(500); // 测试加速
+                    await wait(500); // 测试加速
                     player.position++
                     player.save() // 暂存位置信息
-                    let station = loopStations[player.position % loopStations.length];
+                    let station = null
+
+
+                    let insideStation = insideStations[player.positionType]
+
+                    // 进入内圈
+                    if (insideStation) {
+                        if (scene.prevStation != insideStation[insideStation.length - 1]) { // 在内圈转动
+                            station = insideStation[player.position]  // 内圈站点
+                        }
+                        else {
+                            player.position = exitInsidePosition[player.positionType] // 初始化进入外圈的位置
+                            player.positionType = PositionTypeEnum.LOOP // 切换外圈类型
+                        }
+                    }
+
+                    // 进入外圈
+                    if (player.positionType == PositionTypeEnum.LOOP) {
+                        station = loopStations[player.position % loopStations.length]; // 外圈站点
+                    }
+
                     station.dom.appendChild(currDom)
+                    scene.prevStation = station; // 上一个站点
                     if (count - i > 1) await station.via‌?.(scene) // 经过
                     else await station.stop?.(scene)  // 停留
                     lookAt(currDom.parentNode) // 镜头跟随
@@ -2440,12 +2650,12 @@
          */
         async function initGame() {
             let gameContainerDom = createFragment(`<div class="game-container"></div>`).querySelector('.game-container')
-            // gameContainerDom.appendChild(mapContainer.fragment)
+            gameContainerDom.appendChild(mapContainer.fragment)
             gameContainerDom.appendChild(logContainer.fragment)
             gameContainerDom.appendChild(dialogContainer.fragment)
-            // gameContainerDom.appendChild(diceContainer.fragment)
-            // gameContainerDom.appendChild(roleContainer.fragment)
-            // gameContainerDom.appendChild(playerContainer.fragment)
+            gameContainerDom.appendChild(diceContainer.fragment)
+            gameContainerDom.appendChild(roleContainer.fragment)
+            gameContainerDom.appendChild(playerContainer.fragment)
             document.body.appendChild(gameContainerDom)
 
             // 掷骰子
@@ -2491,12 +2701,16 @@
                     return this;
                 },
                 next: function () {
+                    /** @type {Player} */
                     let player = this.players.shift()
                     mapContainer.next(player)
                     playerContainer.next(player)
                     logContainer.log(`玩家[${player.name}]开始掷骰子🎲`)
 
-                    diceContainer.open(2, async (total) => {
+
+                    let dictCount = player.positionType == PositionTypeEnum.LOOP ? 2 : 1; // 骰子数量
+
+                    diceContainer.open(dictCount, async (total) => {
                         logContainer.log(`玩家[${player.name}]投掷数为[${total}]`)
                         diceContainer.close()
                         await mapContainer.move(player, total)
@@ -2506,15 +2720,15 @@
                 },
             }
 
-            // queue.join(roles.map(r => new Player(r))).next()
+            queue.join(roles.map(r => new Player(r))).next()
 
 
-            let selected = await dialogContainer.open({
-                title: '提示',
-                content: '请选择想要的选项',
-                options: ["A", "B", "C"]
-            })
-            console.log(selected);
+            // let selected = await dialogContainer.open({
+            //     title: '提示',
+            //     content: '请选择想要的选项',
+            //     options: ["A", "B", "C"]
+            // })
+            // console.log(selected);
 
 
         }
