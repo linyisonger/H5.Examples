@@ -568,6 +568,15 @@
             fragment.appendChild(div.children.item(0))
             return fragment;
         }
+        /** 玩家行动美剧 */
+        const PlayerActionEnum = {
+            /** 默认 */
+            NONE: 0,
+            /** 再次 */
+            AGAIN: 1,
+            /** 暂停 */
+            PAUSE: -1
+        }
 
         /** 位置类型枚举 */
         const PositionTypeEnum = {
@@ -642,6 +651,8 @@
             positionType = PositionTypeEnum.LOOP
             /** 历史记录 */
             history = []
+            /** 行动状态 */
+            actionState = PlayerActionEnum.NONE
 
             /**
              * @param {Player} player
@@ -1290,6 +1301,8 @@
                 repute = 0
                 /** 幸福 */
                 happy = 0
+                /** 行动状态 */
+                actionState = PlayerActionEnum.NONE
             }
 
             class EmploymentEntranceCondition {
@@ -1332,6 +1345,8 @@
                     str += `${ICON_CONFIG.REPUTE}`
                     player.repute += changed.repute
                 }
+                if (changed.actionState === PlayerActionEnum.AGAIN) str += '<span style="color:red">再来一次</span>'
+                if (changed.actionState === PlayerActionEnum.PAUSE) str += '<span style="color:green">暂停一次</span>'
                 str += '</div>'
                 logContainer.log(str)
                 playerContainer.upd([player])
@@ -1453,6 +1468,9 @@
                  */
                 return async function (scene) {
                     table.call(this, scene)
+
+                    // 存在卡片 处理免疫负面事件
+
                     playerChange(scene.curPlayer, func(scene))
                 }
             }
@@ -1857,7 +1875,7 @@
                         width: "4.7%",
                         height: "4.7%",
                         name: '有机饲料家畜健康',
-                        description: "+2🎖4♥",
+                        description: `+2${ICON_CONFIG.REPUTE}4${ICON_CONFIG.HAPPY}`,
                         stop: ordinaryEvents((scene) => { return { happy: 4, repute: 2 } })
                     },
                     {
@@ -1887,7 +1905,7 @@
                         width: "4.7%",
                         height: "4.7%",
                         name: '大雪导致家禽冻死',
-                        description: "-♥/2",
+                        description: `-${ICON_CONFIG.HAPPY}/2`,
                         stop: ordinaryEvents((scene) => { return { happy: ~~(-scene.curPlayer.happy / 2) } })
                     },
                     {
@@ -1910,7 +1928,7 @@
                         width: "4.7%",
                         height: "4.7%",
                         name: '结识同学',
-                        description: "+4♥",
+                        description: `+4${ICON_CONFIG.HAPPY}`,
                         stop: ordinaryEvents((scene) => { return { happy: 4 } })
                     },
                     {
@@ -1920,7 +1938,8 @@
                         width: "4.7%",
                         height: "4.7%",
                         name: '期中考睡过头',
-                        description: "暂停一次"
+                        description: "暂停一次",
+                        stop: ordinaryEvents((scene) => { return { actionState: PlayerActionEnum.PAUSE } })
                     },
                     {
                         id: "3",
@@ -1929,7 +1948,7 @@
                         width: "4.7%",
                         height: "4.7%",
                         name: '代表学校参加比赛',
-                        description: "+2🎖",
+                        description: `+2${ICON_CONFIG.REPUTE}`,
                         stop: ordinaryEvents((scene) => { return { repute: 2 } })
                     },
                     {
@@ -1939,7 +1958,7 @@
                         width: "4.7%",
                         height: "4.7%",
                         name: '交错报告',
-                        description: "-🎲×♥",
+                        description: `-🎲×${ICON_CONFIG.HAPPY}`,
                         stop: ordinaryEvents((scene) => { return { happy: -scene.dicePoints } })
                     },
                     {
@@ -1959,7 +1978,7 @@
                         width: "4.7%",
                         height: "4.7%",
                         name: '获选为学生会长',
-                        description: "+6🎖",
+                        description: `+6${ICON_CONFIG.REPUTE}`,
                         stop: ordinaryEvents((scene) => { return { repute: 6 } })
                     },
                     {
@@ -1990,7 +2009,7 @@
                         width: "4.7%",
                         height: "4.7%",
                         name: '简报优异',
-                        description: "+4♥",
+                        description: `+4${ICON_CONFIG.HAPPY}`,
                         stop: ordinaryEvents((scene) => { return { happy: 4 } })
                     },
                     {
@@ -2010,7 +2029,8 @@
                         width: "4.7%",
                         height: "4.7%",
                         name: '误会客户失去合约',
-                        description: "暂停一次"
+                        description: "暂停一次",
+                        stop: ordinaryEvents((scene) => { return { actionState: PlayerActionEnum.PAUSE } })
                     },
                     {
                         id: "5",
@@ -2019,7 +2039,7 @@
                         width: "4.7%",
                         height: "4.7%",
                         name: '研发新品备受瞩目',
-                        description: "+6🎖",
+                        description: `+6${ICON_CONFIG.REPUTE}`,
                         stop: ordinaryEvents((scene) => { return { repute: 6 } })
                     },
                     {
@@ -2049,7 +2069,7 @@
                         width: "4.7%",
                         height: "4.7%",
                         name: '表现突出担任经理',
-                        description: "+2🎖4♥",
+                        description: `+2${ICON_CONFIG.REPUTE}4${ICON_CONFIG.HAPPY}`,
                         stop: ordinaryEvents((scene) => { return { repute: 2, happy: 4 } })
                     },
                     {
@@ -2068,7 +2088,7 @@
                         width: "4.7%",
                         height: "4.7%",
                         name: '品管不周客户退货',
-                        description: "-元/2",
+                        description: `-${ICON_CONFIG.RICHES}/2`,
                         stop: ordinaryEvents((scene) => { return { riches: ~~(-scene.curPlayer.riches / 2) } })
                     },
                     {
@@ -2100,7 +2120,7 @@
                         width: "4.7%",
                         height: "4.7%",
                         name: '与海豚一同玩乐',
-                        description: "+2♥",
+                        description: `+2${ICON_CONFIG.HAPPY}`,
                         stop: ordinaryEvents((scene) => { return { happy: 2 } })
                     },
                     {
@@ -2119,7 +2139,7 @@
                         width: "4.7%",
                         height: "4.7%",
                         name: '遭遇暴风雨',
-                        description: "-🎲×♥",
+                        description: `-🎲×${ICON_CONFIG.HAPPY}`,
                         stop: ordinaryEvents((scene) => { return { happy: -scene.dicePoints } })
                     },
                     {
@@ -2129,7 +2149,7 @@
                         width: "4.7%",
                         height: "4.7%",
                         name: '击退海盗救回同伴',
-                        description: "+6🎖",
+                        description: `+6${ICON_CONFIG.REPUTE}`,
                         stop: ordinaryEvents((scene) => { return { repute: 6 } })
                     },
                     {
@@ -2139,7 +2159,7 @@
                         width: "4.7%",
                         height: "4.7%",
                         name: '荣升大副',
-                        description: "+6🎖",
+                        description: `+6${ICON_CONFIG.REPUTE}`,
                         stop: ordinaryEvents((scene) => { return { repute: 6 } })
                     },
                     {
@@ -2159,7 +2179,7 @@
                         width: "4.7%",
                         height: "4.7%",
                         name: '雾中迷航顺利脱险',
-                        description: "+2🎖4♥",
+                        description: `+2${ICON_CONFIG.REPUTE}4${ICON_CONFIG.HAPPY}`,
                         stop: ordinaryEvents((scene) => { return { repute: 2, happy: 4 } })
                     },
                     {
@@ -2182,7 +2202,8 @@
                         width: "4.7%",
                         height: "4.7%",
                         name: '清扫街道美化市容',
-                        description: "+2♥"
+                        description: `+2${ICON_CONFIG.HAPPY}`,
+                        stop: ordinaryEvents((scene) => { return { happy: 2 } })
                     },
                     {
                         id: "2",
@@ -2191,7 +2212,8 @@
                         width: "4.7%",
                         height: "4.7%",
                         name: '植树造林',
-                        description: "+🎲×♥"
+                        description: `+🎲×${ICON_CONFIG.HAPPY}`,
+                        stop: ordinaryEvents((scene) => { return { happy: scene.dicePoints } })
                     },
                     {
                         id: "3",
@@ -2200,7 +2222,8 @@
                         width: "4.7%",
                         height: "4.7%",
                         name: '倡导环保',
-                        description: "+🎲×🎖"
+                        description: `+🎲×${ICON_CONFIG.REPUTE}`,
+                        stop: ordinaryEvents((scene) => { return { repute: scene.dicePoints } })
                     },
                     {
                         id: "4",
@@ -2209,7 +2232,8 @@
                         width: "4.7%",
                         height: "4.7%",
                         name: '协助医师下乡义诊',
-                        description: "+4🎖"
+                        description: `+4${ICON_CONFIG.REPUTE}`,
+                        stop: ordinaryEvents((scene) => { return { repute: 4 } })
                     },
                     {
                         id: "5",
@@ -2236,7 +2260,8 @@
                         width: "4.7%",
                         height: "4.7%",
                         name: '捐款助学',
-                        description: "+🎲×1000元"
+                        description: "+🎲×1000元",
+                        stop: ordinaryEvents((scene) => { return { riches: scene.dicePoints * 1000 } })
                     },
                     {
                         id: "8",
@@ -2245,7 +2270,8 @@
                         width: "4.7%",
                         height: "4.7%",
                         name: '爱心捐赠弱势群体',
-                        description: "+6🎖"
+                        description: `+6${ICON_CONFIG.REPUTE}`,
+                        stop: ordinaryEvents((scene) => { return { repute: 6 } })
                     },
                     {
                         id: "9",
@@ -2263,7 +2289,8 @@
                         width: "4.7%",
                         height: "4.7%",
                         name: '深入灾区救助难民',
-                        description: "+10♥"
+                        description: `+10${ICON_CONFIG.HAPPY}`,
+                        stop: ordinaryEvents((scene) => { return { happy: 10 } })
                     },
                     {
                         id: "11",
@@ -2272,7 +2299,8 @@
                         width: "4.7%",
                         height: "4.7%",
                         name: '造桥铺路',
-                        description: "+3♥3🎖"
+                        description: `+3${ICON_CONFIG.HAPPY}3${ICON_CONFIG.REPUTE}`,
+                        stop: ordinaryEvents((scene) => { return { happy: 3, repute: 3 } })
                     },
                 ].map((item) => new Station(item)),
                 // 电影
@@ -2293,7 +2321,8 @@
                         width: "4.7%",
                         height: "4.7%",
                         name: '广告出道一鸣惊人',
-                        description: "+4🎖"
+                        description: `+4${ICON_CONFIG.REPUTE}`,
+                        stop: ordinaryEvents((scene) => { return { repute: 4 } })
                     },
                     {
                         id: "3",
@@ -2302,7 +2331,8 @@
                         width: "4.7%",
                         height: "4.7%",
                         name: '获得电影演出机会',
-                        description: "+🎲×1000元"
+                        description: "+🎲×1000元",
+                        stop: ordinaryEvents((scene) => { return { riches: scene.dicePoints * 1000 } })
                     },
                     {
                         id: "4",
@@ -2311,7 +2341,8 @@
                         width: "4.7%",
                         height: "4.7%",
                         name: '绯闻曝光',
-                        description: "-♥/2"
+                        description: `-${ICON_CONFIG.HAPPY}/2`,
+                        stop: ordinaryEvents((scene) => { return { happy: ~~(-scene.curPlayer.happy / 2) } })
                     },
                     {
                         id: "5",
@@ -2320,7 +2351,8 @@
                         width: "4.7%",
                         height: "4.7%",
                         name: '粉丝成立后援会',
-                        description: "+3🎖3♥"
+                        description: `+3${ICON_CONFIG.REPUTE}3${ICON_CONFIG.HAPPY}`,
+                        stop: ordinaryEvents((scene) => { return { happy: 3, repute: 3 } })
                     },
                     {
                         id: "6",
@@ -2329,7 +2361,8 @@
                         width: "4.7%",
                         height: "4.7%",
                         name: '不实报道丑化形象',
-                        description: "-🎖/2"
+                        description: `-${ICON_CONFIG.REPUTE}/2`,
+                        stop: ordinaryEvents((scene) => { return { repute: ~~(-scene.curPlayer.repute / 2) } })
                     },
                     {
                         id: "7",
@@ -2338,7 +2371,8 @@
                         width: "4.7%",
                         height: "4.7%",
                         name: '电影上映大受欢迎',
-                        description: "加一千元薪级"
+                        description: "加一千元薪级",
+                        stop: ordinaryEvents((scene) => { return { salary: 1000 } })
                     },
                     {
                         id: "8",
@@ -2347,7 +2381,8 @@
                         width: "4.7%",
                         height: "4.7%",
                         name: '成为杂志封面人物',
-                        description: "+6000元"
+                        description: "+6000元",
+                        stop: ordinaryEvents((scene) => { return { riches: 6000 } })
                     },
                     {
                         id: "9",
@@ -2356,7 +2391,8 @@
                         width: "4.7%",
                         height: "4.7%",
                         name: '荣获金马奖',
-                        description: "+4🎖4♥"
+                        description: `+4${ICON_CONFIG.REPUTE}4${ICON_CONFIG.HAPPY}`,
+                        stop: ordinaryEvents((scene) => { return { happy: 4, repute: 4 } })
                     },
                 ].map((item) => new Station(item)),
                 // 采矿
@@ -2368,7 +2404,8 @@
                         width: "4.7%",
                         height: "4.7%",
                         name: '矿区采样',
-                        description: "-2000元"
+                        description: "-2000元",
+                        stop: ordinaryEvents((scene) => { return { riches: -2000 } })
                     },
                     {
                         id: "2",
@@ -2377,7 +2414,8 @@
                         width: "4.7%",
                         height: "4.7%",
                         name: '坑道整顿',
-                        description: "再行动一次"
+                        description: "再行动一次",
+                        stop: ordinaryEvents((scene) => { return { actionState: PlayerActionEnum.AGAIN } })
                     },
                     {
                         id: "3",
@@ -2386,7 +2424,8 @@
                         width: "4.7%",
                         height: "4.7%",
                         name: '山崩',
-                        description: "暂定一次"
+                        description: "暂定一次",
+                        stop: ordinaryEvents((scene) => { return { actionState: PlayerActionEnum.PAUSE } })
                     },
                     {
                         id: "4",
@@ -2395,7 +2434,8 @@
                         width: "4.7%",
                         height: "4.7%",
                         name: '发现黄金',
-                        description: "+2🎖4♥"
+                        description: `+2${ICON_CONFIG.REPUTE}4${ICON_CONFIG.HAPPY}`,
+                        stop: ordinaryEvents((scene) => { return { happy: 4, repute: 2 } })
                     },
                     {
                         id: "5",
@@ -2404,7 +2444,8 @@
                         width: "4.7%",
                         height: "4.7%",
                         name: '地质分析',
-                        description: "-🎲×1000元"
+                        description: "-🎲×1000元",
+                        stop: ordinaryEvents((scene) => { return { riches: -scene.dicePoints * 1000 } })
                     },
                     {
                         id: "6",
@@ -2413,7 +2454,8 @@
                         width: "4.7%",
                         height: "4.7%",
                         name: '意外发现文明遗迹',
-                        description: "+10♥"
+                        description: `+10${ICON_CONFIG.HAPPY}`,
+                        stop: ordinaryEvents((scene) => { return { happy: 10 } })
                     },
                     {
                         id: "7",
@@ -2431,7 +2473,8 @@
                         width: "4.7%",
                         height: "4.7%",
                         name: '发现石油',
-                        description: "+8000元"
+                        description: "+8000元",
+                        stop: ordinaryEvents((scene) => { return { riches: 8000 } })
                     },
                     {
                         id: "9",
@@ -2449,7 +2492,8 @@
                         width: "4.7%",
                         height: "4.7%",
                         name: '发现钻石',
-                        description: "+6000元"
+                        description: "+6000元",
+                        stop: ordinaryEvents((scene) => { return { riches: 6000 } })
                     },
                     {
                         id: "11",
@@ -2458,7 +2502,8 @@
                         width: "4.7%",
                         height: "4.7%",
                         name: '成立跨国采矿集团',
-                        description: "+10000元"
+                        description: "+10000元",
+                        stop: ordinaryEvents((scene) => { return { riches: 10000 } })
                     },
                 ].map((item) => new Station(item)),
                 // 航天
@@ -2470,7 +2515,8 @@
                         width: "4.7%",
                         height: "4.7%",
                         name: '协助建造航天飞机',
-                        description: "+6♥"
+                        description: `+6${ICON_CONFIG.HAPPY}`,
+                        stop: ordinaryEvents((scene) => { return { happy: 6 } })
                     },
                     {
                         id: "2",
@@ -2488,7 +2534,8 @@
                         width: "4.7%",
                         height: "4.7%",
                         name: '压力不适导致呕吐',
-                        description: "-4🎖"
+                        description: `-4${ICON_CONFIG.REPUTE}`,
+                        stop: ordinaryEvents((scene) => { return { repute: -4 } })
                     },
                     {
                         id: "4",
@@ -2497,7 +2544,8 @@
                         width: "4.7%",
                         height: "4.7%",
                         name: '通讯故障',
-                        description: "-3000元"
+                        description: "-3000元",
+                        stop: ordinaryEvents((scene) => { return { riches: -3000 } })
                     },
                     {
                         id: "5",
@@ -2506,7 +2554,8 @@
                         width: "4.7%",
                         height: "4.7%",
                         name: '紧急抢修',
-                        description: "+2🎖+4♥"
+                        description: `+2${ICON_CONFIG.REPUTE}4${ICON_CONFIG.HAPPY}`,
+                        stop: ordinaryEvents((scene) => { return { repute: 2, happy: 4 } })
                     },
                     {
                         id: "6",
@@ -2515,7 +2564,8 @@
                         width: "4.7%",
                         height: "4.7%",
                         name: '闪避陨石',
-                        description: "+6🎖"
+                        description: `+6${ICON_CONFIG.REPUTE}`,
+                        stop: ordinaryEvents((scene) => { return { repute: 6 } })
                     },
                     {
                         id: "7",
@@ -2524,7 +2574,8 @@
                         width: "4.7%",
                         height: "4.7%",
                         name: '登陆火星',
-                        description: "+🎲×♥"
+                        description: `+🎲×${ICON_CONFIG.HAPPY}`,
+                        stop: ordinaryEvents((scene) => { return { happy: scene.dicePoints } })
                     },
                     {
                         id: "8",
@@ -2533,7 +2584,8 @@
                         width: "4.7%",
                         height: "4.7%",
                         name: '发现火星特有细菌',
-                        description: "+4000元"
+                        description: "+4000元",
+                        stop: ordinaryEvents((scene) => { return { riches: 4000 } })
                     },
                     {
                         id: "9",
@@ -2542,7 +2594,8 @@
                         width: "4.7%",
                         height: "4.7%",
                         name: '测量地形',
-                        description: "+10♥"
+                        description: `+10${ICON_CONFIG.HAPPY}`,
+                        stop: ordinaryEvents((scene) => { return { happy: 10 } })
                     },
                     {
                         id: "10",
@@ -2551,7 +2604,8 @@
                         width: "4.7%",
                         height: "4.7%",
                         name: '发现神秘文明遗迹',
-                        description: "+10🎖"
+                        description: `+10${ICON_CONFIG.REPUTE}`,
+                        stop: ordinaryEvents((scene) => { return { repute: 10 } })
                     },
                     {
                         id: "11",
@@ -2569,7 +2623,9 @@
                         width: "4.7%",
                         height: "4.7%",
                         name: '返航地球',
-                        description: "+6🎖+4♥"
+                        description: `+6${ICON_CONFIG.REPUTE}+4${ICON_CONFIG.HAPPY}`,
+                        stop: ordinaryEvents((scene) => { return { repute: 6, happy: 4 } })
+
                     },
                     {
                         id: "13",
@@ -2578,7 +2634,9 @@
                         width: "4.7%",
                         height: "4.7%",
                         name: '将经历写成小说',
-                        description: "+6000元"
+                        description: "+6000元",
+                        stop: ordinaryEvents((scene) => { return { riches: 6000 } })
+
                     },
                 ].map((item) => new Station(item)),
             }
@@ -2647,15 +2705,13 @@
                 scene.dicePoints = count;
 
                 let currDom = mapContainerDom.querySelector(`.player-item[data-id="${player.id}"]`);
+
                 for (let i = 0; i < count; i++) {
                     await wait(500); // 测试加速
                     player.position++
                     player.save() // 暂存位置信息
                     let station = null
-
-
                     let insideStation = insideStations[player.positionType]
-
                     // 进入内圈
                     if (insideStation) {
                         if (scene.prevStation != insideStation[insideStation.length - 1]) { // 在内圈转动
@@ -2762,6 +2818,15 @@
                 next: function () {
                     /** @type {Player} */
                     let player = this.players.shift()
+
+                    // 暂停一轮
+                    if (player.actionState == PlayerActionEnum.PAUSE) {
+                        player.actionState = PlayerActionEnum.NONE;
+                        this.players.push(player)
+                        this.next();
+                        return;
+                    }
+
                     mapContainer.next(player)
                     playerContainer.next(player)
                     logContainer.log(`玩家[${player.name}]开始掷骰子🎲`)
@@ -2773,7 +2838,12 @@
                         logContainer.log(`玩家[${player.name}]投掷数为[${total}]`)
                         diceContainer.close()
                         await mapContainer.move(player, total)
-                        this.players.push(player);
+                        // 再来一次
+                        if (player.actionState === PlayerActionEnum.AGAIN) {
+                            player.actionState = PlayerActionEnum.NONE;
+                            this.players.unshift(player)
+                        }
+                        else this.players.push(player);
                         this.next()
                     })
                 },
