@@ -13,7 +13,7 @@
             height: 100vh;
         }
 
-        .flex-center {
+        .flex-row-center {
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -1320,7 +1320,7 @@
                     logContainer.log(`玩家[${player.name}]没有任何变化`)
                     return
                 }; // 没有发生改变
-                let str = `<div class="flex-center">玩家[${player.name}]`
+                let str = `<div class="flex-row-center">玩家[${player.name}]`
                 if (changed.riches) {
                     str += `${ICON_CONFIG.RICHES}`
                     if (changed.riches > 0) str += `<span style="color:red">+${changed.riches}元</span>`
@@ -1595,19 +1595,19 @@
                     name: '所有人付娱乐费',
                     description: `
                         <tr>
-                            <td><div class="flex-center">所持有${ICON_CONFIG.HAPPY}</div></td>
+                            <td><div class="flex-row-center">所持有${ICON_CONFIG.HAPPY}</div></td>
                             <td>需付款</td>
                         </tr>
                         <tr>
-                            <td><div class="flex-center">1~5${ICON_CONFIG.HAPPY}</div></td>
+                            <td><div class="flex-row-center">1~5${ICON_CONFIG.HAPPY}</div></td>
                             <td>3000元</td>
                         </tr>
                         <tr>
-                            <td><div class="flex-center">6~20${ICON_CONFIG.HAPPY}</div></td>
+                            <td><div class="flex-row-center">6~20${ICON_CONFIG.HAPPY}</div></td>
                             <td>2000元</td>
                         </tr>
                         <tr>
-                            <td><div class="flex-center">21${ICON_CONFIG.HAPPY}以上</div></td>
+                            <td><div class="flex-row-center">21${ICON_CONFIG.HAPPY}以上</div></td>
                             <td>1000元</td>
                         </tr>
                     `,
@@ -2831,9 +2831,10 @@
                     playerContainer.next(player)
                     logContainer.log(`玩家[${player.name}]开始掷骰子🎲`)
 
-
+                    // 判断当前玩家是否可以移动  例如特定场地
+                    
+                    
                     let dictCount = player.positionType == PositionTypeEnum.LOOP ? 2 : 1; // 骰子数量
-
                     diceContainer.open(dictCount, async (total) => {
                         logContainer.log(`玩家[${player.name}]投掷数为[${total}]`)
                         diceContainer.close()
