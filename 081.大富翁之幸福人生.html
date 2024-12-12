@@ -711,8 +711,11 @@
              * @param {SceneStation} scene
              */
             stop = (scene) => { }
-
-
+            /**
+             * 离开
+             * @param {SceneStation} scene
+             */
+            leave = (scene) => { }
             /**
              * @param {Station} station
              */
@@ -933,61 +936,57 @@
             const diceItemContainerDom = fragment.querySelector('.dice-item-container')
             /** @type {HTMLDivElement} */
             const confirmDom = diceContainerDom.querySelector('.game-btn-confirm')
+
             /** 
-             * 回调函数
-             * @param {number} total
-             */
-            let cb = (total) => { }
-
-            confirmDom.addEventListener("click", async () => {
-                // 执行🎲
-                const diceItemDomList = diceItemContainerDom.querySelectorAll('.dice-item:not(.hidden)')
-                // 结果
-                const result = {}
-                // 循环15次约等于1.5s
-                for (let i = 0; i < 15; i++) {
-                    await wait(100);
-                    for (let j = 0; j < diceItemDomList.length; j++) {
-                        /** @type {HTMLDivElement} */
-                        const diceItemDom = diceItemDomList.item(j);
-                        const val = Randoms.int(0, 6)
-                        diceItemDom.style.backgroundImage = `url(${diceImages[val].src})`
-                        result[j] = val + 1
-                    }
-                }
-                const total = Maths.sum(Object.values(result))
-                cb?.(total)
-
-
-            })
-            /**
              * @param {number} count
-             * @param {(total: number) => void} callback
+             * @return {Promise<number>}
              */
-            const open = (count, callback) => {
-                cb = callback
-                for (let i = 0; i < diceItemContainerDom.children.length; i++) {
-                    const dom = diceItemContainerDom.children.item(i)
-                    dom.classList.add('hidden')
-                }
-                for (let i = 0; i < count; i++) {
-                    /** @type {HTMLDivElement} */
-                    const dom = diceItemContainerDom.children.item(i)
-                    dom.classList.remove('hidden')
-                    dom.style.backgroundImage = `url(${diceImages[0].src})`
-                }
-                diceContainerDom.classList.remove('close')
-            }
-            logContainer.log("骰子控件加载完成")
+            const open = (count) => {
+                return new Promise((resolve) => {
 
-            const close = () => {
-                diceContainerDom.classList.add('close')
+                    for (let i = 0; i < diceItemContainerDom.children.length; i++) {
+                        const dom = diceItemContainerDom.children.item(i)
+                        dom.classList.add('hidden')
+                    }
+                    for (let i = 0; i < count; i++) {
+                        /** @type {HTMLDivElement} */
+                        const dom = diceItemContainerDom.children.item(i)
+                        dom.classList.remove('hidden')
+                        dom.style.backgroundImage = `url(${diceImages[0].src})`
+                    }
+                    diceContainerDom.classList.remove('close')
+
+                    const confirmFunc = async function () {
+                        // 执行🎲
+                        const diceItemDomList = diceItemContainerDom.querySelectorAll('.dice-item:not(.hidden)')
+                        // 结果
+                        const result = {}
+                        // 循环15次约等于1.5s
+                        for (let i = 0; i < 15; i++) {
+                            await wait(100);
+                            for (let j = 0; j < diceItemDomList.length; j++) {
+                                /** @type {HTMLDivElement} */
+                                const diceItemDom = diceItemDomList.item(j);
+                                const val = Randoms.int(0, 6)
+                                diceItemDom.style.backgroundImage = `url(${diceImages[val].src})`
+                                result[j] = val + 1
+                            }
+                        }
+                        const total = Maths.sum(Object.values(result))
+                        diceContainerDom.classList.add('close')
+                        resolve(total)
+                    }
+
+                    confirmDom.removeEventListener("click", confirmFunc)
+                    confirmDom.addEventListener("click", confirmFunc)
+                })
             }
+
+            logContainer.log("骰子控件加载完成")
 
             return {
                 fragment,
-                open,
-                close
+                open
             }
         }()
 
@@ -1089,51 +1088,52 @@
 
             /** @type {HTMLDivElement} */
             const confirmDom = roleContainerDom.querySelector('.game-btn-confirm')
-            let cb = (roles) => { }
-            confirmDom.addEventListener("click", () => {
-                console.log('选中角色');
-                let selected = []
-                let roles = roleItemContainerDom.querySelectorAll('.role-item')
-                let targets = targetItemContainerDom.querySelectorAll('.target-item')
-                let valid = true
-                roles.forEach((role, roleIndex) => {
-                    let target = targets.item(roleIndex)
-                    target.classList.remove('error')
-                    target.classList.remove('valid')
-                    if (role.classList.contains('active')) {
-                        let inputs = target.querySelectorAll('input')
-                        let targetRiches = +inputs.item(0).value
-                        let targetRepute = +inputs.item(1).value
-                        let targetHapply = +inputs.item(2).value
-                        selected.push(new Role({
-                            ...roleList[roleIndex],
-                            targetRiches,
-                            targetRepute,
-                            targetHapply
-                        }))
-                        if (targetRiches + targetRepute + targetHapply != 60) {
-                            target.classList.add('error')
-                            valid = false;
-                        }
-                        else {
-                            target.classList.add('valid')
-                            valid = true
-                        }
-                    }
-                })
 
-                if (valid) {
-                    cb?.(selected);
-                }
-
-            })
             logContainer.log('角色控件加载完成')
             /**
-             * @param {(roles:[])=>{}} callback
+             * @return {Promise<roles[]>}
              */
-            const open = (callback) => {
-                cb = callback
+            const open = () => {
                 roleContainerDom.classList.remove('close')
+                return new Promise((resolve) => {
+                    confirmDom.addEventListener("click", () => {
+                        console.log('选中角色');
+                        let selected = []
+                        let roles = roleItemContainerDom.querySelectorAll('.role-item')
+                        let targets = targetItemContainerDom.querySelectorAll('.target-item')
+                        let valid = true
+                        roles.forEach((role, roleIndex) => {
+                            let target = targets.item(roleIndex)
+                            target.classList.remove('error')
+                            target.classList.remove('valid')
+                            if (role.classList.contains('active')) {
+                                let inputs = target.querySelectorAll('input')
+                                let targetRiches = +inputs.item(0).value
+                                let targetRepute = +inputs.item(1).value
+                                let targetHapply = +inputs.item(2).value
+                                selected.push(new Role({
+                                    ...roleList[roleIndex],
+                                    targetRiches,
+                                    targetRepute,
+                                    targetHapply
+                                }))
+                                if (targetRiches + targetRepute + targetHapply != 60) {
+                                    target.classList.add('error')
+                                    valid = false;
+                                }
+                                else {
+                                    target.classList.add('valid')
+                                    valid = true
+                                }
+                            }
+                        })
+
+                        if (valid) {
+                            resolve(selected);
+                        }
+                    })
+
+                })
             }
             return {
                 fragment,
@@ -1170,7 +1170,9 @@
          * @date 	 2024-11-29
          */
         const chanceContainer = await async function () {
+            const open = (count) => {
 
+            }
         }()
 
 
@@ -1190,6 +1192,35 @@
 
         }()
 
+
+
+        /**
+         * 医院控件
+         * @author 	 linyisonger
+         * @date 	 2024-12-12
+         */
+        const hospitalContainer = await async function () {
+
+        }()
+
+        /**
+         * 公园控件
+         * @author 	 linyisonger
+         * @date 	 2024-12-12
+         */
+        const parkContainer = await async function () {
+
+        }()
+
+
+        /**
+         * 股票市场
+         * @author 	 linyisonger
+         * @date 	 2024-12-12
+         */
+        const stockMarketContainer = await async function () {
+
+        }();
 
 
         /**
@@ -1472,6 +1503,34 @@
                     // 存在卡片 处理免疫负面事件
 
                     playerChange(scene.curPlayer, func(scene))
+                }
+            }
+
+
+            /**
+             * 移动事件
+             * @param {keyof PositionTypeEnum} type
+             * @param {number} index
+             */
+            function moveStation(type, index) {
+                /**
+                 * @param {SceneStation} scene 
+                 */
+                return async function (scene) {
+
+                    let station = null;
+                    let player = scene.curPlayer;
+
+                    player.positionType = PositionTypeEnum[type]
+                    player.position = index;
+
+                    // 进入外圈
+                    if (player.positionType == PositionTypeEnum.LOOP) {
+                        station = loopStations[player.position % loopStations.length]; // 外圈站点
+                    }
+                    scene.prevStation = station;
+                    logContainer.log(`玩家[${scene.curPlayer.name}]移动到[${station.name}]`)
+                    station.stop?.(scene)
                 }
             }
 
@@ -2714,6 +2773,8 @@
                     let insideStation = insideStations[player.positionType]
                     // 进入内圈
                     if (insideStation) {
+                        console.log(insideStation, scene.prevStation);
+
                         if (scene.prevStation != insideStation[insideStation.length - 1]) { // 在内圈转动
                             station = insideStation[player.position]  // 内圈站点
                         }
@@ -2737,6 +2798,23 @@
 
             }
 
+
+            /**
+             * 玩家离开
+             * @param {Player} player
+             */
+            let leave = async (player) => {
+                // 进入外圈
+                if (player.positionType == PositionTypeEnum.LOOP) {
+                    let station = loopStations[player.position % loopStations.length]; // 外圈站点
+                    scene.curPlayer = player;
+                    return await station.leave?.(scene)
+                }
+                return true;
+            }
+
+
+
             /**
              * 下一个玩家
              * @param {Player} player 
@@ -2748,6 +2826,9 @@
                 currDom.classList.add('active')
                 lookAt(currDom.parentNode) // 镜头跟随
             }
+
+
+
 
             return {
                 fragment,
@@ -2774,17 +2855,10 @@
             document.body.appendChild(gameContainerDom)
 
             // 掷骰子
-            // diceContainer.open(1, (total) => {
-            //     // 执行事件
-            //     logContainer.log(`XXX 掷得 ${total} 点`)
-            //     // 
-            // }) 
-            // 
+            // let diceTotal = await diceContainer.open(1)
 
             // 选择角色
-            // roleContainer.open((roles) => {
-            //     console.log(roles);
-            // })
+            // let selecedRoles = await roleContainer.open()
 
             // 选中的角色
             let roles = [
@@ -2815,7 +2889,7 @@
                     mapContainer.join(players)
                     return this;
                 },
-                next: function () {
+                next: async function () {
                     /** @type {Player} */
                     let player = this.players.shift()
 
@@ -2832,21 +2906,24 @@
                     logContainer.log(`玩家[${player.name}]开始掷骰子🎲`)
 
                     // 判断当前玩家是否可以移动  例如特定场地
-                    
-                    
+
+
                     let dictCount = player.positionType == PositionTypeEnum.LOOP ? 2 : 1; // 骰子数量
-                    diceContainer.open(dictCount, async (total) => {
-                        logContainer.log(`玩家[${player.name}]投掷数为[${total}]`)
-                        diceContainer.close()
-                        await mapContainer.move(player, total)
-                        // 再来一次
-                        if (player.actionState === PlayerActionEnum.AGAIN) {
-                            player.actionState = PlayerActionEnum.NONE;
-                            this.players.unshift(player)
-                        }
-                        else this.players.push(player);
-                        this.next()
-                    })
+                    let dictTotal = await diceContainer.open(dictCount);
+                    logContainer.log(`玩家[${player.name}]投掷数为[${dictTotal}]`)
+
+
+
+
+                    await mapContainer.move(player, dictTotal)
+
+                    // 再来一次
+                    if (player.actionState === PlayerActionEnum.AGAIN) {
+                        player.actionState = PlayerActionEnum.NONE;
+                        this.players.unshift(player)
+                    }
+                    else this.players.push(player);
+                    this.next()
                 },
             }
 
