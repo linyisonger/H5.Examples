@@ -441,7 +441,8 @@
             margin-top: 10px;
             display: flex;
             padding: 0 20px;
-            line-height: 40px;
+            align-items: center;
+            height: 40px;
             background-color: #2776ec;
             color: #fff;
             cursor: pointer;
@@ -465,13 +466,20 @@
             border-radius: 20px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);
             width: 500px;
-            padding-left: 200px;
+            padding-left: 40px;
+            padding-right: 40px;
+            padding-top: 30px;
         }
 
-        .hospital-container .doctor {
+        .hospital-container .logo {
             position: absolute;
-            bottom: 0;
+            top: 0;
             left: 20px;
+            transform: translate(0, -70%);
+        }
+
+        .hospital-container .logo img {
+            width: 150px;
         }
 
         .hospital-container .hospital-message {
@@ -502,12 +510,69 @@
         .hospital-container .hospital-footer {
             display: flex;
             justify-content: space-between;
-            padding-right: 20px;
             margin-bottom: 20px;
         }
 
 
         .hospital-container.close {
+            top: -100%;
+        }
+
+
+
+        .park-container {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(255, 255, 255, 1);
+            border-radius: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);
+            width: 500px;
+            padding-left: 40px;
+            padding-right: 40px;
+            padding-top: 30px;
+        }
+
+        .park-container .logo {
+            position: absolute;
+            top: 0;
+            left: 20px;
+            transform: translate(0, -60%);
+        }
+
+        .park-container .logo img {
+            width: 150px;
+        }
+
+        .park-container .park-message {
+            margin-top: 20px;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .park-container .park-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .park-container .park-item img {
+            height: 20px
+        }
+
+        .park-container .park-item img:last-child {
+            margin-right: 10px;
+        }
+
+        .park-container .park-footer {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+
+        .park-container.close {
             top: -100%;
         }
     </style>
@@ -669,6 +734,7 @@
             MOVIES: `<img src="./assets/monopoly-life/movies.png"/>`,
             MINING: `<img src="./assets/monopoly-life/mining.png"/>`,
             SPACE: `<img src="./assets/monopoly-life/space.png"/>`,
+            VACATIONAL: `<img src="./assets/monopoly-life/vacational.png"/>`,
         }
 
         class Role {
@@ -1264,8 +1330,8 @@
             ].map(u => loadImage(u)))
             const template = `
                 <div class="hospital-container close">
-                    <div class="doctor">
-                        <img src="./assets/monopoly-life/doctor.png"/> 
+                    <div class="logo">
+                        <img src="./assets/monopoly-life/hospital.png"/> 
                     </div>
                     <div class="hospital-content">
                         <div class="hospital-message">
@@ -1342,7 +1408,83 @@
          * @date 	 2024-12-12
          */
         const parkContainer = await async function () {
+            const diceImages = await Promise.all([
+                './assets/monopoly/1.png',
+                './assets/monopoly/2.png',
+                './assets/monopoly/3.png',
+                './assets/monopoly/4.png',
+                './assets/monopoly/5.png',
+                './assets/monopoly/6.png',
+            ].map(u => loadImage(u)))
+            const template = `
+                <div class="park-container close">
+                    <div class="logo">
+                        <img src="./assets/monopoly-life/park.png"/> 
+                    </div>
+                    <div class="park-content">
+                        <div class="park-message">
+                            不可使用机会卡或经验卡离开此格，投掷一骰，若点数为双数，下回合即可离开：
+                        </div>
+                        <div class="park-list">
+                            <div class="park-item">
+                                <img src="${diceImages[1].src}"/>
+                                <img src="${diceImages[3].src}"/> 
+                                <img src="${diceImages[5].src}"/>
+                                下回合离开
+                            </div>
+                            <div class="park-item">
+                                <img src="${diceImages[0].src}"/>
+                                <img src="${diceImages[2].src}"/>
+                                <img src="${diceImages[4].src}"/>
+                                下回合继续
+                            </div>           
+                        </div>
+                        <div class="park-footer">
+                            <div class="park-dice">
+                                <img src="${diceImages[4].src}"/>
+                            </div>
+                            <div class="game-btn-confirm">开始转动</div>
+                        </div>
+                       
+                    </div>
+                </div>
+            `
+            const fragment = createFragment(template)
+            const parkContainerDom = fragment.querySelector('.park-container')
+            const confirmDom = parkContainerDom.querySelector('.game-btn-confirm')
 
+
+            /**
+             * @return {Promise<number>}
+             */
+            const open = function () {
+                parkContainerDom.classList.remove('close')
+                return new Promise((resolve) => {
+                    const confirmFunc = async function () {
+                        // 执行🎲
+                        /** @type {HTMLImageElement} */
+                        const diceItemDom = parkContainerDom.querySelector('.park-dice img')
+                        // 结果
+                        let total = 0
+                        // 循环15次约等于1.5s
+                        for (let i = 0; i < 15; i++) {
+                            await wait(100);
+                            const val = Randoms.int(0, 6)
+                            diceItemDom.setAttribute('src', `${diceImages[val].src}`)
+                            total = val + 1
+                        }
+                        parkContainerDom.classList.add('close')
+                        resolve(total)
+                    }
+                    confirmDom.removeEventListener("click", confirmFunc)
+                    confirmDom.addEventListener("click", confirmFunc)
+                })
+            }
+
+            return {
+                fragment,
+                open
+            }
         }()
 
 
@@ -1522,7 +1664,7 @@
              */
             function table(scene) {
                 // 是否纯文本
-                let isText = !/<.*?>/.test(this.description);
+                let isText = !/<td.*?>/.test(this.description);
                 let description = this.description;
                 if (isText) description = `<tr><td>${description}</td></tr>`
                 const table = `
@@ -1535,6 +1677,8 @@
                         </tbody>
                     </table>
                 `
+
+                console.log(table);
                 logContainer.log(`玩家[${scene.curPlayer.name}]触发事件${table}`)
             }
 
@@ -1693,6 +1837,62 @@
                 return false;
             }
 
+            /**
+             * 停留度假村
+             * @param {SceneStation} scene 
+             */
+            async function stopVacational(scene) {
+                table.call(this, scene)
+                playerChange(scene.curPlayer, { happy: 2 })
+
+                let options = [
+                    `下回合多停留一次 +3${ICON_CONFIG.HAPPY}`,
+                    '下回合离开'
+                ]
+
+                let selected = await dialogContainer.open({
+                    title: "提示",
+                    content: `
+                            <div class="flex-column-center">
+                                <div style="width:100px">
+                                    ${ICON_CONFIG.VACATIONAL}
+                                </div>
+                                <div>
+                                    到达[${this.name}]请选择
+                                </div>
+                            </div>
+                        `,
+                    options
+                })
+
+                if (selected == 0) {
+                    scene.curPlayer.actionState = PlayerActionEnum.PAUSE
+                    playerChange(scene.curPlayer, { happy: 3 })
+                }
+            }
+
+            // 离开公园人员列表
+            let exitParkList = []
+            /**
+             * 停留公园
+             * @param {SceneStation} scene 
+             */
+            async function leaveOrStopPark() {
+                let exitIndex = exitParkList.findIndex(d => d === scene.curPlayer)
+                // 离开
+                if (exitIndex > -1) {
+                    exitParkList.splice(exitIndex, 1)
+                    return true;
+                }
+                let diceTotal = await parkContainer.open()
+
+                // 偶数离开
+                if (diceTotal % 2 == 0) {
+                    exitParkList.push(scene.curPlayer)
+                }
+
+                return false
+            }
             /**
              * 外圈
              * @type {Station[]}
@@ -1875,7 +2075,7 @@
                     width: "15.34%",
                     height: "9.4%",
                     name: '航海就业入口',
-                    description: "",
+                    description: ``,
                     stop: employmentEntrance("VOYAGE")
                 },
                 {
@@ -1894,7 +2094,15 @@
                     width: "15.34%",
                     height: "15.34%",
                     name: '三亚度假',
-                    description: ""
+                    description: `
+                        <tr>
+                            <td>停留此处+2${ICON_CONFIG.HAPPY}</td>
+                        </tr>
+                        <tr>
+                            <td>可选择下回合多停留一次+3${ICON_CONFIG.HAPPY}(限额外停留一次)</td>
+                        </tr>
+                    `,
+                    stop: stopVacational
                 },
                 {
                     id: "18",
@@ -1968,7 +2176,9 @@
                     width: "15.44%",
                     height: "15.34%",
                     name: '公园板凳',
-                    description: ""
+                    description: "不可使用机会卡或经验卡离开此格，投掷一骰，若点数为双数，下回合即可离开",
+                    stop: leaveOrStopPark,
+                    leave: leaveOrStopPark
                 },
                 {
                     id: "26",
@@ -2297,7 +2507,8 @@
                         width: "4.7%",
                         height: "4.7%",
                         name: '金融风暴周转失灵',
-                        description: "马上移到公园"
+                        description: "马上移到公园",
+                        stop: moveStation("LOOP", 24)
                     },
                     {
                         id: "10",
@@ -2329,7 +2540,8 @@
                         width: "4.7%",
                         height: "4.7%",
                         name: '严重晕船',
-                        description: "马上移到医院"
+                        description: "马上移到医院",
+                        stop: moveStation("LOOP", 8)
                     },
                     {
                         id: "2",
@@ -2460,7 +2672,8 @@
                         width: "4.7%",
                         height: "4.7%",
                         name: '热心过度体力不支',
-                        description: "马上移到医院"
+                        description: "马上移到医院",
+                        stop: moveStation("LOOP", 8)
                     },
                     {
                         id: "6",
@@ -2498,7 +2711,8 @@
                         width: "4.7%",
                         height: "4.7%",
                         name: '遭遇天灾',
-                        description: "马上移到公园"
+                        description: "马上移到公园",
+                        stop: moveStation("LOOP", 24)
                     },
                     {
                         id: "10",
@@ -2682,7 +2896,8 @@
                         width: "4.7%",
                         height: "4.7%",
                         name: '引发尘暴',
-                        description: "马上移到医院"
+                        description: "马上移到医院",
+                        stop: moveStation("LOOP", 8)
                     },
                     {
                         id: "8",
@@ -2917,7 +3132,7 @@
              * @param {number} count
              */
             let move = async (player, count) => {
-                count = 8 //loopStations.length + 
+                // count = 16 //loopStations.length + 
 
                 scene.curPlayer = player;
                 scene.dicePoints = count;
@@ -3015,6 +3230,7 @@
             gameContainerDom.appendChild(roleContainer.fragment)
             gameContainerDom.appendChild(playerContainer.fragment)
             gameContainerDom.appendChild(hospitalContainer.fragment)
+            gameContainerDom.appendChild(parkContainer.fragment)
             document.body.appendChild(gameContainerDom)
 
             // 掷骰子
@@ -3023,6 +3239,14 @@
             // 选择角色
             // let selecedRoles = await roleContainer.open()
 
+
+            // 医院测试
+            // let dictTotal = await hospitalContainer.open()
+
+
+            // 公园测试
+            // let parkTotal = await parkContainer.open()
+            
             // 选中的角色
             let roles = [
                 {
