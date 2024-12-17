@@ -785,6 +785,23 @@
             fragment.appendChild(div.children.item(0))
             return fragment;
         }
+
+        /**
+         * 模板加载
+         * @param {string} selectors 
+         */
+        function templateLoad(selectors) {
+            let template = document.querySelector(selectors)
+            let clone = document.importNode(template.content, true);
+            let container = document.createElement('div')
+            container.id = Randoms.uuid();
+            let shadowRoot = container.attachShadow({ mode: "open" });
+            shadowRoot.appendChild(clone)
+            // 仅输出宿主节点
+            // 影子节点可以通过 container.shadowRoot.querySelector 进行查询
+            return container
+        }
+
         /** 玩家行动美剧 */
         const PlayerActionEnum = {
             /** 默认 */
