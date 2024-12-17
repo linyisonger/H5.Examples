@@ -170,9 +170,6 @@
             cursor: pointer;
         }
 
-
-
-
         .game-btn-confirm:active {
             opacity: .7;
         }
@@ -267,124 +264,11 @@
             width: 100%;
         }
 
-        .hospital-container {
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            background-color: rgba(255, 255, 255, 1);
-            border-radius: 20px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);
-            width: 500px;
-            padding-left: 40px;
-            padding-right: 40px;
-            padding-top: 30px;
-        }
-
-        .hospital-container .logo {
-            position: absolute;
-            top: 0;
-            left: 20px;
-            transform: translate(0, -70%);
-        }
-
-        .hospital-container .logo img {
-            width: 150px;
-        }
-
-        .hospital-container .hospital-message {
-            margin-top: 20px;
-            font-size: 16px;
-            margin-bottom: 10px;
-        }
-
-        .hospital-container .hospital-item {
-            display: flex;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .hospital-container .hospital-item img {
-            height: 20px
-        }
-
-        .hospital-container .hospital-item img:last-child {
-            margin-right: 10px;
-        }
-
-        .hospital-container .hospital-item:last-child {
-            color: #a1a1a1;
-            font-size: 14px;
-        }
-
-        .hospital-container .hospital-footer {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 20px;
-        }
-
-
-        .hospital-container.close {
-            top: -100%;
-        }
 
 
 
-        .park-container {
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            background-color: rgba(255, 255, 255, 1);
-            border-radius: 20px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);
-            width: 500px;
-            padding-left: 40px;
-            padding-right: 40px;
-            padding-top: 30px;
-        }
-
-        .park-container .logo {
-            position: absolute;
-            top: 0;
-            left: 20px;
-            transform: translate(0, -60%);
-        }
-
-        .park-container .logo img {
-            width: 150px;
-        }
-
-        .park-container .park-message {
-            margin-top: 20px;
-            font-size: 16px;
-            margin-bottom: 10px;
-        }
-
-        .park-container .park-item {
-            display: flex;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .park-container .park-item img {
-            height: 30px
-        }
-
-        .park-container .park-item img:last-child {
-            margin-right: 10px;
-        }
-
-        .park-container .park-footer {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 20px;
-        }
 
 
-        .park-container.close {
-            top: -100%;
-        }
 
 
         .lottery-container {
@@ -548,7 +432,7 @@
             }
         </style>
     </template>
-    <template id="players-template">
+    <template id="player-template">
         <style>
             :host {
                 display: flex;
@@ -710,10 +594,227 @@
             .dice-item.hidden {
                 display: none;
             }
+
+            .game-btn-confirm {
+                display: inline-flex;
+                padding: 0 20px;
+                line-height: 40px;
+                background-color: #2776ec;
+                color: #fff;
+                cursor: pointer;
+            }
+
+            .game-btn-confirm:active {
+                opacity: .7;
+            }
         </style>
     </template>
+    <template id="hospital-template">
+        <div class="logo">
+            <img src="./assets/monopoly-life/hospital.png" />
+        </div>
+        <div class="hospital-content">
+            <div class="hospital-message">
+                不可使用机会卡或经验卡离开此格，需掷骰决定如何离开医院：
+            </div>
+            <div class="hospital-list">
+                <div class="hospital-item">
+                    <img src="./assets/monopoly/1.png" />
+                    <img src="./assets/monopoly/2.png" />
+                    再休养一回合
+                </div>
+                <div class="hospital-item">
+                    <img src="./assets/monopoly/3.png" />
+                    <img src="./assets/monopoly/4.png" />
+                    <img src="./assets/monopoly/5.png" />
+                    <img src="./assets/monopoly/6.png" />
+                    付薪级一半的医药费给有医学学位的人下回合出院
+                </div>
+                <div class="hospital-item">
+                    (若无人有医学学位则给银行)
+                </div>
+            </div>
+            <div class="hospital-footer">
+                <div class="hospital-dice">
+                    <img src="./assets/monopoly/5.png" />
+                </div>
+                <div class="game-btn-confirm">开始转动</div>
+            </div>
+        </div>
+        <style>
+            :host {
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+                background-color: rgba(255, 255, 255, 1);
+                border-radius: 20px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);
+                width: 500px;
+                padding-left: 40px;
+                padding-right: 40px;
+                padding-top: 30px;
+            }
 
+            :host(.close) {
+                top: -100%;
+            }
 
+            .logo {
+                position: absolute;
+                top: 0;
+                left: 20px;
+                transform: translate(0, -70%);
+            }
+
+            .logo img {
+                width: 150px;
+            }
+
+            .hospital-message {
+                margin-top: 20px;
+                font-size: 16px;
+                margin-bottom: 10px;
+            }
+
+            .hospital-item {
+                display: flex;
+                align-items: center;
+                margin-bottom: 10px;
+            }
+
+            .hospital-item img {
+                height: 20px
+            }
+
+            .hospital-item img:last-child {
+                margin-right: 10px;
+            }
+
+            .hospital-item:last-child {
+                color: #a1a1a1;
+                font-size: 14px;
+            }
+
+            .hospital-footer {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 20px;
+            }
+
+            .game-btn-confirm {
+                display: inline-flex;
+                padding: 0 20px;
+                line-height: 40px;
+                background-color: #2776ec;
+                color: #fff;
+                cursor: pointer;
+            }
+
+            .game-btn-confirm:active {
+                opacity: .7;
+            }
+        </style>
+    </template>
+    <template id="park-template">
+        <div class="logo">
+            <img src="./assets/monopoly-life/park.png" />
+        </div>
+        <div class="park-content">
+            <div class="park-message">
+                不可使用机会卡或经验卡离开此格，投掷一骰，若点数为双数，下回合即可离开：
+            </div>
+            <div class="park-list">
+                <div class="park-item">
+                    <img src="./assets/monopoly/2.png" />
+                    <img src="./assets/monopoly/4.png" />
+                    <img src="./assets/monopoly/6.png" />
+                    下回合离开
+                </div>
+                <div class="park-item">
+                    <img src="./assets/monopoly/1.png" />
+                    <img src="./assets/monopoly/3.png" />
+                    <img src="./assets/monopoly/5.png" />
+                    下回合继续
+                </div>
+            </div>
+            <div class="park-footer">
+                <div class="park-dice">
+                    <img src="./assets/monopoly/5.png" />
+                </div>
+                <div class="game-btn-confirm">开始转动</div>
+            </div>
+        </div>
+        <style>
+            :host {
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+                background-color: rgba(255, 255, 255, 1);
+                border-radius: 20px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);
+                width: 500px;
+                padding-left: 40px;
+                padding-right: 40px;
+                padding-top: 30px;
+            }
+
+            :host(.close) {
+                top: -100%;
+            }
+
+            .logo {
+                position: absolute;
+                top: 0;
+                left: 20px;
+                transform: translate(0, -60%);
+            }
+
+            .logo img {
+                width: 150px;
+            }
+
+            .park-message {
+                margin-top: 20px;
+                font-size: 16px;
+                margin-bottom: 10px;
+            }
+
+            .park-item {
+                display: flex;
+                align-items: center;
+                margin-bottom: 10px;
+            }
+
+            .park-item img {
+                height: 30px
+            }
+
+            .park-item img:last-child {
+                margin-right: 10px;
+            }
+
+            .park-footer {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 20px;
+            }
+
+            .game-btn-confirm {
+                display: inline-flex;
+                padding: 0 20px;
+                line-height: 40px;
+                background-color: #2776ec;
+                color: #fff;
+                cursor: pointer;
+            }
+
+            .game-btn-confirm:active {
+                opacity: .7;
+            }
+        </style>
+    </template>
 
 
     <script type="module">
@@ -1024,7 +1125,7 @@
          * @date 	 2024-11-29
          */
         const playerContainer = function () {
-            const fragment = templateLoad("#players-template")
+            const fragment = templateLoad("#player-template")
             fragment.classList.add('close');
             /**
              * 玩家加入
@@ -1154,9 +1255,9 @@
                 './assets/monopoly/6.png',
             ].map(u => loadImage(u)))
             /** @type {HTMLDivElement} */
-            const diceItemContainerDom = fragment.querySelector('.dice-item-container')
+            const diceItemContainerDom = fragment.shadowRoot.querySelector('.dice-item-container')
             /** @type {HTMLDivElement} */
-            const confirmDom = fragment.querySelector('.game-btn-confirm')
+            const confirmDom = fragment.shadowRoot.querySelector('.game-btn-confirm')
             /** 
              * @param {number} count
              * @return {Promise<number>}
@@ -1173,7 +1274,7 @@
                         dom.classList.remove('hidden')
                         dom.style.backgroundImage = `url(${diceImages[0].src})`
                     }
-                    diceContainerDom.classList.remove('close')
+                    fragment.classList.remove('close')
 
                     const confirmFunc = async function () {
                         // 执行🎲
@@ -1192,7 +1293,7 @@
                             }
                         }
                         const total = Maths.sum(Object.values(result))
-                        diceContainerDom.classList.add('close')
+                        fragment.classList.add('close')
                         resolve(total)
                     }
                     confirmDom.removeEventListener("click", confirmFunc)
@@ -1424,57 +1525,19 @@
                 './assets/monopoly/5.png',
                 './assets/monopoly/6.png',
             ].map(u => loadImage(u)))
-            const template = `
-                <div class="hospital-container close">
-                    <div class="logo">
-                        <img src="./assets/monopoly-life/hospital.png"/> 
-                    </div>
-                    <div class="hospital-content">
-                        <div class="hospital-message">
-                            不可使用机会卡或经验卡离开此格，需掷骰决定如何离开医院：
-                        </div>
-                        <div class="hospital-list">
-                            <div class="hospital-item">
-                                <img src="${diceImages[0].src}"/>
-                                <img src="${diceImages[1].src}"/>
-                                再休养一回合
-                            </div>
-                            <div class="hospital-item">
-                                <img src="${diceImages[2].src}"/>
-                                <img src="${diceImages[3].src}"/>
-                                <img src="${diceImages[4].src}"/>
-                                <img src="${diceImages[5].src}"/>
-                                付薪级一半的医药费给有医学学位的人下回合出院
-                            </div>
-                            <div class="hospital-item">
-                                (若无人有医学学位则给银行)
-                            </div>                        
-                        </div>
-                        <div class="hospital-footer">
-                            <div class="hospital-dice">
-                                <img src="${diceImages[4].src}"/>
-                            </div>
-                            <div class="game-btn-confirm">开始转动</div>
-                        </div>
-                       
-                    </div>
-                </div>
-            `
-            const fragment = createFragment(template)
-            const hospitalContainerDom = fragment.querySelector('.hospital-container')
-            const confirmDom = hospitalContainerDom.querySelector('.game-btn-confirm')
-
-
+            const fragment = templateLoad('#hospital-template')
+            fragment.classList.add('close')
+            const confirmDom = fragment.shadowRoot.querySelector('.game-btn-confirm')
             /**
              * @return {Promise<number>}
              */
             const open = function () {
-                hospitalContainerDom.classList.remove('close')
+                fragment.classList.remove('close')
                 return new Promise((resolve) => {
                     const confirmFunc = async function () {
                         // 执行🎲
                         /** @type {HTMLImageElement} */
-                        const diceItemDom = hospitalContainerDom.querySelector('.hospital-dice img')
+                        const diceItemDom = fragment.shadowRoot.querySelector('.hospital-dice img')
                         // 结果
                         let total = 0
                         // 循环15次约等于1.5s
@@ -1484,7 +1547,7 @@
                             diceItemDom.setAttribute('src', `${diceImages[val].src}`)
                             total = val + 1
                         }
-                        hospitalContainerDom.classList.add('close')
+                        fragment.classList.add('close')
                         resolve(total)
                     }
                     confirmDom.removeEventListener("click", confirmFunc)
@@ -1512,54 +1575,19 @@
                 './assets/monopoly/5.png',
                 './assets/monopoly/6.png',
             ].map(u => loadImage(u)))
-            const template = `
-                <div class="park-container close">
-                    <div class="logo">
-                        <img src="./assets/monopoly-life/park.png"/> 
-                    </div>
-                    <div class="park-content">
-                        <div class="park-message">
-                            不可使用机会卡或经验卡离开此格，投掷一骰，若点数为双数，下回合即可离开：
-                        </div>
-                        <div class="park-list">
-                            <div class="park-item">
-                                <img src="${diceImages[1].src}"/>
-                                <img src="${diceImages[3].src}"/> 
-                                <img src="${diceImages[5].src}"/>
-                                下回合离开
-                            </div>
-                            <div class="park-item">
-                                <img src="${diceImages[0].src}"/>
-                                <img src="${diceImages[2].src}"/>
-                                <img src="${diceImages[4].src}"/>
-                                下回合继续
-                            </div>           
-                        </div>
-                        <div class="park-footer">
-                            <div class="park-dice">
-                                <img src="${diceImages[4].src}"/>
-                            </div>
-                            <div class="game-btn-confirm">开始转动</div>
-                        </div>
-                       
-                    </div>
-                </div>
-            `
-            const fragment = createFragment(template)
-            const parkContainerDom = fragment.querySelector('.park-container')
-            const confirmDom = parkContainerDom.querySelector('.game-btn-confirm')
-
-
+            const fragment = templateLoad("#park-template")
+            fragment.classList.add('close')
+            const confirmDom = fragment.shadowRoot.querySelector('.game-btn-confirm')
             /**
              * @return {Promise<number>}
              */
             const open = function () {
-                parkContainerDom.classList.remove('close')
+                fragment.classList.remove('close')
                 return new Promise((resolve) => {
                     const confirmFunc = async function () {
                         // 执行🎲
                         /** @type {HTMLImageElement} */
-                        const diceItemDom = parkContainerDom.querySelector('.park-dice img')
+                        const diceItemDom = fragment.shadowRoot.querySelector('.park-dice img')
                         // 结果
                         let total = 0
                         // 循环15次约等于1.5s
@@ -1569,7 +1597,7 @@
                             diceItemDom.setAttribute('src', `${diceImages[val].src}`)
                             total = val + 1
                         }
-                        parkContainerDom.classList.add('close')
+                        fragment.classList.add('close')
                         resolve(total)
                     }
                     confirmDom.removeEventListener("click", confirmFunc)
@@ -1582,7 +1610,6 @@
                 open
             }
         }()
-
 
 
         /**
@@ -1599,8 +1626,6 @@
                 './assets/monopoly/5.png',
                 './assets/monopoly/6.png',
             ].map(u => loadImage(u)))
-
-
 
             const template = `
                 <div class="lottery-container close">
@@ -3380,14 +3405,12 @@
             let join = async (players) => {
                 scene.allPlayers = players;
                 for (const player of players) {
-                    let playerItemTemplate = `
+                    // 起点出发
+                    loopStations[0].dom.innerHTML += `
                         <div class="player-item" data-id="${player.id}">
                             <div class="player-avatar" style="background-image:url(${player.avatar});border-color:${player.color}"></div>
                         </div>
                     `
-                    let playerFragment = createFragment(playerItemTemplate)
-                    // 起点出发
-                    loopStations[0].dom.appendChild(playerFragment)
                 }
             }
             /**
