@@ -42,103 +42,8 @@
             background-size: contain;
         }
 
-        .log-container {
-            position: absolute;
-            left: 0;
-            bottom: 0;
-            height: 50%;
-            width: 500px;
-            background-color: rgba(255, 255, 255, .7);
-            border-radius: 20px 20px 0 0;
-        }
 
-        .log-container .log-header-title {
-            line-height: 50px;
-            font-size: 20px;
-            font-weight: bold;
-            text-align: center;
-        }
 
-        .log-container .log-body {
-            margin: 0 20px 20px;
-            height: calc(100% - 70px);
-            overflow-y: auto;
-        }
-
-        .log-container .log-icon-close {
-            position: absolute;
-            top: 15px;
-            right: 20px;
-        }
-
-        .log-container.close {
-            bottom: calc(-50% + 50px);
-        }
-
-        .log-container.close .log-icon-close {
-            transform: rotate(180deg);
-        }
-
-        .log-container .log-item-table {
-            border-top: 1px solid #000;
-            border-left: 1px solid #000;
-            border-collapse: collapse;
-        }
-
-        .log-container .log-item-table td {
-            border-right: 1px solid #000;
-            border-bottom: 1px solid #000;
-            text-align: center;
-        }
-
-        .dice-container {
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            width: 500px;
-            background-color: rgba(255, 255, 255, .9);
-            border-radius: 20px;
-        }
-
-        .dice-container .dice-header-title {
-            line-height: 50px;
-            font-size: 20px;
-            font-weight: bold;
-            text-align: center;
-        }
-
-        .dice-container .dice-body {
-            margin: 0 20px 20px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .dice-container .dice-item {
-            width: 50px;
-            height: 50px;
-            background-repeat: no-repeat;
-            background-size: 100%;
-            margin-bottom: 20px;
-        }
-
-        .dice-container .dice-item:nth-child(n+2) {
-            margin-left: 20px;
-        }
-
-        .dice-container .dice-item-container {
-            display: flex;
-        }
-
-        .dice-container.close {
-            top: -100%;
-        }
-
-        .dice-container .dice-item.hidden {
-            display: none;
-        }
 
 
         .role-container {
@@ -248,107 +153,12 @@
             margin-left: 20px;
         }
 
-
-
         .role-container.close {
             top: -100%;
         }
 
 
-        .players-container {
-            display: flex;
-            position: absolute;
-            top: 0px;
-            right: 0;
-            background-color: rgba(255, 255, 255, .9);
-        }
 
-        .players-container .player-item {
-            display: flex;
-            padding: 10px 10px 10px 20px;
-            width: 228px;
-            height: 120px;
-            align-items: center;
-            box-sizing: border-box;
-            position: relative;
-        }
-
-        .players-container .player-item.active .player-avatar::after {
-            position: absolute;
-            background-image: url('./assets/monopoly-life/dice.png');
-            background-size: 20px 20px;
-            background-repeat: no-repeat;
-            width: 20px;
-            height: 20px;
-            right: 0;
-            bottom: 0;
-            content: "";
-        }
-
-        .players-container .player-item:hover .player-more {
-            display: block;
-        }
-
-        .players-container .player-more {
-            display: none;
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background-color: rgba(255, 255, 255, .9);
-        }
-
-        .players-container .player-target-container,
-        .players-container .player-exp-container {
-            display: flex;
-            flex-direction: column;
-            padding: 5px 10px 0;
-        }
-
-        .players-container .player-target-body,
-        .players-container .player-exp-body {
-            display: flex;
-            padding: 5px 0px 0;
-        }
-
-        .players-container .player-exp-body {
-            padding-bottom: 5px;
-        }
-
-        .players-container .player-target-item {
-            display: flex;
-            flex: 1;
-            justify-content: center;
-        }
-
-        .players-container .player-avatar {
-            margin: 10px;
-            width: 60px;
-            height: 60px;
-            background-size: contain;
-            border-radius: 50%;
-            position: relative;
-        }
-
-
-
-
-        .players-container .player-base-info {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .players-container .player-base-info>div {
-            display: flex;
-        }
-
-        .players-container .player-icon {
-            margin-right: 10px;
-        }
-
-        .players-container.close {
-            transform: 0;
-        }
 
 
         .game-btn-confirm {
@@ -677,23 +487,251 @@
 </head>
 
 <body>
+    <template id="log-template">
+        <div class="log-header">
+            <div class="log-header-title">
+                游戏日志
+            </div>
+            <div class="log-icon-close">
+                <img src="./assets/monopoly-life/arrow.png" />
+            </div>
+        </div>
+        <div class="log-body"></div>
+        <style>
+            :host {
+                position: absolute;
+                left: 0;
+                bottom: 0;
+                height: 50%;
+                width: 500px;
+                background-color: rgba(255, 255, 255, .7);
+                border-radius: 20px 20px 0 0;
+            }
+
+            :host(.close) {
+                bottom: calc(-50% + 50px);
+            }
+
+            :host(.close) .log-icon-close {
+                transform: rotate(180deg);
+            }
+
+            .log-header-title {
+                line-height: 50px;
+                font-size: 20px;
+                font-weight: bold;
+                text-align: center;
+            }
+
+            .log-body {
+                margin: 0 20px 20px;
+                height: calc(100% - 70px);
+                overflow-y: auto;
+            }
+
+            .log-icon-close {
+                position: absolute;
+                top: 15px;
+                right: 20px;
+            }
+
+            .log-item-table {
+                border-top: 1px solid #000;
+                border-left: 1px solid #000;
+                border-collapse: collapse;
+            }
+
+            .log-item-table td {
+                border-right: 1px solid #000;
+                border-bottom: 1px solid #000;
+                text-align: center;
+            }
+        </style>
+    </template>
+    <template id="players-template">
+        <style>
+            :host {
+                display: flex;
+                position: absolute;
+                top: 0px;
+                right: 0;
+                background-color: rgba(255, 255, 255, .9);
+            }
+
+            :host(.close) {
+                transform: 0;
+            }
+
+            .player-item {
+                display: flex;
+                padding: 10px 10px 10px 20px;
+                width: 228px;
+                height: 120px;
+                align-items: center;
+                box-sizing: border-box;
+                position: relative;
+            }
+
+            .player-item.active .player-avatar::after {
+                position: absolute;
+                background-image: url('./assets/monopoly-life/dice.png');
+                background-size: 20px 20px;
+                background-repeat: no-repeat;
+                width: 20px;
+                height: 20px;
+                right: 0;
+                bottom: 0;
+                content: "";
+            }
+
+            .player-item:hover .player-more {
+                display: block;
+            }
+
+            .player-more {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background-color: rgba(255, 255, 255, .9);
+            }
+
+            .player-target-container,
+            .player-exp-container {
+                display: flex;
+                flex-direction: column;
+                padding: 5px 10px 0;
+            }
+
+            .player-target-body,
+            .player-exp-body {
+                display: flex;
+                padding: 5px 0px 0;
+            }
+
+            .player-exp-body {
+                padding-bottom: 5px;
+            }
+
+            .player-target-item {
+                display: flex;
+                flex: 1;
+                justify-content: center;
+            }
+
+            .player-avatar {
+                margin: 10px;
+                width: 60px;
+                height: 60px;
+                background-size: contain;
+                border-radius: 50%;
+                position: relative;
+            }
+
+
+
+
+            .player-base-info {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .player-base-info>div {
+                display: flex;
+            }
+
+            .player-icon {
+                margin-right: 10px;
+            }
+        </style>
+    </template>
+    <template id="dice-template">
+        <div class="dice-header">
+            <div class="dice-header-title">
+                掷骰子
+            </div>
+        </div>
+        <div class="dice-body">
+            <div class="dice-item-container">
+                <div class="dice-item"></div>
+                <div class="dice-item"></div>
+            </div>
+            <div class="game-btn-confirm">开始转动</div>
+        </div>
+        <style>
+            :host {
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+                width: 500px;
+                background-color: rgba(255, 255, 255, .9);
+                border-radius: 20px;
+            }
+
+            :host(.close) {
+                top: -100%;
+            }
+
+            .dice-header-title {
+                line-height: 50px;
+                font-size: 20px;
+                font-weight: bold;
+                text-align: center;
+            }
+
+            .dice-body {
+                margin: 0 20px 20px;
+                overflow-y: auto;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .dice-item {
+                width: 50px;
+                height: 50px;
+                background-repeat: no-repeat;
+                background-size: 100%;
+                margin-bottom: 20px;
+            }
+
+            .dice-item:nth-child(n+2) {
+                margin-left: 20px;
+            }
+
+            .dice-item-container {
+                display: flex;
+            }
+
+
+
+            .dice-item.hidden {
+                display: none;
+            }
+        </style>
+    </template>
+
+
+
+
     <script type="module">
 
         import { Maths } from "https://gcore.jsdelivr.net/npm/@3r/tool/lib/maths.js";
         import { Randoms } from "https://gcore.jsdelivr.net/npm/@3r/tool/lib/randoms.js";
-        /** 
-         * 获取数字
+        /** 获取数字
          * @param {string} str 
          */
         function getNumber(str) {
             return +str.match(/[-\d]{0,}/)[0]
         }
 
-        /**
-         * 加载图
+        /** 加载图
          * @param {string} src
          * @returns {Promise<HTMLImageElement>}
-         */        function loadImage(src) {
+         */
+        function loadImage(src) {
             return new Promise((resolve) => {
                 let image = new Image()
                 image.src = src;
@@ -703,8 +741,7 @@
             })
         }
 
-        /** 
-         * 拖拽元素
+        /** 拖拽元素
          * @param {HTMLImageElement} dom
          * @param {{minX:number,maxX:number,minY:number,maxY:number}} options
          */
@@ -765,8 +802,7 @@
             }
         }
 
-        /** 
-         * 等待多久 
+        /** 等待多久 
          */
         function wait(ms) {
             return new Promise((resolve) => {
@@ -774,8 +810,7 @@
             })
         }
 
-        /**
-         * 创建容器
+        /** 创建容器
          * @param {string} html 
          */
         function createFragment(html) {
@@ -786,8 +821,7 @@
             return fragment;
         }
 
-        /**
-         * 模板加载
+        /** 模板加载
          * @param {string} selectors 
          */
         function templateLoad(selectors) {
@@ -962,70 +996,43 @@
         }
 
 
-        /**
-         * 日志控件 左下角
+        /** 日志控件 左下角
          * @author 	 linyisonger
          * @date 	 2024-11-29
          */
         const logContainer = function () {
-            const template = `
-                <div class="log-container">
-                    <div class="log-header">
-                        <div class="log-header-title">
-                            游戏日志
-                        </div>
-                        <div class="log-icon-close">
-                            ${ICON_CONFIG.ARROW}
-                        </div>
-                    </div>
-                    <div class="log-body">
-                    </div>
-                </div>
-            `
-            const fragment = createFragment(template)
-            const logContainerDom = fragment.querySelector('.log-container')
-            const closeDom = logContainerDom.querySelector('.log-icon-close')
-            const logContainerBodyDom = logContainerDom.querySelector('.log-body')
-
-            closeDom.addEventListener('click', () => {
-                console.log('点击关闭按钮');
-                logContainerDom.classList.toggle('close')
-            })
-
-            /**
+            const fragment = templateLoad('#log-template')
+            const closeDom = fragment.shadowRoot.querySelector('.log-icon-close')
+            const bodyDom = fragment.shadowRoot.querySelector('.log-body')
+            closeDom.addEventListener('click', () => fragment.classList.toggle('close'))
+            /** 窗口日志打印
              * @param {string} str
              */
             const log = (str) => {
-                let dom = createFragment(`<div class="log-item">${str}</div>`).querySelector('.log-item')
-                logContainerBodyDom.appendChild(dom)
-                logContainerBodyDom.scrollTop = Number.MAX_SAFE_INTEGER;
+                bodyDom.innerHTML += `<div class="log-item">${str}</div>`
+                bodyDom.scrollTop = Number.MAX_SAFE_INTEGER;
             }
             log("日志框初始化完成")
-
             return {
                 fragment,
                 log
             }
         }();
 
-
-        /**
-         * 玩家控件 右上角
+        /** 玩家控件 右上角
          * @author 	 linyisonger
          * @date 	 2024-11-29
          */
         const playerContainer = function () {
-            const template = `
-                <div class="players-container close"></div>
-            `
-            const fragment = createFragment(template)
-            const playerContainerDom = fragment.querySelector('.players-container')
+            const fragment = templateLoad("#players-template")
+            fragment.classList.add('close');
             /**
+             * 玩家加入
              * @param {Player[]} players
              */
             let join = async (players) => {
                 for (const player of players) {
-                    let playerItemTemplate = `
+                    fragment.shadowRoot.innerHTML += `
                         <div class="player-item" data-id="${player.id}">
                             <div class="player-avatar" style="background-image:url(${player.avatar})"></div>
                             <div class="player-base-info">
@@ -1094,19 +1101,18 @@
                             </div>
                         </div>
                     `
-                    let playerFragment = createFragment(playerItemTemplate)
-                    playerContainerDom.appendChild(playerFragment)
                 }
-                playerContainerDom.classList.remove('close')
+                fragment.classList.remove('close')
             }
 
 
             /**
+             * 玩家更新
              * @param {Player[]} players
              */
             let upd = async (players) => {
                 for (const player of players) {
-                    let dom = playerContainerDom.querySelector(`.player-item[data-id="${player.id}"]`)
+                    let dom = fragment.shadowRoot.querySelector(`.player-item[data-id="${player.id}"]`)
                     dom.querySelector('.player-riches .player-value').textContent = player.riches
                     dom.querySelector('.player-salary .player-value').textContent = player.salary
                     dom.querySelector('.player-repute .player-value').textContent = player.repute
@@ -1115,15 +1121,15 @@
             }
 
             /**
+             * 下一个玩家
              * @param {Player} player
              */
             let next = async (player) => {
-                let lastDom = playerContainerDom.querySelector('.player-item.active');
-                let currDom = playerContainerDom.querySelector(`.player-item[data-id="${player.id}"]`);
+                let lastDom = fragment.shadowRoot.querySelector('.player-item.active');
+                let currDom = fragment.shadowRoot.querySelector(`.player-item[data-id="${player.id}"]`);
                 if (lastDom) lastDom.classList.remove('active')
                 currDom.classList.add('active')
             }
-
             logContainer.log('玩家控件初始化完成')
             return {
                 fragment,
@@ -1133,30 +1139,12 @@
             }
         }();
 
-        /**
-         * 骰子控件 弹窗
+        /** 骰子控件 弹窗
          * @author 	 linyisonger
          * @date 	 2024-11-29
          */
         const diceContainer = await async function () {
-
-            const template = `
-                <div class="dice-container close">
-                    <div class="dice-header">
-                        <div class="dice-header-title">
-                            掷骰子
-                        </div>
-                    </div>
-                    <div class="dice-body">
-                        <div class="dice-item-container">
-                            <div class="dice-item"></div>
-                            <div class="dice-item"></div>
-                        </div>
-                        <div class="game-btn-confirm">开始转动</div>
-                    </div>
-                </div>
-            `
-            const fragment = createFragment(template)
+            const fragment = templateLoad('#dice-template')
             const diceImages = await Promise.all([
                 './assets/monopoly/1.png',
                 './assets/monopoly/2.png',
@@ -1166,19 +1154,15 @@
                 './assets/monopoly/6.png',
             ].map(u => loadImage(u)))
             /** @type {HTMLDivElement} */
-            const diceContainerDom = fragment.querySelector('.dice-container')
-            /** @type {HTMLDivElement} */
             const diceItemContainerDom = fragment.querySelector('.dice-item-container')
             /** @type {HTMLDivElement} */
-            const confirmDom = diceContainerDom.querySelector('.game-btn-confirm')
-
+            const confirmDom = fragment.querySelector('.game-btn-confirm')
             /** 
              * @param {number} count
              * @return {Promise<number>}
              */
             const open = (count) => {
                 return new Promise((resolve) => {
-
                     for (let i = 0; i < diceItemContainerDom.children.length; i++) {
                         const dom = diceItemContainerDom.children.item(i)
                         dom.classList.add('hidden')
@@ -1211,14 +1195,11 @@
                         diceContainerDom.classList.add('close')
                         resolve(total)
                     }
-
                     confirmDom.removeEventListener("click", confirmFunc)
                     confirmDom.addEventListener("click", confirmFunc)
                 })
             }
-
             logContainer.log("骰子控件加载完成")
-
             return {
                 fragment,
                 open
