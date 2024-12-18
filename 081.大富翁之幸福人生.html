@@ -35,130 +35,6 @@
             user-select: none;
         }
 
-        .map-container {
-            position: absolute;
-            left: 0;
-            top: 0;
-            background-size: contain;
-        }
-
-
-
-
-
-        .role-container {
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            background-color: rgba(255, 255, 255, 1);
-            width: 600px;
-            height: 415px;
-        }
-
-        .role-container .role-header-title {
-            line-height: 50px;
-            font-size: 20px;
-            font-weight: bold;
-            text-align: center;
-        }
-
-        .role-container .role-body {
-            margin: 0 20px 20px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            overflow-x: hidden;
-        }
-
-        .role-container .role-item-container {
-            display: flex;
-            width: 100%;
-            justify-content: space-between;
-        }
-
-        .role-container .role-item {
-            display: flex;
-            flex: 1;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            padding: 20px;
-            margin: 20px 10px;
-        }
-
-        .role-container .role-item.active {
-            background-color: #2776ec2f;
-        }
-
-        .role-container .role-item-name {
-            margin-top: 10px;
-            display: flex;
-            justify-content: center;
-        }
-
-        .role-container .role-item-avatar {
-            height: 60px;
-            width: 60px;
-            border-radius: 50%;
-            background-size: contain;
-        }
-
-        .role-container .target-item-container {
-            display: flex;
-            width: 100%;
-            padding-bottom: 20px;
-        }
-
-        .role-container .target-item {
-            display: flex;
-            flex-direction: column;
-            flex: 1;
-            align-items: center;
-        }
-
-        .role-container .target-item input {
-            width: 70px;
-            outline: none;
-            border-top: 0;
-            border-left: 0;
-            border-right: 0;
-            border-width: 1px;
-            border-color: #2e2e2e;
-            background-color: transparent;
-            margin-left: 5px;
-            text-align: center;
-        }
-
-        .role-container .target-item.error input {
-            border-color: #cc0000;
-        }
-
-        .role-container .target-item.valid input {
-            border-color: #00cc00;
-        }
-
-
-        .role-container .target-item-content {
-            display: flex;
-            align-items: center;
-            margin-bottom: 5px;
-        }
-
-        .role-container .target-hint {
-            width: 100%;
-            font-size: 14px;
-            margin-bottom: 20px;
-            margin-left: 20px;
-        }
-
-        .role-container.close {
-            top: -100%;
-        }
-
-
-
 
 
         .game-btn-confirm {
@@ -177,200 +53,13 @@
         object {
             pointer-events: none;
         }
-
-        .map-container.anim {
-            transition: all .2s linear;
-        }
-
-        .map-container .station-item {
-            position: absolute;
-            border: 2px solid #00cc00;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .map-container .player-item {
-            display: inline-flex;
-        }
-
-        .map-container .player-avatar {
-            margin: 10px;
-            width: 60px;
-            height: 60px;
-            background-size: contain;
-            border-radius: 50%;
-        }
-
-        .map-container .player-item.active .player-avatar {
-            border-width: 5px;
-            border-style: solid;
-        }
-
-
-
-        .dialog-container {
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            background-color: rgba(255, 255, 255, 1);
-            border-radius: 20px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);
-            width: 500px;
-        }
-
-        .dialog-container.close {
-            top: -100%;
-        }
-
-
-        .dialog-container .dialog-header-title {
-            line-height: 50px;
-            font-size: 20px;
-            font-weight: bold;
-            text-align: center;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.3);
-            margin: 0 20px;
-        }
-
-        .dialog-container .dialog-body {
-            padding-top: 20px;
-            margin: 0 20px 20px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            overflow-x: hidden;
-        }
-
-        .dialog-container .dialog-body-option {
-            margin-top: 10px;
-            display: flex;
-            padding: 0 20px;
-            align-items: center;
-            height: 40px;
-            background-color: #2776ec;
-            color: #fff;
-            cursor: pointer;
-            justify-content: center;
-        }
-
-        .dialog-container .dialog-body-option:nth-child(2) {
-            background-color: #a1a1a1;
-        }
-
-        .dialog-container .dialog-body-content img {
-            width: 100%;
-        }
-
-
-
-
-
-
-
-
-        .lottery-container {
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            background-color: rgba(255, 255, 255, 1);
-            border-radius: 20px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);
-            width: 600px;
-            padding-left: 40px;
-            padding-right: 40px;
-            padding-top: 30px;
-            padding-bottom: 20px;
-            transition: top .5s linear;
-        }
-
-        .lottery-container .logo {
-            position: absolute;
-            top: 0;
-            left: 20px;
-            transform: translate(0, -70%);
-        }
-
-        .lottery-container .logo img {
-            width: 150px;
-        }
-
-        .lottery-container .lottery-message {
-            margin-top: 20px;
-            font-size: 16px;
-            margin-bottom: 10px;
-        }
-
-        .lottery-container .lottery-item {
-            display: flex;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .lottery-container .lottery-item img {
-            height: 30px
-        }
-
-        .lottery-container .lottery-item img:last-child {
-            margin-right: 10px;
-        }
-
-        .lottery-container .lottery-footer {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 20px;
-            margin-bottom: 20px;
-        }
-
-        .lottery-container .player-item {
-            display: flex;
-            align-items: center;
-            box-sizing: border-box;
-            position: relative;
-        }
-
-        .lottery-container .player-item .player-avatar {
-            width: 40px;
-            height: 40px;
-            background-size: contain;
-            border-radius: 50%;
-            margin-right: 20px;
-        }
-
-
-        .lottery-container .player-operate {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .lottery-container .operate-item .game-btn-confirm:last-child {
-            background-color: #a1a1a1;
-            margin-left: 10px;
-        }
-
-        .lottery-container .operate-item {
-            display: flex;
-            align-items: center;
-        }
-
-        .lottery-container .operate-dice {
-            margin-right: 20px;
-            display: flex;
-            align-items: center;
-        }
-
-        .lottery-container.close {
-            top: -100%;
-        }
     </style>
 </head>
 
 <body>
+    <div class="game-container"></div>
+
+
     <template id="log-template">
         <div class="log-header">
             <div class="log-header-title">
@@ -530,6 +219,75 @@
             }
         </style>
     </template>
+    <template id="player-template-player-item-internal">
+        <div class="player-item">
+            <div class="player-avatar"></div>
+            <div class="player-base-info">
+                <div class="player-riches">
+                    <div class="player-icon">
+                        <img src="./assets/monopoly-life/riches.png" />
+                    </div>
+                    <div class="player-value">0</div>
+                </div>
+                <div class="player-salary">
+                    <div class="player-icon">
+                        <img src="./assets/monopoly-life/salary.png" />
+                    </div>
+                    <div class="player-value">0</div>
+                </div>
+                <div class="player-repute">
+                    <div class="player-icon">
+                        <img src="./assets/monopoly-life/repute.png" />
+                    </div>
+                    <div class="player-value">0</div>
+                </div>
+                <div class="player-happy">
+                    <div class="player-icon">
+                        <img src="./assets/monopoly-life/happy.png" />
+                    </div>
+                    <div class="player-value">0</div>
+                </div>
+            </div>
+
+            <div class="player-more">
+                <div class="player-target-container">
+                    <div class="player-target-title">
+                        目标值
+                    </div>
+                    <div class="player-target-body">
+                        <div class="player-target-item">
+                            <div class="player-icon">
+                                <img src="./assets/monopoly-life/riches.png" />
+                            </div>
+                            <div class="player-value">60000</div>
+                        </div>
+                        <div class="player-target-item">
+                            <div class="player-icon">
+                                <img src="./assets/monopoly-life/repute.png" />
+                            </div>
+                            <div class="player-value">0</div>
+                        </div>
+                        <div class="player-target-item">
+                            <div class="player-icon">
+                                <img src="./assets/monopoly-life/happy.png" />
+                            </div>
+                            <div class="player-value">0</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="player-exp-container">
+                    <div class="player-exp-title">
+                        经验
+                    </div>
+                    <div class="player-exp-body">
+                        <div class="player-icon">
+                            无
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
     <template id="dice-template">
         <div class="dice-header">
             <div class="dice-header-title">
@@ -589,23 +347,8 @@
                 display: flex;
             }
 
-
-
             .dice-item.hidden {
                 display: none;
-            }
-
-            .game-btn-confirm {
-                display: inline-flex;
-                padding: 0 20px;
-                line-height: 40px;
-                background-color: #2776ec;
-                color: #fff;
-                cursor: pointer;
-            }
-
-            .game-btn-confirm:active {
-                opacity: .7;
             }
         </style>
     </template>
@@ -701,19 +444,6 @@
                 justify-content: space-between;
                 margin-bottom: 20px;
             }
-
-            .game-btn-confirm {
-                display: inline-flex;
-                padding: 0 20px;
-                line-height: 40px;
-                background-color: #2776ec;
-                color: #fff;
-                cursor: pointer;
-            }
-
-            .game-btn-confirm:active {
-                opacity: .7;
-            }
         </style>
     </template>
     <template id="park-template">
@@ -800,18 +530,385 @@
                 justify-content: space-between;
                 margin-bottom: 20px;
             }
+        </style>
+    </template>
+    <template id="role-template">
+        <div class="role-header">
+            <div class="role-header-title">
+                角色选择
+            </div>
+        </div>
+        <div class="role-body">
+            <div class="role-item-container"></div>
+            <div class="target-item-container"></div>
+            <div class="target-hint">
+                输入财富、名誉、快乐的预定目标，财富1000元为1分，三项目标加起来必须刚好60分。
+            </div>
+            <div class="game-btn-confirm">确认选择</div>
+        </div>
+        <style>
+            :host {
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+                background-color: rgba(255, 255, 255, 1);
+                width: 600px;
+                height: 415px;
+            }
 
-            .game-btn-confirm {
-                display: inline-flex;
+            :host(.close) {
+                top: -100%;
+            }
+
+            .role-header-title {
+                line-height: 50px;
+                font-size: 20px;
+                font-weight: bold;
+                text-align: center;
+            }
+
+            .role-body {
+                margin: 0 20px 20px;
+                overflow-y: auto;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                overflow-x: hidden;
+            }
+
+            .role-item-container {
+                display: flex;
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .role-item {
+                display: flex;
+                flex: 1;
+                justify-content: center;
+                align-items: center;
+                flex-direction: column;
+                padding: 20px;
+                margin: 20px 10px;
+            }
+
+            .role-item.active {
+                background-color: #2776ec2f;
+            }
+
+            .role-item-name {
+                margin-top: 10px;
+                display: flex;
+                justify-content: center;
+            }
+
+            .role-item-avatar {
+                height: 60px;
+                width: 60px;
+                border-radius: 50%;
+                background-size: contain;
+            }
+
+            .target-item-container {
+                display: flex;
+                width: 100%;
+                padding-bottom: 20px;
+            }
+
+            .target-item {
+                display: flex;
+                flex-direction: column;
+                flex: 1;
+                align-items: center;
+            }
+
+            .target-item input {
+                width: 70px;
+                outline: none;
+                border-top: 0;
+                border-left: 0;
+                border-right: 0;
+                border-width: 1px;
+                border-color: #2e2e2e;
+                background-color: transparent;
+                margin-left: 5px;
+                text-align: center;
+            }
+
+            .target-item.error input {
+                border-color: #cc0000;
+            }
+
+            .target-item.valid input {
+                border-color: #00cc00;
+            }
+
+
+            .target-item-content {
+                display: flex;
+                align-items: center;
+                margin-bottom: 5px;
+            }
+
+            .target-hint {
+                width: 100%;
+                font-size: 14px;
+                margin-bottom: 20px;
+                margin-left: 20px;
+            }
+        </style>
+    </template>
+    <template id="lottery-template">
+        <div class="logo">
+            <img src="./assets/monopoly-life/lottery.png" />
+        </div>
+        <div class="lottery-content">
+            <div class="lottery-message">
+                每人可轮流选择是否执行以下动作：掷一颗骰并根据掷出点数失去或获得金钱
+            </div>
+            <div class="lottery-list">
+                <div class="lottery-item">
+                    <div style="width:200px">
+                        <img src="./assets/monopoly/1.png" />
+                        <img src="./assets/monopoly/2.png" />
+                        <img src="./assets/monopoly/3.png" />
+                        <img src="./assets/monopoly/4.png" />
+                    </div>
+                    <div class="flex-row-center" style="color:red">
+                        <img src="./assets/monopoly-life/riches.png" />-1000元
+                    </div>
+                </div>
+                <div class="lottery-item">
+                    <div style="width:200px">
+                        <img src="./assets/monopoly/5.png" />
+                        <img src="./assets/monopoly/6.png" />
+                    </div>
+                    <div class="flex-row-center" style="color:green">
+                        <img src="./assets/monopoly-life/riches.png" />+5000元
+                    </div>
+                </div>
+            </div>
+            <div class="lottery-player-list">
+            </div>
+        </div>
+        <style>
+            :host {
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+                background-color: rgba(255, 255, 255, 1);
+                border-radius: 20px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);
+                width: 600px;
+                padding-left: 40px;
+                padding-right: 40px;
+                padding-top: 30px;
+                padding-bottom: 20px;
+                transition: top .5s linear;
+            }
+
+            :host(.close) {
+                top: -100%;
+            }
+
+            .logo {
+                position: absolute;
+                top: 0;
+                left: 20px;
+                transform: translate(0, -70%);
+            }
+
+            .logo img {
+                width: 150px;
+            }
+
+            .lottery-message {
+                margin-top: 20px;
+                font-size: 16px;
+                margin-bottom: 10px;
+            }
+
+            .lottery-item {
+                display: flex;
+                align-items: center;
+                margin-bottom: 10px;
+            }
+
+            .lottery-item img {
+                height: 30px
+            }
+
+            .lottery-item img:last-child {
+                margin-right: 10px;
+            }
+
+            .lottery-footer {
+                display: flex;
+                justify-content: space-between;
+                margin-top: 20px;
+                margin-bottom: 20px;
+            }
+
+            .player-item {
+                display: flex;
+                align-items: center;
+                box-sizing: border-box;
+                position: relative;
+            }
+
+            .player-item .player-avatar {
+                width: 40px;
+                height: 40px;
+                background-size: contain;
+                border-radius: 50%;
+                margin-right: 20px;
+            }
+
+
+            .player-operate {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 10px;
+            }
+
+            .operate-item .game-btn-confirm:last-child {
+                background-color: #a1a1a1;
+                margin-left: 10px;
+            }
+
+            .operate-item {
+                display: flex;
+                align-items: center;
+            }
+
+            .operate-dice {
+                margin-right: 20px;
+                display: flex;
+                align-items: center;
+            }
+        </style>
+    </template>
+    <template id="dialog-template">
+        <div class="dialog-header">
+            <div class="dialog-header-title">
+                对话框
+            </div>
+        </div>
+        <div class="dialog-body">
+            <div class="dialog-body-content">
+                请选择你想要的选项
+            </div>
+            <div class="dialog-body-options">
+                <div class="dialog-body-option">
+                    A
+                </div>
+                <div class="dialog-body-option">
+                    B
+                </div>
+                <div class="dialog-body-option">
+                    C
+                </div>
+            </div>
+        </div>
+
+        <style>
+            :host {
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+                background-color: rgba(255, 255, 255, 1);
+                border-radius: 20px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);
+                width: 500px;
+            }
+
+            :host(.close) {
+                top: -100%;
+            }
+
+
+            .dialog-header-title {
+                line-height: 50px;
+                font-size: 20px;
+                font-weight: bold;
+                text-align: center;
+                border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+                margin: 0 20px;
+            }
+
+            .dialog-body {
+                padding-top: 20px;
+                margin: 0 20px 20px;
+                overflow-y: auto;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                overflow-x: hidden;
+            }
+
+            .dialog-body-option {
+                margin-top: 10px;
+                display: flex;
                 padding: 0 20px;
-                line-height: 40px;
+                align-items: center;
+                height: 40px;
                 background-color: #2776ec;
                 color: #fff;
                 cursor: pointer;
+                justify-content: center;
             }
 
-            .game-btn-confirm:active {
-                opacity: .7;
+            .dialog-body-option:nth-child(2) {
+                background-color: #a1a1a1;
+            }
+
+            .dialog-body-content img {
+                width: 100%;
+            }
+        </style>
+    </template>
+
+    <template id="map-template">
+        <div class="map-container"></div>
+        <style>
+            :host {
+                position: absolute;
+                left: 0;
+                top: 0;
+                background-size: contain;
+            }
+
+            :host(.anim) {
+                transition: all .2s linear;
+            }
+
+            .station-item {
+                position: absolute;
+                border: 2px solid #00cc00;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+
+            .player-item {
+                display: inline-flex;
+            }
+
+            .player-avatar {
+                margin: 10px;
+                width: 60px;
+                height: 60px;
+                background-size: contain;
+                border-radius: 50%;
+            }
+
+            .player-item.active .player-avatar {
+                border-width: 5px;
+                border-style: solid;
             }
         </style>
     </template>
@@ -924,14 +1021,28 @@
 
         /** 模板加载
          * @param {string} selectors 
+         * @param {boolean} isInternal 是否是内部模板
          */
-        function templateLoad(selectors) {
+        function templateLoad(selectors, isInternal = false) {
             let template = document.querySelector(selectors)
+            /** @type {HTMLDivElement}*/
             let clone = document.importNode(template.content, true);
+            if (isInternal) return clone
             let container = document.createElement('div')
             container.id = Randoms.uuid();
             let shadowRoot = container.attachShadow({ mode: "open" });
             shadowRoot.appendChild(clone)
+            // 加载全局样式
+            const globalStyleSheets = new CSSStyleSheet()
+            for (let i = 0; i < document.styleSheets.length; i++) {
+                const styleSheet = document.styleSheets.item(i);
+                const rules = styleSheet.rules
+                for (let j = 0; j < rules.length; j++) {
+                    const rule = rules.item(j);
+                    globalStyleSheets.insertRule(rule.cssText)
+                }
+            }
+            shadowRoot.adoptedStyleSheets = [globalStyleSheets]
             // 仅输出宿主节点
             // 影子节点可以通过 container.shadowRoot.querySelector 进行查询
             return container
@@ -1133,79 +1244,17 @@
              */
             let join = async (players) => {
                 for (const player of players) {
-                    fragment.shadowRoot.innerHTML += `
-                        <div class="player-item" data-id="${player.id}">
-                            <div class="player-avatar" style="background-image:url(${player.avatar})"></div>
-                            <div class="player-base-info">
-                                <div class="player-riches">
-                                    <div class="player-icon">
-                                         ${ICON_CONFIG.RICHES}
-                                    </div>
-                                    <div class="player-value">${player.riches}</div>
-                                </div>
-                                <div class="player-salary">
-                                    <div class="player-icon">
-                                        ${ICON_CONFIG.SALARY}
-                                    </div>
-                                    <div class="player-value">${player.salary}</div>
-                                </div>
-                                <div class="player-repute">
-                                    <div class="player-icon">
-                                        ${ICON_CONFIG.REPUTE}  
-                                    </div>
-                                    <div class="player-value">${player.repute}</div>
-                                </div>
-                                <div class="player-happy">
-                                    <div class="player-icon">
-                                        ${ICON_CONFIG.HAPPY}
-                                    </div>
-                                    <div class="player-value">${player.happy}</div>
-                                </div>
-                            </div>
-
-                            <div class="player-more">
-                                <div class="player-target-container">
-                                    <div class="player-target-title">
-                                        目标值
-                                    </div>
-                                    <div class="player-target-body">
-                                        <div class="player-target-item">
-                                            <div class="player-icon">
-                                                ${ICON_CONFIG.RICHES}
-                                            </div>
-                                            <div class="player-value">${player.targetRiches}000</div>
-                                        </div>
-                                        <div class="player-target-item">
-                                            <div class="player-icon">
-                                                ${ICON_CONFIG.REPUTE}
-                                            </div>
-                                            <div class="player-value">${player.targetRepute}</div>
-                                        </div>
-                                        <div class="player-target-item">
-                                            <div class="player-icon">
-                                                ${ICON_CONFIG.HAPPY}
-                                            </div>
-                                            <div class="player-value">${player.targetHapply}</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="player-exp-container">
-                                    <div class="player-exp-title">
-                                        经验
-                                    </div>
-                                    <div class="player-exp-body">
-                                        <div class="player-icon">
-                                            无
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    `
+                    let playerItemDom = templateLoad('#player-template-player-item-internal', true).querySelector('.player-item')
+                    playerItemDom.setAttribute('data-id', player.id)
+                    playerItemDom.querySelector('.player-avatar').setAttribute('style', `background-image:url(${player.avatar})`)
+                    playerItemDom.querySelector('.player-riches .player-value').textContent = player.riches
+                    playerItemDom.querySelector('.player-salary .player-value').textContent = player.salary
+                    playerItemDom.querySelector('.player-repute .player-value').textContent = player.repute
+                    playerItemDom.querySelector('.player-happy .player-value').textContent = player.happy
+                    fragment.shadowRoot.appendChild(playerItemDom)
                 }
                 fragment.classList.remove('close')
             }
-
 
             /**
              * 玩家更新
@@ -1336,7 +1385,6 @@
                     color: 'blue'
                 })
             ]
-            await Promise.all(roleList.map(r => loadImage(r.avatar)))
             let roleItemHtml = ``
             let targetItemHtml = ``
             for (let i = 0; i < roleList.length; i++) {
@@ -1347,7 +1395,6 @@
                         <div class="role-item-name">${role.name}</div>
                     </div> 
                 `
-
                 targetItemHtml += `
                     <div class="target-item">
                         <div class="target-item-content">
@@ -1366,31 +1413,12 @@
                 `
             }
 
-            const template = `
-                <div class="role-container close">
-                    <div class="role-header">
-                        <div class="role-header-title">
-                            角色选择
-                        </div>
-                    </div>
-                    <div class="role-body">
-                        <div class="role-item-container">
-                            ${roleItemHtml}
-                        </div>
-                        <div class="target-item-container">
-                            ${targetItemHtml}
-                        </div>
-                        <div class="target-hint">
-                            输入财富、名誉、快乐的预定目标，财富1000元为1分，三项目标加起来必须刚好60分。
-                        </div>
-                        <div class="game-btn-confirm">确认选择</div>
-                    </div>
-                </div>
-            `
-            const fragment = createFragment(template)
-            const roleContainerDom = fragment.querySelector('.role-container')
-            const roleItemContainerDom = roleContainerDom.querySelector('.role-item-container')
-            const targetItemContainerDom = roleContainerDom.querySelector('.target-item-container')
+            const fragment = templateLoad("#role-template")
+            fragment.classList.add('close')
+            const roleItemContainerDom = fragment.shadowRoot.querySelector('.role-item-container')
+            const targetItemContainerDom = fragment.shadowRoot.querySelector('.target-item-container')
+            roleItemContainerDom.innerHTML = roleItemHtml
+            targetItemContainerDom.innerHTML = targetItemHtml
             roleItemContainerDom.querySelectorAll('.role-item').forEach((dom) => {
                 dom.addEventListener('click', function () {
                     if (dom.classList.contains('active')) {
@@ -1402,16 +1430,15 @@
                     }
                 })
             })
-
             /** @type {HTMLDivElement} */
-            const confirmDom = roleContainerDom.querySelector('.game-btn-confirm')
+            const confirmDom = fragment.shadowRoot.querySelector('.game-btn-confirm')
 
             logContainer.log('角色控件加载完成')
             /**
              * @return {Promise<roles[]>}
              */
             const open = () => {
-                roleContainerDom.classList.remove('close')
+                fragment.classList.remove('close')
                 return new Promise((resolve) => {
                     confirmDom.addEventListener("click", () => {
                         console.log('选中角色');
@@ -1627,54 +1654,17 @@
                 './assets/monopoly/6.png',
             ].map(u => loadImage(u)))
 
-            const template = `
-                <div class="lottery-container close">
-                    <div class="logo">
-                        <img src="./assets/monopoly-life/lottery.png"/> 
-                    </div>
-                    <div class="lottery-content">
-                        <div class="lottery-message">
-                            每人可轮流选择是否执行以下动作：掷一颗骰并根据掷出点数失去或获得金钱
-                         </div>
-                        <div class="lottery-list">
-                            <div class="lottery-item">
-                                <div style="width:200px">
-                                    <img src="${diceImages[0].src}"/>
-                                    <img src="${diceImages[1].src}"/>
-                                    <img src="${diceImages[2].src}"/>
-                                    <img src="${diceImages[3].src}"/> 
-                                </div>
-                                <div class="flex-row-center" style="color:red">
-                                    ${ICON_CONFIG.RICHES}-1000元
-                                </div>
-                            </div>
-                            <div class="lottery-item">
-                                <div style="width:200px">
-                                    <img src="${diceImages[4].src}"/>
-                                    <img src="${diceImages[5].src}"/>
-                                </div>
-                                <div class="flex-row-center" style="color:green">
-                                    ${ICON_CONFIG.RICHES}+5000元
-                                </div>        
-                            </div>           
-                        </div>
-                        <div class="lottery-player-list">
-                        </div>
-                    </div>
-                </div>
-            `
-            const fragment = createFragment(template)
-            const lotteryContainerDom = fragment.querySelector('.lottery-container')
-            const confirmDom = lotteryContainerDom.querySelector('.game-btn-confirm')
-            const lotteryPlayerListDom = fragment.querySelector('.lottery-player-list')
-
+            const fragment = templateLoad("#lottery-template")
+            fragment.classList.add('close')
+            const confirmDom = fragment.shadowRoot.querySelector('.game-btn-confirm')
+            const lotteryPlayerListDom = fragment.shadowRoot.querySelector('.lottery-player-list')
 
             /**
              * @param {Player[]} players
              * @return {Promise<number>}
              */
             const open = function (players) {
-                lotteryContainerDom.classList.remove('close')
+                fragment.classList.remove('close')
                 return new Promise((resolve) => {
                     let result = {}
                     let resultProxy = new Proxy(result, {
@@ -1686,7 +1676,7 @@
 
                             if (Object.keys(result).length === players.length) {
                                 await wait(500);
-                                lotteryContainerDom.classList.add('close')
+                                fragment.classList.add('close')
                                 await wait(500);
                                 resolve(Object.values(result))
                             }
@@ -1702,7 +1692,7 @@
                                 </div>
                                 <div class="operate-item">
                                     <div class="operate-dice">
-                                        <img src="${diceImages[4].src}"/>
+                                        <img src="./assets/monopoly/5.png"/>
                                     </div>
                                     <div class="game-btn-confirm">购买</div>
                                     <div class="game-btn-confirm">放弃</div>
@@ -1776,33 +1766,8 @@
          * @date 	 2024-12-03
          */
         const dialogContainer = function () {
-            const template = `
-                <div class="dialog-container close">
-                    <div class="dialog-header">
-                        <div class="dialog-header-title">
-                            对话框
-                        </div>
-                    </div>
-                    <div class="dialog-body">
-                        <div class="dialog-body-content">
-                            请选择你想要的选项
-                        </div>
-                        <div class="dialog-body-options">
-                            <div class="dialog-body-option">
-                                A
-                            </div>
-                            <div class="dialog-body-option">
-                                B
-                            </div>
-                            <div class="dialog-body-option">
-                                C
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `
-            const fragment = createFragment(template)
-            const dialogContainerDom = fragment.querySelector('.dialog-container')
+            const fragment = templateLoad('#dialog-template')
+            fragment.classList.add('close')
             class DialogOpenConfig {
                 title = ''
                 content = ''
@@ -1815,10 +1780,10 @@
              */
             const open = function (config) {
                 return new Promise((resolve) => {
-                    dialogContainerDom.classList.remove('close')
-                    const titleDom = dialogContainerDom.querySelector('.dialog-header-title')
-                    const contentDom = dialogContainerDom.querySelector('.dialog-body-content')
-                    const optionsDom = dialogContainerDom.querySelector('.dialog-body-options')
+                    fragment.classList.remove('close')
+                    const titleDom = fragment.shadowRoot.querySelector('.dialog-header-title')
+                    const contentDom = fragment.shadowRoot.querySelector('.dialog-body-content')
+                    const optionsDom = fragment.shadowRoot.querySelector('.dialog-body-options')
                     titleDom.textContent = config.title;
                     contentDom.innerHTML = config.content
                     optionsDom.innerHTML = '';
@@ -1828,7 +1793,7 @@
                         optionDom.classList.add('dialog-body-option')
                         optionDom.innerHTML = option
                         optionDom.addEventListener("click", function () {
-                            dialogContainerDom.classList.add('close')
+                            fragment.classList.add('close')
                             resolve(i)
                         })
                         optionsDom.appendChild(optionDom)
@@ -1849,26 +1814,19 @@
          * @date 	 2024-11-29
          */
         const mapContainer = await async function () {
-            let template = `
-                <div class="map-container"></div>
-            `;
-            let fragment = createFragment(template)
-
-            /** @type {HTMLDivElement} */
-            let mapContainerDom = fragment.querySelector('.map-container')
+            let fragment = templateLoad('#map-template')
             let screenWidth = document.body.clientWidth
             let screenHeight = document.body.clientHeight
 
             // 加载图片背景
             let mapImage = await loadImage('./assets/monopoly-life/map.jpg')
-            mapContainerDom.style.backgroundImage = `url(${mapImage.src})`
-            mapContainerDom.style.width = mapImage.width / 2 + 'px'
-            mapContainerDom.style.height = mapImage.height / 2 + 'px'
+            fragment.style.backgroundImage = `url(${mapImage.src})`
+            fragment.style.width = mapImage.width / 2 + 'px'
+            fragment.style.height = mapImage.height / 2 + 'px'
             // 溢出距离
             let overflowDistance = 100
-            let { lookAt } = dragging(mapContainerDom, { minX: -mapImage.width / 2 + screenWidth - overflowDistance, maxX: 0 + overflowDistance, minY: -mapImage.height / 2 + screenHeight - overflowDistance, maxY: 0 + overflowDistance })
+            let { lookAt } = dragging(fragment, { minX: -mapImage.width / 2 + screenWidth - overflowDistance, maxX: 0 + overflowDistance, minY: -mapImage.height / 2 + screenHeight - overflowDistance, maxY: 0 + overflowDistance })
             logContainer.log("加载地图背景完成")
-
 
             class PlayerChanged {
                 /** 财富 */
@@ -3394,7 +3352,7 @@
                 stationDom.style.top = station.top
                 stationDom.style.width = station.width
                 stationDom.style.height = station.height
-                mapContainerDom.appendChild(stationDom)
+                fragment.shadowRoot.appendChild(stationDom)
                 station.dom = stationDom
             }
 
@@ -3424,7 +3382,7 @@
                 scene.curPlayer = player;
                 scene.dicePoints = count;
 
-                let currDom = mapContainerDom.querySelector(`.player-item[data-id="${player.id}"]`);
+                let currDom = fragment.shadowRoot.querySelector(`.player-item[data-id="${player.id}"]`);
                 for (let i = 0; i < count; i++) {
                     await wait(500); // 测试加速 
                     player.position++
@@ -3482,8 +3440,8 @@
              * @param {Player} player 
              */
             let next = async (player) => {
-                let lastDom = mapContainerDom.querySelector('.player-item.active');
-                let currDom = mapContainerDom.querySelector(`.player-item[data-id="${player.id}"]`);
+                let lastDom = fragment.shadowRoot.querySelector('.player-item.active');
+                let currDom = fragment.shadowRoot.querySelector(`.player-item[data-id="${player.id}"]`);
                 if (lastDom) lastDom.classList.remove('active')
                 currDom.classList.add('active')
                 lookAt(currDom.parentNode) // 镜头跟随
@@ -3508,7 +3466,7 @@
          * @date 	 2024-11-29
          */
         async function initGame() {
-            let gameContainerDom = createFragment(`<div class="game-container"></div>`).querySelector('.game-container')
+            let gameContainerDom = document.body.querySelector('.game-container')
             gameContainerDom.appendChild(mapContainer.fragment)
             gameContainerDom.appendChild(logContainer.fragment)
             gameContainerDom.appendChild(dialogContainer.fragment)
@@ -3519,9 +3477,6 @@
             gameContainerDom.appendChild(parkContainer.fragment)
             gameContainerDom.appendChild(lotteryContainer.fragment)
             document.body.appendChild(gameContainerDom)
-
-
-
             // 选中的角色
             let roles = [
                 {
