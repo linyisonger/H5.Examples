@@ -70,6 +70,7 @@
     <!-- 公园模板  park-template -->
     <!-- 角色模板  role-template -->
     <!-- 彩票模板  lottery-template -->
+    <!-- 玩家操作内部模板  lottery-template-player-operate-internal -->
     <!-- 对话框模板  dialog-template -->
     <!-- 地图模板  map-template -->
 
@@ -310,8 +311,8 @@
         </div>
         <div class="dice-body">
             <div class="dice-item-container">
-                <div class="dice-item"></div>
-                <div class="dice-item"></div>
+                <img class="dice-item" src="./assets/monopoly/1.png" />
+                <img class="dice-item" src="./assets/monopoly/1.png" />
             </div>
             <div class="game-btn-confirm">开始转动</div>
         </div>
@@ -805,6 +806,141 @@
             }
         </style>
     </template>
+    <template id="lottery-template-player-operate-internal">
+        <div class="player-operate">
+            <div class="player-item">
+                <div class="player-avatar">
+                </div>
+                <div class="player-name"></div>
+            </div>
+            <div class="operate-item">
+                <div class="operate-dice">
+                    <img src="./assets/monopoly/5.png" />
+                </div>
+                <div class="game-btn-confirm">购买</div>
+                <div class="game-btn-confirm">放弃</div>
+            </div>
+        </div>
+    </template>
+    <template id="stock-template">
+        <div class="logo">
+            <img src="./assets/monopoly-life/stock.png" />
+        </div>
+        <div class="stock-content">
+            <div class="stock-message">
+                每人可轮流选择是否执行以下动作：
+            </div>
+            <div class="stock-list">
+                <span style="color: red;">-2000元 </span>并且<span style="color: green;">+🎲×1000元</span>
+            </div>
+            <div class="stock-player-list">
+            </div>
+        </div>
+        <style>
+            :host {
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+                background-color: rgba(255, 255, 255, 1);
+                border-radius: 20px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);
+                width: 600px;
+                padding-left: 40px;
+                padding-right: 40px;
+                padding-top: 30px;
+                padding-bottom: 20px;
+                transition: top .5s linear;
+            }
+
+            :host(.close) {
+                top: -100%;
+            }
+
+            .logo {
+                position: absolute;
+                top: 0;
+                left: 20px;
+                transform: translate(0, -75%);
+            }
+
+            .logo img {
+                width: 100px;
+            }
+
+            .stock-message {
+                font-size: 16px;
+                margin-top: 20px;
+                margin-bottom: 10px;
+            }
+
+            .stock-list {
+                margin-bottom: 20px;
+            }
+
+            .stock-footer {
+                display: flex;
+                justify-content: space-between;
+                margin-top: 20px;
+                margin-bottom: 20px;
+            }
+
+            .player-item {
+                display: flex;
+                align-items: center;
+                box-sizing: border-box;
+                position: relative;
+            }
+
+            .player-item .player-avatar {
+                width: 40px;
+                height: 40px;
+                background-size: contain;
+                border-radius: 50%;
+                margin-right: 20px;
+            }
+
+
+            .player-operate {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 10px;
+            }
+
+            .operate-item .game-btn-confirm:last-child {
+                background-color: #a1a1a1;
+                margin-left: 10px;
+            }
+
+            .operate-item {
+                display: flex;
+                align-items: center;
+            }
+
+            .operate-dice {
+                margin-right: 20px;
+                display: flex;
+                align-items: center;
+            }
+        </style>
+    </template>
+    <template id="stock-template-player-operate-internal">
+        <div class="player-operate">
+            <div class="player-item">
+                <div class="player-avatar">
+                </div>
+                <div class="player-name"></div>
+            </div>
+            <div class="operate-item">
+                <div class="operate-dice">
+                    <img src="./assets/monopoly/5.png" />
+                </div>
+                <div class="game-btn-confirm">购买</div>
+                <div class="game-btn-confirm">放弃</div>
+            </div>
+        </div>
+    </template>
     <template id="dialog-template">
         <div class="dialog-header">
             <div class="dialog-header-title">
@@ -1145,7 +1281,7 @@
             /** 位置类型 */
             positionType = PositionTypeEnum.LOOP
             /** 历史记录 */
-            history = []
+            // history = []
             /** 行动状态 */
             actionState = PlayerActionEnum.NONE
 
@@ -1158,12 +1294,12 @@
                     this[key] = player[key]
                 }
 
-                this.save = function () {
-                    this.history.push({
-                        position: this.position,
-                        positionType: this.positionType
-                    })
-                }
+                // this.save = function () {
+                //     this.history.push({
+                //         position: this.position,
+                //         positionType: this.positionType
+                //     })
+                // }
             }
 
 
@@ -1171,12 +1307,20 @@
 
         class SceneStation {
             /** @type {Player} */
-            curPlayer = null
+            #curPlayer = null
             /** @type {Player[]} */
             allPlayers = []
             dicePoints = 0
             /** @type {Station}  */
             prevStation = null
+
+            get curPlayer() {
+                return this.#curPlayer
+            }
+            set curPlayer(val) {
+                this.#curPlayer = val
+                this.prevStation = null
+            }
         }
 
         class Station {
@@ -1321,6 +1465,19 @@
             const diceItemContainerDom = fragment.shadowRoot.querySelector('.dice-item-container')
             /** @type {HTMLDivElement} */
             const confirmDom = fragment.shadowRoot.querySelector('.game-btn-confirm')
+            /**
+             * @param {HTMLImageElement} dom
+             */
+            const roll = async (dom) => {
+                let result = 0;
+                for (let i = 0; i < 15; i++) {
+                    await wait(100);
+                    const val = Randoms.int(0, 6)
+                    dom.setAttribute('src', `${diceImages[val].src}`)
+                    result = val + 1
+                }
+                return result;
+            }
             /** 
              * @param {number} count
              * @return {Promise<number>}
@@ -1335,27 +1492,20 @@
                         /** @type {HTMLDivElement} */
                         const dom = diceItemContainerDom.children.item(i)
                         dom.classList.remove('hidden')
-                        dom.style.backgroundImage = `url(${diceImages[0].src})`
+                        dom.setAttribute('src', `${diceImages[0].src}`)
                     }
                     fragment.classList.remove('close')
 
                     const confirmFunc = async function () {
                         // 执行🎲
                         const diceItemDomList = diceItemContainerDom.querySelectorAll('.dice-item:not(.hidden)')
-                        // 结果
-                        const result = {}
+
                         // 循环15次约等于1.5s
-                        for (let i = 0; i < 15; i++) {
-                            await wait(100);
-                            for (let j = 0; j < diceItemDomList.length; j++) {
-                                /** @type {HTMLDivElement} */
-                                const diceItemDom = diceItemDomList.item(j);
-                                const val = Randoms.int(0, 6)
-                                diceItemDom.style.backgroundImage = `url(${diceImages[val].src})`
-                                result[j] = val + 1
-                            }
-                        }
-                        const total = Maths.sum(Object.values(result))
+                        const allRoll = []
+                        // 循环加入
+                        diceItemDomList.forEach(item => allRoll.push(roll(item)))
+                        const total = Maths.sum(await Promise.all(allRoll))
+                        await wait(500)
                         fragment.classList.add('close')
                         resolve(total)
                     }
@@ -1366,7 +1516,8 @@
             logContainer.log("骰子控件加载完成")
             return {
                 fragment,
-                open
+                open,
+                roll
             }
         }()
 
@@ -1558,14 +1709,6 @@
          * @date 	 2024-12-12
          */
         const hospitalContainer = await async function () {
-            const diceImages = await Promise.all([
-                './assets/monopoly/1.png',
-                './assets/monopoly/2.png',
-                './assets/monopoly/3.png',
-                './assets/monopoly/4.png',
-                './assets/monopoly/5.png',
-                './assets/monopoly/6.png',
-            ].map(u => loadImage(u)))
             const fragment = templateLoad('#hospital-template')
             fragment.classList.add('close')
             const confirmDom = fragment.shadowRoot.querySelector('.game-btn-confirm')
@@ -1580,14 +1723,8 @@
                         /** @type {HTMLImageElement} */
                         const diceItemDom = fragment.shadowRoot.querySelector('.hospital-dice img')
                         // 结果
-                        let total = 0
-                        // 循环15次约等于1.5s
-                        for (let i = 0; i < 15; i++) {
-                            await wait(100);
-                            const val = Randoms.int(0, 6)
-                            diceItemDom.setAttribute('src', `${diceImages[val].src}`)
-                            total = val + 1
-                        }
+                        let total = await diceContainer.roll(diceItemDom)
+                        await wait(500)
                         fragment.classList.add('close')
                         resolve(total)
                     }
@@ -1608,14 +1745,6 @@
          * @date 	 2024-12-12
          */
         const parkContainer = await async function () {
-            const diceImages = await Promise.all([
-                './assets/monopoly/1.png',
-                './assets/monopoly/2.png',
-                './assets/monopoly/3.png',
-                './assets/monopoly/4.png',
-                './assets/monopoly/5.png',
-                './assets/monopoly/6.png',
-            ].map(u => loadImage(u)))
             const fragment = templateLoad("#park-template")
             fragment.classList.add('close')
             const confirmDom = fragment.shadowRoot.querySelector('.game-btn-confirm')
@@ -1630,14 +1759,8 @@
                         /** @type {HTMLImageElement} */
                         const diceItemDom = fragment.shadowRoot.querySelector('.park-dice img')
                         // 结果
-                        let total = 0
-                        // 循环15次约等于1.5s
-                        for (let i = 0; i < 15; i++) {
-                            await wait(100);
-                            const val = Randoms.int(0, 6)
-                            diceItemDom.setAttribute('src', `${diceImages[val].src}`)
-                            total = val + 1
-                        }
+                        let total = await diceContainer.roll(diceItemDom)
+                        await wait(500)
                         fragment.classList.add('close')
                         resolve(total)
                     }
@@ -1659,15 +1782,6 @@
          * @date 	 2024-12-16
          */
         const lotteryContainer = await async function () {
-            const diceImages = await Promise.all([
-                './assets/monopoly/1.png',
-                './assets/monopoly/2.png',
-                './assets/monopoly/3.png',
-                './assets/monopoly/4.png',
-                './assets/monopoly/5.png',
-                './assets/monopoly/6.png',
-            ].map(u => loadImage(u)))
-
             const fragment = templateLoad("#lottery-template")
             fragment.classList.add('close')
             const confirmDom = fragment.shadowRoot.querySelector('.game-btn-confirm')
@@ -1696,44 +1810,25 @@
                             }
                         },
                     })
+
                     lotteryPlayerListDom.innerHTML = ''
                     players.forEach(function (player, index) {
-                        let playerItemTemplate = `
-                            <div class="player-operate">
-                                <div class="player-item">
-                                    <div class="player-avatar" style="background-image:url(${player.avatar});border-color:${player.color}"></div>
-                                    <div class="player-name">${player.name}</div>
-                                </div>
-                                <div class="operate-item">
-                                    <div class="operate-dice">
-                                        <img src="./assets/monopoly/5.png"/>
-                                    </div>
-                                    <div class="game-btn-confirm">购买</div>
-                                    <div class="game-btn-confirm">放弃</div>
-                                </div>
-                            </div>
-                        `
-                        let playerFragment = createFragment(playerItemTemplate)
-                        lotteryPlayerListDom.appendChild(playerFragment)
-                        let playerOperateDom = lotteryPlayerListDom.querySelectorAll('.player-operate').item(index)
+                        let playerFragment = templateLoad('#lottery-template-player-operate-internal', true)
+                        let playerOperateDom = playerFragment.querySelector('.player-operate')
+                        playerOperateDom.querySelector('.player-avatar').setAttribute('style', `background-image:url(${player.avatar});border-color:${player.color}`)
+                        playerOperateDom.querySelector('.player-name').textContent = player.name
+
                         let operateItemDom = playerOperateDom.querySelector('.operate-item')
                         let confirmListDom = playerOperateDom.querySelectorAll('.game-btn-confirm')
                         let buyDom = confirmListDom.item(0);
                         let abandonDom = confirmListDom.item(1)
-
+                        lotteryPlayerListDom.appendChild(playerFragment)
                         const buyFunc = async () => {
                             let operateDiceDom = operateItemDom.querySelector('.operate-dice img')
                             buyDom.remove();
                             abandonDom.remove()
-                            // 结果
-                            let total = 0
-                            // 循环15次约等于1.5s
-                            for (let i = 0; i < 15; i++) {
-                                await wait(100);
-                                const val = Randoms.int(0, 6)
-                                operateDiceDom.setAttribute('src', `${diceImages[val].src}`)
-                                total = val + 1
-                            }
+                            let total = await diceContainer.roll(operateDiceDom)
+
 
                             if (total > 4) {
                                 let riches = 5000;
@@ -1746,14 +1841,11 @@
                                 resultProxy[index] = riches
                             }
                         }
-                        buyDom.removeEventListener("click", buyFunc)
                         buyDom.addEventListener("click", buyFunc)
-
                         const abandonFunc = () => {
                             operateItemDom.innerHTML = `放弃`
                             resultProxy[index] = 0
                         }
-                        abandonDom.removeEventListener("click", abandonFunc)
                         abandonDom.addEventListener("click", abandonFunc)
                     })
                 })
@@ -1769,8 +1861,78 @@
          * @author 	 linyisonger
          * @date 	 2024-12-12
          */
-        const stockMarketContainer = await async function () {
+        const stockContainer = await async function () {
+            const fragment = templateLoad("#stock-template")
+            fragment.classList.add('close')
+            const confirmDom = fragment.shadowRoot.querySelector('.game-btn-confirm')
+            const stockPlayerListDom = fragment.shadowRoot.querySelector('.stock-player-list')
 
+            /**
+             * @param {Player[]} players
+             * @return {Promise<number>}
+             */
+            const open = function (players) {
+                fragment.classList.remove('close')
+                return new Promise((resolve) => {
+                    let result = {}
+                    let resultProxy = new Proxy(result, {
+                        get(result, prop) {
+                            return result[prop]
+                        },
+                        async set(result, prop, value) {
+                            result[prop] = value;
+
+                            if (Object.keys(result).length === players.length) {
+                                await wait(500);
+                                fragment.classList.add('close')
+                                await wait(500);
+                                resolve(Object.values(result))
+                            }
+                        },
+                    })
+
+                    stockPlayerListDom.innerHTML = ''
+                    players.forEach(function (player, index) {
+                        let playerFragment = templateLoad('#stock-template-player-operate-internal', true)
+                        let playerOperateDom = playerFragment.querySelector('.player-operate')
+                        playerOperateDom.querySelector('.player-avatar').setAttribute('style', `background-image:url(${player.avatar});border-color:${player.color}`)
+                        playerOperateDom.querySelector('.player-name').textContent = player.name
+
+                        let operateItemDom = playerOperateDom.querySelector('.operate-item')
+                        let confirmListDom = playerOperateDom.querySelectorAll('.game-btn-confirm')
+                        let buyDom = confirmListDom.item(0);
+                        let abandonDom = confirmListDom.item(1)
+                        stockPlayerListDom.appendChild(playerFragment)
+                        const buyFunc = async () => {
+                            let operateDiceDom = operateItemDom.querySelector('.operate-dice img')
+                            buyDom.remove();
+                            abandonDom.remove()
+                            let total = await diceContainer.roll(operateDiceDom)
+                            resultProxy[index] = -2000 + total * 1000
+                            if (resultProxy[index] > 0) {
+                                operateItemDom.innerHTML = `${ICON_CONFIG.RICHES}<span style="color:green">+${resultProxy[index]}元</span>`
+                            }
+                            else if (resultProxy[index] < 0) {
+                                operateItemDom.innerHTML = `${ICON_CONFIG.RICHES}<span style="color:red">${resultProxy[index]}元</span>`
+                            }
+                            else {
+                                operateItemDom.innerHTML = `无变化`
+                            }
+                        }
+                        buyDom.addEventListener("click", buyFunc)
+                        const abandonFunc = () => {
+                            operateItemDom.innerHTML = `放弃`
+                            resultProxy[index] = 0
+                        }
+                        abandonDom.addEventListener("click", abandonFunc)
+                    })
+                })
+            }
+
+            return {
+                fragment,
+                open
+            }
         }();
 
 
@@ -1831,7 +1993,7 @@
             let fragment = templateLoad('#map-template')
             let screenWidth = document.body.clientWidth
             let screenHeight = document.body.clientHeight
-            
+
             // 加载图片背景
             let mapImage = await loadImage('./assets/monopoly-life/map.jpg')
             fragment.style.backgroundImage = `url(${mapImage.src})`
@@ -1910,7 +2072,7 @@
                 // 是否纯文本
                 let isText = !/<td.*?>/.test(this.description);
                 let description = this.description;
-                if (isText) description = `<tr><td>${description}</td></tr>`
+                if (isText) description = description && `<tr><td>${description}</td></tr>`
                 const table = `
                     <table class="log-item-table">
                         <tbody>
@@ -2153,6 +2315,22 @@
                     result[i] && playerChange(player, { riches: result[i] })
                 }
             }
+
+
+            /**
+             * 停留证券市场
+             * @param {SceneStation} scene 
+             */
+            async function stopStock(scene) {
+                table.call(this, scene)
+                let players = [scene.curPlayer, ...scene.allPlayers];
+                let result = await stockContainer.open(players)
+                for (let i = 0; i < players.length; i++) {
+                    const player = players[i];
+                    result[i] && playerChange(player, { riches: result[i] })
+                }
+            }
+
             /**
              * 外圈
              * @type {Station[]}
@@ -2457,7 +2635,8 @@
                     width: "15.44%",
                     height: "9.5%",
                     name: '股票市场',
-                    description: ""
+                    description: "",
+                    stop: stopStock
                 },
                 {
                     id: "28",
@@ -3359,7 +3538,6 @@
 
             let scene = new SceneStation();
 
-
             for (const station of [...loopStations, ...Object.values(insideStations).flat()]) {
                 let stationDom = createFragment(`<div class="station-item"></div>`).querySelector(".station-item")
                 stationDom.style.left = station.left
@@ -3391,23 +3569,24 @@
              * @param {number} count
              */
             let move = async (player, count) => {
-                // count = 6 //loopStations.length + 
+                count = 26
+                // 上一次的位置
+                if (scene.prevStation == null) {
+                    if (player.positionType == PositionTypeEnum.LOOP) scene.prevStation = loopStations[player.position]
+                    else scene.prevStation = insideStations[player.positionType][player.position]
+                }
 
                 scene.curPlayer = player;
                 scene.dicePoints = count;
-
                 let currDom = fragment.shadowRoot.querySelector(`.player-item[data-id="${player.id}"]`);
                 for (let i = 0; i < count; i++) {
                     await wait(500); // 测试加速 
                     player.position++
-                    player.save() // 暂存位置信息
                     let station = null
                     let insideStation = insideStations[player.positionType]
                     // 进入内圈
                     if (insideStation) {
-                        console.log(insideStation, scene.prevStation);
-
-                        if (scene.prevStation != insideStation[insideStation.length - 1]) { // 在内圈转动
+                        if (player.position < insideStation.length) { // 在内圈转动
                             station = insideStation[player.position]  // 内圈站点
                         }
                         else {
@@ -3421,8 +3600,11 @@
                         station = loopStations[player.position % loopStations.length]; // 外圈站点
                     }
 
+                    console.log(station, player, scene.prevStation, insideStation);
+
                     station.dom.appendChild(currDom)
                     scene.prevStation = station; // 上一个站点
+
                     if (count - i > 1) await station.via‌?.(scene) // 经过
                     else await station.stop?.(scene)  // 停留 
                     lookAt(currDom.parentNode) // 镜头跟随
@@ -3490,6 +3672,7 @@
             gameContainerDom.appendChild(hospitalContainer.fragment)
             gameContainerDom.appendChild(parkContainer.fragment)
             gameContainerDom.appendChild(lotteryContainer.fragment)
+            gameContainerDom.appendChild(stockContainer.fragment)
             document.body.appendChild(gameContainerDom)
             // 选中的角色
             let roles = [
@@ -3517,10 +3700,8 @@
             // 选择角色
             // let selecedRoles = await roleContainer.open()
 
-
             // 医院测试
             // let dictTotal = await hospitalContainer.open()
-
 
             // 公园测试
             // let parkTotal = await parkContainer.open()
@@ -3528,7 +3709,8 @@
             // 彩票测试
             // let lotteryResult = await lotteryContainer.open(players)
 
-
+            // 证券市场
+            // let stockResult = await stockContainer.open(players)
 
 
 
