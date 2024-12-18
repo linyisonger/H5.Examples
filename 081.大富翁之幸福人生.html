@@ -60,6 +60,20 @@
     <div class="game-container"></div>
 
 
+
+    <!-- 模板列表 -->
+    <!-- 日志模板  log-template -->
+    <!-- 玩家模板  player-template -->
+    <!-- 单个玩家内部模版  player-template-player-item-internal -->
+    <!-- 骰子模板  dice-template -->
+    <!-- 医院模板  hospital-template -->
+    <!-- 公园模板  park-template -->
+    <!-- 角色模板  role-template -->
+    <!-- 彩票模板  lottery-template -->
+    <!-- 对话框模板  dialog-template -->
+    <!-- 地图模板  map-template -->
+
+
     <template id="log-template">
         <div class="log-header">
             <div class="log-header-title">
@@ -1817,7 +1831,7 @@
             let fragment = templateLoad('#map-template')
             let screenWidth = document.body.clientWidth
             let screenHeight = document.body.clientHeight
-
+            
             // 加载图片背景
             let mapImage = await loadImage('./assets/monopoly-life/map.jpg')
             fragment.style.backgroundImage = `url(${mapImage.src})`
