@@ -1165,17 +1165,6 @@
             })
         }
 
-        /** 创建容器
-         * @param {string} html 
-         */
-        function createFragment(html) {
-            const fragment = document.createDocumentFragment();
-            const div = document.createElement("div");
-            div.innerHTML = html;
-            fragment.appendChild(div.children.item(0))
-            return fragment;
-        }
-
         /** 模板加载
          * @param {string} selectors 
          * @param {boolean} isInternal 是否是内部模板
@@ -3546,7 +3535,8 @@
             let scene = new SceneStation();
 
             for (const station of [...loopStations, ...Object.values(insideStations).flat()]) {
-                let stationDom = createFragment(`<div class="station-item"></div>`).querySelector(".station-item")
+                let stationDom = document.createElement('div');
+                stationDom.classList.add('station-item')
                 stationDom.style.left = station.left
                 stationDom.style.top = station.top
                 stationDom.style.width = station.width
