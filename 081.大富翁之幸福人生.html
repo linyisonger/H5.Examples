@@ -9,6 +9,9 @@
 
 
     <style>
+        :root {}
+
+
         @font-face {
             font-family: "SourceHanSansCN-Light";
             src: url('./assets/SourceHanSansCN-Light.otf');
@@ -46,15 +49,19 @@
 
         .game-btn-confirm {
             display: inline-flex;
-            padding: 0 20px;
+            padding: 0 20px 3px;
             line-height: 40px;
-            background-color: #2776ec;
-            color: #fff;
+            background: linear-gradient(to bottom, rgb(87, 196, 245), rgb(26, 147, 206));
+            color: rgb(254, 252, 255);
             cursor: pointer;
+            border-radius: 4px;
+            font-weight: bold;
+            box-shadow: inset 0px -3px 0 rgb(19, 98, 139);
         }
 
         .game-btn-confirm:active {
             opacity: .7;
+            box-shadow: inset 0px 0px 0 transparent;
         }
 
         object {
@@ -97,36 +104,41 @@
                 position: absolute;
                 left: 0;
                 bottom: 0;
-                height: 50%;
-                width: 500px;
-                background-color: rgba(255, 255, 255, .7);
-                border-radius: 20px 20px 0 0;
+                width: 400px;
+                background-color: rgb(66, 136, 167);
+                box-shadow: inset 0px -3px 0 rgb(4, 70, 98);
+                border-radius: 0 4px 0 0;
             }
 
             :host(.close) {
-                bottom: calc(-50% + 50px);
+                bottom: calc(-30vh + 40px);
             }
 
             :host(.close) .log-icon-close {
                 transform: rotate(180deg);
+                top: 5px;
             }
 
             .log-header-title {
-                line-height: 50px;
-                font-size: 20px;
+                line-height: 40px;
+                font-size: 18px;
                 font-weight: bold;
                 text-align: center;
+                color: rgb(252, 255, 254);
+                text-shadow: 0px 2px 0 rgb(78, 75, 67);
             }
 
             .log-body {
-                margin: 0 20px 20px;
-                height: calc(100% - 70px);
+                margin: 0 10px 10px;
+                height: calc(30vh - 50px);
                 overflow-y: auto;
+                background-color: rgb(233, 227, 220);
+                border-radius: 4px;
             }
 
             .log-icon-close {
                 position: absolute;
-                top: 15px;
+                top: 10px;
                 right: 20px;
             }
 
@@ -329,9 +341,10 @@
                 left: 50%;
                 top: 50%;
                 transform: translate(-50%, -50%);
-                width: 500px;
-                background-color: rgba(255, 255, 255, .9);
-                border-radius: 20px;
+                width: 300px;
+                background-color: rgb(66, 136, 167);
+                box-shadow: inset 0px -3px 0 rgb(4, 70, 98);
+                border-radius: 4px;
             }
 
             :host(.close) {
@@ -339,18 +352,22 @@
             }
 
             .dice-header-title {
-                line-height: 50px;
-                font-size: 20px;
+                line-height: 40px;
+                font-size: 18px;
                 font-weight: bold;
                 text-align: center;
+                color: rgb(252, 255, 254);
+                text-shadow: 0px 2px 0 rgb(78, 75, 67);
             }
 
             .dice-body {
-                margin: 0 20px 20px;
+                margin: 0 10px 13px;
                 overflow-y: auto;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
+                background-color: rgb(233, 227, 220);
+                border-radius: 4px;
             }
 
             .dice-item {
@@ -358,7 +375,6 @@
                 height: 50px;
                 background-repeat: no-repeat;
                 background-size: 100%;
-                margin-bottom: 20px;
             }
 
             .dice-item:nth-child(n+2) {
@@ -367,16 +383,24 @@
 
             .dice-item-container {
                 display: flex;
+                margin-top: 10px;
+                margin-bottom: 10px;
             }
 
             .dice-item.hidden {
                 display: none;
             }
+
+            .game-btn-confirm {
+                margin-bottom: 10px;
+            }
         </style>
     </template>
     <template id="hospital-template">
-        <div class="logo">
-            <img src="./assets/monopoly-life/hospital.png" />
+        <div class="hospital-header">
+            <div class="hospital-header-title">
+                医院
+            </div>
         </div>
         <div class="hospital-content">
             <div class="hospital-message">
@@ -412,34 +436,36 @@
                 left: 50%;
                 top: 50%;
                 transform: translate(-50%, -50%);
-                background-color: rgba(255, 255, 255, 1);
-                border-radius: 20px;
-                box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);
-                width: 500px;
-                padding-left: 40px;
-                padding-right: 40px;
-                padding-top: 30px;
+                width: 600px;
+
+                background-color: rgb(66, 136, 167);
+                box-shadow: inset 0px -3px 0 rgb(4, 70, 98);
+                border-radius: 4px;
             }
 
             :host(.close) {
                 top: -100%;
             }
 
-            .logo {
-                position: absolute;
-                top: 0;
-                left: 20px;
-                transform: translate(0, -70%);
-            }
-
-            .logo img {
-                width: 150px;
+            .hospital-header-title {
+                line-height: 40px;
+                font-size: 18px;
+                font-weight: bold;
+                text-align: center;
+                color: rgb(252, 255, 254);
+                text-shadow: 0px 2px 0 rgb(78, 75, 67);
             }
 
             .hospital-message {
-                margin-top: 20px;
                 font-size: 16px;
                 margin-bottom: 10px;
+            }
+
+            .hospital-content {
+                margin: 0 10px 13px;
+                padding: 10px;
+                background-color: rgb(233, 227, 220);
+                border-radius: 4px;
             }
 
             .hospital-item {
@@ -449,7 +475,7 @@
             }
 
             .hospital-item img {
-                height: 20px
+                height: 30px
             }
 
             .hospital-item img:last-child {
@@ -464,13 +490,22 @@
             .hospital-footer {
                 display: flex;
                 justify-content: space-between;
-                margin-bottom: 20px;
+                background-color: rgb(207, 199, 190);
+                padding: 10px;
+                border-radius: 4px;
+            }
+
+            .hospital-dice {
+                display: flex;
+                align-items: center;
             }
         </style>
     </template>
     <template id="park-template">
-        <div class="logo">
-            <img src="./assets/monopoly-life/park.png" />
+        <div class="park-header">
+            <div class="park-header-title">
+                公园板凳
+            </div>
         </div>
         <div class="park-content">
             <div class="park-message">
@@ -503,32 +538,33 @@
                 left: 50%;
                 top: 50%;
                 transform: translate(-50%, -50%);
-                background-color: rgba(255, 255, 255, 1);
-                border-radius: 20px;
-                box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);
                 width: 500px;
-                padding-left: 40px;
-                padding-right: 40px;
-                padding-top: 30px;
+                padding: 0 10px 13px;
+                background-color: rgb(66, 136, 167);
+                box-shadow: inset 0px -3px 0 rgb(4, 70, 98);
+                border-radius: 4px;
             }
 
             :host(.close) {
                 top: -100%;
             }
 
-            .logo {
-                position: absolute;
-                top: 0;
-                left: 20px;
-                transform: translate(0, -60%);
+            .park-header-title {
+                line-height: 40px;
+                font-size: 18px;
+                font-weight: bold;
+                text-align: center;
+                color: rgb(252, 255, 254);
+                text-shadow: 0px 2px 0 rgb(78, 75, 67);
             }
 
-            .logo img {
-                width: 150px;
+            .park-content {
+                background-color: rgb(233, 227, 220);
+                border-radius: 4px;
+                padding: 10px;
             }
 
             .park-message {
-                margin-top: 20px;
                 font-size: 16px;
                 margin-bottom: 10px;
             }
@@ -550,7 +586,14 @@
             .park-footer {
                 display: flex;
                 justify-content: space-between;
-                margin-bottom: 20px;
+                background-color: rgb(207, 199, 190);
+                padding: 10px;
+                border-radius: 4px;
+            }
+
+            .park-dice {
+                display: flex;
+                align-items: center;
             }
         </style>
     </template>
@@ -574,9 +617,10 @@
                 left: 50%;
                 top: 50%;
                 transform: translate(-50%, -50%);
-                background-color: rgba(255, 255, 255, 1);
                 width: 600px;
-                height: 415px;
+                background-color: rgb(66, 136, 167);
+                box-shadow: inset 0px -3px 0 rgb(4, 70, 98);
+                border-radius: 0 4px 0 0;
             }
 
             :host(.close) {
@@ -584,19 +628,24 @@
             }
 
             .role-header-title {
-                line-height: 50px;
-                font-size: 20px;
+                line-height: 40px;
+                font-size: 18px;
                 font-weight: bold;
                 text-align: center;
+                color: rgb(252, 255, 254);
+                text-shadow: 0px 2px 0 rgb(78, 75, 67);
             }
 
             .role-body {
-                margin: 0 20px 20px;
+                margin: 0 10px 13px;
                 overflow-y: auto;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
                 overflow-x: hidden;
+                background-color: rgb(233, 227, 220);
+                border-radius: 4px;
+                padding: 10px;
             }
 
             .role-item-container {
@@ -682,8 +731,10 @@
         </style>
     </template>
     <template id="lottery-template">
-        <div class="logo">
-            <img src="./assets/monopoly-life/lottery.png" />
+        <div class="lottery-header">
+            <div class="lottery-header-title">
+                购买彩票
+            </div>
         </div>
         <div class="lottery-content">
             <div class="lottery-message">
@@ -720,34 +771,34 @@
                 left: 50%;
                 top: 50%;
                 transform: translate(-50%, -50%);
-                background-color: rgba(255, 255, 255, 1);
-                border-radius: 20px;
-                box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);
                 width: 600px;
-                padding-left: 40px;
-                padding-right: 40px;
-                padding-top: 30px;
-                padding-bottom: 20px;
+                padding: 0px 10px 13px;
                 transition: top .5s linear;
+                background-color: rgb(66, 136, 167);
+                box-shadow: inset 0px -3px 0 rgb(4, 70, 98);
+                border-radius: 4px;
             }
 
             :host(.close) {
                 top: -100%;
             }
 
-            .logo {
-                position: absolute;
-                top: 0;
-                left: 20px;
-                transform: translate(0, -70%);
+            .lottery-header-title {
+                line-height: 40px;
+                font-size: 18px;
+                font-weight: bold;
+                text-align: center;
+                color: rgb(252, 255, 254);
+                text-shadow: 0px 2px 0 rgb(78, 75, 67);
             }
 
-            .logo img {
-                width: 150px;
+            .lottery-content {
+                background-color: rgb(233, 227, 220);
+                border-radius: 4px;
+                padding: 10px;
             }
 
             .lottery-message {
-                margin-top: 20px;
                 font-size: 16px;
                 margin-bottom: 10px;
             }
@@ -793,7 +844,10 @@
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
-                margin-bottom: 10px;
+                margin-top: 10px;
+                background-color: rgb(207, 199, 190);
+                padding: 10px;
+                border-radius: 4px;
             }
 
             .operate-item .game-btn-confirm:last-child {
@@ -830,9 +884,15 @@
         </div>
     </template>
     <template id="stock-template">
-        <div class="logo">
-            <img src="./assets/monopoly-life/stock.png" />
+        <div class="stock-header">
+            <div class="stock-header-title">
+                股票市场
+            </div>
         </div>
+
+        <!-- <div class="logo">
+            <img src="./assets/monopoly-life/stock.png" />
+        </div> -->
         <div class="stock-content">
             <div class="stock-message">
                 每人可轮流选择是否执行以下动作：
@@ -849,35 +909,38 @@
                 left: 50%;
                 top: 50%;
                 transform: translate(-50%, -50%);
-                background-color: rgba(255, 255, 255, 1);
-                border-radius: 20px;
-                box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);
                 width: 600px;
-                padding-left: 40px;
-                padding-right: 40px;
-                padding-top: 30px;
-                padding-bottom: 20px;
+                padding-left: 10px;
+                padding-right: 10px;
+                padding-bottom: 10px;
                 transition: top .5s linear;
+                background-color: rgb(66, 136, 167);
+                box-shadow: inset 0px -3px 0 rgb(4, 70, 98);
+                border-radius: 4px;
             }
 
             :host(.close) {
                 top: -100%;
             }
 
-            .logo {
-                position: absolute;
-                top: 0;
-                left: 20px;
-                transform: translate(0, -75%);
+            .stock-header-title {
+                line-height: 40px;
+                font-size: 18px;
+                font-weight: bold;
+                text-align: center;
+                color: rgb(252, 255, 254);
+                text-shadow: 0px 2px 0 rgb(78, 75, 67);
             }
 
-            .logo img {
-                width: 100px;
+            .stock-content {
+                background-color: rgb(233, 227, 220);
+                border-radius: 4px;
+                padding: 10px;
             }
+
 
             .stock-message {
                 font-size: 16px;
-                margin-top: 20px;
                 margin-bottom: 10px;
             }
 
@@ -912,11 +975,13 @@
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
-                margin-bottom: 10px;
+                margin-top: 10px;
+                background-color: rgb(207, 199, 190);
+                padding: 10px;
+                border-radius: 4px;
             }
 
             .operate-item .game-btn-confirm:last-child {
-                background-color: #a1a1a1;
                 margin-left: 10px;
             }
 
@@ -945,6 +1010,127 @@
                 </div>
                 <div class="game-btn-confirm">购买</div>
                 <div class="game-btn-confirm">放弃</div>
+            </div>
+        </div>
+    </template>
+    <template id="mall-template">
+        <div class="mall-header">
+            <div class="mall-header-title">
+                商场
+            </div>
+        </div>
+        <div class="mall-content">
+            <div class="mall-message">
+                大肆采购所有人都要执行：
+            </div>
+            <div class="mall-list">
+                <span style="color: red;">-🎲×300元</span>
+            </div>
+            <div class="mall-player-list">
+            </div>
+        </div>
+        <style>
+            :host {
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+                width: 600px;
+                padding-left: 10px;
+                padding-right: 10px;
+                padding-bottom: 10px;
+                transition: top .5s linear;
+                background-color: rgb(66, 136, 167);
+                box-shadow: inset 0px -3px 0 rgb(4, 70, 98);
+                border-radius: 4px;
+            }
+
+            :host(.close) {
+                top: -100%;
+            }
+
+            .mall-header-title {
+                line-height: 40px;
+                font-size: 18px;
+                font-weight: bold;
+                text-align: center;
+                color: rgb(252, 255, 254);
+                text-shadow: 0px 2px 0 rgb(78, 75, 67);
+            }
+
+            .mall-content {
+                background-color: rgb(233, 227, 220);
+                border-radius: 4px;
+                padding: 10px;
+            }
+
+
+            .mall-message {
+                font-size: 16px;
+                margin-bottom: 10px;
+            }
+
+            .mall-list {
+                margin-bottom: 20px;
+            }
+
+            .mall-footer {
+                display: flex;
+                justify-content: space-between;
+                margin-top: 20px;
+                margin-bottom: 20px;
+            }
+
+            .player-item {
+                display: flex;
+                align-items: center;
+                box-sizing: border-box;
+                position: relative;
+            }
+
+            .player-item .player-avatar {
+                width: 40px;
+                height: 40px;
+                background-size: contain;
+                border-radius: 50%;
+                margin-right: 20px;
+            }
+
+
+            .player-operate {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-top: 10px;
+                background-color: rgb(207, 199, 190);
+                padding: 10px;
+                border-radius: 4px;
+            }
+
+            .operate-item {
+                display: flex;
+                align-items: center;
+            }
+
+            .operate-dice {
+                margin-right: 20px;
+                display: flex;
+                align-items: center;
+            }
+        </style>
+    </template>
+    <template id="mall-template-player-operate-internal">
+        <div class="player-operate">
+            <div class="player-item">
+                <div class="player-avatar">
+                </div>
+                <div class="player-name"></div>
+            </div>
+            <div class="operate-item">
+                <div class="operate-dice">
+                    <img src="./assets/monopoly/5.png" />
+                </div>
+                <div class="game-btn-confirm">投掷</div>
             </div>
         </div>
     </template>
@@ -977,9 +1163,9 @@
                 left: 50%;
                 top: 50%;
                 transform: translate(-50%, -50%);
-                background-color: rgba(255, 255, 255, 1);
-                border-radius: 20px;
-                box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);
+                background-color: rgb(66, 136, 167);
+                box-shadow: inset 0px -3px 0 rgb(4, 70, 98);
+                border-radius: 4px;
                 width: 500px;
             }
 
@@ -989,22 +1175,25 @@
 
 
             .dialog-header-title {
-                line-height: 50px;
-                font-size: 20px;
+                line-height: 40px;
+                font-size: 18px;
                 font-weight: bold;
                 text-align: center;
-                border-bottom: 1px solid rgba(0, 0, 0, 0.3);
-                margin: 0 20px;
+                color: rgb(252, 255, 254);
+                text-shadow: 0px 2px 0 rgb(78, 75, 67);
             }
 
             .dialog-body {
-                padding-top: 20px;
-                margin: 0 20px 20px;
+                margin: 0 10px 13px;
                 overflow-y: auto;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
                 overflow-x: hidden;
+
+                background-color: rgb(233, 227, 220);
+                border-radius: 4px;
+                padding: 10px;
             }
 
             .dialog-body-option {
@@ -1028,7 +1217,6 @@
             }
         </style>
     </template>
-
     <template id="map-template">
         <div class="map-container"></div>
         <style>
@@ -1069,8 +1257,6 @@
             }
         </style>
     </template>
-
-
     <script type="module">
 
         import { Maths } from "https://gcore.jsdelivr.net/npm/@3r/tool/lib/maths.js";
@@ -1449,6 +1635,8 @@
          */
         const diceContainer = await async function () {
             const fragment = templateLoad('#dice-template')
+            fragment.classList.add('close')
+
             const diceImages = await Promise.all([
                 './assets/monopoly/1.png',
                 './assets/monopoly/2.png',
@@ -1933,6 +2121,70 @@
 
 
         /**
+         * 商场
+         * @author 	 linyisonger
+         * @date 	 2024-12-12
+         */
+        const mallContainer = await async function () {
+            const fragment = templateLoad("#mall-template")
+            fragment.classList.add('close')
+            const confirmDom = fragment.shadowRoot.querySelector('.game-btn-confirm')
+            const mallPlayerListDom = fragment.shadowRoot.querySelector('.mall-player-list')
+
+            /**
+             * @param {Player[]} players
+             * @return {Promise<number>}
+             */
+            const open = function (players) {
+                fragment.classList.remove('close')
+                return new Promise((resolve) => {
+                    let result = {}
+                    let resultProxy = new Proxy(result, {
+                        get(result, prop) {
+                            return result[prop]
+                        },
+                        async set(result, prop, value) {
+                            result[prop] = value;
+
+                            if (Object.keys(result).length === players.length) {
+                                await wait(500);
+                                fragment.classList.add('close')
+                                await wait(500);
+                                resolve(Object.values(result))
+                            }
+                        },
+                    })
+
+                    mallPlayerListDom.innerHTML = ''
+                    players.forEach(function (player, index) {
+                        let playerFragment = templateLoad('#mall-template-player-operate-internal', true)
+                        let playerOperateDom = playerFragment.querySelector('.player-operate')
+                        playerOperateDom.querySelector('.player-avatar').setAttribute('style', `background-image:url(${player.avatar});border-color:${player.color}`)
+                        playerOperateDom.querySelector('.player-name').textContent = player.name
+
+                        let operateItemDom = playerOperateDom.querySelector('.operate-item')
+                        let confirmListDom = playerOperateDom.querySelectorAll('.game-btn-confirm')
+                        let buyDom = confirmListDom.item(0);
+                        mallPlayerListDom.appendChild(playerFragment)
+                        const buyFunc = async () => {
+                            let operateDiceDom = operateItemDom.querySelector('.operate-dice img')
+                            buyDom.remove();
+                            let total = await diceContainer.roll(operateDiceDom)
+                            resultProxy[index] = -total * 300
+                            operateItemDom.innerHTML = `${ICON_CONFIG.RICHES}<span style="color:red">${resultProxy[index]}元</span>`
+                        }
+                        buyDom.addEventListener("click", buyFunc)
+                    })
+                })
+            }
+
+            return {
+                fragment,
+                open
+            }
+        }();
+
+        /**
          * 对话框控件
          * @author 	 linyisonger
          * @date 	 2024-12-03
@@ -2328,6 +2580,20 @@
             }
 
             /**
+             * 停留商场
+             * @param {SceneStation} scene 
+             */
+            async function stopMall(scene) {
+                table.call(this, scene)
+                let players = [scene.curPlayer, ...scene.allPlayers];
+                let result = await mallContainer.open(players)
+                for (let i = 0; i < players.length; i++) {
+                    const player = players[i];
+                    result[i] && playerChange(player, { riches: result[i] })
+                }
+            }
+
+            /**
              * 外圈
              * @type {Station[]}
              * @author 	 linyisonger
@@ -2583,7 +2849,8 @@
                     width: "9.4%",
                     height: "15.34%",
                     name: '商场',
-                    description: ""
+                    description: "",
+                    stop: stopMall
                 },
                 {
                     id: "23",
@@ -3670,6 +3937,7 @@
             gameContainerDom.appendChild(parkContainer.fragment)
             gameContainerDom.appendChild(lotteryContainer.fragment)
             gameContainerDom.appendChild(stockContainer.fragment)
+            gameContainerDom.appendChild(mallContainer.fragment)
             document.body.appendChild(gameContainerDom)
             // 选中的角色
             let roles = [
@@ -3709,7 +3977,17 @@
             // 证券市场
             // let stockResult = await stockContainer.open(players)
 
+            // 商场
+            // let mallResult = await mallContainer.open(players)
+            // console.log(mallResult);
 
+            // 弹窗
+            // let selected = await dialogContainer.open({
+            //     title: '提示',
+            //     content: '请选择想要的选项',
+            //     options: ["A", "B", "C"]
+            // })
+            // console.log(selected);
 
             // 队列
             const queue = {
@@ -3758,12 +4036,7 @@
             queue.join(players).next()
 
 
-            // let selected = await dialogContainer.open({
-            //     title: '提示',
-            //     content: '请选择想要的选项',
-            //     options: ["A", "B", "C"]
-            // })
-            // console.log(selected);
+
 
 
         }
