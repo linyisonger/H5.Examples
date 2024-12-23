@@ -1129,6 +1129,128 @@
             </div>
         </div>
     </template>
+    <template id="gallery-template">
+        <div class="gallery-header">
+            <div class="gallery-header-title">
+                画廊
+            </div>
+        </div>
+        <div class="gallery-content">
+            <div class="gallery-message">
+                大肆采购所有人都要执行：
+            </div>
+            <div class="gallery-list">
+                <span style="color: red;">-3000元</span>
+            </div>
+            <div class="gallery-player-list">
+            </div>
+        </div>
+        <style>
+            :host {
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+                width: 600px;
+                padding-left: 10px;
+                padding-right: 10px;
+                padding-bottom: 10px;
+                transition: top .5s linear;
+                background-color: rgb(66, 136, 167);
+                box-shadow: inset 0px -3px 0 rgb(4, 70, 98);
+                border-radius: 4px;
+            }
+
+            :host(.close) {
+                top: -100%;
+            }
+
+            .gallery-header-title {
+                line-height: 40px;
+                font-size: 18px;
+                font-weight: bold;
+                text-align: center;
+                color: rgb(252, 255, 254);
+                text-shadow: 0px 2px 0 rgb(78, 75, 67);
+            }
+
+            .gallery-content {
+                background-color: rgb(233, 227, 220);
+                border-radius: 4px;
+                padding: 10px;
+            }
+
+
+            .gallery-message {
+                font-size: 16px;
+                margin-bottom: 10px;
+            }
+
+            .gallery-list {
+                margin-bottom: 20px;
+            }
+
+            .gallery-footer {
+                display: flex;
+                justify-content: space-between;
+                margin-top: 20px;
+                margin-bottom: 20px;
+            }
+
+            .player-item {
+                display: flex;
+                align-items: center;
+                box-sizing: border-box;
+                position: relative;
+            }
+
+            .player-item .player-avatar {
+                width: 40px;
+                height: 40px;
+                background-size: contain;
+                border-radius: 50%;
+                margin-right: 20px;
+            }
+
+
+            .player-operate {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-top: 10px;
+                background-color: rgb(207, 199, 190);
+                padding: 10px;
+                border-radius: 4px;
+            }
+
+            .operate-item {
+                display: flex;
+                align-items: center;
+            }
+
+            .operate-dice {
+                margin-right: 20px;
+                display: flex;
+                align-items: center;
+            }
+        </style>
+    </template>
+    <template id="gallery-template-player-operate-internal">
+        <div class="player-operate">
+            <div class="player-item">
+                <div class="player-avatar">
+                </div>
+                <div class="player-name"></div>
+            </div>
+            <div class="operate-item">
+                <div class="operate-dice">
+                    <img src="./assets/monopoly/5.png" />
+                </div>
+                <div class="game-btn-confirm">投掷</div>
+                <div class="game-btn-confirm">放弃</div>
+            </div>
+        </div>
+    </template>
     <template id="dialog-template">
         <div class="dialog-header">
             <div class="dialog-header-title">
@@ -1386,7 +1508,7 @@
                 },
                 async set(variable, prop, value) {
                     variable[prop] = value;
-                    await func?.(variable)
+                    await func?.(variable, prop, value)
                 },
             })
             return variableProxy
@@ -1498,6 +1620,19 @@
             }
 
 
+        }
+
+        class PlayerChanged {
+            /** 财富 */
+            riches = 0
+            /** 薪水 */
+            salary = 0
+            /** 声望 */
+            repute = 0
+            /** 幸福 */
+            happy = 0
+            /** 行动状态 */
+            actionState = PlayerActionEnum.NONE
         }
 
         class SceneStation {
@@ -2105,6 +2240,7 @@
                             resultProxy[index] = 0
                         }
                         abandonDom.addEventListener("click", abandonFunc)
+
                     })
                 })
             }
@@ -2162,6 +2298,75 @@
                             operateItemDom.innerHTML = `${ICON_CONFIG.RICHES}<span style="color:red">${resultProxy[index]}元</span>`
                         }
                         buyDom.addEventListener("click", buyFunc)
+                    })
+                })
+            }
+
+            return {
+                fragment,
+                open
+            }
+        }();
+
+
+        /**
+         * 画廊
+         * @author 	 linyisonger
+         * @date 	 2024-12-12
+         */
+        const galleryContainer = await async function () {
+            const fragment = templateLoad("#gallery-template")
+            fragment.classList.add('close')
+            const confirmDom = fragment.shadowRoot.querySelector('.game-btn-confirm')
+            const mallPlayerListDom = fragment.shadowRoot.querySelector('.gallery-player-list')
+
+            /**
+             * @param {Player[]} players
+             * @return {Promise<{ player: Player, changed:PlayerChanged }[]>}
+             */
+            const open = function (players) {
+                fragment.classList.remove('close')
+                return new Promise((resolve) => {
+                    /** @type {{[key:string]:{player: Player, changed:PlayerChanged}}} */
+                    let resultProxy = observeVariable(async (result) => {
+                        if (Object.keys(result).length === players.length) {
+                            await wait(500);
+                            fragment.classList.add('close')
+                            await wait(500);
+                            resolve(Object.values(result))
+                        }
+                    })
+
+                    mallPlayerListDom.innerHTML = ''
+                    players.forEach(function (player, index) {
+                        let playerFragment = templateLoad('#gallery-template-player-operate-internal', true)
+                        let playerOperateDom = playerFragment.querySelector('.player-operate')
+                        playerOperateDom.querySelector('.player-avatar').setAttribute('style', `background-image:url(${player.avatar});border-color:${player.color}`)
+                        playerOperateDom.querySelector('.player-name').textContent = player.name
+
+                        let operateItemDom = playerOperateDom.querySelector('.operate-item')
+                        let confirmListDom = playerOperateDom.querySelectorAll('.game-btn-confirm')
+                        let buyDom = confirmListDom.item(0);
+                        mallPlayerListDom.appendChild(playerFragment)
+                        const buyFunc = async () => {
+                            let operateDiceDom = operateItemDom.querySelector('.operate-dice img')
+                            buyDom.remove();
+                            let total = await diceContainer.roll(operateDiceDom)
+                            resultProxy[index] = {
+                                player,
+                                changed: {
+                                    riches: - 3000,
+                                    happy: +total
+                                }
+                            }
+                            operateItemDom.innerHTML = `${ICON_CONFIG.RICHES}<span style="color:red">${resultProxy[index]}元</span>`
+                        }
+                        buyDom.addEventListener("click", buyFunc)
+                        const abandonFunc = () => {
+                            operateItemDom.innerHTML = `放弃`
+                            resultProxy[index] = null
+                        }
+                        abandonDom.addEventListener("click", abandonFunc)
                     })
                 })
             }
@@ -2240,18 +2445,7 @@
             let { lookAt } = dragging(fragment, { minX: -mapImage.width / 2 + screenWidth - overflowDistance, maxX: 0 + overflowDistance, minY: -mapImage.height / 2 + screenHeight - overflowDistance, maxY: 0 + overflowDistance })
             logContainer.log("加载地图背景完成")
 
-            class PlayerChanged {
-                /** 财富 */
-                riches = 0
-                /** 薪水 */
-                salary = 0
-                /** 声望 */
-                repute = 0
-                /** 幸福 */
-                happy = 0
-                /** 行动状态 */
-                actionState = PlayerActionEnum.NONE
-            }
+
 
             class EmploymentEntranceCondition {
                 /** 财富 */
@@ -2582,6 +2776,35 @@
             }
 
             /**
+             * 停留画廊
+             * @param {SceneStation} scene 
+             */
+            async function stopGallery(scene) {
+                table.call(this, scene)
+                let players = [scene.curPlayer, ...scene.allPlayers];
+                let result = await galleryContainer.open(players)
+                for (let i = 0; i < players.length; i++) {
+                    const player = players[i];
+                    result[i] && playerChange(result[i].player, result[i].changed)
+                }
+            }
+
+            /**
+             * 停留诺贝尔奖
+             * @param {SceneStation} scene 
+             */
+            function stopNobelPrize(scene) {
+                table.call(this, scene)
+                const player = scene.curPlayer;
+                let tax = 0;
+                if (player.happy > 20) tax = -1000;
+                else if (player.happy > 5) tax = -2000;
+                else if (player.happy > 1) tax = -3000;
+                playerChange(player, { riches: tax })
+            }
+
+
+            /**
              * 外圈
              * @type {Station[]}
              * @author 	 linyisonger
@@ -2755,7 +2978,8 @@
                     width: "15.34%",
                     height: "9.5%",
                     name: '画廊',
-                    description: ""
+                    description: "",
+                    stop: stopGallery
                 },
                 {
                     id: "15",
@@ -2935,7 +3159,8 @@
                     width: "15.44%",
                     height: "9.4%",
                     name: '获诺贝尔奖',
-                    description: ""
+                    description: "",
+                    stop: stopNobelPrize
                 }
             ].map((item) => new Station(item))
 
@@ -3926,6 +4151,9 @@
             gameContainerDom.appendChild(lotteryContainer.fragment)
             gameContainerDom.appendChild(stockContainer.fragment)
             gameContainerDom.appendChild(mallContainer.fragment)
+            gameContainerDom.appendChild(galleryContainer.fragment)
+
+
             document.body.appendChild(gameContainerDom)
             // 选中的角色
             let roles = [
