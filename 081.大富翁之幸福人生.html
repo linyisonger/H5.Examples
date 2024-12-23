@@ -1137,10 +1137,14 @@
         </div>
         <div class="gallery-content">
             <div class="gallery-message">
-                大肆采购所有人都要执行：
+                每人可轮流选择是否执行以下动作：
             </div>
             <div class="gallery-list">
-                <span style="color: red;">-3000元</span>
+                <div class="flex-row-center">
+                    <div style="color: red;">-3000元</div>并且
+                    <div class="flex-row-center" style="color: green;">+🎲×<img
+                            src="./assets/monopoly-life/happy.png" /></div>
+                </div>
             </div>
             <div class="gallery-player-list">
             </div>
@@ -1223,6 +1227,10 @@
                 border-radius: 4px;
             }
 
+            .operate-item .game-btn-confirm:last-child {
+                margin-left: 10px;
+            }
+
             .operate-item {
                 display: flex;
                 align-items: center;
@@ -1247,6 +1255,186 @@
                     <img src="./assets/monopoly/5.png" />
                 </div>
                 <div class="game-btn-confirm">投掷</div>
+                <div class="game-btn-confirm">放弃</div>
+            </div>
+        </div>
+    </template>
+    <template id="wishing-template">
+        <div class="wishing-header">
+            <div class="wishing-header-title">
+                许愿井
+            </div>
+        </div>
+        <div class="wishing-content">
+            <div class="wishing-message">
+                每人可轮流选择是否执行以下动作：
+            </div>
+            <div class="wishing-message">
+                付出左边列举的一项，获得右边列举的一项
+            </div>
+            <div class="wishing-player-list">
+            </div>
+        </div>
+        <style>
+            :host {
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+                /* width: 600px; */
+                padding-left: 10px;
+                padding-right: 10px;
+                padding-bottom: 10px;
+                transition: top .5s linear;
+                background-color: rgb(66, 136, 167);
+                box-shadow: inset 0px -3px 0 rgb(4, 70, 98);
+                border-radius: 4px;
+            }
+
+            :host(.close) {
+                top: -100%;
+            }
+
+            .wishing-header-title {
+                line-height: 40px;
+                font-size: 18px;
+                font-weight: bold;
+                text-align: center;
+                color: rgb(252, 255, 254);
+                text-shadow: 0px 2px 0 rgb(78, 75, 67);
+            }
+
+            .wishing-content {
+                background-color: rgb(233, 227, 220);
+                border-radius: 4px;
+                padding: 10px;
+            }
+
+
+            .wishing-message {
+                font-size: 16px;
+                margin-bottom: 10px;
+            }
+
+            .wishing-list {
+                margin-bottom: 20px;
+            }
+
+            .wishing-footer {
+                display: flex;
+                justify-content: space-between;
+                margin-top: 20px;
+                margin-bottom: 20px;
+            }
+
+            .wishing-player-list {
+                display: flex;
+            }
+
+            .player-item {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                box-sizing: border-box;
+                position: relative;
+            }
+
+            .player-item .player-avatar {
+                width: 40px;
+                height: 40px;
+                background-size: contain;
+                border-radius: 50%;
+            }
+
+
+            .player-operate {
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                align-items: center;
+                margin-top: 10px;
+                background-color: rgb(207, 199, 190);
+                padding: 10px;
+                border-radius: 4px;
+                margin-right: 10px;
+            }
+
+            .player-operate:last-child {
+                margin-right: 0;
+            }
+
+            .operate-item .game-btn-confirm:last-child {
+                margin-left: 10px;
+            }
+
+            .operate-item {
+                display: flex;
+                align-items: center;
+            }
+
+            .operate-dice {
+                margin-right: 20px;
+                display: flex;
+                align-items: center;
+            }
+
+            .select-list {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: space-between;
+                width: 150px;
+                margin: 10px 0;
+            }
+
+            .select-item {
+                display: flex;
+                width: calc(50% - 5px);
+                background-color: rgb(233, 227, 220);
+                justify-content: center;
+                align-items: center;
+                padding: 3px 0;
+                margin-top: 4px;
+            }
+
+            .select-item img {
+                width: 20px;
+                height: 20px;
+            }
+
+            .select-item.active {
+                background-color: rgb(232, 139, 26);
+            }
+        </style>
+    </template>
+    <template id="wishing-template-player-operate-internal">
+        <div class="player-operate">
+            <div class="player-item">
+                <div class="player-avatar"></div>
+                <div class="player-name"></div>
+            </div>
+
+            <div class="select-list">
+                <div class="select-item left active" data-happy="-5">
+                    -5<img src="./assets/monopoly-life/happy.png" />
+                </div>
+                <div class="select-item right active" data-happy="4">
+                    +4<img src="./assets/monopoly-life/happy.png" />
+                </div>
+                <div class="select-item left" data-repute="-5">
+                    -5<img src="./assets/monopoly-life/repute.png" />
+                </div>
+                <div class="select-item right" data-repute="4">
+                    +4<img src="./assets/monopoly-life/repute.png" />
+                </div>
+                <div class="select-item left" data-riches="-5000">
+                    -5000元
+                </div>
+                <div class="select-item right" data-riches="4000">
+                    +4000元
+                </div>
+            </div>
+            <div class="operate-item">
+                <div class="game-btn-confirm">许愿</div>
                 <div class="game-btn-confirm">放弃</div>
             </div>
         </div>
@@ -1316,17 +1504,13 @@
             .dialog-body-option {
                 margin-top: 10px;
                 display: flex;
-                padding: 0 20px;
                 align-items: center;
                 height: 40px;
-                background-color: #2776ec;
-                color: #fff;
+                background-color: rgb(207, 199, 190);
+                padding: 10px;
+                border-radius: 4px;
                 cursor: pointer;
                 justify-content: center;
-            }
-
-            .dialog-body-option:nth-child(2) {
-                background-color: #a1a1a1;
             }
 
             .dialog-body-content img {
@@ -1334,6 +1518,97 @@
             }
         </style>
     </template>
+    <template id="chance-template">
+        <div class="chance-header">
+            <div class="chance-header-title">
+                机会
+            </div>
+        </div>
+        <div class="chance-body">
+            <div class="chance-body-content">
+                恭喜获得以下奖励
+            </div>
+            <div class="chance-body-card-list">
+                <div class="chance-body-card">
+                    <img class="chance-body-card-icon" src="./assets/monopoly-life/chance.png">
+                    <div>xxxxx</div>
+                </div>
+                <div class="chance-body-card">
+                    <img class="chance-body-card-icon" src="./assets/monopoly-life/chance.png">
+                    <div>xxxxx</div>
+                </div>
+            </div>
+            <div class="chance-footer">
+                <div class="game-btn-confirm">关闭</div>
+            </div>
+        </div>
+
+        <style>
+            :host {
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+                background-color: rgb(66, 136, 167);
+                box-shadow: inset 0px -3px 0 rgb(4, 70, 98);
+                border-radius: 4px;
+                width: 500px;
+            }
+
+            :host(.close) {
+                top: -100%;
+            }
+
+
+            .chance-header-title {
+                line-height: 40px;
+                font-size: 18px;
+                font-weight: bold;
+                text-align: center;
+                color: rgb(252, 255, 254);
+                text-shadow: 0px 2px 0 rgb(78, 75, 67);
+            }
+
+            .chance-body {
+                margin: 0 10px 13px;
+                overflow-y: auto;
+                display: flex;
+                flex-direction: column;
+                overflow-x: hidden;
+
+                background-color: rgb(233, 227, 220);
+                border-radius: 4px;
+                padding: 10px;
+            }
+
+            .chance-body-content img {
+                width: 100%;
+            }
+
+            .chance-body-card {
+                display: flex;
+                align-items: center;
+                background-color: rgb(207, 199, 190);
+                padding: 10px;
+                border-radius: 4px;
+                width: calc(100% - 20px);
+                margin-top: 10px;
+            }
+
+            .chance-body-card-icon {
+                width: 40px;
+                margin-right: 10px;
+            }
+
+            .chance-footer {
+                margin-top: 10px;
+                display: flex;
+                justify-content: center;
+            }
+        </style>
+    </template>
+
+
     <template id="map-template">
         <div class="map-container"></div>
         <style>
@@ -1831,7 +2106,6 @@
                     const confirmFunc = async function () {
                         // 执行🎲
                         const diceItemDomList = diceItemContainerDom.querySelectorAll('.dice-item:not(.hidden)')
-
                         // 循环15次约等于1.5s
                         const allRoll = []
                         // 循环加入
@@ -2011,8 +2285,17 @@
          * @date 	 2024-11-29
          */
         const chanceContainer = await async function () {
+            const fragment = templateLoad('#chance-template')
+            fragment.classList.add('close')
             const open = (count) => {
+                fragment.classList.remove('close')
 
+
+            }
+
+            return {
+                fragment,
+                open
             }
         }()
 
@@ -2179,6 +2462,7 @@
                 open
             }
         }()
+
         /**
          * 股票市场
          * @author 	 linyisonger
@@ -2347,6 +2631,7 @@
                         let operateItemDom = playerOperateDom.querySelector('.operate-item')
                         let confirmListDom = playerOperateDom.querySelectorAll('.game-btn-confirm')
                         let buyDom = confirmListDom.item(0);
+                        let abandonDom = confirmListDom.item(1);
                         mallPlayerListDom.appendChild(playerFragment)
                         const buyFunc = async () => {
                             let operateDiceDom = operateItemDom.querySelector('.operate-dice img')
@@ -2359,7 +2644,7 @@
                                     happy: +total
                                 }
                             }
-                            operateItemDom.innerHTML = `${ICON_CONFIG.RICHES}<span style="color:red">${resultProxy[index]}元</span>`
+                            operateItemDom.innerHTML = `<span style="color:red">+${+total}</span>${ICON_CONFIG.HAPPY}`
                         }
                         buyDom.addEventListener("click", buyFunc)
                         const abandonFunc = () => {
@@ -2385,6 +2670,7 @@
         const dialogContainer = function () {
             const fragment = templateLoad('#dialog-template')
             fragment.classList.add('close')
+
             class DialogOpenConfig {
                 title = ''
                 content = ''
@@ -2790,17 +3076,54 @@
             }
 
             /**
+             * 停留许愿井
+             * @param {SceneStation} scene 
+             */
+            async function stopWishing(scene) {
+                table.call(this, scene)
+                let players = [scene.curPlayer, ...scene.allPlayers];
+                let result = await wishingContainer.open(players)
+                for (let i = 0; i < players.length; i++) {
+                    const player = players[i];
+                    result[i] && playerChange(result[i].player, result[i].changed)
+                }
+            }
+
+
+
+            /**
              * 停留诺贝尔奖
              * @param {SceneStation} scene 
              */
             function stopNobelPrize(scene) {
                 table.call(this, scene)
                 const player = scene.curPlayer;
-                let tax = 0;
-                if (player.happy > 20) tax = -1000;
-                else if (player.happy > 5) tax = -2000;
-                else if (player.happy > 1) tax = -3000;
-                playerChange(player, { riches: tax })
+                let happy = 0;
+                if (player.repute > 20) happy = +8;
+                else if (player.happy > 10) happy = +5;
+                else happy = +3;
+                playerChange(player, { happy })
+            }
+
+
+            /**
+             * 停留展销会
+             * @param {SceneStation} scene 
+             */
+            async function stopSalesExhibition(scene) {
+                table.call(this, scene)
+                const player = scene.curPlayer;
+                let selected = await dialogContainer.open({
+                    title: "汽车展销会",
+                    content: "你选择执行以下其中一项：",
+                    options: [
+                        `<div style="color:red">-2000元</div>并且<div class="flex-row-center" style="color:green">+5${ICON_CONFIG.REPUTE}</div>`,
+                        `<div class="flex-row-center" style="color:red">-2${ICON_CONFIG.REPUTE}</div>`,
+                    ]
+
+                })
+                if (selected == 0) playerChange(player, { riches: -2000, repute: 5 })
+                if (selected == 1) playerChange(player, { repute: -2 })
             }
 
 
@@ -3033,7 +3356,8 @@
                     width: "9.4%",
                     height: "15.34%",
                     name: '汽车展销会',
-                    description: ""
+                    description: "",
+                    stop: stopSalesExhibition
                 },
                 {
                     id: "20",
@@ -3140,7 +3464,8 @@
                     width: "15.44%",
                     height: "9.4%",
                     name: '许愿井',
-                    description: ""
+                    description: "",
+                    stop: stopWishing
                 },
                 {
                     id: "31",
@@ -3159,7 +3484,24 @@
                     width: "15.44%",
                     height: "9.4%",
                     name: '获诺贝尔奖',
-                    description: "",
+                    description: `
+                        <tr>
+                            <td><div class="flex-row-center">拥有的${ICON_CONFIG.REPUTE}</div></td>
+                            <td>获得</td>
+                        </tr>
+                        <tr>
+                            <td><div class="flex-row-center">10个以下</div></td>
+                            <td>+3${ICON_CONFIG.HAPPY}</td>
+                        </tr>
+                        <tr>
+                            <td><div class="flex-row-center">11到20个</div></td>
+                            <td>+5${ICON_CONFIG.HAPPY}</td>
+                        </tr>
+                        <tr>
+                            <td><div class="flex-row-center">21个以上</div></td>
+                            <td>+8${ICON_CONFIG.HAPPY}</td>
+                        </tr>
+                    `,
                     stop: stopNobelPrize
                 }
             ].map((item) => new Station(item))
@@ -4046,7 +4388,7 @@
              * @param {number} count
              */
             let move = async (player, count) => {
-                count = 26
+                count = 29
                 // 上一次的位置
                 if (scene.prevStation == null) {
                     if (player.positionType == PositionTypeEnum.LOOP) scene.prevStation = loopStations[player.position]
@@ -4132,6 +4474,101 @@
             }
         }()
 
+        /**
+         * 许愿井
+         * @author 	 linyisonger
+         * @date 	 2024-12-12
+         */
+        const wishingContainer = await async function () {
+            const fragment = templateLoad("#wishing-template")
+            fragment.classList.add('close')
+            const confirmDom = fragment.shadowRoot.querySelector('.game-btn-confirm')
+            const playerListDom = fragment.shadowRoot.querySelector('.wishing-player-list')
+
+            /**
+             * @param {Player[]} players
+             * @return {Promise<{ player: Player, changed:PlayerChanged }[]>}
+             */
+            const open = function (players) {
+                fragment.classList.remove('close')
+                return new Promise((resolve) => {
+                    /** @type {{[key:string]:{player: Player, changed:PlayerChanged}}} */
+                    let resultProxy = observeVariable(async (result) => {
+                        if (Object.keys(result).length === players.length) {
+                            await wait(500);
+                            fragment.classList.add('close')
+                            await wait(500);
+                            resolve(Object.values(result))
+                        }
+                    })
+
+                    playerListDom.innerHTML = ''
+                    players.forEach(function (player, index) {
+                        let playerFragment = templateLoad('#wishing-template-player-operate-internal', true)
+                        let playerOperateDom = playerFragment.querySelector('.player-operate')
+                        playerOperateDom.querySelector('.player-avatar').setAttribute('style', `background-image:url(${player.avatar});border-color:${player.color}`)
+                        playerOperateDom.querySelector('.player-name').textContent = player.name
+
+                        let operateItemDom = playerOperateDom.querySelector('.operate-item')
+                        let confirmListDom = playerOperateDom.querySelectorAll('.game-btn-confirm')
+                        let leftSelectedListDom = playerOperateDom.querySelectorAll('.select-item.left')
+                        let rightSelectedListDom = playerOperateDom.querySelectorAll('.select-item.right')
+
+                        leftSelectedListDom.forEach(function (selectedDom) {
+                            selectedDom.addEventListener("click", (ev) => {
+                                leftSelectedListDom.forEach(item => item.classList.remove('active'))
+                                selectedDom.classList.add('active')
+                            })
+                        })
+                        rightSelectedListDom.forEach(function (selectedDom) {
+                            selectedDom.addEventListener("click", (ev) => {
+                                rightSelectedListDom.forEach(item => item.classList.remove('active'))
+                                selectedDom.classList.add('active')
+                            })
+                        })
+
+                        let buyDom = confirmListDom.item(0);
+                        let abandonDom = confirmListDom.item(1);
+                        playerListDom.appendChild(playerFragment)
+                        const buyFunc = async () => {
+                            let selectedItem = playerOperateDom.querySelectorAll('.select-item.active')
+                            let riches = 0;
+                            let happy = 0;
+                            let repute = 0;
+
+
+                            selectedItem.forEach(selected => {
+                                riches += selected.hasAttribute('data-riches') ? +selected.getAttribute('data-riches') : 0;
+                                happy += selected.hasAttribute('data-happy') ? +selected.getAttribute('data-happy') : 0;
+                                repute += selected.hasAttribute('data-repute') ? +selected.getAttribute('data-repute') : 0;
+                            })
+
+                            resultProxy[index] = {
+                                player,
+                                changed: {
+                                    riches,
+                                    happy,
+                                    repute
+                                }
+                            }
+                            playerOperateDom.querySelectorAll('.select-item:not(.active)').forEach(selectedDom => selectedDom.remove())
+                            operateItemDom.innerHTML = `许愿`
+                        }
+                        buyDom.addEventListener("click", buyFunc)
+                        const abandonFunc = () => {
+                            operateItemDom.innerHTML = `放弃`
+                            resultProxy[index] = null
+                        }
+                        abandonDom.addEventListener("click", abandonFunc)
+                    })
+                })
+            }
+
+            return {
+                fragment,
+                open
+            }
+        }();
 
         /**
          * 初始化游戏内容
@@ -4152,6 +4589,8 @@
             gameContainerDom.appendChild(stockContainer.fragment)
             gameContainerDom.appendChild(mallContainer.fragment)
             gameContainerDom.appendChild(galleryContainer.fragment)
+            gameContainerDom.appendChild(wishingContainer.fragment)
+            gameContainerDom.appendChild(chanceContainer.fragment)
 
 
             document.body.appendChild(gameContainerDom)
@@ -4196,6 +4635,20 @@
             // 商场
             // let mallResult = await mallContainer.open(players)
             // console.log(mallResult);
+
+            // 画廊
+            // let galleryResult = await galleryContainer.open(players)
+            // console.log(galleryResult);
+
+            // 机会
+            // let chanceResult = await chanceContainer.open(players)
+            // console.log(chanceResult);
+
+            // 许愿井
+            // let wishingResult = await wishingContainer.open(players)
+            // console.log(wishingResult);
+
+
 
             // 弹窗
             // let selected = await dialogContainer.open({
