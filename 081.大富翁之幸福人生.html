@@ -9,9 +9,6 @@
 
 
     <style>
-        :root {}
-
-
         @font-face {
             font-family: "SourceHanSansCN-Light";
             src: url('./assets/SourceHanSansCN-Light.otf');
@@ -44,8 +41,6 @@
             height: 100vh;
             user-select: none;
         }
-
-
 
         .game-btn-confirm {
             display: inline-flex;
@@ -1380,6 +1375,24 @@
             return container
         }
 
+        /**
+         * 观察变量
+         */
+        function observeVariable(func) {
+            let variable = {}
+            let variableProxy = new Proxy(variable, {
+                get(variable, prop) {
+                    return variable[prop]
+                },
+                async set(variable, prop, value) {
+                    variable[prop] = value;
+                    await func?.(variable)
+                },
+            })
+            return variableProxy
+        }
+
+
         /** 玩家行动美剧 */
         const PlayerActionEnum = {
             /** 默认 */
@@ -1978,23 +1991,14 @@
             const open = function (players) {
                 fragment.classList.remove('close')
                 return new Promise((resolve) => {
-                    let result = {}
-                    let resultProxy = new Proxy(result, {
-                        get(result, prop) {
-                            return result[prop]
-                        },
-                        async set(result, prop, value) {
-                            result[prop] = value;
-
-                            if (Object.keys(result).length === players.length) {
-                                await wait(500);
-                                fragment.classList.add('close')
-                                await wait(500);
-                                resolve(Object.values(result))
-                            }
-                        },
+                    let resultProxy = observeVariable(async (result) => {
+                        if (Object.keys(result).length === players.length) {
+                            await wait(500);
+                            fragment.classList.add('close')
+                            await wait(500);
+                            resolve(Object.values(result))
+                        }
                     })
-
                     lotteryPlayerListDom.innerHTML = ''
                     players.forEach(function (player, index) {
                         let playerFragment = templateLoad('#lottery-template-player-operate-internal', true)
@@ -2058,21 +2062,13 @@
             const open = function (players) {
                 fragment.classList.remove('close')
                 return new Promise((resolve) => {
-                    let result = {}
-                    let resultProxy = new Proxy(result, {
-                        get(result, prop) {
-                            return result[prop]
-                        },
-                        async set(result, prop, value) {
-                            result[prop] = value;
-
-                            if (Object.keys(result).length === players.length) {
-                                await wait(500);
-                                fragment.classList.add('close')
-                                await wait(500);
-                                resolve(Object.values(result))
-                            }
-                        },
+                    let resultProxy = observeVariable(async (result) => {
+                        if (Object.keys(result).length === players.length) {
+                            await wait(500);
+                            fragment.classList.add('close')
+                            await wait(500);
+                            resolve(Object.values(result))
+                        }
                     })
 
                     stockPlayerListDom.innerHTML = ''
@@ -2138,21 +2134,13 @@
             const open = function (players) {
                 fragment.classList.remove('close')
                 return new Promise((resolve) => {
-                    let result = {}
-                    let resultProxy = new Proxy(result, {
-                        get(result, prop) {
-                            return result[prop]
-                        },
-                        async set(result, prop, value) {
-                            result[prop] = value;
-
-                            if (Object.keys(result).length === players.length) {
-                                await wait(500);
-                                fragment.classList.add('close')
-                                await wait(500);
-                                resolve(Object.values(result))
-                            }
-                        },
+                    let resultProxy = observeVariable(async (result) => {
+                        if (Object.keys(result).length === players.length) {
+                            await wait(500);
+                            fragment.classList.add('close')
+                            await wait(500);
+                            resolve(Object.values(result))
+                        }
                     })
 
                     mallPlayerListDom.innerHTML = ''
