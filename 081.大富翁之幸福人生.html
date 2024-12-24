@@ -1530,11 +1530,11 @@
             </div>
             <div class="chance-body-card-list">
                 <div class="chance-body-card">
-                    <img class="chance-body-card-icon" src="./assets/monopoly-life/chance.png">
+                    <img src="./assets/monopoly-life/chance.png">
                     <div>xxxxx</div>
                 </div>
                 <div class="chance-body-card">
-                    <img class="chance-body-card-icon" src="./assets/monopoly-life/chance.png">
+                    <img src="./assets/monopoly-life/chance.png">
                     <div>xxxxx</div>
                 </div>
             </div>
@@ -1595,7 +1595,7 @@
                 margin-top: 10px;
             }
 
-            .chance-body-card-icon {
+            .chance-body-card>img {
                 width: 40px;
                 margin-right: 10px;
             }
@@ -1650,7 +1650,7 @@
         </style>
     </template>
     <script type="module">
-
+        import { cloneDeep } from "https://gcore.jsdelivr.net/npm/@3r/tool/lib/common.js";
         import { Maths } from "https://gcore.jsdelivr.net/npm/@3r/tool/lib/maths.js";
         import { Randoms } from "https://gcore.jsdelivr.net/npm/@3r/tool/lib/randoms.js";
         /** 获取数字
@@ -1838,6 +1838,8 @@
             MINING: `<img src="./assets/monopoly-life/mining.png"/>`,
             SPACE: `<img src="./assets/monopoly-life/space.png"/>`,
             VACATIONAL: `<img src="./assets/monopoly-life/vacational.png"/>`,
+            EXPERIENCE: `<img src="./assets/monopoly-life/experience.png"/>`,
+            CHANCE: `<img src="./assets/monopoly-life/chance.png"/>`,
         }
 
         class Role {
@@ -2287,10 +2289,155 @@
         const chanceContainer = await async function () {
             const fragment = templateLoad('#chance-template')
             fragment.classList.add('close')
-            const open = (count) => {
+
+            let changeList = [
+                {
+                    id: "1",
+                    name: "航海",
+                    description: '不掷骰，直接移动到航海入口。若符合条件，下回合可进入职业道路。'
+                },
+                {
+                    id: "2",
+                    name: "大学进修",
+                    description: '不掷骰，直接移动到大学入口。若符合条件，下回合可进入职业道路。'
+                },
+                {
+                    id: '3',
+                    name: '电影拍摄',
+                    description: '不掷骰，直接移动到电影入口。若符合条件，下回合可进入职业道路。'
+                },
+                {
+                    id: '4',
+                    name: '三亚度假',
+                    description: '不掷骰，直接移动到三亚度假。'
+                },
+                {
+                    id: '5',
+                    name: '尖端科技',
+                    description: '在太空探险职业道路中，若遇到任何损失效果，展示此卡就算无事。（可重复使用）'
+                },
+                {
+                    id: '6',
+                    name: '采矿开发',
+                    description: '不掷骰，直接移动到采矿入口。若符合条件，下回合可进入职业道路。'
+                },
+                {
+                    id: '7',
+                    name: '操作熟练',
+                    description: '在采矿开发职业道路中，若遇到任何损失效果，展示此卡就算无事。（可重复使用）'
+                },
+                {
+                    id: '8',
+                    name: '超级人才',
+                    description: '不掷骰，直接移动到任何职业入口。若符合条件，下回合可进入职业道路。'
+                },
+                {
+                    id: '9',
+                    name: '公益事业',
+                    description: '不掷骰，直接移动到公益入口。若符合条件，下回合可进入职业道路。'
+                },
+                {
+                    id: '10',
+                    name: '农业开垦',
+                    description: '不掷骰，直接移动到农业入口。若符合条件，下回合可进入职业道路。'
+                },
+                {
+                    id: '11',
+                    name: '太空探险',
+                    description: '不掷骰，直接移动到太空入口。若符合条件，下回合可进入职业道路。'
+                },
+                {
+                    id: '12',
+                    name: '转换跑道',
+                    description: '从别人手上抽走一张机会卡或经验卡，然后掷骰前进'
+                },
+                {
+                    id: '13',
+                    name: '企业经营',
+                    description: '不掷骰，直接移动到企业入口。若符合条件，下回合可进入职业道路。'
+                },
+                {
+                    id: '14',
+                    name: '手腕高明',
+                    description: '在电影拍摄职业道路中，若遇到任何损失效果，展示此卡就算无事。（可重复使用）'
+                },
+                {
+                    id: '15',
+                    name: '眼光精准',
+                    description: '在企业经营职业道路中，若遇到任何损失效果，展示此卡就算无事。（可重复使用）'
+                },
+            ]
+
+            let experienceList = [
+                {
+                    id: '16',
+                    description: '不掷骰，向前移动一格。'
+                },
+                {
+                    id: '17',
+                    description: '不掷骰，向前移动一格。'
+                },
+                {
+                    id: '18',
+                    description: '不掷骰，向前移动一格。'
+                },
+                {
+                    id: '19',
+                    description: '不掷骰，向前移动二格。'
+                },
+                {
+                    id: '20',
+                    description: '不掷骰，向前移动二格。'
+                },
+                {
+                    id: '21',
+                    description: '不掷骰，向前移动二格。'
+                },
+                {
+                    id: '22',
+                    description: '不掷骰，向前移动三格。'
+                },
+                {
+                    id: '23',
+                    description: '不掷骰，向前移动三格。'
+                },
+                {
+                    id: '24',
+                    description: '不掷骰，向前移动三格。'
+                }
+            ]
+
+            /**
+             * 打开获取
+             * @param {Player} player
+             * @param {"chance"|"experience"} type
+             * @param {number} count
+             */
+            const open = async (player, type, count) => {
                 fragment.classList.remove('close')
-
-
+                return new Promise((resolve) => {
+                    const cardList = cloneDeep(type == "chance" ? changeList : experienceList)
+                    const cardIcon = type == "chance" ? ICON_CONFIG.CHANCE : ICON_CONFIG.EXPERIENCE
+                    const cardListDom = fragment.shadowRoot.querySelector(".chance-body-card-list")
+                    const closeDom = fragment.shadowRoot.querySelector(".game-btn-confirm")
+                    cardListDom.innerHTML = ''
+                    const resultList = Randoms.confusion(cardList).slice(0, count)
+                    resultList.forEach((card) => {
+                        const cardDom = document.createElement('div')
+                        const cardTxtDom = document.createElement('div')
+                        cardDom.innerHTML = cardIcon
+                        cardTxtDom.textContent = card.description;
+                        cardDom.classList.add('chance-body-card')
+                        cardDom.appendChild(cardTxtDom)
+                        cardListDom.appendChild(cardDom)
+                    })
+                    const closeFunc = () => {
+                        fragment.classList.add('close')
+                        resolve(resultList)
+                    }
+                    closeDom.removeEventListener('click', closeFunc)
+                    closeDom.addEventListener('click', closeFunc)
+                })
             }
 
             return {
@@ -2313,7 +2460,6 @@
             return {
                 open
             }
-
         }()
 
 
@@ -2927,6 +3073,11 @@
                     if (player.positionType == PositionTypeEnum.LOOP) {
                         station = loopStations[player.position % loopStations.length]; // 外圈站点
                     }
+
+                    let currDom = fragment.shadowRoot.querySelector(`.player-item[data-id="${player.id}"]`);
+                    station.dom.appendChild(currDom)
+                    lookAt(currDom.parentNode)
+
                     scene.prevStation = station;
                     logContainer.log(`玩家[${scene.curPlayer.name}]移动到[${station.name}]`)
                     station.stop?.(scene)
@@ -3126,6 +3277,22 @@
                 if (selected == 1) playerChange(player, { repute: -2 })
             }
 
+            /**
+             * 停留机会
+             * @param {"chance"|"experience"} type
+             * @param {number} count
+             */
+            function stopChance(type, count) {
+                /**
+                 * @param {SceneStation} scene 
+                 */
+                return async function (scene) {
+                    table.call(this, scene)
+                    const player = scene.curPlayer;
+                    await chanceContainer.open(player, type, count)
+                }
+
+            }
 
             /**
              * 外圈
@@ -3152,7 +3319,8 @@
                     width: "9.5%",
                     height: "15.34%",
                     name: '机会',
-                    description: ""
+                    description: "",
+                    stop: stopChance("chance", 1)
                 },
                 {
                     id: "3",
@@ -3188,7 +3356,8 @@
                     width: "9.5%",
                     height: "15.34%",
                     name: '机会',
-                    description: ""
+                    description: "",
+                    stop: stopChance("chance", 1)
                 },
                 {
                     id: "5",
@@ -3207,7 +3376,8 @@
                     width: "9.5%",
                     height: "15.34%",
                     name: '机会',
-                    description: ""
+                    description: "",
+                    stop: stopChance("chance", 1)
                 },
                 {
                     id: "7",
@@ -3273,7 +3443,8 @@
                     width: "15.34%",
                     height: "9.5%",
                     name: '机会',
-                    description: ""
+                    description: "",
+                    stop: stopChance("chance", 1)
                 },
                 {
                     id: "12",
@@ -3292,7 +3463,8 @@
                     width: "15.34%",
                     height: "9.4%",
                     name: '机会',
-                    description: ""
+                    description: "",
+                    stop: stopChance("chance", 1)
                 },
                 {
                     id: "14",
@@ -3321,7 +3493,8 @@
                     width: "15.34%",
                     height: "9.4%",
                     name: '机会',
-                    description: ""
+                    description: "",
+                    stop: stopChance("chance", 1)
                 },
                 {
                     id: "17",
@@ -3347,7 +3520,8 @@
                     width: "9.4%",
                     height: "15.34%",
                     name: '机会',
-                    description: ""
+                    description: "",
+                    stop: stopChance("chance", 1)
                 },
                 {
                     id: "19",
@@ -3376,7 +3550,8 @@
                     width: "9.6%",
                     height: "15.34%",
                     name: '机会',
-                    description: ""
+                    description: "",
+                    stop: stopChance("chance", 1)
                 },
                 {
                     id: "22",
@@ -3405,7 +3580,8 @@
                     width: "9.4%",
                     height: "15.34%",
                     name: '机会',
-                    description: ""
+                    description: "",
+                    stop: stopChance("chance", 1)
                 },
                 {
                     id: "25",
@@ -3425,7 +3601,8 @@
                     width: "15.44%",
                     height: "9.5%",
                     name: '机会',
-                    description: ""
+                    description: "",
+                    stop: stopChance("chance", 1)
                 },
                 {
                     id: "27",
@@ -3455,7 +3632,8 @@
                     width: "15.44%",
                     height: "9.4%",
                     name: '机会',
-                    description: ""
+                    description: "",
+                    stop: stopChance("chance", 1)
                 },
                 {
                     id: "30",
@@ -3532,7 +3710,8 @@
                         width: "4.7%",
                         height: "4.7%",
                         name: '研发新种改良作物',
-                        description: "抽两张经验卡"
+                        description: "抽两张经验卡",
+                        stop: stopChance("experience", 2)
                     },
                     {
                         id: "3",
@@ -3674,7 +3853,8 @@
                         width: "4.7%",
                         height: "4.7%",
                         name: '毕业旅行',
-                        description: "抽两张机会卡"
+                        description: "抽两张机会卡",
+                        stop: stopChance("chance", 2)
                     },
                 ].map((item) => new Station(item)),
                 // 企业
@@ -3686,7 +3866,8 @@
                         width: "4.7%",
                         height: "4.7%",
                         name: '通过实习',
-                        description: "抽两张经验卡"
+                        description: "抽两张经验卡",
+                        stop: stopChance("experience", 2)
                     },
                     {
                         id: "2",
@@ -3818,7 +3999,8 @@
                         width: "4.7%",
                         height: "4.7%",
                         name: '发现神秘海岛',
-                        description: "抽两张经验卡"
+                        description: "抽两张经验卡",
+                        stop: stopChance("experience", 2)
                     },
                     {
                         id: "4",
@@ -3940,7 +4122,8 @@
                         width: "4.7%",
                         height: "4.7%",
                         name: '建设农村电力管线',
-                        description: "抽两张经验卡"
+                        description: "抽两张经验卡",
+                        stop: stopChance("experience", 2)
                     },
                     {
                         id: "7",
@@ -4002,7 +4185,8 @@
                         width: "4.7%",
                         height: "4.7%",
                         name: '参加考试',
-                        description: "抽两张经验卡"
+                        description: "抽两张经验卡",
+                        stop: stopChance("experience", 2)
                     },
                     {
                         id: "2",
@@ -4174,7 +4358,8 @@
                         width: "4.7%",
                         height: "4.7%",
                         name: '研发秘密输送管线',
-                        description: "抽两张经验卡"
+                        description: "抽两张经验卡",
+                        stop: stopChance("experience", 2)
                     },
                     {
                         id: "10",
@@ -4216,7 +4401,8 @@
                         width: "4.7%",
                         height: "4.7%",
                         name: '成功发射航天飞机',
-                        description: "抽两张经验卡"
+                        description: "抽两张经验卡",
+                        stop: stopChance("experience", 2)
                     },
                     {
                         id: "3",
@@ -4305,7 +4491,8 @@
                         width: "4.7%",
                         height: "4.7%",
                         name: '航天服破裂',
-                        description: "马上移动医院"
+                        description: "马上移到医院",
+                        stop: moveStation("LOOP", 8)
                     },
                     {
                         id: "12",
@@ -4388,7 +4575,7 @@
              * @param {number} count
              */
             let move = async (player, count) => {
-                count = 29
+                // count = 1
                 // 上一次的位置
                 if (scene.prevStation == null) {
                     if (player.positionType == PositionTypeEnum.LOOP) scene.prevStation = loopStations[player.position]
@@ -4399,6 +4586,7 @@
                 scene.dicePoints = count;
                 let currDom = fragment.shadowRoot.querySelector(`.player-item[data-id="${player.id}"]`);
                 for (let i = 0; i < count; i++) {
+                    let isExitInsideStation = false // 是否离开内环路
                     await wait(500); // 测试加速 
                     player.position++
                     let station = null
@@ -4411,6 +4599,7 @@
                         else {
                             player.position = exitInsidePosition[player.positionType] // 初始化进入外圈的位置
                             player.positionType = PositionTypeEnum.LOOP // 切换外圈类型
+                            isExitInsideStation = true; // 离开内环路
                         }
                     }
 
@@ -4422,6 +4611,12 @@
                     console.log(station, player, scene.prevStation, insideStation);
 
                     station.dom.appendChild(currDom)
+
+                    // 离开内环路
+                    if (isExitInsideStation && station.name == '机会') {
+                        await stopChance("experience", 1).call(station, scene)
+                    }
+
                     scene.prevStation = station; // 上一个站点
 
                     if (count - i > 1) await station.via‌?.(scene) // 经过
@@ -4441,7 +4636,6 @@
                 if (player.positionType == PositionTypeEnum.LOOP) {
                     let station = loopStations[player.position % loopStations.length]; // 外圈站点
                     scene.curPlayer = player;
-                    console.log(station.leave);
                     if (station.leave === undefined) return true;
                     return await station.leave(scene)
                 }
@@ -4641,7 +4835,7 @@
             // console.log(galleryResult);
 
             // 机会
-            // let chanceResult = await chanceContainer.open(players)
+            // let chanceResult = await chanceContainer.open(players[0], "chance", 2)
             // console.log(chanceResult);
 
             // 许愿井
