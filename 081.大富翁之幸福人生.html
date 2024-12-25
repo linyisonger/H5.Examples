@@ -1607,6 +1607,103 @@
             }
         </style>
     </template>
+    <template id="card-holder-template">
+        <div class="card-holder-header">
+            <div class="card-holder-header-title">
+                卡包
+            </div>
+        </div>
+        <div class="card-holder-body">
+            <div class="card-holder-body-content">
+                选择一张卡片使用
+            </div>
+            <div class="card-holder-body-card-list">
+                <div class="card-holder-body-card">
+                    <img src="./assets/monopoly-life/chance.png">
+                    <div>xxxxx</div>
+                    <div class="game-btn-confirm">使用</div>
+                </div>
+            </div>
+            <div class="card-holder-footer">
+                <div class="game-btn-confirm">关闭</div>
+            </div>
+        </div>
+
+        <style>
+            :host {
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+                background-color: rgb(66, 136, 167);
+                box-shadow: inset 0px -3px 0 rgb(4, 70, 98);
+                border-radius: 4px;
+                width: 500px;
+            }
+
+            :host(.close) {
+                top: -100%;
+            }
+
+
+            .card-holder-header-title {
+                line-height: 40px;
+                font-size: 18px;
+                font-weight: bold;
+                text-align: center;
+                color: rgb(252, 255, 254);
+                text-shadow: 0px 2px 0 rgb(78, 75, 67);
+            }
+
+            .card-holder-body {
+                margin: 0 10px 13px;
+                overflow-y: auto;
+                display: flex;
+                flex-direction: column;
+                overflow-x: hidden;
+
+                background-color: rgb(233, 227, 220);
+                border-radius: 4px;
+                padding: 10px;
+            }
+
+            .card-holder-body-card-list {
+                max-height: 400px;
+                overflow-y: auto;
+            }
+
+            .card-holder-body-content img {
+                width: 100%;
+            }
+
+            .card-holder-body-card {
+                display: flex;
+                align-items: center;
+                background-color: rgb(207, 199, 190);
+                padding: 10px;
+                border-radius: 4px;
+                width: calc(100% - 20px);
+                margin-top: 10px;
+            }
+
+            .card-holder-body-card>img {
+                width: 40px;
+                margin-right: 10px;
+            }
+
+            .card-holder-body-card>div:not(.game-btn-confirm) {
+                flex: 1;
+                margin-right: 10px;
+            }
+
+            .card-holder-footer {
+                margin-top: 10px;
+                display: flex;
+                justify-content: center;
+            }
+        </style>
+    </template>
+
 
 
     <template id="map-template">
@@ -2451,7 +2548,7 @@
                     // 游戏日志
 
                     player.cardHolder.push(...resultList)
-                    
+
                     resultList.forEach((card) => {
                         const cardDom = document.createElement('div')
                         const cardTxtDom = document.createElement('div')
@@ -2483,11 +2580,39 @@
          * @date 	 2024-11-29
          */
         const cardHolderContainer = await async function () {
-            const open = function () {
+            const fragment = templateLoad('#card-holder-template')
+            fragment.classList.add('close')
 
+            /**
+             * 打开获取
+             * @param {Player} player
+             */
+            const open = function (player) {
+                return new Promise((resolve) => {
+                    fragment.classList.remove('close')
+                    let cardListDom = fragment.shadowRoot.querySelector('.card-holder-body-card-list')
+                    cardListDom.innerHTML = ''
+                    player.cardHolder.forEach(function (card) {
+                        let cardDom = document.createElement('div')
+                        let textDom = document.createElement('div')
+                        cardDom.classList.add('card-holder-body-card')
+                        textDom.textContent = card.description
+                        cardDom.innerHTML = card.type == ChanceCardType.CHANCE ? ICON_CONFIG.CHANCE : ICON_CONFIG.EXPERIENCE
+                        cardDom.appendChild(textDom)
+                        cardListDom.appendChild(cardDom)
+
+                        if (!card.passive) {
+                            let btnDom = document.createElement('div')
+                            btnDom.classList.add('game-btn-confirm')
+                            btnDom.textContent = '使用'
+                            cardDom.appendChild(btnDom)
+                        }
+                    })
+                })
             }
 
             return {
+                fragment,
                 open
             }
         }()
@@ -4823,6 +4948,7 @@
             gameContainerDom.appendChild(galleryContainer.fragment)
             gameContainerDom.appendChild(wishingContainer.fragment)
             gameContainerDom.appendChild(chanceContainer.fragment)
+            gameContainerDom.appendChild(cardHolderContainer.fragment)
 
 
             document.body.appendChild(gameContainerDom)
@@ -4873,14 +4999,16 @@
             // console.log(galleryResult);
 
             // 机会
-            // let chanceResult = await chanceContainer.open(players[0], ChanceCardType.CHANCE, 2)
-            // console.log(chanceResult);
+            let chanceResult = await chanceContainer.open(players[0], ChanceCardType.CHANCE, 2)
+            console.log(chanceResult);
 
             // 许愿井
             // let wishingResult = await wishingContainer.open(players)
             // console.log(wishingResult);
 
-
+            // 卡包
+            let cardHolderResult = await cardHolderContainer.open(players[0])
+            console.log(cardHolderResult);
 
             // 弹窗
             // let selected = await dialogContainer.open({
