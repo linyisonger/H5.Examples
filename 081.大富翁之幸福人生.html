@@ -2477,6 +2477,7 @@
                         })
 
                         if (valid) {
+                            fragment.classList.add('close')
                             resolve(selected);
                         }
                     })
@@ -5149,26 +5150,27 @@
 
 
             document.body.appendChild(gameContainerDom)
+            let selecedRoles = await roleContainer.open()
             // 选中的角色
-            let roles = [
-                {
-                    "name": "小黑",
-                    "avatar": "./assets/monopoly/black.jpg",
-                    "color": "black",
-                    "targetRiches": 60,
-                    "targetRepute": 0,
-                    "targetHapply": 0
-                },
-                {
-                    "name": "小红",
-                    "avatar": "./assets/monopoly/red.jpg",
-                    "color": "red",
-                    "targetRiches": 60,
-                    "targetRepute": 0,
-                    "targetHapply": 0
-                }
-            ]
-            let players = roles.map(r => new Player(r))
+            // let roles = [
+            //     {
+            //         "name": "小黑",
+            //         "avatar": "./assets/monopoly/black.jpg",
+            //         "color": "black",
+            //         "targetRiches": 60,
+            //         "targetRepute": 0,
+            //         "targetHapply": 0
+            //     },
+            //     {
+            //         "name": "小红",
+            //         "avatar": "./assets/monopoly/red.jpg",
+            //         "color": "red",
+            //         "targetRiches": 60,
+            //         "targetRepute": 0,
+            //         "targetHapply": 0
+            //     }
+            // ]
+            let players = selecedRoles.map(r => new Player(r))
             // 掷骰子
             // let diceTotal = await diceContainer.open(1)
 
