@@ -2538,8 +2538,10 @@
             const open = async (player, type, count) => {
                 fragment.classList.remove('close')
                 return new Promise((resolve) => {
+                    const titleDom = fragment.shadowRoot.querySelector('.chance-header-title')
                     const cardList = cloneDeep(type == ChanceCardType.CHANCE ? changeList : experienceList)
                     const cardIcon = type == ChanceCardType.CHANCE ? ICON_CONFIG.CHANCE : ICON_CONFIG.EXPERIENCE
+                    titleDom.textContent = type == ChanceCardType.CHANCE ? '机会' : '经验'
                     const cardListDom = fragment.shadowRoot.querySelector(".chance-body-card-list")
                     const closeDom = fragment.shadowRoot.querySelector(".game-btn-confirm")
                     cardListDom.innerHTML = ''
@@ -2591,6 +2593,7 @@
                 return new Promise((resolve) => {
                     fragment.classList.remove('close')
                     let cardListDom = fragment.shadowRoot.querySelector('.card-holder-body-card-list')
+                    let closeDom = fragment.shadowRoot.querySelector('.card-holder-footer .game-btn-confirm')
                     cardListDom.innerHTML = ''
                     player.cardHolder.forEach(function (card) {
                         let cardDom = document.createElement('div')
@@ -2605,9 +2608,21 @@
                             let btnDom = document.createElement('div')
                             btnDom.classList.add('game-btn-confirm')
                             btnDom.textContent = '使用'
+                            btnDom.addEventListener('click', () => {
+                                // card.use()
+                                fragment.classList.add('close')
+                                resolve()
+                            })
                             cardDom.appendChild(btnDom)
                         }
                     })
+
+                    let closeFunc = () => {
+                        fragment.classList.add('close')
+                        resolve()
+                    }
+                    closeDom.removeEventListener('click', closeFunc)
+                    closeDom.addEventListener('click', closeFunc)
                 })
             }
 
@@ -4999,8 +5014,8 @@
             // console.log(galleryResult);
 
             // 机会
-            let chanceResult = await chanceContainer.open(players[0], ChanceCardType.CHANCE, 2)
-            console.log(chanceResult);
+            // let chanceResult = await chanceContainer.open(players[0], ChanceCardType.CHANCE, 2)
+            // console.log(chanceResult);
 
             // 许愿井
             // let wishingResult = await wishingContainer.open(players)
