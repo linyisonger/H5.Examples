@@ -1703,7 +1703,111 @@
             }
         </style>
     </template>
+    <template id="travel-mode-template">
+        <div class="travel-mode-header">
+            <div class="travel-mode-header-title">
+                出行方式
+            </div>
+        </div>
+        <div class="travel-mode-content">
+            <div class="travel-mode-message">
+                请选择你的方式：
+            </div>
 
+            <div class="travel-mode-btn-list">
+                <div class="travel-mode-btn">
+                    <div class="travel-mode-btn-icon">
+                        <img src="./assets/monopoly-life/dice.png">
+                    </div>
+                    <div class="travel-mode-btn-text">掷骰子</div>
+                </div>
+
+
+                <div class="travel-mode-btn">
+                    <div class="travel-mode-btn-icon">
+                        <img src="./assets/monopoly-life/chance.png">
+                        <img src="./assets/monopoly-life/experience.png">
+                    </div>
+                    <div class="travel-mode-btn-text">道具卡</div>
+                </div>
+            </div>
+
+        </div>
+        <style>
+            :host {
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+                /* width: 600px; */
+                padding-left: 10px;
+                padding-right: 10px;
+                padding-bottom: 10px;
+                transition: top .5s linear;
+                background-color: rgb(66, 136, 167);
+                box-shadow: inset 0px -3px 0 rgb(4, 70, 98);
+                border-radius: 4px;
+            }
+
+            :host(.close) {
+                top: -100%;
+            }
+
+            .travel-mode-header-title {
+                line-height: 40px;
+                font-size: 18px;
+                font-weight: bold;
+                text-align: center;
+                color: rgb(252, 255, 254);
+                text-shadow: 0px 2px 0 rgb(78, 75, 67);
+            }
+
+            .travel-mode-content {
+                background-color: rgb(233, 227, 220);
+                border-radius: 4px;
+                padding: 10px;
+            }
+
+            .travel-mode-btn-list {
+                display: flex;
+            }
+
+            .travel-mode-btn {
+                padding: 20px;
+                margin: 10px;
+                display: flex;
+                align-items: center;
+                flex-direction: column;
+                background-color: rgb(207, 199, 190);
+            }
+
+            .travel-mode-btn:active {
+                opacity: .7;
+            }
+
+            .travel-mode-btn:first-child .travel-mode-btn-icon {
+                text-align: center;
+            }
+
+            .travel-mode-btn-icon {
+                width: 60px;
+                height: 50px;
+                position: relative;
+            }
+
+
+            .travel-mode-btn-icon img {
+                width: 50px;
+            }
+
+            .travel-mode-btn-icon img+img {
+                position: absolute;
+                width: 50px;
+                bottom: 0;
+                left: 10px;
+            }
+        </style>
+    </template>
 
 
     <template id="map-template">
@@ -1750,6 +1854,13 @@
         import { cloneDeep } from "https://gcore.jsdelivr.net/npm/@3r/tool/lib/common.js";
         import { Maths } from "https://gcore.jsdelivr.net/npm/@3r/tool/lib/maths.js";
         import { Randoms } from "https://gcore.jsdelivr.net/npm/@3r/tool/lib/randoms.js";
+
+        // 增加移除方法
+        Array.prototype.remove = function (obj) {
+            let removeIndex = this.findIndex(o => o == obj)
+            return this.splice(removeIndex, 1)
+        }
+
         /** 获取数字
          * @param {string} str 
          */
@@ -2019,7 +2130,9 @@
             description = ''
             passive = false;
             type = ChanceCardType.CHANCE;
-
+            useDice = false;
+            /** @param {Player} player */
+            use = (player) => { }
             /**
              * @param {ChanceCard} card
              */
@@ -2408,26 +2521,34 @@
             const fragment = templateLoad('#chance-template')
             fragment.classList.add('close')
 
+
+
+
+
             let changeList = [
                 {
                     id: "1",
                     name: "航海",
-                    description: '不掷骰，直接移动到航海入口。若符合条件，下回合可进入职业道路。'
+                    description: '不掷骰，直接移动到航海入口。若符合条件，下回合可进入职业道路。',
+                    use: async (player) => await mapContainer.flash(player, "LOOP", 14)
                 },
                 {
                     id: "2",
                     name: "大学进修",
-                    description: '不掷骰，直接移动到大学入口。若符合条件，下回合可进入职业道路。'
+                    description: '不掷骰，直接移动到大学入口。若符合条件，下回合可进入职业道路。',
+                    use: async (player) => await mapContainer.flash(player, "LOOP", 7)
                 },
                 {
                     id: '3',
                     name: '电影拍摄',
-                    description: '不掷骰，直接移动到电影入口。若符合条件，下回合可进入职业道路。'
+                    description: '不掷骰，直接移动到电影入口。若符合条件，下回合可进入职业道路。',
+                    use: async (player) => await mapContainer.flash(player, "LOOP", 22)
                 },
                 {
                     id: '4',
                     name: '三亚度假',
-                    description: '不掷骰，直接移动到三亚度假。'
+                    description: '不掷骰，直接移动到三亚度假。',
+                    use: async (player) => await mapContainer.flash(player, "LOOP", 16)
                 },
                 {
                     id: '5',
@@ -2438,7 +2559,9 @@
                 {
                     id: '6',
                     name: '采矿开发',
-                    description: '不掷骰，直接移动到采矿入口。若符合条件，下回合可进入职业道路。'
+                    description: '不掷骰，直接移动到采矿入口。若符合条件，下回合可进入职业道路。',
+                    use: async (player) => await mapContainer.flash(player, "LOOP", 27)
+
                 },
                 {
                     id: '7',
@@ -2449,32 +2572,38 @@
                 {
                     id: '8',
                     name: '超级人才',
-                    description: '不掷骰，直接移动到任何职业入口。若符合条件，下回合可进入职业道路。'
+                    description: '不掷骰，直接移动到任何职业入口。若符合条件，下回合可进入职业道路。',
+                    // use: (player) => mapContainer.flash(player, "LOOP", 27) 
                 },
                 {
                     id: '9',
                     name: '公益事业',
-                    description: '不掷骰，直接移动到公益入口。若符合条件，下回合可进入职业道路。'
+                    description: '不掷骰，直接移动到公益入口。若符合条件，下回合可进入职业道路。',
+                    use: async (player) => await mapContainer.flash(player, "LOOP", 19)
                 },
                 {
                     id: '10',
                     name: '农业开垦',
-                    description: '不掷骰，直接移动到农业入口。若符合条件，下回合可进入职业道路。'
+                    description: '不掷骰，直接移动到农业入口。若符合条件，下回合可进入职业道路。',
+                    use: async (player) => await mapContainer.flash(player, "LOOP", 4)
                 },
                 {
                     id: '11',
                     name: '太空探险',
-                    description: '不掷骰，直接移动到太空入口。若符合条件，下回合可进入职业道路。'
+                    description: '不掷骰，直接移动到太空入口。若符合条件，下回合可进入职业道路。',
+                    use: async (player) => await mapContainer.flash(player, "LOOP", 30)
                 },
                 {
                     id: '12',
                     name: '转换跑道',
-                    description: '从别人手上抽走一张机会卡或经验卡，然后掷骰前进'
+                    description: '从别人手上抽走一张机会卡或经验卡，然后掷骰前进',
+                    useDice: true
                 },
                 {
                     id: '13',
                     name: '企业经营',
-                    description: '不掷骰，直接移动到企业入口。若符合条件，下回合可进入职业道路。'
+                    description: '不掷骰，直接移动到企业入口。若符合条件，下回合可进入职业道路。',
+                    use: async (player) => await mapContainer.flash(player, "LOOP", 11)
                 },
                 {
                     id: '14',
@@ -2493,39 +2622,49 @@
             let experienceList = [
                 {
                     id: '16',
-                    description: '不掷骰，向前移动一格。'
+                    description: '不掷骰，向前移动一格。',
+                    use: async (player) => await mapContainer.move(player, 1)
                 },
                 {
                     id: '17',
-                    description: '不掷骰，向前移动一格。'
+                    description: '不掷骰，向前移动一格。',
+                    use: async (player) => await mapContainer.move(player, 1)
                 },
                 {
                     id: '18',
-                    description: '不掷骰，向前移动一格。'
+                    description: '不掷骰，向前移动一格。',
+                    use: async (player) => await mapContainer.move(player, 1)
                 },
                 {
                     id: '19',
-                    description: '不掷骰，向前移动二格。'
+                    description: '不掷骰，向前移动二格。',
+                    use: async (player) => await mapContainer.move(player, 2)
                 },
                 {
                     id: '20',
-                    description: '不掷骰，向前移动二格。'
+                    description: '不掷骰，向前移动二格。',
+                    use: async (player) => await mapContainer.move(player, 2)
+
                 },
                 {
                     id: '21',
-                    description: '不掷骰，向前移动二格。'
+                    description: '不掷骰，向前移动二格。',
+                    use: async (player) => await mapContainer.move(player, 2)
                 },
                 {
                     id: '22',
-                    description: '不掷骰，向前移动三格。'
+                    description: '不掷骰，向前移动三格。',
+                    use: async (player) => await mapContainer.move(player, 3)
                 },
                 {
                     id: '23',
-                    description: '不掷骰，向前移动三格。'
+                    description: '不掷骰，向前移动三格。',
+                    use: async (player) => await mapContainer.move(player, 3)
                 },
                 {
                     id: '24',
-                    description: '不掷骰，向前移动三格。'
+                    description: '不掷骰，向前移动三格。',
+                    use: async (player) => await mapContainer.move(player, 3)
                 }
             ].map(c => new ChanceCard({ ...c, type: ChanceCardType.EXPERIENCE }))
 
@@ -2584,10 +2723,10 @@
         const cardHolderContainer = await async function () {
             const fragment = templateLoad('#card-holder-template')
             fragment.classList.add('close')
-
             /**
              * 打开获取
              * @param {Player} player
+             * @returns {Promise<{useDice:boolean}>}
              */
             const open = function (player) {
                 return new Promise((resolve) => {
@@ -2608,10 +2747,11 @@
                             let btnDom = document.createElement('div')
                             btnDom.classList.add('game-btn-confirm')
                             btnDom.textContent = '使用'
-                            btnDom.addEventListener('click', () => {
-                                // card.use()
+                            btnDom.addEventListener('click', async () => {
                                 fragment.classList.add('close')
-                                resolve()
+                                await card?.use(player)
+                                player.cardHolder.remove(card)
+                                resolve({ useDice: card.useDice })
                             })
                             cardDom.appendChild(btnDom)
                         }
@@ -2619,7 +2759,7 @@
 
                     let closeFunc = () => {
                         fragment.classList.add('close')
-                        resolve()
+                        resolve({ useDice: true })
                     }
                     closeDom.removeEventListener('click', closeFunc)
                     closeDom.addEventListener('click', closeFunc)
@@ -3250,7 +3390,7 @@
 
                     scene.prevStation = station;
                     logContainer.log(`玩家[${scene.curPlayer.name}]移动到[${station.name}]`)
-                    station.stop?.(scene)
+                    await station.stop?.(scene)
                 }
             }
 
@@ -4829,6 +4969,9 @@
 
             /**
              * 闪现事件
+             * @param {Player} player
+             * @param {keyof PositionTypeEnum} type
+             * @param {number} index
              */
             let flash = async (player, type, index) => {
                 scene.curPlayer = player;
@@ -4942,6 +5085,44 @@
             }
         }();
 
+
+        /**
+         * 出行方式
+         * @author 	 linyisonger
+         * @date 	 2024-12-26
+         */
+        const travelModeContainer = await async function () {
+            const fragment = templateLoad("#travel-mode-template")
+            const travelModeBtnList = fragment.shadowRoot.querySelectorAll('.travel-mode-btn')
+            const diceModeBtn = travelModeBtnList.item(0)
+            const cardModeBtn = travelModeBtnList.item(1)
+            fragment.classList.add('close')
+            const open = function () {
+                return new Promise((resolve) => {
+                    fragment.classList.remove('close')
+                    const useDiceFunc = function () {
+                        fragment.classList.add('close')
+                        resolve(false)
+                    }
+                    const useCardFunc = function () {
+                        fragment.classList.add('close')
+                        resolve(true)
+                    }
+                    diceModeBtn.removeEventListener("click", useDiceFunc)
+                    cardModeBtn.removeEventListener("click", useCardFunc)
+                    diceModeBtn.addEventListener("click", useDiceFunc)
+                    cardModeBtn.addEventListener("click", useCardFunc)
+                })
+
+            }
+
+            return {
+                fragment,
+                open
+            }
+        }()
+
+
         /**
          * 初始化游戏内容
          * @author 	 linyisonger
@@ -4964,6 +5145,7 @@
             gameContainerDom.appendChild(wishingContainer.fragment)
             gameContainerDom.appendChild(chanceContainer.fragment)
             gameContainerDom.appendChild(cardHolderContainer.fragment)
+            gameContainerDom.appendChild(travelModeContainer.fragment)
 
 
             document.body.appendChild(gameContainerDom)
@@ -5022,8 +5204,14 @@
             // console.log(wishingResult);
 
             // 卡包
-            let cardHolderResult = await cardHolderContainer.open(players[0])
-            console.log(cardHolderResult);
+            // let cardHolderResult = await cardHolderContainer.open(players[0])
+            // console.log(cardHolderResult);
+
+
+            // 出行方式
+            // let travelModeResult = await travelModeContainer.open();
+            // console.log(travelModeResult);
+
 
             // 弹窗
             // let selected = await dialogContainer.open({
@@ -5062,13 +5250,12 @@
                     if (allowMove) {
 
                         // 使用卡片还是投掷骰子
-                        let useCard = false;
+                        let useCard = await travelModeContainer.open();
                         let useDice = true;
 
                         if (useCard) {
-
-
-
+                            let cardHolderResult = await cardHolderContainer.open(player)
+                            useDice = cardHolderResult.useDice
                         }
 
                         if (useDice) {
