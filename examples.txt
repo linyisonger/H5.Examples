@@ -80,6 +80,5 @@
 080.Canvas 举牌小人.html
 081.大富翁之幸福人生.html
 082.el-table 滚动加载更多.html
-083.语音朗读.html
 blog.html
 index.html
