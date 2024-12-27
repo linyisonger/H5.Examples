@@ -5252,7 +5252,8 @@
                     if (allowMove) {
 
                         // 使用卡片还是投掷骰子
-                        let useCard = await travelModeContainer.open();
+                        let hasCard = player.cardHolder.includes(card => !card.passive)
+                        let useCard = hasCard && await travelModeContainer.open();
                         let useDice = true;
 
                         if (useCard) {
