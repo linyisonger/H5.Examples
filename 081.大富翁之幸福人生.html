@@ -103,6 +103,7 @@
                 background-color: rgb(66, 136, 167);
                 box-shadow: inset 0px -3px 0 rgb(4, 70, 98);
                 border-radius: 0 4px 0 0;
+                transition: top .5s linear;
             }
 
             :host(.close) {
@@ -157,7 +158,11 @@
                 position: absolute;
                 top: 0px;
                 right: 0;
-                background-color: rgba(255, 255, 255, .9);
+                background-color: rgb(66, 136, 167);
+                box-shadow: inset 0px -3px 0 rgb(4, 70, 98);
+                border-radius: 0 4px 0 0;
+                padding: 10px;
+                transition: top .5s linear;
             }
 
             :host(.close) {
@@ -165,6 +170,8 @@
             }
 
             .player-item {
+                background-color: rgb(233, 227, 220);
+                border-radius: 4px;
                 display: flex;
                 padding: 10px 10px 10px 20px;
                 width: 228px;
@@ -172,6 +179,10 @@
                 align-items: center;
                 box-sizing: border-box;
                 position: relative;
+            }
+
+            .player-item+.player-item {
+                margin-left: 10px;
             }
 
             .player-item.active .player-avatar::after {
@@ -196,24 +207,40 @@
                 top: 100%;
                 left: 0;
                 right: 0;
-                background-color: rgba(255, 255, 255, .9);
+                background-color: rgb(66, 136, 167);
+                box-shadow: inset 0px -3px 0 rgb(4, 70, 98);
+                border-radius: 0 4px 0 0;
+                padding: 10px;
             }
 
             .player-target-container,
-            .player-exp-container {
+            .player-exp-container,
+            .player-cre-container {
                 display: flex;
                 flex-direction: column;
                 padding: 5px 10px 0;
+                background-color: rgb(233, 227, 220);
+                border-radius: 4px;
+            }
+
+            .player-exp-container,
+            .player-cre-container {
+                margin-top: 10px;
             }
 
             .player-target-body,
-            .player-exp-body {
+            .player-exp-body,
+            .player-cre-body {
                 display: flex;
-                padding: 5px 0px 0;
+                padding: 5px 0px
             }
 
-            .player-exp-body {
-                padding-bottom: 5px;
+            .player-exp-body .player-icon:not(.none),
+            .player-cre-body .player-icon:not(.none) {
+                border-radius: 4px;
+                border: 1px solid rgb(66, 136, 167);
+                color: rgb(66, 136, 167);
+                padding: 0 4px;
             }
 
             .player-target-item {
@@ -223,7 +250,7 @@
             }
 
             .player-avatar {
-                margin: 10px;
+                margin-right: 10px;
                 width: 60px;
                 height: 60px;
                 background-size: contain;
@@ -231,20 +258,27 @@
                 position: relative;
             }
 
-
-
-
             .player-base-info {
                 display: flex;
                 flex-direction: column;
+                flex: 1;
             }
 
             .player-base-info>div {
                 display: flex;
+                align-items: center;
+                padding-left: 4px;
+                background-color: rgb(207, 199, 190);
+                border-radius: 4px;
+                flex: 1;
+                margin-top: 2px;
             }
 
+
             .player-icon {
-                margin-right: 10px;
+                display: flex;
+                align-items: center;
+                margin-right: 5px;
             }
         </style>
     </template>
@@ -306,10 +340,20 @@
                 </div>
                 <div class="player-exp-container">
                     <div class="player-exp-title">
-                        经验
+                        职业经验
                     </div>
                     <div class="player-exp-body">
-                        <div class="player-icon">
+                        <div class="player-icon none">
+                            无
+                        </div>
+                    </div>
+                </div>
+                <div class="player-cre-container">
+                    <div class="player-cre-title">
+                        大学进修
+                    </div>
+                    <div class="player-cre-body">
+                        <div class="player-icon none">
                             无
                         </div>
                     </div>
@@ -340,6 +384,7 @@
                 background-color: rgb(66, 136, 167);
                 box-shadow: inset 0px -3px 0 rgb(4, 70, 98);
                 border-radius: 4px;
+                transition: top .5s linear;
             }
 
             :host(.close) {
@@ -432,7 +477,7 @@
                 top: 50%;
                 transform: translate(-50%, -50%);
                 width: 600px;
-
+                transition: top .5s linear;
                 background-color: rgb(66, 136, 167);
                 box-shadow: inset 0px -3px 0 rgb(4, 70, 98);
                 border-radius: 4px;
@@ -616,6 +661,7 @@
                 background-color: rgb(66, 136, 167);
                 box-shadow: inset 0px -3px 0 rgb(4, 70, 98);
                 border-radius: 0 4px 0 0;
+                transition: top .5s linear;
             }
 
             :host(.close) {
@@ -1472,6 +1518,7 @@
                 box-shadow: inset 0px -3px 0 rgb(4, 70, 98);
                 border-radius: 4px;
                 width: 500px;
+                transition: top .5s linear;
             }
 
             :host(.close) {
@@ -1493,7 +1540,6 @@
                 overflow-y: auto;
                 display: flex;
                 flex-direction: column;
-                align-items: center;
                 overflow-x: hidden;
 
                 background-color: rgb(233, 227, 220);
@@ -1505,7 +1551,6 @@
                 margin-top: 10px;
                 display: flex;
                 align-items: center;
-                height: 40px;
                 background-color: rgb(207, 199, 190);
                 padding: 10px;
                 border-radius: 4px;
@@ -2016,7 +2061,19 @@
             EXPERIENCE: 2,
         }
 
-
+        /** 证书类型 */
+        const CredentialType = {
+            /** 普通 */
+            NORMAL: 1,
+            /** 医学 */
+            MEDICINE: 2,
+            /** 法律 */
+            LAW: 3,
+            /** 工程 */
+            ENGINEERING: 4,
+            /** 科学 */
+            SCIENCE: 5
+        }
 
         /** 位置类型枚举 */
         const PositionTypeEnum = {
@@ -2040,6 +2097,31 @@
             SPACE: 9
         }
 
+        /** 经验类型 */
+        const ExperienceType = {
+            /** 农业 */
+            AGRICULTURE: 2,
+            /** 企业 */
+            ENTERPRISE: 4,
+            /** 航行 */
+            VOYAGE: 5,
+            /** 公益 */
+            WELFARE: 6,
+            /** 影视 */
+            MOVIES: 7,
+            /** 采矿 */
+            MINING: 8,
+            /** 太空 */
+            SPACE: 9
+        }
+        /** 证书对应经验 */
+        const CredentialToExperience = {
+            [CredentialType.NORMAL]: ExperienceType.ENTERPRISE,
+            [CredentialType.SCIENCE]: ExperienceType.SPACE,
+            [CredentialType.LAW]: ExperienceType.WELFARE,
+            [CredentialType.ENGINEERING]: ExperienceType.MINING,
+        }
+
         /** 图片配置 */
         const ICON_CONFIG = {
             RICHES: `<img src="./assets/monopoly-life/riches.png" />`,
@@ -2058,6 +2140,32 @@
             VACATIONAL: `<img src="./assets/monopoly-life/vacational.png"/>`,
             EXPERIENCE: `<img src="./assets/monopoly-life/experience.png"/>`,
             CHANCE: `<img src="./assets/monopoly-life/chance.png"/>`,
+        }
+
+        class Credential {
+            name = ""
+            type = CredentialType.NORMAL
+            /**
+             * @param {Credential} cre
+             */
+            constructor(cre) {
+                for (const key in cre) {
+                    this[key] = cre[key]
+                }
+            }
+        }
+
+        class Experience {
+            name = ""
+            type = ExperienceType.AGRICULTURE
+            /**
+             * @param {Experience} exp
+             */
+            constructor(exp) {
+                for (const key in exp) {
+                    this[key] = exp[key]
+                }
+            }
         }
 
         class Role {
@@ -2099,6 +2207,10 @@
 
             /** @type {ChanceCard[]} */
             cardHolder = []
+            /** @type {Credential[]} */
+            credentials = []
+            /** @type {Experience[]} */
+            experiences = []
             /**
              * @param {Player} player
              */
@@ -2122,7 +2234,6 @@
             /** 行动状态 */
             actionState = PlayerActionEnum.NONE
         }
-
 
         class ChanceCard {
             id = '';
@@ -2204,6 +2315,8 @@
         }
 
 
+
+
         /** 日志控件 左下角
          * @author 	 linyisonger
          * @date 	 2024-11-29
@@ -2263,6 +2376,22 @@
                     dom.querySelector('.player-salary .player-value').textContent = player.salary
                     dom.querySelector('.player-repute .player-value').textContent = player.repute
                     dom.querySelector('.player-happy .player-value').textContent = player.happy
+
+                    let playerCreBodyDom = dom.querySelector('.player-cre-body')
+                    let playerExpBodyDom = dom.querySelector('.player-exp-body')
+
+                    playerCreBodyDom.innerHTML = ``;
+                    player.credentials.forEach(c => {
+                        playerCreBodyDom.innerHTML += `<div class="player-icon" title="${c.name}">${c.name[0]}</div>`
+                    })
+                    if (!playerCreBodyDom.innerHTML) playerCreBodyDom.innerHTML = `<div class="player-icon none">无</div>`
+
+                    playerExpBodyDom.innerHTML = ``;
+                    console.log(player.experiences);
+                    player.experiences.forEach(c => {
+                        playerExpBodyDom.innerHTML += `<div class="player-icon" title="${c.name}">${c.name[0]}</div>`
+                    })
+                    if (!playerExpBodyDom.innerHTML) playerExpBodyDom.innerHTML = `<div class="player-icon none">无</div>`
                 }
             }
 
@@ -2276,6 +2405,7 @@
                 if (lastDom) lastDom.classList.remove('active')
                 currDom.classList.add('active')
             }
+
             logContainer.log('玩家控件初始化完成')
             return {
                 fragment,
@@ -2416,7 +2546,6 @@
                     </div>
                 `
             }
-
             const fragment = templateLoad("#role-template")
             fragment.classList.add('close')
             const roleItemContainerDom = fragment.shadowRoot.querySelector('.role-item-container')
@@ -2436,7 +2565,6 @@
             })
             /** @type {HTMLDivElement} */
             const confirmDom = fragment.shadowRoot.querySelector('.game-btn-confirm')
-
             logContainer.log('角色控件加载完成')
             /**
              * @return {Promise<roles[]>}
@@ -2497,8 +2625,6 @@
          * @date 	 2024-11-29
          */
         const fightContainer = await async function () {
-
-
             const open = () => {
                 // p1 vs p2
 
@@ -2521,11 +2647,6 @@
         const chanceContainer = await async function () {
             const fragment = templateLoad('#chance-template')
             fragment.classList.add('close')
-
-
-
-
-
             let changeList = [
                 {
                     id: "1",
@@ -3279,8 +3400,8 @@
                 for (const player of [scene.curPlayer, ...scene.allPlayers]) {
                     let tax = 0
                     if (player.salary < 3000) tax = -150;
-                    if (player.salary >= 4000 && player.salary <= 6000) tax = -1500
-                    if (player.salary > 6000) tax = -3000;
+                    else if (player.salary < 6000) tax = -1500
+                    else tax = -3000;
                     playerChange(player, { riches: tax })
                 }
             }
@@ -3305,42 +3426,141 @@
             * @param {keyof PositionTypeEnum} type 
             */
             function employmentEntrance(type) {
+                /** 就业费用 */
+                const employmentExpense = {
+                    [PositionTypeEnum.AGRICULTURE]: {
+                        riches: -500
+                    },
+                    [PositionTypeEnum.UNIVERSITY]: {
+                        riches: -500
+                    },
+                    [PositionTypeEnum.MINING]: {
+                        riches: -5000
+                    },
+                    [PositionTypeEnum.SPACE]: {
+                        riches: -5000
+                    },
+                    [PositionTypeEnum.MOVIES]: {
+                        riches: -1000
+                    },
+                    [PositionTypeEnum.WELFARE]: {
+                        riches: -2000
+                    },
+                    [PositionTypeEnum.ENTERPRISE]: {
+                        riches: -5000
+                    },
+                    [PositionTypeEnum.VOYAGE]: {
+                        riches: -1000
+                    }
+                }
+
+                /** 经验列表 */
+                let experienceList = [
+                    new Experience({
+                        name: '农业经验',
+                        type: ExperienceType.AGRICULTURE
+                    }),
+                    new Experience({
+                        name: '企业经验',
+                        type: ExperienceType.ENTERPRISE
+                    }),
+                    new Experience({
+                        name: '航海经验',
+                        type: ExperienceType.VOYAGE
+                    }),
+                    new Experience({
+                        name: '公益经验',
+                        type: ExperienceType.WELFARE
+                    }),
+                    new Experience({
+                        name: '电影经验',
+                        type: ExperienceType.MOVIES
+                    }),
+                    new Experience({
+                        name: '采矿经验',
+                        type: ExperienceType.MINING
+                    }),
+                    new Experience({
+                        name: '太空经验',
+                        type: ExperienceType.SPACE
+                    }),
+                ]
+
+
+                /** 证书列表 */
+                let credentialList = [
+                    new Credential({
+                        name: '普通学位',
+                        type: CredentialType.NORMAL
+                    }),
+                    new Credential({
+                        name: '医学学位',
+                        type: CredentialType.MEDICINE
+                    }),
+                    new Credential({
+                        name: '法律学位',
+                        type: CredentialType.LAW
+                    }),
+                    new Credential({
+                        name: '工程学位',
+                        type: CredentialType.ENGINEERING
+                    }),
+                    new Credential({
+                        name: '科学学位',
+                        type: CredentialType.SCIENCE
+                    }),
+                ]
+
                 /**
                 * 就业入口
                 * @param {SceneStation} scene 
                 */
                 return async function (scene) {
                     table.call(this, scene)
+                    let positionType = PositionTypeEnum[type];
                     // 检查是否有经验 
-                    let isHasExp = false;
+                    let player = scene.curPlayer
+                    let isUniversity = type === "UNIVERSITY";
+                    let isHasExp = player.experiences.includes(ex => ex.type == positionType)
+                    let isHasCre = player.credentials.includes(cr => CredentialToExperience[cr.type] == positionType)
                     let options = []
 
-                    if (isHasExp) options.push('进入道路')
-                    else options.push('进入道路(-500元)')
+                    if (isHasExp || isHasCre) options.push('进入道路')
+                    else options.push(`进入道路(${employmentExpense[positionType].riches}元)`)
                     options.push('不进入')
 
                     let selected = await dialogContainer.open({
-                        title: "提示",
-                        content: `
-                            <div class="flex-column-center">
-                                <div style="width:100px">
-                                    ${ICON_CONFIG[type]}
-                                </div>
-                                <div>
-                                    到达[${this.name}]请选择
-                                </div>
-                                <div>
-                                    ${this.description}
-                                </div>
-                            </div>
-                        `,
+                        title: this.name,
+                        content: this.description,
                         options
                     })
 
-                    if (selected == 0) {
-                        scene.curPlayer.positionType = PositionTypeEnum[type];
-                        scene.curPlayer.position = -1;
+                    if (options[selected].includes('进入道路')) {
+                        player.positionType = positionType
+                        player.position = -1;
+                        if (!isHasExp) {
+                            let experience = experienceList.find(a => a.type == ExperienceType[type])
+                            if (experience) player.experiences.push(experience)
+                        }
+
+                        if (isUniversity) {
+                            let selectedCredentialList = Maths.complementarySet(player.credentials.filter(c => c.type != CredentialType.NORMAL), credentialList)
+                            selected = await dialogContainer.open({
+                                title: '大学进修',
+                                content: '请选择大学进修方向',
+                                options: selectedCredentialList.map(c => c.name)
+                            })
+                            if (selected == 0) {
+                                logContainer.log('选择[普通学位]薪资+2000元')
+                                playerChange(player, { salary: 2000 })
+                            }
+                            player.credentials.push(selectedCredentialList[selected])
+                        }
+                        playerChange(player, employmentExpense[positionType])
+                        playerContainer.upd([player])
                     }
+
+
                 }
             }
 
@@ -3414,9 +3634,17 @@
                 // 再住一回合
                 if (diceTotal == 1 || diceTotal == 2) return false;
                 // 扣钱下回合出院
-
-
-
+                const player = scene.curPlayer;
+                const allPlayers = [player, ...scene.allPlayers]
+                // 有医学学位的人
+                const hasCrePlayers = allPlayers.filter(p => p.credentials.includes(c => c.type == CredentialType.MEDICINE))
+                // 薪资的一半
+                const halfSalary = ~~(player.salary / 2)
+                // 给有医学学位的人
+                playerChange(player, { riches: -halfSalary })
+                for (const crePlayer of hasCrePlayers) {
+                    playerChange(player, { riches: ~~(halfSalary / hasCrePlayers.length) })
+                }
                 dischargeList.push(scene.curPlayer)
                 return false;
             }
@@ -3435,17 +3663,8 @@
                 ]
 
                 let selected = await dialogContainer.open({
-                    title: "提示",
-                    content: `
-                            <div class="flex-column-center">
-                                <div style="width:100px">
-                                    ${ICON_CONFIG.VACATIONAL}
-                                </div>
-                                <div>
-                                    到达[${this.name}]请选择
-                                </div>
-                            </div>
-                        `,
+                    title: this.name,
+                    content: '请选择以下选项',
                     options
                 })
 
@@ -4886,7 +5105,7 @@
              * @param {number} count
              */
             let move = async (player, count) => {
-                // count = 1
+                count = 7
                 // 上一次的位置
                 if (scene.prevStation == null) {
                     if (player.positionType == PositionTypeEnum.LOOP) scene.prevStation = loopStations[player.position]
@@ -5150,26 +5369,26 @@
 
 
             document.body.appendChild(gameContainerDom)
-            let selecedRoles = await roleContainer.open()
+            // let selecedRoles = await roleContainer.open()
             // 选中的角色
-            // let roles = [
-            //     {
-            //         "name": "小黑",
-            //         "avatar": "./assets/monopoly/black.jpg",
-            //         "color": "black",
-            //         "targetRiches": 60,
-            //         "targetRepute": 0,
-            //         "targetHapply": 0
-            //     },
-            //     {
-            //         "name": "小红",
-            //         "avatar": "./assets/monopoly/red.jpg",
-            //         "color": "red",
-            //         "targetRiches": 60,
-            //         "targetRepute": 0,
-            //         "targetHapply": 0
-            //     }
-            // ]
+            let selecedRoles = [
+                {
+                    "name": "小黑",
+                    "avatar": "./assets/monopoly/black.jpg",
+                    "color": "black",
+                    "targetRiches": 60,
+                    "targetRepute": 0,
+                    "targetHapply": 0
+                },
+                {
+                    "name": "小红",
+                    "avatar": "./assets/monopoly/red.jpg",
+                    "color": "red",
+                    "targetRiches": 60,
+                    "targetRepute": 0,
+                    "targetHapply": 0
+                }
+            ]
             let players = selecedRoles.map(r => new Player(r))
             // 掷骰子
             // let diceTotal = await diceContainer.open(1)
@@ -5250,9 +5469,9 @@
                     // 判断当前玩家是否可以移动  例如特定场地
                     let allowMove = await mapContainer.leave(player)
                     if (allowMove) {
-
+                        console.log(player);
                         // 使用卡片还是投掷骰子
-                        let hasCard = player.cardHolder.includes(card => !card.passive)
+                        let hasCard = player.cardHolder.find(card => !card.passive)
                         let useCard = hasCard && await travelModeContainer.open();
                         let useDice = true;
 
