@@ -173,9 +173,8 @@
                 background-color: rgb(233, 227, 220);
                 border-radius: 4px;
                 display: flex;
-                padding: 10px 10px 10px 20px;
+                padding: 10px 10px 10px 10px;
                 width: 228px;
-                height: 120px;
                 align-items: center;
                 box-sizing: border-box;
                 position: relative;
@@ -274,6 +273,14 @@
                 margin-top: 2px;
             }
 
+            .player-repute,
+            .player-happy,
+            .player-chance,
+            .player-experience {
+                display: flex;
+                flex: 1;
+            }
+
 
             .player-icon {
                 display: flex;
@@ -298,17 +305,33 @@
                     </div>
                     <div class="player-value">0</div>
                 </div>
-                <div class="player-repute">
-                    <div class="player-icon">
-                        <img src="./assets/monopoly-life/repute.png" />
+                <div>
+                    <div class="player-repute">
+                        <div class="player-icon">
+                            <img src="./assets/monopoly-life/repute.png" />
+                        </div>
+                        <div class="player-value">0</div>
                     </div>
-                    <div class="player-value">0</div>
+                    <div class="player-happy">
+                        <div class="player-icon">
+                            <img src="./assets/monopoly-life/happy.png" />
+                        </div>
+                        <div class="player-value">0</div>
+                    </div>
                 </div>
-                <div class="player-happy">
-                    <div class="player-icon">
-                        <img src="./assets/monopoly-life/happy.png" />
+                <div>
+                    <div class="player-chance">
+                        <div class="player-icon">
+                            <img src="./assets/monopoly-life/chance.png" width="20px" />
+                        </div>
+                        <div class="player-value">0</div>
                     </div>
-                    <div class="player-value">0</div>
+                    <div class="player-experience">
+                        <div class="player-icon">
+                            <img src="./assets/monopoly-life/experience.png" width="20px" />
+                        </div>
+                        <div class="player-value">0</div>
+                    </div>
                 </div>
             </div>
 
@@ -2129,15 +2152,6 @@
             REPUTE: `<img src="./assets/monopoly-life/repute.png" />`,
             HAPPY: `<img src="./assets/monopoly-life/happy.png" /> `,
             ARROW: `<img src="./assets/monopoly-life/arrow.png" />`,
-            AGRICULTURE: `<img src="./assets/monopoly-life/agriculture.png"/>`,
-            UNIVERSITY: `<img src="./assets/monopoly-life/university.png"/>`,
-            ENTERPRISE: `<img src="./assets/monopoly-life/enterprise.png"/>`,
-            VOYAGE: `<img src="./assets/monopoly-life/voyage.png"/>`,
-            WELFARE: `<img src="./assets/monopoly-life/welfare.png"/>`,
-            MOVIES: `<img src="./assets/monopoly-life/movies.png"/>`,
-            MINING: `<img src="./assets/monopoly-life/mining.png"/>`,
-            SPACE: `<img src="./assets/monopoly-life/space.png"/>`,
-            VACATIONAL: `<img src="./assets/monopoly-life/vacational.png"/>`,
             EXPERIENCE: `<img src="./assets/monopoly-life/experience.png"/>`,
             CHANCE: `<img src="./assets/monopoly-life/chance.png"/>`,
         }
@@ -2243,7 +2257,8 @@
             type = ChanceCardType.CHANCE;
             useDice = false;
             /** @param {Player} player */
-            use = (player) => { }
+            /** @param {Player[]} rival */
+            use = (player, rival) => { }
             /**
              * @param {ChanceCard} card
              */
@@ -2347,6 +2362,47 @@
         const playerContainer = function () {
             const fragment = templateLoad("#player-template")
             fragment.classList.add('close');
+
+            /**
+             * 检查玩家破产
+             * @param {Player} player
+             */
+            let checkBankruptcy = async player => {
+                if (player.riches < 0) {
+                    player.riches = 0;
+                    logContainer.log(`玩家[${player.name}]破产了，移动到公园`)
+                    await dialogContainer.open({
+                        title: '破产',
+                        content: `<img src="./assets/monopoly-life/bankruptcy.jpeg"/>`,
+                        options: ['关闭']
+                    })
+                    await mapContainer.flash(player, "LOOP", 24)
+                }
+            }
+
+            /**
+             * 检查玩家是否胜利
+             * @param {Player} player
+             */
+            let checkWin = async player => {
+                if (player.riches >= player.targetRiches &&
+                    player.happy >= player.targetHapply &&
+                    player.repute >= player.targetRepute
+                ) {
+                    logContainer.log(`玩家[${player.name}]获得游戏胜利`)
+                    await dialogContainer.open({
+                        title: '游戏胜利',
+                        content: `
+                            <div>
+                                <img src="./assets/monopoly-life/win.jpeg"/>
+                                <div>${player.name}达成目标！</div>
+                            </div> 
+                        `,
+                    })
+                }
+            }
+
+
             /**
              * 玩家加入
              * @param {Player[]} players
@@ -2370,12 +2426,22 @@
              * @param {Player[]} players
              */
             let upd = async (players) => {
-                for (const player of players) {
+
+                for (let i = 0; i < players.length; i++) {
+                    const player = players[i];
+                    // 检查破产
+                    await checkBankruptcy(player)
+                    // 检查胜利
+                    await checkWin(player)
+
                     let dom = fragment.shadowRoot.querySelector(`.player-item[data-id="${player.id}"]`)
                     dom.querySelector('.player-riches .player-value').textContent = player.riches
                     dom.querySelector('.player-salary .player-value').textContent = player.salary
                     dom.querySelector('.player-repute .player-value').textContent = player.repute
                     dom.querySelector('.player-happy .player-value').textContent = player.happy
+                    dom.querySelector('.player-chance .player-value').textContent = player.cardHolder.filter(c => c.type === ChanceCardType.CHANCE).length
+                    dom.querySelector('.player-experience .player-value').textContent = player.cardHolder.filter(c => c.type === ChanceCardType.EXPERIENCE).length
+
 
                     let playerCreBodyDom = dom.querySelector('.player-cre-body')
                     let playerExpBodyDom = dom.querySelector('.player-exp-body')
@@ -2392,6 +2458,7 @@
                         playerExpBodyDom.innerHTML += `<div class="player-icon" title="${c.name}">${c.name[0]}</div>`
                     })
                     if (!playerExpBodyDom.innerHTML) playerExpBodyDom.innerHTML = `<div class="player-icon none">无</div>`
+
                 }
             }
 
@@ -2647,6 +2714,9 @@
         const chanceContainer = await async function () {
             const fragment = templateLoad('#chance-template')
             fragment.classList.add('close')
+            /**
+             * @type {ChanceCard[]}
+             */
             let changeList = [
                 {
                     id: "1",
@@ -2695,7 +2765,49 @@
                     id: '8',
                     name: '超级人才',
                     description: '不掷骰，直接移动到任何职业入口。若符合条件，下回合可进入职业道路。',
-                    // use: (player) => mapContainer.flash(player, "LOOP", 27) 
+                    use: async (player) => {
+                        let options = [
+                            {
+                                name: '航海',
+                                func: async () => await mapContainer.flash(player, "LOOP", 14)
+                            },
+                            {
+                                name: '采矿开发',
+                                func: async () => await mapContainer.flash(player, "LOOP", 27)
+                            },
+                            {
+                                name: '电影拍摄',
+                                func: async () => await mapContainer.flash(player, "LOOP", 22)
+                            },
+                            {
+                                name: '大学进修',
+                                func: async () => await mapContainer.flash(player, "LOOP", 7)
+                            },
+                            {
+                                name: '公益事业',
+                                func: async () => await mapContainer.flash(player, "LOOP", 19)
+                            },
+                            {
+                                name: '农业开垦',
+                                func: async () => await mapContainer.flash(player, "LOOP", 4)
+                            },
+                            {
+                                name: '太空探险',
+                                func: async () => await mapContainer.flash(player, "LOOP", 30)
+                            },
+                            {
+                                name: '企业经营',
+                                func: async () => await mapContainer.flash(player, "LOOP", 11)
+                            }
+                        ]
+
+                        let selected = await dialogContainer.open({
+                            title: '转换跑道',
+                            content: '选择一个玩家进行抽取',
+                            options: options.map(a => a.name)
+                        })
+                        await options[selected].func()
+                    }
                 },
                 {
                     id: '9',
@@ -2719,7 +2831,39 @@
                     id: '12',
                     name: '转换跑道',
                     description: '从别人手上抽走一张机会卡或经验卡，然后掷骰前进',
-                    useDice: true
+                    useDice: true,
+                    /**
+                     * @param {Player} player
+                     * @param {Player[]} rival
+                     */
+                    use: async (player, rival) => {
+
+                        const hasCardRival = rival.filter(a => a.cardHolder.length)
+                        const options = hasCardRival.map(r => r.name)
+                        options.push('取消')
+
+                        let selected = await dialogContainer.open({
+                            title: '转换跑道',
+                            content: '选择一个玩家进行抽取',
+                            options
+                        })
+
+                        let selectedOption = options[selected]
+
+                        if (selectedOption === '取消') {
+                            logContainer.log(`玩家[${player.name}]取消使用道具卡`)
+                        }
+                        else {
+                            logContainer.log(`玩家[${player.name}]使用道具卡`)
+                            let rivalItem = hasCardRival.find(r => r.name === selectedOption)
+                            let randomCardIndex = Randoms.int(0, rivalItem.cardHolder.length)
+                            let card = rivalItem.cardHolder.splice(randomCardIndex, 1)[0]
+                            player.cardHolder.push(card)
+                            playerContainer.upd([player, rivalItem])
+                            logContainer.log(`玩家[${rivalItem.name}]失去道具卡[${card.name}]`)
+                            logContainer.log(`玩家[${player.name}]得到道具卡[${card.name}]`)
+                        }
+                    }
                 },
                 {
                     id: '13',
@@ -2811,6 +2955,7 @@
                     // 游戏日志
 
                     player.cardHolder.push(...resultList)
+                    playerContainer.upd([player])
 
                     resultList.forEach((card) => {
                         const cardDom = document.createElement('div')
@@ -2848,9 +2993,10 @@
             /**
              * 打开获取
              * @param {Player} player
+             * @param {Player[]} rival 对手
              * @returns {Promise<{useDice:boolean}>}
              */
-            const open = function (player) {
+            const open = function (player, rival) {
                 return new Promise((resolve) => {
                     fragment.classList.remove('close')
                     let cardListDom = fragment.shadowRoot.querySelector('.card-holder-body-card-list')
@@ -2871,7 +3017,7 @@
                             btnDom.textContent = '使用'
                             btnDom.addEventListener('click', async () => {
                                 fragment.classList.add('close')
-                                await card?.use(player)
+                                await card?.use(player, rival)
                                 player.cardHolder.remove(card)
                                 resolve({ useDice: card.useDice })
                             })
@@ -3321,7 +3467,7 @@
              * @param {Player} player
              * @param {PlayerChanged} changed
              */
-            function playerChange(player, changed) {
+            async function playerChange(player, changed) {
                 if (Maths.sum(Object.values(changed)) == 0) {
                     logContainer.log(`玩家[${player.name}]没有任何变化`)
                     return
@@ -3355,7 +3501,7 @@
                 if (changed.actionState === PlayerActionEnum.PAUSE) str += '<span style="color:red">暂停一次</span>'
                 str += '</div>'
                 logContainer.log(str)
-                playerContainer.upd([player])
+                await playerContainer.upd([player])
             }
 
             /**
@@ -3386,23 +3532,25 @@
              * 领取工资
              * @param {SceneStation} scene 
              */
-            function salaryCollection(scene) {
+            async function salaryCollection(scene) {
                 table.call(this, scene)
-                playerChange(scene.curPlayer, { riches: scene.curPlayer.salary })
+                await playerChange(scene.curPlayer, { riches: scene.curPlayer.salary })
             }
 
             /**
              * 付所得税
              * @param {SceneStation} scene 
              */
-            function payIncomeTax(scene) {
+            async function payIncomeTax(scene) {
                 table.call(this, scene)
-                for (const player of [scene.curPlayer, ...scene.allPlayers]) {
+                const players = [scene.curPlayer, ...scene.allPlayers]
+                for (let i = 0; i < players.length; i++) {
+                    const player = players[i];
                     let tax = 0
                     if (player.salary < 3000) tax = -150;
                     else if (player.salary < 6000) tax = -1500
                     else tax = -3000;
-                    playerChange(player, { riches: tax })
+                    await playerChange(player, { riches: tax })
                 }
             }
 
@@ -3410,14 +3558,16 @@
              * 付娱乐税
              * @param {SceneStation} scene 
              */
-            function payEntertainmentTax(scene) {
+            async function payEntertainmentTax(scene) {
                 table.call(this, scene)
-                for (const player of [scene.curPlayer, ...scene.allPlayers]) {
+                const players = [scene.curPlayer, ...scene.allPlayers]
+                for (let i = 0; i < players.length; i++) {
+                    const player = players[i];
                     let tax = 0
                     if (player.happy > 20) tax = -1000;
                     else if (player.happy > 5) tax = -2000;
                     else if (player.happy > 1) tax = -3000;
-                    playerChange(player, { riches: tax })
+                    await playerChange(player, { riches: tax })
                 }
             }
 
@@ -3526,7 +3676,14 @@
                     let options = []
 
                     if (isHasExp || isHasCre) options.push('进入道路')
-                    else options.push(`进入道路(${employmentExpense[positionType].riches}元)`)
+                    else {
+                        let needRiches = employmentExpense[positionType].riches
+                        if (player.riches < needRiches) {
+                            logContainer.log('钱不够无法进入道路')
+                            return
+                        }
+                        options.push(`进入道路(${needRiches}元)`)
+                    }
                     options.push('不进入')
 
                     let selected = await dialogContainer.open({
@@ -3552,12 +3709,12 @@
                             })
                             if (selected == 0) {
                                 logContainer.log('选择[普通学位]薪资+2000元')
-                                playerChange(player, { salary: 2000 })
+                                await playerChange(player, { salary: 2000 })
                             }
                             player.credentials.push(selectedCredentialList[selected])
                         }
-                        playerChange(player, employmentExpense[positionType])
-                        playerContainer.upd([player])
+                        await playerChange(player, employmentExpense[positionType])
+                        await playerContainer.upd([player])
                     }
 
 
@@ -3577,8 +3734,8 @@
                     table.call(this, scene)
 
                     // 存在卡片 处理免疫负面事件
-
-                    playerChange(scene.curPlayer, func(scene))
+                    
+                    await playerChange(scene.curPlayer, func(scene))
                 }
             }
 
@@ -3641,9 +3798,12 @@
                 // 薪资的一半
                 const halfSalary = ~~(player.salary / 2)
                 // 给有医学学位的人
-                playerChange(player, { riches: -halfSalary })
-                for (const crePlayer of hasCrePlayers) {
-                    playerChange(player, { riches: ~~(halfSalary / hasCrePlayers.length) })
+                await playerChange(player, { riches: -halfSalary })
+
+
+                for (let i = 0; i < hasCrePlayers.length; i++) {
+                    const crePlayer = hasCrePlayers[i];
+                    await playerChange(player, { riches: ~~(halfSalary / hasCrePlayers.length) })
                 }
                 dischargeList.push(scene.curPlayer)
                 return false;
@@ -3655,7 +3815,7 @@
              */
             async function stopVacational(scene) {
                 table.call(this, scene)
-                playerChange(scene.curPlayer, { happy: 2 })
+                await playerChange(scene.curPlayer, { happy: 2 })
 
                 let options = [
                     `下回合多停留一次 +3${ICON_CONFIG.HAPPY}`,
@@ -3670,7 +3830,7 @@
 
                 if (selected == 0) {
                     scene.curPlayer.actionState = PlayerActionEnum.PAUSE
-                    playerChange(scene.curPlayer, { happy: 3 })
+                    await playerChange(scene.curPlayer, { happy: 3 })
                 }
             }
 
@@ -3709,7 +3869,7 @@
                 let result = await lotteryContainer.open(players)
                 for (let i = 0; i < players.length; i++) {
                     const player = players[i];
-                    result[i] && playerChange(player, { riches: result[i] })
+                    result[i] && await playerChange(player, { riches: result[i] })
                 }
             }
 
@@ -3724,7 +3884,7 @@
                 let result = await stockContainer.open(players)
                 for (let i = 0; i < players.length; i++) {
                     const player = players[i];
-                    result[i] && playerChange(player, { riches: result[i] })
+                    result[i] && await playerChange(player, { riches: result[i] })
                 }
             }
 
@@ -3738,7 +3898,7 @@
                 let result = await mallContainer.open(players)
                 for (let i = 0; i < players.length; i++) {
                     const player = players[i];
-                    result[i] && playerChange(player, { riches: result[i] })
+                    result[i] && await playerChange(player, { riches: result[i] })
                 }
             }
 
@@ -3752,7 +3912,7 @@
                 let result = await galleryContainer.open(players)
                 for (let i = 0; i < players.length; i++) {
                     const player = players[i];
-                    result[i] && playerChange(result[i].player, result[i].changed)
+                    result[i] && await playerChange(result[i].player, result[i].changed)
                 }
             }
 
@@ -3766,7 +3926,7 @@
                 let result = await wishingContainer.open(players)
                 for (let i = 0; i < players.length; i++) {
                     const player = players[i];
-                    result[i] && playerChange(result[i].player, result[i].changed)
+                    result[i] && await playerChange(result[i].player, result[i].changed)
                 }
             }
 
@@ -3776,14 +3936,14 @@
              * 停留诺贝尔奖
              * @param {SceneStation} scene 
              */
-            function stopNobelPrize(scene) {
+            async function stopNobelPrize(scene) {
                 table.call(this, scene)
                 const player = scene.curPlayer;
                 let happy = 0;
                 if (player.repute > 20) happy = +8;
                 else if (player.happy > 10) happy = +5;
                 else happy = +3;
-                playerChange(player, { happy })
+                await playerChange(player, { happy })
             }
 
 
@@ -3803,8 +3963,8 @@
                     ]
 
                 })
-                if (selected == 0) playerChange(player, { riches: -2000, repute: 5 })
-                if (selected == 1) playerChange(player, { repute: -2 })
+                if (selected == 0) await playerChange(player, { riches: -2000, repute: 5 })
+                if (selected == 1) await playerChange(player, { repute: -2 })
             }
 
             /**
@@ -5066,7 +5226,7 @@
                 // 电影
                 [PositionTypeEnum.MOVIES]: 25,
                 // 采矿 
-                [PositionTypeEnum.MOVIES]: 28,
+                [PositionTypeEnum.MINING]: 28,
                 // 航天
                 [PositionTypeEnum.SPACE]: 1
             }
@@ -5105,7 +5265,7 @@
              * @param {number} count
              */
             let move = async (player, count) => {
-                count = 7
+                // count = 7
                 // 上一次的位置
                 if (scene.prevStation == null) {
                     if (player.positionType == PositionTypeEnum.LOOP) scene.prevStation = loopStations[player.position]
@@ -5376,7 +5536,7 @@
                     "name": "小黑",
                     "avatar": "./assets/monopoly/black.jpg",
                     "color": "black",
-                    "targetRiches": 60,
+                    "targetRiches": 5,
                     "targetRepute": 0,
                     "targetHapply": 0
                 },
@@ -5476,7 +5636,7 @@
                         let useDice = true;
 
                         if (useCard) {
-                            let cardHolderResult = await cardHolderContainer.open(player)
+                            let cardHolderResult = await cardHolderContainer.open(player, players)
                             useDice = cardHolderResult.useDice
                         }
 
@@ -5488,6 +5648,9 @@
                             await mapContainer.move(player, dictTotal)
                         }
                     }
+
+
+
 
                     // 再来一次
                     if (player.actionState === PlayerActionEnum.AGAIN) {
