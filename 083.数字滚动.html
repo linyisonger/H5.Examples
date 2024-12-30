@@ -19,10 +19,11 @@
          * @param {object} options
          * @param {number} options.time 持续时间
          * @param {number} options.start 开始数字
+         * @param {number} options.end 结束数字
          * @param {(val:number)=>number} options.format 格式化
          */
         function numScroll(dom, options) {
-            let targetValue = dom.textContent; // 获取元素文本内容
+            let targetValue = options.end ?? dom.textContent; // 获取元素文本内容
             let decimalCount = targetValue.split('.')?.[1]?.length ?? 0 // 获取小数位后几位
             let step = (+targetValue / options.time) * 10; // 步幅
             let temp = options.start ?? 0; // 开始数字
@@ -31,7 +32,7 @@
                 temp += step; // 每次变更临时数据
                 if (temp > +targetValue) {
                     dom.textContent = options.format?.(+targetValue) ?? targetValue // 设置成目标值
-                    clearInterval(intervalId); // 清楚定时器
+                    clearInterval(intervalId); // 清除定时器
                 }
             }, 1);
         }
