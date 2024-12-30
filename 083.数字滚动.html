@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./assets/global.css">
+</head>
+
+<body>
+    <h1>1254882823568.222</h1>
+
+    <script type="module">
+        let h1Dom = document.querySelector('h1');
+
+        /**
+         * @param {HTMLDivElement} dom 元素
+         * @param {object} options
+         * @param {number} options.time 持续时间
+         * @param {number} options.start 开始数字
+         * @param {(val:number)=>number} options.format 格式化
+         */
+        function numScroll(dom, options) {
+            let targetValue = dom.textContent;
+            let decimalCount = targetValue.split('.')?.[1]?.length ?? 0
+            let step = (+targetValue / options.time) * 10;
+            let temp = options.start ?? 0;
+            let intervalId = setInterval(function () {
+                dom.textContent = options.format?.(temp.toFixed(decimalCount)) ?? temp.toFixed(decimalCount);
+                temp += step;
+                if (temp > +targetValue) {
+                    dom.textContent = options.format?.(+targetValue) ?? targetValue
+                    clearInterval(intervalId);
+                }
+            }, 1);
+        }
+
+        /** 千分位
+         */
+        function thousands(num) {
+            const str = num + '';
+            // 分割小数
+            const spa = str.split('.');
+            // 整数部分结果
+            let res = spa[0].replace(/\d{1,3}(?=(\d{3})+$)/g, (s) => s + ',');
+            // 补上小数
+            if (spa.length > 1)
+                res += '.' + spa[1];
+            return res;
+        }
+
+        numScroll(h1Dom, { time: 1500, format: thousands, start: 5000 })
+    </script>
+</body>
+
+</html>
