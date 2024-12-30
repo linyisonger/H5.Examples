@@ -2218,6 +2218,8 @@
             // history = []
             /** 行动状态 */
             actionState = PlayerActionEnum.NONE
+            /** 游戏胜利 */
+            win = false
 
             /** @type {ChanceCard[]} */
             cardHolder = []
@@ -2370,6 +2372,7 @@
             let checkBankruptcy = async player => {
                 if (player.riches < 0) {
                     player.riches = 0;
+                    upd([player])
                     logContainer.log(`玩家[${player.name}]破产了，移动到公园`)
                     await dialogContainer.open({
                         title: '破产',
@@ -2385,7 +2388,7 @@
              * @param {Player} player
              */
             let checkWin = async player => {
-                if (player.riches >= player.targetRiches &&
+                if (player.riches >= (player.targetRiches * 1000) &&
                     player.happy >= player.targetHapply &&
                     player.repute >= player.targetRepute
                 ) {
@@ -2398,7 +2401,9 @@
                                 <div>${player.name}达成目标！</div>
                             </div> 
                         `,
+                        options: []
                     })
+                    player.win = true;
                 }
             }
 
@@ -2430,9 +2435,9 @@
                 for (let i = 0; i < players.length; i++) {
                     const player = players[i];
                     // 检查破产
-                    await checkBankruptcy(player)
+                    // await checkBankruptcy(player)
                     // 检查胜利
-                    await checkWin(player)
+                    // await checkWin(player)
 
                     let dom = fragment.shadowRoot.querySelector(`.player-item[data-id="${player.id}"]`)
                     dom.querySelector('.player-riches .player-value').textContent = player.riches
@@ -2478,7 +2483,9 @@
                 fragment,
                 join,
                 upd,
-                next
+                next,
+                checkBankruptcy,
+                checkWin
             }
         }();
 
@@ -3678,7 +3685,7 @@
                     if (isHasExp || isHasCre) options.push('进入道路')
                     else {
                         let needRiches = employmentExpense[positionType].riches
-                        if (player.riches < needRiches) {
+                        if (player.riches + needRiches < 0) {
                             logContainer.log('钱不够无法进入道路')
                             return
                         }
@@ -3734,7 +3741,7 @@
                     table.call(this, scene)
 
                     // 存在卡片 处理免疫负面事件
-                    
+
                     await playerChange(scene.curPlayer, func(scene))
                 }
             }
@@ -5529,26 +5536,26 @@
 
 
             document.body.appendChild(gameContainerDom)
-            // let selecedRoles = await roleContainer.open()
+            let selecedRoles = await roleContainer.open()
             // 选中的角色
-            let selecedRoles = [
-                {
-                    "name": "小黑",
-                    "avatar": "./assets/monopoly/black.jpg",
-                    "color": "black",
-                    "targetRiches": 5,
-                    "targetRepute": 0,
-                    "targetHapply": 0
-                },
-                {
-                    "name": "小红",
-                    "avatar": "./assets/monopoly/red.jpg",
-                    "color": "red",
-                    "targetRiches": 60,
-                    "targetRepute": 0,
-                    "targetHapply": 0
-                }
-            ]
+            // let selecedRoles = [
+            //     {
+            //         "name": "小黑",
+            //         "avatar": "./assets/monopoly/black.jpg",
+            //         "color": "black",
+            //         "targetRiches": 60,
+            //         "targetRepute": 0,
+            //         "targetHapply": 0
+            //     },
+            //     {
+            //         "name": "小红",
+            //         "avatar": "./assets/monopoly/red.jpg",
+            //         "color": "red",
+            //         "targetRiches": 60,
+            //         "targetRepute": 0,
+            //         "targetHapply": 0
+            //     }
+            // ]
             let players = selecedRoles.map(r => new Player(r))
             // 掷骰子
             // let diceTotal = await diceContainer.open(1)
@@ -5649,7 +5656,15 @@
                         }
                     }
 
+                    // 检查玩家破产和胜利
+                    let allPlayers = [player, ...players]
+                    for (let i = 0; i < allPlayers.length; i++) {
+                        await playerContainer.checkBankruptcy(allPlayers[i])
+                        await playerContainer.checkWin(allPlayers[i])
+                    }
 
+                    // 其中一个玩家取得游戏胜利结束
+                    if (allPlayers.some(p => p.win)) return;
 
 
                     // 再来一次
