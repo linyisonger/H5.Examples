@@ -2258,6 +2258,8 @@
             passive = false;
             type = ChanceCardType.CHANCE;
             useDice = false;
+            /** 免疫 */
+            immunity = PositionTypeEnum.AGRICULTURE
             /** @param {Player} player */
             /** @param {Player[]} rival */
             use = (player, rival) => { }
@@ -2273,20 +2275,10 @@
 
         class SceneStation {
             /** @type {Player} */
-            #curPlayer = null
+            curPlayer = null
             /** @type {Player[]} */
             allPlayers = []
             dicePoints = 0
-            /** @type {Station}  */
-            prevStation = null
-
-            get curPlayer() {
-                return this.#curPlayer
-            }
-            set curPlayer(val) {
-                this.#curPlayer = val
-                this.prevStation = null
-            }
         }
 
         class Station {
@@ -2754,6 +2746,7 @@
                     name: '尖端科技',
                     description: '在太空探险职业道路中，若遇到任何损失效果，展示此卡就算无事。（可重复使用）',
                     passive: true,
+                    immunity: PositionTypeEnum.SPACE
                 },
                 {
                     id: '6',
@@ -2767,6 +2760,8 @@
                     name: '操作熟练',
                     description: '在采矿开发职业道路中，若遇到任何损失效果，展示此卡就算无事。（可重复使用）',
                     passive: true,
+                    immunity: PositionTypeEnum.MINING
+
                 },
                 {
                     id: '8',
@@ -2883,12 +2878,14 @@
                     name: '手腕高明',
                     description: '在电影拍摄职业道路中，若遇到任何损失效果，展示此卡就算无事。（可重复使用）',
                     passive: true,
+                    immunity: PositionTypeEnum.MOVIES
                 },
                 {
                     id: '15',
                     name: '眼光精准',
                     description: '在企业经营职业道路中，若遇到任何损失效果，展示此卡就算无事。（可重复使用）',
                     passive: true,
+                    immunity: PositionTypeEnum.ENTERPRISE
                 },
             ].map(c => new ChanceCard(c))
 
@@ -3739,10 +3736,17 @@
                  */
                 return async function (scene) {
                     table.call(this, scene)
-
-                    // 存在卡片 处理免疫负面事件
-
-                    await playerChange(scene.curPlayer, func(scene))
+                    // 存在卡片 处理免疫负面事件 
+                    let playerChanged = func(scene);
+                    // 免疫卡片
+                    let immunityCard = scene.curPlayer.cardHolder.find(c => c.immunity == scene.curPlayer.positionType)
+                    // 负面事件
+                    let negativeEvent = playerChanged.actionState === PlayerActionEnum.PAUSE || playerChanged.happy < 0 || playerChanged.repute < 0 || playerChanged.riches < 0 || playerChanged.salary < 0
+                    if (immunityCard && negativeEvent) {
+                        logContainer.log(`玩家[${scene.curPlayer.name}]使用卡片[${immunityCard.name}]免疫负面事件`)
+                        return
+                    }
+                    await playerChange(scene.curPlayer, playerChanged)
                 }
             }
 
@@ -3773,7 +3777,6 @@
                     station.dom.appendChild(currDom)
                     lookAt(currDom.parentNode)
 
-                    scene.prevStation = station;
                     logContainer.log(`玩家[${scene.curPlayer.name}]移动到[${station.name}]`)
                     await station.stop?.(scene)
                 }
@@ -5272,13 +5275,7 @@
              * @param {number} count
              */
             let move = async (player, count) => {
-                // count = 7
-                // 上一次的位置
-                if (scene.prevStation == null) {
-                    if (player.positionType == PositionTypeEnum.LOOP) scene.prevStation = loopStations[player.position]
-                    else scene.prevStation = insideStations[player.positionType][player.position]
-                }
-
+                // count = 7 
                 scene.curPlayer = player;
                 scene.dicePoints = count;
                 let currDom = fragment.shadowRoot.querySelector(`.player-item[data-id="${player.id}"]`);
@@ -5305,16 +5302,12 @@
                         station = loopStations[player.position % loopStations.length]; // 外圈站点
                     }
 
-                    console.log(station, player, scene.prevStation, insideStation);
-
                     station.dom.appendChild(currDom)
 
                     // 离开内环路
                     if (isExitInsideStation && station.name == '机会') {
                         await stopChance(ChanceCardType.EXPERIENCE, 1).call(station, scene)
                     }
-
-                    scene.prevStation = station; // 上一个站点
 
                     if (count - i > 1) await station.via‌?.(scene) // 经过
                     else await station.stop?.(scene)  // 停留 
