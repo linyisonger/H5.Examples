@@ -1584,7 +1584,106 @@
             .dialog-body-content img {
                 width: 100%;
             }
+
+            .rank {
+                display: flex;
+                flex-direction: column;
+                padding: 10px;
+            }
+
+            .rank .rank-item {
+                display: flex;
+                align-items: center;
+                margin-bottom: 10px;
+            }
+
+            .rank .rank-item-icon {
+                position: relative;
+            }
+
+            .rank .player-avatar {
+                width: 60px;
+                height: 60px;
+                border-radius: 50%;
+            }
+
+            .rank .rank-icon {
+                width: 40px;
+                height: 40px;
+                position: absolute;
+                left: -15px;
+                top: -15px;
+            }
+
+            .rank .rank-item-content {
+                flex: 1;
+                padding-left: 10px;
+            }
+
+            .rank .rank-item-completion {
+                font-weight: bold;
+                padding: 0 10px;
+            }
+
+            .rank .player-name {
+                font-weight: bold;
+            }
+
+            .rank .rank-item.hidden {
+                display: none;
+            }
         </style>
+    </template>
+    <template id="dialog-template-rank-internal">
+        <div class="rank">
+            <div class="rank-item">
+                <div class="rank-item-icon">
+                    <img src="./assets/monopoly/black.jpg" class="player-avatar">
+                    <img src="./assets/monopoly-life/rank1.svg" class="rank-icon">
+                </div>
+                <div class="rank-item-content">
+                    <div class="player-name">小黑</div>
+                </div>
+                <div class="rank-item-completion">
+                    目标完成度: 100%
+                </div>
+            </div>
+            <div class="rank-item">
+                <div class="rank-item-icon">
+                    <img src="./assets/monopoly/black.jpg" class="player-avatar">
+                    <img src="./assets/monopoly-life/rank2.svg" class="rank-icon">
+                </div>
+                <div class="rank-item-content">
+                    <div class="player-name">小黑</div>
+                </div>
+                <div class="rank-item-completion">
+                    100%
+                </div>
+            </div>
+            <div class="rank-item">
+                <div class="rank-item-icon">
+                    <img src="./assets/monopoly/black.jpg" class="player-avatar">
+                    <img src="./assets/monopoly-life/rank3.svg" class="rank-icon">
+                </div>
+                <div class="rank-item-content">
+                    <div class="player-name">小黑</div>
+                </div>
+                <div class="rank-item-completion">
+                    100%
+                </div>
+            </div>
+            <div class="rank-item">
+                <div class="rank-item-icon">
+                    <img src="./assets/monopoly/black.jpg" class="player-avatar">
+                </div>
+                <div class="rank-item-content">
+                    <div class="player-name">小黑</div>
+                </div>
+                <div class="rank-item-completion">
+                    100%
+                </div>
+            </div>
+        </div>
     </template>
     <template id="chance-template">
         <div class="chance-header">
@@ -2342,7 +2441,6 @@
                 bodyDom.innerHTML += `<div class="log-item">${str}</div>`
                 bodyDom.scrollTop = Number.MAX_SAFE_INTEGER;
             }
-            log("日志框初始化完成")
             return {
                 fragment,
                 log
@@ -2362,9 +2460,13 @@
              * @param {Player} player
              */
             let checkCompletion = player => {
-                let richeCompletion = player.riches / 1000 / player.targetRiches
-                let happyCompletion = player.happy / player.targetHapply;
-                let reputeCompletion = player.repute / player.targetRepute
+                let richeCompletion = player.riches / 1000 / (player.targetRiches || 1)
+                let happyCompletion = player.happy / (player.targetHapply || 1);
+                let reputeCompletion = player.repute / (player.targetRepute || 1)
+
+                richeCompletion = Math.min(1, richeCompletion)
+                happyCompletion = Math.min(1, happyCompletion)
+                reputeCompletion = Math.min(1, reputeCompletion)
 
                 return {
                     player,
@@ -2402,24 +2504,36 @@
             let checkWin = async allPlayers => {
                 let completionList = allPlayers.map(p => checkCompletion(p))
                 // 完成度大于一 游戏结束
-                if (completionList.some(c => c.completion >= 1)) {
-                    // 1,2,3,4 排行榜 dom
+                if (completionList.some(c => c.completion == 1)) {
+                    completionList.sort((a, b) => b.completion - a.completion)
 
-                    // logContainer.log(`玩家[${player.name}]获得游戏胜利`)
+                    const firstPlayer = completionList[0].player
+                    logContainer.log(`玩家[${firstPlayer.name}]率先达成目标，游戏结束`)
+                    let rankDom = templateLoad('#dialog-template-rank-internal', true).querySelector(".rank")
+                    let rankItemList = rankDom.querySelectorAll('.rank-item')
+
+                    rankItemList.forEach((rankItem, index) => {
+                        let completion = completionList[index]
+                        if (completion) {
+                            let playerAvatarDom = rankItem.querySelector('.player-avatar')
+                            let playerNameDom = rankItem.querySelector('.player-name')
+                            let completionDom = rankItem.querySelector('.rank-item-completion')
+                            playerAvatarDom.setAttribute('src', completion.player.avatar)
+                            playerNameDom.textContent = completion.player.name
+                            completionDom.textContent = `目标完成度：${(completion.completion * 100).toFixed(2)}%`
+                        }
+                        else rankItem.classList.add('hidden')
+                    })
                     let selected = await dialogContainer.open({
-                        title: '游戏胜利',
-                        // content: `
-                        //     <div>
-                        //         <div>${player.name}达成目标！</div>
-                        //     </div> 
-                        // `,
+                        title: '排行榜',
+                        content: rankDom.outerHTML,
                         options: ["重新开始"]
                     })
+
                     // 重新开始刷新页面
                     if (selected == 0) {
                         location.reload()
                     }
-                    // player.win = true;
                 }
             }
 
@@ -2450,11 +2564,6 @@
 
                 for (let i = 0; i < players.length; i++) {
                     const player = players[i];
-                    // 检查破产
-                    // await checkBankruptcy(player)
-                    // 检查胜利
-                    // await checkWin(player)
-
                     let dom = fragment.shadowRoot.querySelector(`.player-item[data-id="${player.id}"]`)
                     dom.querySelector('.player-riches .player-value').textContent = player.riches
                     dom.querySelector('.player-salary .player-value').textContent = player.salary
@@ -2494,7 +2603,6 @@
                 currDom.classList.add('active')
             }
 
-            logContainer.log('玩家控件初始化完成')
             return {
                 fragment,
                 join,
@@ -2572,7 +2680,6 @@
                     confirmDom.addEventListener("click", confirmFunc)
                 })
             }
-            logContainer.log("骰子控件加载完成")
             return {
                 fragment,
                 open,
@@ -2655,15 +2762,14 @@
             })
             /** @type {HTMLDivElement} */
             const confirmDom = fragment.shadowRoot.querySelector('.game-btn-confirm')
-            logContainer.log('角色控件加载完成')
             /**
              * @return {Promise<roles[]>}
              */
             const open = () => {
                 fragment.classList.remove('close')
+                logContainer.log('请选择角色填写各自的目标值')
                 return new Promise((resolve) => {
                     confirmDom.addEventListener("click", () => {
-                        console.log('选中角色');
                         let selected = []
                         let roles = roleItemContainerDom.querySelectorAll('.role-item')
                         let targets = targetItemContainerDom.querySelectorAll('.target-item')
@@ -3481,9 +3587,6 @@
             // 溢出距离
             let overflowDistance = 100
             let { lookAt } = dragging(fragment, { minX: -mapImage.width / 2 + screenWidth - overflowDistance, maxX: 0 + overflowDistance, minY: -mapImage.height / 2 + screenHeight - overflowDistance, maxY: 0 + overflowDistance })
-            logContainer.log("加载地图背景完成")
-
-
 
             class EmploymentEntranceCondition {
                 /** 财富 */
@@ -3728,6 +3831,8 @@
                             if (experience) player.experiences.push(experience)
                         }
 
+                        logContainer.log(`玩家[${player.name}]选择进入道路`)
+
                         if (isUniversity) {
                             let selectedCredentialList = Maths.complementarySet(player.credentials.filter(c => c.type != CredentialType.NORMAL), credentialList)
                             selected = await dialogContainer.open({
@@ -3739,13 +3844,16 @@
                                 logContainer.log('选择[普通学位]薪资+2000元')
                                 await playerChange(player, { salary: 2000 })
                             }
+                            logContainer.log(`玩家[${player.name}]选择进修[${selectedCredentialList[selected].name}]`)
                             player.credentials.push(selectedCredentialList[selected])
                         }
+
                         await playerChange(player, employmentExpense[positionType])
                         await playerContainer.upd([player])
                     }
-
-
+                    else {
+                        logContainer.log(`玩家[${player.name}]选择不进入道路`)
+                    }
                 }
             }
 
@@ -5678,12 +5786,9 @@
                     for (let i = 0; i < allPlayers.length; i++) {
                         await playerContainer.checkBankruptcy(allPlayers[i])
                     }
+
+                    // 检查玩家是否胜利
                     await playerContainer.checkWin(allPlayers)
-
-                    // 其中一个玩家取得游戏胜利结束
-                    if (allPlayers.some(p => p.win)) return;
-
-
                     // 再来一次
                     if (player.actionState === PlayerActionEnum.AGAIN) {
                         player.actionState = PlayerActionEnum.NONE;
