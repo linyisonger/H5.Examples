@@ -2358,6 +2358,25 @@
             fragment.classList.add('close');
 
             /**
+             * 检查完成度 
+             * @param {Player} player
+             */
+            let checkCompletion = player => {
+                let richeCompletion = player.riches / 1000 / player.targetRiches
+                let happyCompletion = player.happy / player.targetHapply;
+                let reputeCompletion = player.repute / player.targetRepute
+
+                return {
+                    player,
+                    completion: richeCompletion * happyCompletion * reputeCompletion,
+                    richeCompletion,
+                    happyCompletion,
+                    reputeCompletion
+                }
+            }
+
+
+            /**
              * 检查玩家破产
              * @param {Player} player
              */
@@ -2375,27 +2394,32 @@
                 }
             }
 
+
             /**
              * 检查玩家是否胜利
-             * @param {Player} player
+             * @param {Player[]} allPlayers
              */
-            let checkWin = async player => {
-                if (player.riches >= (player.targetRiches * 1000) &&
-                    player.happy >= player.targetHapply &&
-                    player.repute >= player.targetRepute
-                ) {
-                    logContainer.log(`玩家[${player.name}]获得游戏胜利`)
-                    await dialogContainer.open({
+            let checkWin = async allPlayers => {
+                let completionList = allPlayers.map(p => checkCompletion(p))
+                // 完成度大于一 游戏结束
+                if (completionList.some(c => c.completion >= 1)) {
+                    // 1,2,3,4 排行榜 dom
+
+                    // logContainer.log(`玩家[${player.name}]获得游戏胜利`)
+                    let selected = await dialogContainer.open({
                         title: '游戏胜利',
-                        content: `
-                            <div>
-                                <img src="./assets/monopoly-life/win.jpeg"/>
-                                <div>${player.name}达成目标！</div>
-                            </div> 
-                        `,
-                        options: []
+                        // content: `
+                        //     <div>
+                        //         <div>${player.name}达成目标！</div>
+                        //     </div> 
+                        // `,
+                        options: ["重新开始"]
                     })
-                    player.win = true;
+                    // 重新开始刷新页面
+                    if (selected == 0) {
+                        location.reload()
+                    }
+                    // player.win = true;
                 }
             }
 
@@ -5653,8 +5677,8 @@
                     let allPlayers = [player, ...players]
                     for (let i = 0; i < allPlayers.length; i++) {
                         await playerContainer.checkBankruptcy(allPlayers[i])
-                        await playerContainer.checkWin(allPlayers[i])
                     }
+                    await playerContainer.checkWin(allPlayers)
 
                     // 其中一个玩家取得游戏胜利结束
                     if (allPlayers.some(p => p.win)) return;
