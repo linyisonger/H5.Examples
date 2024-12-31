@@ -324,19 +324,19 @@
                         目标值
                     </div>
                     <div class="player-target-body">
-                        <div class="player-target-item">
+                        <div class="player-target-item target-riches">
                             <div class="player-icon">
                                 <img src="./assets/monopoly-life/riches.png" />
                             </div>
                             <div class="player-value">60000</div>
                         </div>
-                        <div class="player-target-item">
+                        <div class="player-target-item target-repute">
                             <div class="player-icon">
                                 <img src="./assets/monopoly-life/repute.png" />
                             </div>
                             <div class="player-value">0</div>
                         </div>
-                        <div class="player-target-item">
+                        <div class="player-target-item target-happy">
                             <div class="player-icon">
                                 <img src="./assets/monopoly-life/happy.png" />
                             </div>
@@ -2532,6 +2532,9 @@
                     playerItemDom.querySelector('.player-salary .player-value').textContent = player.salary
                     playerItemDom.querySelector('.player-repute .player-value').textContent = player.repute
                     playerItemDom.querySelector('.player-happy .player-value').textContent = player.happy
+                    playerItemDom.querySelector('.target-riches .player-value').textContent = player.targetRiches * 1000
+                    playerItemDom.querySelector('.target-repute .player-value').textContent = player.targetRepute
+                    playerItemDom.querySelector('.target-happy .player-value').textContent = player.targetHapply
                     fragment.shadowRoot.appendChild(playerItemDom)
                 }
                 fragment.classList.remove('close')
