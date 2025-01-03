@@ -30,12 +30,29 @@
         .generate #gr img {
             height: 100%;
         }
+
+        .read {
+            display: flex;
+        }
+
+        .read button {
+            height: 150px;
+            width: 100px;
+        }
+
+        .read textarea {
+            width: 300px;
+            height: 150px;
+            font-size: 20px;
+            box-sizing: border-box;
+        }
     </style>
 </head>
 
 <body>
     <script src="./assets/qrcode.js"></script>
-
+    <script src="./assets/jsQR.js"></script>
+    <!-- jsQR.js -->
 
     <div class="generate">
         <textarea placeholder="请输入二维码的内容"></textarea>
@@ -43,14 +60,47 @@
         <div id="gr"></div>
     </div>
 
+    <div class="read">
+        <button>上传图片</button>
+        <textarea placeholder="请上传图片" disabled></textarea>
+    </div>
 
-    <script>
+
+    <script type="module">
         let generateBtn = document.querySelector('.generate button')        // 生成按钮
         let generateTextarea = document.querySelector('.generate textarea') // 二维码内容
         let generateQrCode = new QRCode(document.getElementById("gr"))      // 展示二维码
         generateBtn.addEventListener('click', () => {
             let val = generateTextarea.value
             generateQrCode.makeCode(val)
+        })
+        let readBtn = document.querySelector('.read button')                // 读取按钮
+        let readTextarea = document.querySelector('.read textarea')         // 二维码内容
+        readBtn.addEventListener('click', () => {
+            const fileInput = document.createElement('input');
+            fileInput.setAttribute('type', 'file');
+            fileInput.setAttribute('accept', '*');
+            fileInput.addEventListener('change', () => {
+                const file = fileInput.files[0];
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = (res) => {
+                    const image = new Image()
+                    const canvas = document.createElement('canvas')
+                    const base64 = res.target.result;
+                    image.src = base64
+                    image.onload = (res => {
+                        canvas.width = image.width
+                        canvas.height = image.height
+                        const ctx = canvas.getContext('2d')
+                        ctx.drawImage(image, 0, 0, image.width, image.height)
+                        const imageData = ctx.getImageData(0, 0, image.width, image.height)
+                        const code = jsQR(imageData.data, imageData.width, imageData.height)
+                        readTextarea.textContent = code && code.data || '未识别成功'
+                    })
+                }
+            })
+            fileInput.click();
         })
     </script>
 
