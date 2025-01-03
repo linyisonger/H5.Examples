@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./assets/global.css">
+
+    <style>
+        .generate {
+            display: flex;
+        }
+
+        .generate button {
+            width: 100px;
+        }
+
+        .generate textarea {
+            width: 300px;
+            height: 150px;
+            font-size: 20px;
+            box-sizing: border-box;
+        }
+
+        .generate #gr {
+            height: 150px;
+        }
+
+        .generate #gr img {
+            height: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <script src="./assets/qrcode.js"></script>
+
+
+    <div class="generate">
+        <textarea placeholder="请输入二维码的内容"></textarea>
+        <button>生成二维码</button>
+        <div id="gr"></div>
+    </div>
+
+
+    <script>
+        let generateBtn = document.querySelector('.generate button')        // 生成按钮
+        let generateTextarea = document.querySelector('.generate textarea') // 二维码内容
+        let generateQrCode = new QRCode(document.getElementById("gr"))      // 展示二维码
+        generateBtn.addEventListener('click', () => {
+            let val = generateTextarea.value
+            generateQrCode.makeCode(val)
+        })
+    </script>
+
+</body>
+
+</html>
