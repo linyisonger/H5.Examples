@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./assets/global.css">
+    <style>
+        .contrast-container {
+            display: flex;
+        }
+
+        .contrast-container .contrast-origin,
+        .contrast-container .contrast-target {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 150px;
+        }
+
+        .contrast-container img {
+            width: 100%;
+        }
+
+        .contrast-container .contrast-target {
+            border: 1px solid #ddd;
+            cursor: pointer;
+        }
+
+        .contrast-target canvas {
+            position: absolute;
+        }
+
+        .contrast-target image {
+            position: absolute;
+        }
+    </style>
+</head>
+
+<body>
+
+
+    <div class="contrast-container">
+        <div class="contrast-origin">
+            <img src="./assets/stars/bailu.jpg">
+        </div>
+        <div class="contrast-target">
+            点击上传照片
+        </div>
+    </div>
+
+
+    <script src="./assets/face-api/face-api.min.js"></script>
+    <script type="module">
+
+        Promise.all([
+            faceapi.nets.faceRecognitionNet.loadFromUri('./assets/face-api/models'),
+            faceapi.nets.faceLandmark68Net.loadFromUri('./assets/face-api/models'),
+            faceapi.nets.ssdMobilenetv1.loadFromUri('./assets/face-api/models')
+        ]).then(start)
+
+
+        // 加载对比图
+        function loadLabeledImages() {
+            const labels = [{
+                name: '白鹿',
+                url: ['./assets/stars/bailu.jpg']
+            }]
+            return Promise.all(
+                labels.map(async label => {
+                    const descriptions = []
+                    for (let i = 0; i < label.url.length; i++) {
+                        const url = label.url[i];
+                        const img = await faceapi.fetchImage(url)
+                        const detections = await faceapi.detectSingleFace(img).withFaceLandmarks().withFaceDescriptor()
+                        descriptions.push(detections.descriptor)
+                    }
+                    return new faceapi.LabeledFaceDescriptors(label.name, descriptions)
+                })
+            )
+        }
+
+
+        async function start() {
+            // 加载面部描述
+            const labeledFaceDescriptors = await loadLabeledImages()
+            // 面部匹配
+            const faceMatcher = new faceapi.FaceMatcher(labeledFaceDescriptors, 0.6)
+            // 目标元素
+            const contrastTargetDom = document.querySelector('.contrast-target')
+            contrastTargetDom.addEventListener('click', () => {
+                let image
+                let canvas
+                const fileInput = document.createElement('input');
+                fileInput.setAttribute('type', 'file');
+                fileInput.setAttribute('accept', '*');
+                fileInput.addEventListener('change', async () => {
+                    if (image) image.remove()
+                    if (canvas) canvas.remove()
+                    contrastTargetDom.textContent = ''
+                    // 文件
+                    const file = fileInput.files[0];
+                    image = await faceapi.bufferToImage(file)
+                    contrastTargetDom.appendChild(image)
+                    canvas = faceapi.createCanvasFromMedia(image)
+                    contrastTargetDom.appendChild(canvas)
+                    const displaySize = { width: image.width, height: image.height }
+                    faceapi.matchDimensions(canvas, displaySize)
+                    const detections = await faceapi.detectAllFaces(image).withFaceLandmarks().withFaceDescriptors()
+                    const resizedDetections = faceapi.resizeResults(detections, displaySize)
+                    const results = resizedDetections.map(d => faceMatcher.findBestMatch(d.descriptor))
+
+                    results.forEach((result, i) => {
+                        console.log(result, i);
+                        const box = resizedDetections[i].detection.box
+                        const drawBox = new faceapi.draw.DrawBox(box, { label: result.toString() })
+                        drawBox.draw(canvas)
+                    })
+                })
+                fileInput.click()
+            })
+        }
+    </script>
+</body>
+
+</html>
