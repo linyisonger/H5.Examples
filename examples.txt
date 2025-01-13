@@ -81,5 +81,8 @@
 081.大富翁之幸福人生.html
 082.el-table 滚动加载更多.html
 083.数字滚动.html
+084.qrcode.js 二维码.html
+085.face-api.js 人脸对比.html
+086.扫雷.html
 blog.html
 index.html

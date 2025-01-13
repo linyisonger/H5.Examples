@@ -9,8 +9,28 @@
 </head>
 
 <body>
+    <canvas id="grid"></canvas>
 
     <script type="module">
+        import { Maths } from "https://gcore.jsdelivr.net/npm/@3r/tool/lib/maths.js";
+        import { Randoms } from "https://gcore.jsdelivr.net/npm/@3r/tool/lib/randoms.js";
+
+
+        /**
+         * 加载图
+         * @param {string} src
+         * @returns {Promise<HTMLImageElement>}
+         */
+        function loadImage(src) {
+            return new Promise((resolve) => {
+                let image = new Image()
+                image.src = src;
+                image.onload = (ev) => {
+                    resolve(image)
+                }
+            })
+        }
+
 
 
 
@@ -48,6 +68,8 @@
             NUM: 2,
             /** 炸弹 */
             BOMB: 3,
+            /** 炸弹炸了 */
+            BOMBED: 4,
         }
 
         /**
@@ -57,12 +79,18 @@
          */
         class Grid {
             type = GRID_TYPE.BLANK
+            clicked = false
+            flag = false;
+
             x = 0;
             y = 0;
+            count = 0;
+
             constructor(x, y, type) {
                 this.x = x;
                 this.y = y;
                 this.type = type
+                this.count = 0;
             }
         }
 
@@ -72,10 +100,160 @@
             bomb: 10,
         }
 
+        const assetConfig = {
+            block: 'data:img/gif;base64,R0lGODlhGQAZAJEAAP///8DAwICAgAAAACH5BAQUAP8ALAAAAAAZABkAAAJKhI+pFrH/GpwnCFGb3nxfzHQi92XjWYbnmAIrepkvGauzV7s3Deq71vrhekJgrtgIIpVFptD5g+6kN+osZflot9xPsgvufsPkSwEAOw==',
+            blocked: 'data:img/gif;base64,R0lGODlhGQAZAKIAAM7OzsbGxr6+vra2trKysqampoKCggAAACH5BAAHAP8ALAAAAAAZABkAAANHaLrc3mWQSau9xAwQuv9gGBhEIJxoqq4CabLw6sY0Otf0jcP6Lpc+HjD4exFTvWNrqDwlj09iNDj1VXdXXLa2zTGb3VgYlgAAOw==',
+            1: 'data:img/gif;base64,R0lGODlhGQAZAJEAAMDAwICAgAAA/wAAACH5BAQUAP8ALAAAAAAZABkAAAJMjI+py70Ao5wUmorxzTxuLIRC9lFiSAbZOWqqybZVCcWoC8fpeu5gj/uJfBUWMXebvYpAJdJGoQFsTc8yQh1OpJ3otesEH8XbLzlSAAA7',
+            2: 'data:img/gif;base64,R0lGODlhGQAZALMAAMDAwKu5q6i4qKW3pZy0nJaylpCwkIquioCAgACAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAAHAP8ALAAAAAAZABkAAAReEMlJq704X8C7/yAnhSQ5lmh3cknrvi64wvT7zXV9I50N+ipeihXzrFACoEhYMtB2pSSsIGN6CrRBIHQEEGjb0pEmGOJch+Gyl3samW13kB0vztViKx665+r7a4AfEQA7',
+            3: 'data:img/gif;base64,R0lGODlhGQAZAJEAAMDAwICAgP8AAAAAACH5BAQUAP8ALAAAAAAZABkAAAJOjI+py70Ao5wUmorxzTxuIITiOFIfiZbSmabT16le0EWyRdeg+OZTGzL5JECBsFI86m4AGIfpzEB9RVLPVuWtqFnjVZeJgmdjzbBMRk8KADs=',
+            4: 'data:img/gif;base64,R0lGODlhGQAZAJEAAMDAwICAgAAAmQAAgCH5BAAHAP8ALAAAAAAZABkAAAJdjI+py70Ao5wUmorxzTzuOgjAQJLUN5FiaU5oVK7sGVAxxA50Gor47KrBVJLc7hfilY6jnHMp+TynwYjgisXmfB4hx1jtgKPezLjbaULJ6bOlnK684mG6HG5H5ykFADs=',
+            5: 'data:img/gif;base64,R0lGODlhGQAZAJEAAMDAwICAgIAAAAAAACH5BAQUAP8ALAAAAAAZABkAAAJOjI+py70Ao5wUmorxzTxuIITiSE4fiY5mEKXu2oodDKmzx9bybeWgW6L9gDZcjLgz3oo9HhPw6TxPyGRTVxUIs1ohjxL9SsLia3nsO0MKADs=',
+            6: 'data:img/gif;base64,R0lGODlhGQAZAJEAAMDAwICAgACAgAAAACH5BAQUAP8ALAAAAAAZABkAAAJTjI+py70Ao5wUmorxzTxuKITiKFIfiZbTmaJmEI3dCoPqbNWAjOdxS3r9gDyPjhiUsEKVos/GpDgBS0Hz9twhsdTjNmqUfIU9ja5MQ1c+6nBbUgAAOw==',
+            7: 'data:img/gif;base64,R0lGODlhGQAZAJEAAL6+voKCggAAAAAAACH5BAAHAP8ALAAAAAAZABkAAAJMjI+py70Ao5wUmorxzTxuIITiSE4fiY5mEKXu2rUiHIOz9HElznY771NRcpQfrWI8TpJK2S1DtD2hPWeoRhTGojVgV1P9NsWWMBlSAAA7',
+            8: 'data:img/gif;base64,R0lGODlhGQAZAIAAAMDAwICAgCH5BAQUAP8ALAAAAAAZABkAAAJKjI+py70Ao5wUmorxzTxu63xeMIYi8JnHlK4UwpLgOctjaUuwnqtvb/rxQsJaZXcz/k4tGsqVfPp4OCK1yih2OM7t1avJgWNjTAEAOw==',
+            bomb: 'data:img/gif;base64,R0lGODlhGQAZAJEAAP///76+voKCggAAACH5BAAHAP8ALAAAAAAZABkAAAJglI+py70Bo5wUmhrHwPFyzVlCCIYeBGqqik5nkK4s7I6TjFOvCvR42bGhND3AbyPZEX2/GuwILV2iUZGEOgtesUhthuu8VcNbqE74fOZoSTQFiHm9u3G3OBSQ4yv6/aQAADs=',
+            bombed: 'data:img/gif;base64,R0lGODlhGQAZAJEAAP///4CAgP8AAAAAACH5BAQUAP8ALAAAAAAZABkAAAJgjI+py70Co5wUmhrHwPFyzVlBCIYeBGqqik6nkK4s7I6TjFOvCvR42bGhND3AbyPZEX2/GuwILV2iUZGEOgtesUhthuu8VcNbqE74fOZoSTQFiHm9u3G3OCSQ4yv6/aQAADs=',
+            flag: 'data:img/gif;base64,R0lGODlhGQAZAKIAAP///8DAwICAgP8AAAAAAAAAAAAAAAAAACH5BAAHAP8ALAAAAAAZABkAAANsCLrcriG8OSO9KwiRo//gt3FQaIJjZw7DmZYh25ovEMtzWH+47G6qno8GhAWEOVTRBur9SMxbUrQ8BQiEpyqE1RpBXSLUGtZVI9i0Wu3ZodfwbMR9ja/bZ6s3qjeTNCOBgoMjc4SHhIaIixsJADs=',
+
+        }
+
+
+        /**
+         * 扩张
+         * 
+         * 0  0  0
+         * 0  m  0  1
+         * 0  0  0
+         * 
+         * 
+         * @author 	 linyisonger
+         * @date 	 2025-01-13
+         * 
+         * @template T
+         * @param {{x:number,y:number}} v2
+         * @param {number} depth
+         * @param {T[][]} map
+         * @returns {T[]}
+         */
+        function expansion(v2, depth, map) {
+            let res = []
+            for (let y = Math.max(v2.y - depth, 0); y < Math.min(v2.y + depth + 1, gameConfig.cols); y++) {
+                for (let x = Math.max(v2.x - depth, 0); x < Math.min(v2.x + depth + 1, gameConfig.rows); x++) {
+                    res.push(map[y][x])
+                }
+            }
+            return res
+        }
+
+
+        // 地图
         let map = createFlatArray(gameConfig.rows, gameConfig.cols, (x, y) => new Grid(x, y, GRID_TYPE.BLANK))
+        // 格子
+        let grids = map.flat(2)
+        /** @type {Grid[]} 炸弹格子*/
+        let bombs = Randoms.getDisorganizeArray(grids).slice(0, gameConfig.bomb)
+        /** @type {Grid[]} 数字格子*/
+        let nums = []
+
+        bombs.forEach(b => {
+            // 设置为炸弹类型
+            b.type = GRID_TYPE.BOMB
+            // 筛选可能成为数字格子
+            expansion(b, 1, map).filter(a => a.type != b.type).forEach(n => {
+                n.type = GRID_TYPE.NUM;
+                n.count++
+            })
+        })
+
+        let gs = 25;
+        /** @type {HTMLCanvasElement} */
+        let canvas = document.querySelector("#grid")
+        let ctx = canvas.getContext('2d')
+
+        canvas.setAttribute('width', gameConfig.rows * gs)
+        canvas.setAttribute('height', gameConfig.cols * gs)
+
+        let width = canvas.clientWidth;
+        let height = canvas.clientHeight;
+        canvas.width = width;
+        canvas.height = height;
+
+        async function loadAssetConfig() {
+            for (const key in assetConfig) {
+                assetConfig[key] = await loadImage(assetConfig[key])
+            }
+        }
+
+        function drawGrids() {
+            grids.forEach(g => {
+                let x = g.x * gs;
+                let y = g.y * gs;
+                if (g.flag) ctx.drawImage(assetConfig.flag, x, y)
+                else if (!g.clicked) ctx.drawImage(assetConfig.block, x, y)
+                else if (g.type == GRID_TYPE.BLANK) ctx.drawImage(assetConfig.blocked, x, y)
+                else if (g.type == GRID_TYPE.BOMB) ctx.drawImage(assetConfig.bomb, x, y)
+                else if (g.type == GRID_TYPE.BOMBED) ctx.drawImage(assetConfig.bombed, x, y)
+                else if (g.type == GRID_TYPE.NUM) ctx.drawImage(assetConfig[g.count], x, y)
+            })
+        }
+
+        /**
+         * 点击事件
+         * 
+         * @author 	 linyisonger
+         * @date 	 2025-01-13
+         * 
+         * @param {{x:number,y:number}} v2 
+         */
+        function open(v2) {
+            let { x, y } = v2;
+            let grid = map[y][x]
+            if (grid.flag) grid.flag = false
+            else {
+                grid.clicked = true;
+                if (grid.type == GRID_TYPE.BOMB) {
+                    grid.type = GRID_TYPE.BOMBED
+                    bombs.forEach(b => b.clicked = true)
+                }
+            }
+        }
+
+        /**
+         * 设置标志
+         * 
+         * @author 	 linyisonger
+         * @date 	 2025-01-13
+         * 
+         * @param {{x:number,y:number}} v2 
+         */
+        function setFlag(v2) {
+            let { x, y } = v2;
+            let grid = map[y][x]
+            if (!grid.clicked) grid.flag = !grid.flag
+        }
 
 
-        console.log(map);
+        async function init() {
+            await loadAssetConfig()
+            drawGrids();
+            canvas.addEventListener("mousedown", (e) => {
+                let x = ~~(e.offsetX / gs);
+                let y = ~~(e.offsetY / gs)
+                if (e.button == 0) open({ x, y })
+                else if (e.button == 2) setFlag({ x, y })
+                drawGrids()
+            })
+        }
+        init();
+
+        window.onload = function () {
+            document.addEventListener('contextmenu', (e) => {
+                if (e.button == 2) {
+                    // 阻止事件传播，防止默认的右键菜单打开
+                    e.preventDefault();
+                }
+            }, false);
+        };
     </script>
 
 
