@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./assets/global.css">
+</head>
+
+<body>
+
+    <script type="module">
+
+
+
+        /**
+         * 初始化平面数组
+         * @author 	 linyisonger
+         * @date 	 2025-01-13
+         * 
+         * @template T
+         * @param {number} rows
+         * @param {number} cols
+         * @param {T|(x,y)=>T} init 
+         * 
+         * @return {T[][]}
+         */
+        function createFlatArray(rows, cols, init = 0) {
+            let level1 = []
+            for (let y = 0; y < cols; y++) {
+                let level2 = [];
+                for (let x = 0; x < rows; x++) {
+                    level2[x] = typeof init == "function" ? init(x, y) : init;
+                }
+                level1[y] = level2
+            }
+            return level1
+        }
+
+        /**
+         * 格子类型
+         */
+        const GRID_TYPE = {
+            /** 空 */
+            BLANK: 1,
+            /** 九宫格 炸弹数量 */
+            NUM: 2,
+            /** 炸弹 */
+            BOMB: 3,
+        }
+
+        /**
+         * 格子
+         * @author 	 linyisonger
+         * @date 	 2025-01-13
+         */
+        class Grid {
+            type = GRID_TYPE.BLANK
+            x = 0;
+            y = 0;
+            constructor(x, y, type) {
+                this.x = x;
+                this.y = y;
+                this.type = type
+            }
+        }
+
+        const gameConfig = {
+            rows: 9,
+            cols: 9,
+            bomb: 10,
+        }
+
+        let map = createFlatArray(gameConfig.rows, gameConfig.cols, (x, y) => new Grid(x, y, GRID_TYPE.BLANK))
+
+
+        console.log(map);
+    </script>
+
+
+</body>
+
+</html>
