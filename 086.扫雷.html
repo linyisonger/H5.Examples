@@ -157,7 +157,7 @@
         const gameConfig = {
             rows: 9,
             cols: 9,
-            bomb: 5,
+            bomb: 10,
         }
 
         const mainAssetConfig = {
@@ -257,7 +257,7 @@
          * @param {Grid} grid
          */
         function blockedExpansion(grid) {
-            expansion(grid, 1, map).filter(g => g.state != GRID_STATE.NONE).forEach(g => {
+            expansion(grid, 1, map).filter(g => g.state == GRID_STATE.BLOCK).forEach(g => {
                 g.state = GRID_STATE.NONE;
                 if (g != grid && g.type == GRID_TYPE.BLOCKED) blockedExpansion(g)
             })
@@ -291,6 +291,7 @@
                 bombs.forEach(b => b.state = GRID_STATE.FLAG)
                 stopTime();
                 updEmote(EMOTE_TYPE.COOL)
+                drawNums(countCtx, String(0).padStart(3, '0'))
             }
         }
 
