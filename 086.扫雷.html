@@ -63,13 +63,22 @@
          */
         const GRID_TYPE = {
             /** 空 */
-            BLANK: 1,
+            BLOCKED: 'blocked',
             /** 九宫格 炸弹数量 */
-            NUM: 2,
+            NUM: 'num',
             /** 炸弹 */
-            BOMB: 3,
+            BOMB: 'bomb',
             /** 炸弹炸了 */
-            BOMBED: 4,
+            BOMBED: 'bombed',
+        }
+
+        const GRID_STATE = {
+            /** 空 */
+            NONE: '',
+            /** 块 */
+            BLOCK: 'block',
+            /** 旗帜 */
+            FLAG: 'flag'
         }
 
         /**
@@ -78,19 +87,16 @@
          * @date 	 2025-01-13
          */
         class Grid {
-            type = GRID_TYPE.BLANK
-            clicked = false
-            flag = false;
+            state = GRID_STATE.BLOCK
+            type = GRID_TYPE.BLOCKED
 
             x = 0;
             y = 0;
             count = 0;
 
-            constructor(x, y, type) {
+            constructor(x, y) {
                 this.x = x;
                 this.y = y;
-                this.type = type
-                this.count = 0;
             }
         }
 
@@ -114,7 +120,6 @@
             bomb: 'data:img/gif;base64,R0lGODlhGQAZAJEAAP///76+voKCggAAACH5BAAHAP8ALAAAAAAZABkAAAJglI+py70Bo5wUmhrHwPFyzVlCCIYeBGqqik5nkK4s7I6TjFOvCvR42bGhND3AbyPZEX2/GuwILV2iUZGEOgtesUhthuu8VcNbqE74fOZoSTQFiHm9u3G3OBSQ4yv6/aQAADs=',
             bombed: 'data:img/gif;base64,R0lGODlhGQAZAJEAAP///4CAgP8AAAAAACH5BAQUAP8ALAAAAAAZABkAAAJgjI+py70Co5wUmhrHwPFyzVlBCIYeBGqqik6nkK4s7I6TjFOvCvR42bGhND3AbyPZEX2/GuwILV2iUZGEOgtesUhthuu8VcNbqE74fOZoSTQFiHm9u3G3OCSQ4yv6/aQAADs=',
             flag: 'data:img/gif;base64,R0lGODlhGQAZAKIAAP///8DAwICAgP8AAAAAAAAAAAAAAAAAACH5BAAHAP8ALAAAAAAZABkAAANsCLrcriG8OSO9KwiRo//gt3FQaIJjZw7DmZYh25ovEMtzWH+47G6qno8GhAWEOVTRBur9SMxbUrQ8BQiEpyqE1RpBXSLUGtZVI9i0Wu3ZodfwbMR9ja/bZ6s3qjeTNCOBgoMjc4SHhIaIixsJADs=',
-
         }
 
 
@@ -146,8 +151,9 @@
         }
 
 
+
         // 地图
-        let map = createFlatArray(gameConfig.rows, gameConfig.cols, (x, y) => new Grid(x, y, GRID_TYPE.BLANK))
+        let map = createFlatArray(gameConfig.rows, gameConfig.cols, (x, y) => new Grid(x, y))
         // 格子
         let grids = map.flat(2)
         /** @type {Grid[]} 炸弹格子*/
@@ -164,6 +170,49 @@
                 n.count++
             })
         })
+
+
+        /**
+         * 空白格子探索
+         * @author 	 linyisonger
+         * @date 	 2025-01-14
+         * 
+         * @param {Grid} grid
+         */
+        function blockedExpansion(grid) {
+            expansion(grid, 1, map).filter(g => g.state != GRID_STATE.NONE).forEach(g => {
+                g.state = GRID_STATE.NONE;
+                if (g != grid && g.type == GRID_TYPE.BLOCKED) blockedExpansion(g)
+            })
+        }
+
+        /**
+         * 游戏结束 踩雷了
+         * @author 	 linyisonger
+         * @date 	 2025-01-14
+         * 
+         * @param {Grid} grid
+         */
+        function bombed(grid) {
+            grid.type = GRID_TYPE.BOMBED
+            bombs.filter(b => b.state != GRID_STATE.FLAG).forEach(b => b.state = GRID_STATE.NONE)
+            canvas.removeEventListener("mousedown", mousedownFunc)
+        }
+
+
+        /**
+         * 检查游戏是否结束
+         * @author 	 linyisonger
+         * @date 	 2025-01-14
+         */
+        function checkOver() {
+            let count = grids.filter(g => g.state != GRID_STATE.NONE).length
+            // 游戏胜利 ✌
+            if (count == gameConfig.bomb) {
+
+            }
+        }
+
 
         let gs = 25;
         /** @type {HTMLCanvasElement} */
@@ -188,12 +237,9 @@
             grids.forEach(g => {
                 let x = g.x * gs;
                 let y = g.y * gs;
-                if (g.flag) ctx.drawImage(assetConfig.flag, x, y)
-                else if (!g.clicked) ctx.drawImage(assetConfig.block, x, y)
-                else if (g.type == GRID_TYPE.BLANK) ctx.drawImage(assetConfig.blocked, x, y)
-                else if (g.type == GRID_TYPE.BOMB) ctx.drawImage(assetConfig.bomb, x, y)
-                else if (g.type == GRID_TYPE.BOMBED) ctx.drawImage(assetConfig.bombed, x, y)
-                else if (g.type == GRID_TYPE.NUM) ctx.drawImage(assetConfig[g.count], x, y)
+                if (g.state) ctx.drawImage(assetConfig[g.state], x, y)
+                else if (g.type === GRID_TYPE.NUM) ctx.drawImage(assetConfig[g.count], x, y)
+                else ctx.drawImage(assetConfig[g.type], x, y)
             })
         }
 
@@ -207,15 +253,13 @@
          */
         function open(v2) {
             let { x, y } = v2;
+            console.log(x, y, map);
             let grid = map[y][x]
-            if (grid.flag) grid.flag = false
-            else {
-                grid.clicked = true;
-                if (grid.type == GRID_TYPE.BOMB) {
-                    grid.type = GRID_TYPE.BOMBED
-                    bombs.forEach(b => b.clicked = true)
-                }
-            }
+            if (grid.state == GRID_STATE.FLAG) grid.state = GRID_STATE.BLOCK;
+            else if (grid.type == GRID_TYPE.BLOCKED) blockedExpansion(grid)
+            else if (grid.type == GRID_TYPE.BOMB) bombed(grid)
+            else grid.state = GRID_STATE.NONE;
+            checkOver();
         }
 
         /**
@@ -229,20 +273,22 @@
         function setFlag(v2) {
             let { x, y } = v2;
             let grid = map[y][x]
-            if (!grid.clicked) grid.flag = !grid.flag
+            if (grid.state == GRID_STATE.FLAG) grid.state = GRID_STATE.BLOCK;
+            else if (grid.state == GRID_STATE.BLOCK) grid.state = GRID_STATE.FLAG;
         }
 
+        function mousedownFunc(e) {
+            let x = ~~(e.offsetX / gs);
+            let y = ~~(e.offsetY / gs)
+            if (e.button == 0) open({ x, y })
+            else if (e.button == 2) setFlag({ x, y })
+            drawGrids()
+        }
 
         async function init() {
             await loadAssetConfig()
             drawGrids();
-            canvas.addEventListener("mousedown", (e) => {
-                let x = ~~(e.offsetX / gs);
-                let y = ~~(e.offsetY / gs)
-                if (e.button == 0) open({ x, y })
-                else if (e.button == 2) setFlag({ x, y })
-                drawGrids()
-            })
+            canvas.addEventListener("mousedown", mousedownFunc)
         }
         init();
 

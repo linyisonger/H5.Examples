@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./assets/global.css">
+</head>
+
+<body>
+    <button id="newWin">新建窗口</button>
+    <script type="module">
+
+        /**  
+         * @description 打开新窗口并设置其尺寸和位置  
+         * @param {string} url - 要打开的 URL  
+         * @param {string} title - 新窗口的标题  
+         * @param {number} w - 新窗口的宽度  
+         * @param {number} h - 新窗口的高度  
+         */
+        function openWindow(url, title, w, h) {
+            // 获取屏幕左侧和顶部位置（如果可用）  
+            // Fixes dual-screen position                            Most browsers       Firefox  
+            const dualScreenLeft = window.screenLeft !== undefined ? window.screenLeft : screen.left
+            const dualScreenTop = window.screenTop !== undefined ? window.screenTop : screen.top
+
+            // 获取当前窗口的宽度和高度（如果可用）  
+            const width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width
+            const height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height
+
+            // 计算新窗口的左侧和顶部位置  
+            const left = ((width / 2) - (w / 2)) + dualScreenLeft
+            const top = ((height / 2) - (h / 2)) + dualScreenTop
+
+            // 打开新窗口并设置其属性  
+            const newWindow = window.open(url, title, 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=yes, copyhistory=no, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left)
+
+            // 将焦点放在新窗口上（如果可用）  
+            // Puts focus on the newWindow  
+            if (window.focus) {
+                newWindow.focus()
+            }
+        }
+
+        document.querySelector('#newWin').addEventListener('click', () => {
+            openWindow('http://baidu.com', '百度', 300, 300)
+        })
+
+    </script>
+
+
+
+</body>
+
+</html>
