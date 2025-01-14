@@ -6,15 +6,46 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./assets/global.css">
+
+    <style>
+        .mine-clearance {
+            background-color: rgb(204, 204, 204);
+            padding: 9px;
+            display: inline-flex;
+            flex-direction: column;
+        }
+
+        .tool-bar {
+            height: 32px;
+            border: 2px solid #808080;
+            border-right-color: #fff;
+            border-bottom-color: #fff;
+        }
+
+        #grid {
+            margin-top: 6px;
+            border: 2px solid #808080;
+            border-right-color: #fff;
+            border-bottom-color: #fff;
+        }
+    </style>
 </head>
 
 <body>
-    <canvas id="grid"></canvas>
+    <div class="mine-clearance">
+        <div class="tool-bar">
+            <canvas id="count" width="39" height="23"></canvas>
+            <img id="emote" />
+            <canvas id="time" width="39" height="23"></canvas>
+        </div>
+        <canvas id="grid"></canvas>
+    </div>
+
+
 
     <script type="module">
         import { Maths } from "https://gcore.jsdelivr.net/npm/@3r/tool/lib/maths.js";
         import { Randoms } from "https://gcore.jsdelivr.net/npm/@3r/tool/lib/randoms.js";
-
 
         /**
          * 加载图
@@ -30,9 +61,6 @@
                 }
             })
         }
-
-
-
 
         /**
          * 初始化平面数组
@@ -106,7 +134,7 @@
             bomb: 5,
         }
 
-        const assetConfig = {
+        const mainAssetConfig = {
             block: 'data:img/gif;base64,R0lGODlhGQAZAJEAAP///8DAwICAgAAAACH5BAQUAP8ALAAAAAAZABkAAAJKhI+pFrH/GpwnCFGb3nxfzHQi92XjWYbnmAIrepkvGauzV7s3Deq71vrhekJgrtgIIpVFptD5g+6kN+osZflot9xPsgvufsPkSwEAOw==',
             blocked: 'data:img/gif;base64,R0lGODlhGQAZAKIAAM7OzsbGxr6+vra2trKysqampoKCggAAACH5BAAHAP8ALAAAAAAZABkAAANHaLrc3mWQSau9xAwQuv9gGBhEIJxoqq4CabLw6sY0Otf0jcP6Lpc+HjD4exFTvWNrqDwlj09iNDj1VXdXXLa2zTGb3VgYlgAAOw==',
             1: 'data:img/gif;base64,R0lGODlhGQAZAJEAAMDAwICAgAAA/wAAACH5BAQUAP8ALAAAAAAZABkAAAJMjI+py70Ao5wUmorxzTxuLIRC9lFiSAbZOWqqybZVCcWoC8fpeu5gj/uJfBUWMXebvYpAJdJGoQFsTc8yQh1OpJ3otesEH8XbLzlSAAA7',
@@ -122,7 +150,21 @@
             flag: 'data:img/gif;base64,R0lGODlhGQAZAKIAAP///8DAwICAgP8AAAAAAAAAAAAAAAAAACH5BAAHAP8ALAAAAAAZABkAAANsCLrcriG8OSO9KwiRo//gt3FQaIJjZw7DmZYh25ovEMtzWH+47G6qno8GhAWEOVTRBur9SMxbUrQ8BQiEpyqE1RpBXSLUGtZVI9i0Wu3ZodfwbMR9ja/bZ6s3qjeTNCOBgoMjc4SHhIaIixsJADs=',
         }
 
-
+        const toolAssetConfig = {
+            0: 'data:img/gif;base64,R0lGODlhDQAXAJEAAP8AAIAAAAAAAAAAACH5BAQUAP8ALAAAAAANABcAAAI5lI8Jy3wgmoMRymoc0vqt/G1hB1JkZVKKaQSC60YI/NZPW8dpApZrqvKhfkIPkIi5jFANWUkS5CUKADs=',
+            1: 'data:img/gif;base64,R0lGODlhDQAXAJEAAP8AAIAAAAAAAAAAACH5BAQUAP8ALAAAAAANABcAAAI3lI8psc33mDQAmilAdUnv1mkXeHhWuGGlOCpsxGXIpII0dYbjs358v0PlgDGiDfQKPj6cmkJRAAA7',
+            2: 'data:img/gif;base64,R0lGODlhDQAXAJEAAP8AAIAAAAAAAAAAACH5BAQUAP8ALAAAAAANABcAAAI8lI8Jy3whmgMvNmsgRC4nSwmaslRkOHKl962QVIYgfFAwta3JBu6i0UHwgp6cztQT/jCSZWTmGN5kn08BADs=',
+            3: 'data:img/gif;base64,R0lGODlhDQAXAJEAAP8AAIAAAAAAAAAAACH5BAQUAP8ALAAAAAANABcAAAI5lI8Jy3whmgMvNmsgRC4nSwmaslRkOHKl962QVIYgXMGUvJFebnRi6/qpcECU8OB7XYK2CNIm+3wKADs=',
+            4: 'data:img/gif;base64,R0lGODlhDQAXAJEAAP8AAIAAAAAAAAAAACH5BAQUAP8ALAAAAAANABcAAAI8lI8psc0HDJsmCmDptdhCXIFIF3rlOYpkyplftXWgJ9cHU8+3skkNu0usNB/PA+gQin4a0YPyMEF/PF4BADs=',
+            5: 'data:img/gif;base64,R0lGODlhDQAXAJEAAP8AAIAAAAAAAAAAACH5BAQUAP8ALAAAAAANABcAAAI5lI8Jy3wgmgtmxSZotYhql2gX1GUbWZ6heSWGCEkWLHNmHR0iwnmKvVOZgiAWr2cU3jBIHKpmc7kKADs=',
+            6: 'data:img/gif;base64,R0lGODlhDQAXAJEAAP8AAIAAAAAAAAAAACH5BAQUAP8ALAAAAAANABcAAAI5lI8Jy3wgmgtmxSZotYhql2gX1GUbWZ6heSWGCEkWLHPRiJE2woFPvxupeEDU0HeM5XQ4B6oWdCEKADs=',
+            7: 'data:img/gif;base64,R0lGODlhDQAXAJEAAP8AAIAAAAAAAAAAACH5BAQUAP8ALAAAAAANABcAAAI5lI8Jy3whmgMvNmsgRC4nSwmaslRkOHKl963buIUejLziHZnkfOpHl/qtcCoU0dDBpVy8WO0W/EgLADs=',
+            8: 'data:img/gif;base64,R0lGODlhDQAXAIAAAP8AAAAAACH5BAQUAP8ALAAAAAANABcAAAI0jI8Jy3wQmoMRymoc0vqt/G1hB1JkZVKKiTaRJ4VvbIGJja6pWvbirvPBbJdRawKL3ZaGAgA7',
+            9: 'data:img/gif;base64,R0lGODlhDQAXAJEAAP8AAIAAAAAAAAAAACH5BAQUAP8ALAAAAAANABcAAAI6lI8Jy3wgmoMRymoc0vqt/G1hB1JkZVKKiTaRJ4VC0E4HnWDzLqp4b6D9SrecRrjy1XS0mAUWy0kNBQA7',
+            smile: 'data:img/gif;base64,R0lGODlhFQAVAJEAAAAAAP//AL29vQAAACH5BAAHAP8ALAAAAAAVABUAAAJAlI+py50AoUMwWCsduBy33XXAAoaiUlZY+nBq8MKUSY9HSbtzft4X/vu1MCLhcBXRoXgyBlD5AWYmgsiUis0yCgA7',
+            cool: 'data:img/gif;base64,R0lGODlhFQAVAJEAAAAAAP//AMDAwICAACH5BAAHAP8ALAAAAAAVABUAAAJHlI+py50AoUMwWCsduBy33XXAAoaiAkZqFYwUprZx+27xTR/swMoD/DKZXIaSkEMsXoytJQo58zyPOdIxSWJmJoIV9wueFAAAOw==',
+            cry: 'data:img/gif;base64,R0lGODlhFQAVAJEAAAAAAP//AMDAwAAAACH5BAAHAP8ALAAAAAAVABUAAAJDlI+py50AoUMwWCsduBy33XXAAm5gYHrPdWLs6p6parShSN36eNg6LbBFKhxejyV6wXwo4PGH+vyMDCKLqhlOttxuAQA7'
+        }
         /**
          * 扩张
          * 
@@ -157,19 +199,30 @@
         // 格子
         let grids = map.flat(2)
         /** @type {Grid[]} 炸弹格子*/
-        let bombs = Randoms.getDisorganizeArray(grids).slice(0, gameConfig.bomb)
+        let bombs = []
         /** @type {Grid[]} 数字格子*/
         let nums = []
 
-        bombs.forEach(b => {
-            // 设置为炸弹类型
-            b.type = GRID_TYPE.BOMB
-            // 筛选可能成为数字格子
-            expansion(b, 1, map).filter(a => a.type != b.type).forEach(n => {
-                n.type = GRID_TYPE.NUM;
-                n.count++
+        function initMap() {
+            // 初始化
+            grids.forEach(g => {
+                g.count = 0;
+                g.state = GRID_STATE.BLOCK
+                g.type = GRID_TYPE.BLOCKED
             })
-        })
+            // 随机炸弹
+            bombs = Randoms.getDisorganizeArray(grids).slice(0, gameConfig.bomb)
+            bombs.forEach(b => {
+                // 设置为炸弹类型
+                b.type = GRID_TYPE.BOMB
+                // 筛选可能成为数字格子
+                expansion(b, 1, map).filter(a => a.type != b.type).forEach(n => {
+                    n.type = GRID_TYPE.NUM;
+                    n.count++
+                })
+            })
+        }
+
 
 
         /**
@@ -207,7 +260,6 @@
          */
         function checkOver() {
             let count = grids.filter(g => [GRID_STATE.BLOCK, GRID_STATE.FLAG].includes(g.state)).length
-            console.log(count);
             // 游戏胜利 ✌
             if (count == gameConfig.bomb) {
                 bombs.forEach(b => b.state = GRID_STATE.FLAG)
@@ -218,20 +270,22 @@
 
         let gs = 25;
         /** @type {HTMLCanvasElement} */
-        let canvas = document.querySelector("#grid")
-        let ctx = canvas.getContext('2d')
+        let gridCanvas = document.querySelector("#grid")
+        let gridCtx = gridCanvas.getContext('2d')
+        gridCanvas.setAttribute('width', gameConfig.rows * gs)
+        gridCanvas.setAttribute('height', gameConfig.cols * gs)
+        let width = gridCanvas.clientWidth;
+        let height = gridCanvas.clientHeight;
+        gridCanvas.width = width;
+        gridCanvas.height = height;
 
-        canvas.setAttribute('width', gameConfig.rows * gs)
-        canvas.setAttribute('height', gameConfig.cols * gs)
-
-        let width = canvas.clientWidth;
-        let height = canvas.clientHeight;
-        canvas.width = width;
-        canvas.height = height;
 
         async function loadAssetConfig() {
-            for (const key in assetConfig) {
-                assetConfig[key] = await loadImage(assetConfig[key])
+            for (const key in mainAssetConfig) {
+                mainAssetConfig[key] = await loadImage(mainAssetConfig[key])
+            }
+            for (const key in toolAssetConfig) {
+                toolAssetConfig[key] = await loadImage(toolAssetConfig[key])
             }
         }
 
@@ -239,9 +293,9 @@
             grids.forEach(g => {
                 let x = g.x * gs;
                 let y = g.y * gs;
-                if (g.state) ctx.drawImage(assetConfig[g.state], x, y)
-                else if (g.type === GRID_TYPE.NUM) ctx.drawImage(assetConfig[g.count], x, y)
-                else ctx.drawImage(assetConfig[g.type], x, y)
+                if (g.state) gridCtx.drawImage(mainAssetConfig[g.state], x, y)
+                else if (g.type === GRID_TYPE.NUM) gridCtx.drawImage(mainAssetConfig[g.count], x, y)
+                else gridCtx.drawImage(mainAssetConfig[g.type], x, y)
             })
         }
 
@@ -255,7 +309,6 @@
          */
         function open(v2) {
             let { x, y } = v2;
-            console.log(x, y, map);
             let grid = map[y][x]
             if (grid.state == GRID_STATE.FLAG) grid.state = GRID_STATE.BLOCK;
             else if (grid.type == GRID_TYPE.BLOCKED) blockedExpansion(grid)
@@ -289,8 +342,9 @@
 
         async function init() {
             await loadAssetConfig()
+            initMap();
             drawGrids();
-            canvas.addEventListener("mousedown", mousedownFunc)
+            gridCanvas.addEventListener("mousedown", mousedownFunc)
         }
         init();
 
