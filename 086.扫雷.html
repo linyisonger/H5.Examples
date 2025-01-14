@@ -20,6 +20,9 @@
             border: 2px solid #808080;
             border-right-color: #fff;
             border-bottom-color: #fff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         #grid {
@@ -27,6 +30,20 @@
             border: 2px solid #808080;
             border-right-color: #fff;
             border-bottom-color: #fff;
+        }
+
+        #emote {
+            border: 2px solid #808080;
+            border-left-color: #fff;
+            border-top-color: #fff;
+            width: 21px;
+            height: 21px;
+        }
+
+        #emote:active {
+            border: 2px solid #808080;
+            border-bottom: 1px solid #808080;
+            border-right: 1px solid #808080;
         }
     </style>
 </head>
@@ -107,6 +124,15 @@
             BLOCK: 'block',
             /** 旗帜 */
             FLAG: 'flag'
+        }
+
+        const EMOTE_TYPE = {
+            /** 微笑 */
+            SMILE: 'smile',
+            /** 哭 */
+            COOL: 'cool',
+            /** 哭 */
+            CRY: 'cry'
         }
 
         /**
@@ -223,8 +249,6 @@
             })
         }
 
-
-
         /**
          * 空白格子探索
          * @author 	 linyisonger
@@ -249,7 +273,9 @@
         function bombed(grid) {
             grid.type = GRID_TYPE.BOMBED
             bombs.filter(b => b.state != GRID_STATE.FLAG).forEach(b => b.state = GRID_STATE.NONE)
-            canvas.removeEventListener("mousedown", mousedownFunc)
+            gridCanvas.removeEventListener("mousedown", mousedownFunc)
+            stopTime();
+            updEmote(EMOTE_TYPE.CRY)
         }
 
 
@@ -263,23 +289,41 @@
             // 游戏胜利 ✌
             if (count == gameConfig.bomb) {
                 bombs.forEach(b => b.state = GRID_STATE.FLAG)
-                console.log('you win');
+                stopTime();
+                updEmote(EMOTE_TYPE.COOL)
             }
         }
 
-
+        // 格子宽度
         let gs = 25;
+
         /** @type {HTMLCanvasElement} */
         let gridCanvas = document.querySelector("#grid")
         let gridCtx = gridCanvas.getContext('2d')
         gridCanvas.setAttribute('width', gameConfig.rows * gs)
         gridCanvas.setAttribute('height', gameConfig.cols * gs)
-        let width = gridCanvas.clientWidth;
-        let height = gridCanvas.clientHeight;
-        gridCanvas.width = width;
-        gridCanvas.height = height;
+        let gridWidth = gridCanvas.clientWidth;
+        let gridHeight = gridCanvas.clientHeight;
+        gridCanvas.width = gridWidth;
+        gridCanvas.height = gridHeight;
 
+        /** @type {HTMLCanvasElement} */
+        let countCanvas = document.querySelector("#count")
+        let countCtx = countCanvas.getContext('2d')
+        let countWidth = countCanvas.clientWidth;
+        let countHeight = countCanvas.clientHeight;
+        countCanvas.width = countWidth;
+        countCanvas.height = countHeight;
 
+        /** @type {HTMLCanvasElement} */
+        let timeCanvas = document.querySelector("#time")
+        let timeCtx = timeCanvas.getContext('2d')
+        let timeWidth = timeCanvas.clientWidth;
+        let timeHeight = timeCanvas.clientHeight;
+        timeCanvas.width = countWidth;
+        timeCanvas.height = countHeight;
+
+        // 加载素材配置
         async function loadAssetConfig() {
             for (const key in mainAssetConfig) {
                 mainAssetConfig[key] = await loadImage(mainAssetConfig[key])
@@ -289,6 +333,7 @@
             }
         }
 
+        // 渲染格子
         function drawGrids() {
             grids.forEach(g => {
                 let x = g.x * gs;
@@ -300,6 +345,22 @@
         }
 
         /**
+         * 渲染数字
+         * @author 	 linyisonger
+         * @date 	 2025-01-14
+         * 
+         * @param {CanvasRenderingContext2D} ctx
+         * @param {string} num
+         */
+        function drawNums(ctx, num) {
+            let charWidth = ctx.canvas.width / num.length
+            for (let i = 0; i < num.length; i++) {
+                const char = num[i];
+                ctx.drawImage(toolAssetConfig[char], i * charWidth, 0)
+            }
+        }
+
+        /**
          * 点击事件
          * 
          * @author 	 linyisonger
@@ -308,6 +369,7 @@
          * @param {{x:number,y:number}} v2 
          */
         function open(v2) {
+            startTime();
             let { x, y } = v2;
             let grid = map[y][x]
             if (grid.state == GRID_STATE.FLAG) grid.state = GRID_STATE.BLOCK;
@@ -328,8 +390,52 @@
         function setFlag(v2) {
             let { x, y } = v2;
             let grid = map[y][x]
+
             if (grid.state == GRID_STATE.FLAG) grid.state = GRID_STATE.BLOCK;
-            else if (grid.state == GRID_STATE.BLOCK) grid.state = GRID_STATE.FLAG;
+            else if (grid.state == GRID_STATE.BLOCK && flag > 0) grid.state = GRID_STATE.FLAG;
+
+            flag = gameConfig.bomb - grids.filter(g => g.state === GRID_STATE.FLAG).length;
+            drawNums(countCtx, String(flag).padStart(3, '0'))
+        }
+
+        // 计时器
+        let intervalId = null
+        let time = 0;
+        // 旗帜数量
+        let flag = 0;
+        // 表情类型
+        let emoteDom = document.querySelector('#emote')
+
+        /**
+         * 开始计时
+         * @author 	 linyisonger
+         * @date 	 2025-01-14
+         */
+        function startTime() {
+            if (intervalId) return;
+            intervalId = setInterval(() => {
+                time++;
+                drawNums(timeCtx, String(time).padStart(3, '0'))
+            }, 1000);
+        }
+
+        /**
+         * 停止计时
+         * @author 	 linyisonger
+         * @date 	 2025-01-14
+         */
+        function stopTime() {
+            clearInterval(intervalId)
+            intervalId = null
+        }
+
+        /**
+         * 更新表情
+         * @author 	 linyisonger
+         * @date 	 2025-01-14
+         */
+        function updEmote(type) {
+            emoteDom.setAttribute("src", toolAssetConfig[type].src)
         }
 
         function mousedownFunc(e) {
@@ -340,11 +446,26 @@
             drawGrids()
         }
 
-        async function init() {
-            await loadAssetConfig()
+        function initTool() {
+            time = 0;
+            flag = gameConfig.bomb;
+            drawNums(timeCtx, String(time).padStart(3, '0'))
+            drawNums(countCtx, String(flag).padStart(3, '0'))
+            updEmote(EMOTE_TYPE.SMILE)
+        }
+
+        function emoteClick() {
             initMap();
+            initTool();
             drawGrids();
             gridCanvas.addEventListener("mousedown", mousedownFunc)
+        }
+
+
+        async function init() {
+            await loadAssetConfig()
+            emoteDom.addEventListener('click', emoteClick)
+            emoteClick();
         }
         init();
 
