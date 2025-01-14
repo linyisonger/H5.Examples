@@ -103,7 +103,7 @@
         const gameConfig = {
             rows: 9,
             cols: 9,
-            bomb: 10,
+            bomb: 5,
         }
 
         const assetConfig = {
@@ -206,10 +206,12 @@
          * @date 	 2025-01-14
          */
         function checkOver() {
-            let count = grids.filter(g => g.state != GRID_STATE.NONE).length
+            let count = grids.filter(g => [GRID_STATE.BLOCK, GRID_STATE.FLAG].includes(g.state)).length
+            console.log(count);
             // 游戏胜利 ✌
             if (count == gameConfig.bomb) {
-
+                bombs.forEach(b => b.state = GRID_STATE.FLAG)
+                console.log('you win');
             }
         }
 
@@ -257,7 +259,7 @@
             let grid = map[y][x]
             if (grid.state == GRID_STATE.FLAG) grid.state = GRID_STATE.BLOCK;
             else if (grid.type == GRID_TYPE.BLOCKED) blockedExpansion(grid)
-            else if (grid.type == GRID_TYPE.BOMB) bombed(grid)
+            else if (grid.type == GRID_TYPE.BOMB) return bombed(grid)
             else grid.state = GRID_STATE.NONE;
             checkOver();
         }
