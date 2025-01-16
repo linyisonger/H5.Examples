@@ -6,6 +6,57 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./assets/global.css">
+
+    <style>
+        .turtle-blind-box {
+            position: relative;
+            display: flex;
+            width: 400px;
+            height: 400px;
+        }
+
+        .turtle-grid {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: grid;
+            border-left: 2px solid #666;
+            border-top: 2px solid #666;
+            grid-template-columns: repeat(3, calc(100% / 3));
+            grid-template-rows: repeat(3, calc(100% / 3));
+        }
+
+        .turtle-grid-item {
+            border-right: 2px solid #666;
+            border-bottom: 2px solid #666;
+            counter-increment: item-counter;
+            position: relative;
+        }
+
+        .turtle-grid-item img {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .turtle-grid-item::after {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            color: #000;
+            font-size: 40px;
+            content: counter(item-counter);
+        }
+    </style>
 </head>
 
 <body>
@@ -21,7 +72,17 @@
     -->
 
     <div class="turtle-blind-box">
-
+        <div class="turtle-grid">
+            <div class="turtle-grid-item"></div>
+            <div class="turtle-grid-item"></div>
+            <div class="turtle-grid-item"></div>
+            <div class="turtle-grid-item"></div>
+            <div class="turtle-grid-item"></div>
+            <div class="turtle-grid-item"></div>
+            <div class="turtle-grid-item"></div>
+            <div class="turtle-grid-item"></div>
+            <div class="turtle-grid-item"></div>
+        </div>
 
         <!-- 开始面板 -->
         <div class="start-panel">
@@ -41,6 +102,10 @@
 
 
     <script type="module">
+
+        import { Randoms } from "https://gcore.jsdelivr.net/npm/@3r/tool/lib/randoms.js";
+
+
         /**
          * 初始化平面数组
          * @author 	 linyisonger
@@ -65,15 +130,59 @@
             return level1
         }
 
-        let map = createFlatArray(3, 3)
+        // 红色、黄色、紫色、橙色、绿色、青色、粉色、蓝色、咖色和玫红色‌
+        const TURTLE_COLOR = {
+            NONE: '',
+            RED: 'red',
+            YELLOW: 'yellow',
+            PURPLE: 'purple',
+            ORANGE: 'orange',
+            GREEN: 'green',
+            CYAN: 'cyan',
+            PINK: 'pink',
+            BLUE: 'blue',
+            BROWN: 'brown',
+            ROSE: "rose"
+        }
 
+        class Turtle {
+            x = 0;
+            y = 0;
+            color = TURTLE_COLOR.NONE;
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+            }
+        }
+
+        const assetConfig = {
+            'red': './assets/turtle/red.png',
+            'yellow': './assets/turtle/yellow.png',
+            'purple': './assets/turtle/purple.png',
+            'orange': './assets/turtle/orange.png',
+            'green': './assets/turtle/green.png',
+            'cyan': './assets/turtle/cyan.png',
+            'pink': './assets/turtle/pink.png',
+            'blue': './assets/turtle/blue.png',
+            'brown': './assets/turtle/brown.png',
+            "rose": './assets/turtle/rose.png',
+        }
+
+
+        let map = createFlatArray(3, 3, (x, y) => new Turtle(x, y)) // 地图
+        let colors = Object.keys(assetConfig) // 颜色
+        let turtles = map.flat(2) // 所有乌龟
+        let turtlesDom = document.querySelectorAll('.turtle-grid-item') // 九宫格
+        let luckyColor = colors[1]; // 幸运色
+        let buyCount = 20;  // 购买数量
+        let unpackCount = 0; // 拆开数量
         /**
          * 相同的
          * @author 	 linyisonger
          * @date 	 2025-01-16
          */
         function same(self, target) {
-            return map[self.y][self.x] == map[target.y][target.x]
+            return map[self.y][self.x].color == map[target.y][target.x].color
         }
 
         /**
@@ -146,6 +255,48 @@
             return sameArray;
         }
 
+
+        /**
+         * 拆盲盒
+         * @author 	 linyisonger
+         * @date 	 2025-01-16
+         */
+        function unpack() {
+            // 颜色
+            let color = colors[Randoms.int(0, colors.length)]
+            // 幸运色
+
+            // 第一
+            let turtleIndex = turtles.findIndex(t => t.color == TURTLE_COLOR.NONE);
+            // 结束
+            if (buyCount == unpackCount) {
+                
+            }
+            // 摆放
+            else if (turtleIndex > -1) {
+                turtles[turtleIndex].color = color;
+                // 新建IMG
+                let imgDom = document.createElement('img')
+                imgDom.src = assetConfig[color]
+                turtlesDom.item(turtleIndex).appendChild(imgDom)
+                unpackCount++;
+                unpack();
+
+            }
+            // 结算
+            else {
+                // 九不同
+
+                // 三连
+                isTriplet();
+                // 二连
+                isTwin();
+                // 清台
+            }
+        }
+
+
+        unpack()
 
 
         console.log(isTwin());
