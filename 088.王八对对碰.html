@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./assets/global.css">
+</head>
+
+<body>
+    <!-- 
+        规则    
+
+        共有10种颜色的乌龟，出现概率均等（各占总数的1/10），每次完全随机抽取，“买家”可以“许愿”一种幸运颜色，初始指定乌龟总数，依次放入1-9号格，放满后开始结算。
+        触发幸运色：每拆出1只幸运色乌龟，立刻加赠1只；
+        对对碰：2个同色格，一起拿走，加赠1只； ✔
+        三连位：同一直线上（横、竖、对角线）3个同色格，一起拿走，加赠5只； ✔
+        全不同：9个格子颜色全不同，一起拿走，加赠10只。 
+        清台: +5
+    -->
+
+    <script type="module">
+        /**
+         * 初始化平面数组
+         * @author 	 linyisonger
+         * @date 	 2025-01-13
+         * 
+         * @template T
+         * @param {number} rows
+         * @param {number} cols
+         * @param {T|(x,y)=>T} init 
+         * 
+         * @return {T[][]}
+         */
+        function createFlatArray(rows, cols, init = 0) {
+            let level1 = []
+            for (let y = 0; y < cols; y++) {
+                let level2 = [];
+                for (let x = 0; x < rows; x++) {
+                    level2[x] = typeof init == "function" ? init(x, y) : init;
+                }
+                level1[y] = level2
+            }
+            return level1
+        }
+
+        let map = createFlatArray(3, 3)
+
+        /**
+         * 相同的
+         * @author 	 linyisonger
+         * @date 	 2025-01-16
+         */
+        function same(self, target) {
+            return map[self.y][self.x] == map[target.y][target.x]
+        }
+
+        /**
+         * 二连判断
+         * @author 	 linyisonger
+         * @date 	 2025-01-16
+         */
+        function isTwin() {
+            let sameList = []
+            // 横向
+            for (let x = 0; x < 2; x++) {
+                for (let y = 0; y < 3; y++) {
+                    let sameArray = isSameMatch({ x, y }, { x: 1, y: 0 }, 1)
+                    sameArray.length && sameList.push(sameArray)
+                }
+            }
+            // 纵向
+            for (let y = 0; y < 2; y++) {
+                for (let x = 0; x < 3; x++) {
+                    let sameArray = isSameMatch({ x, y }, { x: 0, y: 1 }, 1)
+                    sameArray.length && sameList.push(sameArray)
+                }
+            }
+            return sameList;
+        }
+
+        /**
+         * 三连判断
+         * @author 	 linyisonger
+         * @date 	 2025-01-16
+         */
+        function isTriplet() {
+            let sameList = []
+            // 横向
+            for (let i = 0; i < 3; i++) {
+                let sameArray = isSameMatch({ x: 0, y: i }, { x: 1, y: 0 })
+                sameArray.length && sameList.push(sameArray)
+            }
+            // 纵向
+            for (let i = 0; i < 3; i++) {
+                let sameArray = isSameMatch({ x: i, y: 0 }, { x: 0, y: 1 })
+                sameArray.length && sameList.push(sameArray)
+            }
+            // 对角线 - 左上 右下
+            {
+                let sameArray = isSameMatch({ x: 0, y: 0 }, { x: 1, y: 1 })
+                sameArray.length && sameList.push(sameArray)
+            }
+            // 对角线 - 右上 左下
+            {
+                let sameArray = isSameMatch({ x: 2, y: 0 }, { x: -1, y: 1 })
+                sameArray.length && sameList.push(sameArray)
+            }
+            return sameList;
+        }
+
+        /**
+         * 是否相同位置匹配
+         * @author 	 linyisonger
+         * @date 	 2025-01-16
+         */
+        function isSameMatch(start, direction, count = 2) {
+            let sameArray = [start]
+            for (let i = 0; i < count; i++) {
+                let last = sameArray[sameArray.length - 1]
+                let target = { x: last.x + direction.x, y: last.y + direction.y }
+                if (!same(last, target)) return []
+                sameArray.push(target)
+            }
+            return sameArray;
+        }
+
+
+
+        console.log(isTwin());
+
+    </script>
+
+
+</body>
+
+</html>
