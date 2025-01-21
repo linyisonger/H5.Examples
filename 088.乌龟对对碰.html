@@ -84,6 +84,9 @@
             <div class="turtle-grid-item"></div>
         </div>
 
+        <!-- 连线特效 Canvas -->
+        <!-- 文字特效 Css -->
+
         <!-- 开始面板 -->
         <div class="start-panel">
             <!-- 选择颜色 -->
@@ -176,6 +179,7 @@
         let luckyColor = colors[1]; // 幸运色
         let buyCount = 20;  // 购买数量
         let unpackCount = 0; // 拆开数量
+
         /**
          * 相同的
          * @author 	 linyisonger
@@ -270,7 +274,7 @@
             let turtleIndex = turtles.findIndex(t => t.color == TURTLE_COLOR.NONE);
             // 结束
             if (buyCount == unpackCount) {
-                
+
             }
             // 摆放
             else if (turtleIndex > -1) {
@@ -285,12 +289,15 @@
             }
             // 结算
             else {
+
                 // 九不同
 
                 // 三连
                 isTriplet();
                 // 二连
                 isTwin();
+
+
                 // 清台
             }
         }
