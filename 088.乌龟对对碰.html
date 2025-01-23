@@ -8,11 +8,105 @@
     <link rel="stylesheet" href="./assets/global.css">
 
     <style>
-        .turtle-blind-box {
-            position: relative;
+        .game-container {
             display: flex;
+        }
+
+        .turtle-blind-box,
+        .info-panel {
+            position: relative;
+            display: inline-flex;
             width: 400px;
             height: 400px;
+        }
+
+        .info-panel {
+            flex-direction: column;
+        }
+
+        .info-panel .form {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            border: 2px solid #666;
+            border-left: 0;
+            padding-bottom: 4px;
+            box-sizing: border-box;
+        }
+
+        .info-panel .form-item {
+            display: flex;
+            padding-left: 40px;
+        }
+
+        .info-panel .form-item__label {
+            width: 80px
+        }
+
+        .info-panel select {
+            width: 80px;
+            border-color: #666;
+            outline: none;
+        }
+
+        .info-panel .start-btn {
+            width: 80px;
+            position: absolute;
+            top: 8px;
+            right: 40px;
+            background-color: #3a77fc;
+            height: 36px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .info-panel .start-btn:active {
+            opacity: .6;
+        }
+
+        .info-panel .history {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            border: 2px solid #666;
+            height: calc(100% - 48px);
+            box-sizing: border-box;
+            border-left: 0;
+            border-top: 0;
+            overflow-y: auto;
+        }
+
+        .info-panel .history-item {
+            display: flex;
+            flex-direction: column;
+            border-bottom: 1px solid #666;
+        }
+
+        .info-panel .history-item .base-info {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+        }
+
+        .info-panel .turtle-info {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 10px;
+        }
+
+        .info-panel .turtle-info img {
+            width: 20px;
+        }
+
+        .info-panel .turtle-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
         }
 
         .turtle-grid {
@@ -24,12 +118,14 @@
             border-top: 2px solid #666;
             grid-template-columns: repeat(3, calc(100% / 3));
             grid-template-rows: repeat(3, calc(100% / 3));
+            box-sizing: border-box;
         }
 
         .turtle-grid-item {
             border-right: 2px solid #666;
             border-bottom: 2px solid #666;
             counter-increment: item-counter;
+            box-sizing: border-box;
             position: relative;
         }
 
@@ -108,47 +204,70 @@
         三连位：同一直线上（横、竖、对角线）3个同色格，一起拿走，加赠3只； ✔
         清台: +5
     -->
+    <div class="game-container">
+        <div class="turtle-blind-box">
+            <div class="turtle-grid">
+                <div class="turtle-grid-item"></div>
+                <div class="turtle-grid-item"></div>
+                <div class="turtle-grid-item"></div>
+                <div class="turtle-grid-item"></div>
+                <div class="turtle-grid-item"></div>
+                <div class="turtle-grid-item"></div>
+                <div class="turtle-grid-item"></div>
+                <div class="turtle-grid-item"></div>
+                <div class="turtle-grid-item"></div>
+            </div>
 
-    <div class="turtle-blind-box">
-        <div class="turtle-grid">
-            <div class="turtle-grid-item"></div>
-            <div class="turtle-grid-item"></div>
-            <div class="turtle-grid-item"></div>
-            <div class="turtle-grid-item"></div>
-            <div class="turtle-grid-item"></div>
-            <div class="turtle-grid-item"></div>
-            <div class="turtle-grid-item"></div>
-            <div class="turtle-grid-item"></div>
-            <div class="turtle-grid-item"></div>
+            <!-- 连线特效 Canvas -->
+            <canvas id="special-effects"></canvas>
+
+            <!-- 文字特效 Css -->
+
+            <div class="text-effects">
+                <div class="text-effects-title">三连位</div>
+                <div class="text-effects-subtitle">加赠3只</div>
+            </div>
         </div>
 
-        <!-- 连线特效 Canvas -->
-        <canvas id="special-effects"></canvas>
+        <!-- 信心面板 -->
+        <div class="info-panel">
+            <div class="form">
+                <!-- 选择颜色 -->
+                <div class="form-item">
+                    <div class="form-item__label">幸运色</div>
+                    <div class="form-item__value">
+                        <select id="selectLuckyColor">
+                            <option value="red">红色</option>
+                            <option value="yellow">黄色</option>
+                            <option value="purple">紫色</option>
+                            <option value="orange">橙色</option>
+                            <option value="green">绿色</option>
+                            <option value="cyan">青色</option>
+                            <option value="pink">粉色</option>
+                            <option value="blue">蓝色</option>
+                            <option value="brown">咖色</option>
+                            <option value="rose">玫红色‌</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-item">
+                    <div class="form-item__label">数量</div>
+                    <div class="form-item__value">
+                        <select id="selectBuyCount">
+                            <option value="10">10包</option>
+                            <option value="20">20包</option>
+                            <option value="30">30包</option>
+                            <option value="40">40包</option>
+                            <option value="50">50包</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="start-btn">开始</div>
+            </div>
 
-        <!-- 文字特效 Css -->
-
-        <div class="text-effects">
-            <div class="text-effects-title">三连位</div>
-            <div class="text-effects-subtitle">加赠3只</div>
+            <div class="history"></div>
         </div>
-
-
-        <!-- 开始面板 -->
-        <div class="start-panel">
-            <!-- 选择颜色 -->
-
-            <!-- 许愿色  -->
-
-            <!-- 选择数量 -->
-
-            <!-- 10包  30包  50包 -->
-
-            <!-- 开始 -->
-        </div>
-
     </div>
-
-
 
     <script type="module">
 
@@ -206,6 +325,21 @@
             ROSE: "rose"
         }
 
+
+        const TURTLE_COLOR_ZH = {
+            red: '红色',
+            yellow: '黄色',
+            purple: '紫色',
+            orange: '橙色',
+            green: '绿色',
+            cyan: '青色',
+            pink: '粉色',
+            blue: '蓝色',
+            brown: '咖色',
+            rose: '玫红色‌',
+        }
+
+
         class Turtle {
             x = 0;
             y = 0;
@@ -213,6 +347,10 @@
             constructor(x, y) {
                 this.x = x;
                 this.y = y;
+            }
+
+            clear() {
+                turtlesDom.item(this.x + this.y * 3).innerHTML = ''
             }
         }
 
@@ -235,9 +373,11 @@
         let turtles = map.flat(2) // 所有乌龟
         let turtlesDom = document.querySelectorAll('.turtle-grid-item') // 九宫格
         let luckyColor = colors[1]; // 幸运色
-        let buyCount = 20;  // 购买数量
+        let buyCount = 10;  // 购买数量
+        let totalCount = buyCount; // 总数量
         let unpackCount = 0; // 拆开数量
-
+        let turtleCount = {} // 不同颜色的乌龟数量
+        let history = []
         /**
          * 相同的
          * @author 	 linyisonger
@@ -353,13 +493,8 @@
             let color = colors[Randoms.int(0, colors.length)]
             // 第一
             let turtleIndex = turtles.findIndex(t => t.color == TURTLE_COLOR.NONE);
-
-
-            console.log(buyCount, unpackCount);
-
             // 摆放
-            if (turtleIndex > -1 && buyCount != unpackCount) {
-
+            if (turtleIndex > -1 && totalCount != unpackCount) {
                 turtles[turtleIndex].color = color;
                 // 新建IMG
                 let imgDom = document.createElement('img')
@@ -367,6 +502,7 @@
                 turtlesDom.item(turtleIndex).appendChild(imgDom)
                 await isLuckyColor(turtles[turtleIndex])
                 unpackCount++;
+                turtleCount[color] = (turtleCount[color] || 0) + 1
                 await unpack();
             }
             // 结算
@@ -382,8 +518,12 @@
                 await isCleanUp()
 
                 // 结束
-                if (buyCount == unpackCount) {
-                    console.log('结束');
+                if (totalCount == unpackCount) {
+                    turtles.forEach((t) => {
+                        t.color = TURTLE_COLOR.NONE
+                        t.clear()
+                    })
+                    addHistory()
                 }
                 else {
                     await unpack();
@@ -431,15 +571,12 @@
             ctx.lineWidth = lw;
             for (let i = 0; i < link.length; i++) {
                 const item = link[i];
-                ctx.rect(item.x * gw + lw / 2 + 1, item.y * gh + lw / 2 + 1, gw - lw, gh - lw)
+                ctx.rect(item.x * gw + lw / 2, item.y * gh + lw / 2, gw - lw, gh - lw)
             }
             ctx.stroke()
 
             setTimeout(() => {
-                if (link.length > 1) { // 非幸运色
-                    let doms = document.querySelectorAll('.turtle-grid-item')
-                    link.forEach(item => doms[item.x + item.y * 3].innerHTML = '')
-                }
+                if (link.length > 1) link.forEach(item => map[item.y][item.x].clear())
                 ctx.clearRect(0, 0, width, height)
             }, 1500);
         }
@@ -463,22 +600,22 @@
             if (link.length === 3) {
                 titleDom.textContent = '三连位'
                 subtitleDom.textContent = '加赠3只'
-                buyCount += 3;
+                totalCount += 3;
             }
             else if (link.length === 2) {
                 titleDom.textContent = '对对碰'
                 subtitleDom.textContent = '加赠1只'
-                buyCount += 1;
+                totalCount += 1;
             }
             else if (link.length === 0) {
                 titleDom.textContent = '清台'
                 subtitleDom.textContent = '加赠5只'
-                buyCount += 5;
+                totalCount += 5;
             }
             else if (link.length === 1) {
                 titleDom.textContent = '幸运色'
                 subtitleDom.textContent = '加赠1只'
-                buyCount += 1;
+                totalCount += 1;
             }
             dom.classList.add('show')
 
@@ -486,7 +623,59 @@
                 dom.classList.remove('show')
             }, 1500)
         }
-        unpack()
+
+
+
+        /**
+         * 追加历史记录
+         * @author 	 linyisonger
+         * @date 	 2025-01-24
+         */
+        function addHistory() {
+            let his = {
+                num: history.length + 1,
+                luckyColor,
+                buyCount,
+                totalCount,
+                turtleCount,
+            }
+            history.push(his)
+            let historyDom = document.querySelector('.info-panel .history')
+
+            let turtleItemStr = ``;
+
+            for (const key in turtleCount) {
+                turtleItemStr += `
+                    <div class="turtle-item">
+                        <img src="./assets/turtle/${key}.png"> × ${turtleCount[key]}
+                    </div> 
+                `
+            }
+
+
+
+            historyDom.innerHTML += `
+                <div class="history-item">
+                    <div class="base-info">
+                        <div class="num">第${his.num}次</div>
+                        <div class="color">幸运色: ${TURTLE_COLOR_ZH[his.luckyColor]}</div>
+                        <div class="buy">购买数量: ${his.buyCount}</div>
+                        <div class="get">获取数量: ${his.totalCount}</div>
+                    </div>
+                    <div class="turtle-info">
+                        ${turtleItemStr}
+                    </div>
+                </div>
+            `
+        }
+
+        document.querySelector('.start-btn').addEventListener("click", () => {
+            luckyColor = document.querySelector('#selectLuckyColor').value
+            buyCount = +document.querySelector('#selectBuyCount').value
+            totalCount = buyCount;
+            unpackCount = 0;
+            unpack()
+        })
 
 
     </script>
