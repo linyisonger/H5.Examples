@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./assets/global.css">
+</head>
+
+<body>
+
+    <script type="module">
+
+        /**
+         * 获取star的用户 默认30一页
+         * @author 	 linyisonger
+         * @date 	 2025-02-18
+         */
+        async function getStargazers(page = 1) {
+            const result = await fetch(`https://api.github.com/repos/linyisonger/H5.Examples/stargazers?page=${page}`)
+            return await result.json()
+        }
+
+        /**
+         * 获取所有star的用户
+         * @author 	 linyisonger
+         * @date 	 2025-02-18
+         */
+        async function getAllStargazers(page = 1, users = []) {
+            let stargazers = await getStargazers(page)
+            users = users.concat(stargazers)
+            if (stargazers.length < 30) return users
+            return await getAllStargazers(page + 1, users)
+        }
+
+        // getAllStargazers().then((res) => {
+        //     console.log("获取star的用户", res);
+        // })
+
+        let dancers = [
+            {
+                "login": "AnChangSu",
+                "id": 5037050,
+                "node_id": "MDQ6VXNlcjUwMzcwNTA=",
+                "avatar_url": "https://avatars.githubusercontent.com/u/5037050?v=4",
+                "gravatar_id": "",
+                "url": "https://api.github.com/users/AnChangSu",
+                "html_url": "https://github.com/AnChangSu",
+                "followers_url": "https://api.github.com/users/AnChangSu/followers",
+                "following_url": "https://api.github.com/users/AnChangSu/following{/other_user}",
+                "gists_url": "https://api.github.com/users/AnChangSu/gists{/gist_id}",
+                "starred_url": "https://api.github.com/users/AnChangSu/starred{/owner}{/repo}",
+                "subscriptions_url": "https://api.github.com/users/AnChangSu/subscriptions",
+                "organizations_url": "https://api.github.com/users/AnChangSu/orgs",
+                "repos_url": "https://api.github.com/users/AnChangSu/repos",
+                "events_url": "https://api.github.com/users/AnChangSu/events{/privacy}",
+                "received_events_url": "https://api.github.com/users/AnChangSu/received_events",
+                "type": "User",
+                "user_view_type": "public",
+                "site_admin": false
+            },
+            {
+                "login": "HGinGitHub",
+                "id": 103415496,
+                "node_id": "U_kgDOBin-yA",
+                "avatar_url": "https://avatars.githubusercontent.com/u/103415496?v=4",
+                "gravatar_id": "",
+                "url": "https://api.github.com/users/HGinGitHub",
+                "html_url": "https://github.com/HGinGitHub",
+                "followers_url": "https://api.github.com/users/HGinGitHub/followers",
+                "following_url": "https://api.github.com/users/HGinGitHub/following{/other_user}",
+                "gists_url": "https://api.github.com/users/HGinGitHub/gists{/gist_id}",
+                "starred_url": "https://api.github.com/users/HGinGitHub/starred{/owner}{/repo}",
+                "subscriptions_url": "https://api.github.com/users/HGinGitHub/subscriptions",
+                "organizations_url": "https://api.github.com/users/HGinGitHub/orgs",
+                "repos_url": "https://api.github.com/users/HGinGitHub/repos",
+                "events_url": "https://api.github.com/users/HGinGitHub/events{/privacy}",
+                "received_events_url": "https://api.github.com/users/HGinGitHub/received_events",
+                "type": "User",
+                "user_view_type": "public",
+                "site_admin": false
+            },
+            {
+                "login": "harris2012",
+                "id": 12846977,
+                "node_id": "MDQ6VXNlcjEyODQ2OTc3",
+                "avatar_url": "https://avatars.githubusercontent.com/u/12846977?v=4",
+                "gravatar_id": "",
+                "url": "https://api.github.com/users/harris2012",
+                "html_url": "https://github.com/harris2012",
+                "followers_url": "https://api.github.com/users/harris2012/followers",
+                "following_url": "https://api.github.com/users/harris2012/following{/other_user}",
+                "gists_url": "https://api.github.com/users/harris2012/gists{/gist_id}",
+                "starred_url": "https://api.github.com/users/harris2012/starred{/owner}{/repo}",
+                "subscriptions_url": "https://api.github.com/users/harris2012/subscriptions",
+                "organizations_url": "https://api.github.com/users/harris2012/orgs",
+                "repos_url": "https://api.github.com/users/harris2012/repos",
+                "events_url": "https://api.github.com/users/harris2012/events{/privacy}",
+                "received_events_url": "https://api.github.com/users/harris2012/received_events",
+                "type": "User",
+                "user_view_type": "public",
+                "site_admin": false
+            },
+            {
+                "login": "Lavenir7",
+                "id": 105573717,
+                "node_id": "U_kgDOBkrtVQ",
+                "avatar_url": "https://avatars.githubusercontent.com/u/105573717?v=4",
+                "gravatar_id": "",
+                "url": "https://api.github.com/users/Lavenir7",
+                "html_url": "https://github.com/Lavenir7",
+                "followers_url": "https://api.github.com/users/Lavenir7/followers",
+                "following_url": "https://api.github.com/users/Lavenir7/following{/other_user}",
+                "gists_url": "https://api.github.com/users/Lavenir7/gists{/gist_id}",
+                "starred_url": "https://api.github.com/users/Lavenir7/starred{/owner}{/repo}",
+                "subscriptions_url": "https://api.github.com/users/Lavenir7/subscriptions",
+                "organizations_url": "https://api.github.com/users/Lavenir7/orgs",
+                "repos_url": "https://api.github.com/users/Lavenir7/repos",
+                "events_url": "https://api.github.com/users/Lavenir7/events{/privacy}",
+                "received_events_url": "https://api.github.com/users/Lavenir7/received_events",
+                "type": "User",
+                "user_view_type": "public",
+                "site_admin": false
+            },
+            {
+                "login": "linyisonger",
+                "id": 34770610,
+                "node_id": "MDQ6VXNlcjM0NzcwNjEw",
+                "avatar_url": "https://avatars.githubusercontent.com/u/34770610?v=4",
+                "gravatar_id": "",
+                "url": "https://api.github.com/users/linyisonger",
+                "html_url": "https://github.com/linyisonger",
+                "followers_url": "https://api.github.com/users/linyisonger/followers",
+                "following_url": "https://api.github.com/users/linyisonger/following{/other_user}",
+                "gists_url": "https://api.github.com/users/linyisonger/gists{/gist_id}",
+                "starred_url": "https://api.github.com/users/linyisonger/starred{/owner}{/repo}",
+                "subscriptions_url": "https://api.github.com/users/linyisonger/subscriptions",
+                "organizations_url": "https://api.github.com/users/linyisonger/orgs",
+                "repos_url": "https://api.github.com/users/linyisonger/repos",
+                "events_url": "https://api.github.com/users/linyisonger/events{/privacy}",
+                "received_events_url": "https://api.github.com/users/linyisonger/received_events",
+                "type": "User",
+                "user_view_type": "public",
+                "site_admin": false
+            },
+            {
+                "login": "lpleipeng",
+                "id": 39250004,
+                "node_id": "MDQ6VXNlcjM5MjUwMDA0",
+                "avatar_url": "https://avatars.githubusercontent.com/u/39250004?v=4",
+                "gravatar_id": "",
+                "url": "https://api.github.com/users/lpleipeng",
+                "html_url": "https://github.com/lpleipeng",
+                "followers_url": "https://api.github.com/users/lpleipeng/followers",
+                "following_url": "https://api.github.com/users/lpleipeng/following{/other_user}",
+                "gists_url": "https://api.github.com/users/lpleipeng/gists{/gist_id}",
+                "starred_url": "https://api.github.com/users/lpleipeng/starred{/owner}{/repo}",
+                "subscriptions_url": "https://api.github.com/users/lpleipeng/subscriptions",
+                "organizations_url": "https://api.github.com/users/lpleipeng/orgs",
+                "repos_url": "https://api.github.com/users/lpleipeng/repos",
+                "events_url": "https://api.github.com/users/lpleipeng/events{/privacy}",
+                "received_events_url": "https://api.github.com/users/lpleipeng/received_events",
+                "type": "User",
+                "user_view_type": "public",
+                "site_admin": false
+            },
+            {
+                "login": "xxxggg-ctrl",
+                "id": 63829555,
+                "node_id": "MDQ6VXNlcjYzODI5NTU1",
+                "avatar_url": "https://avatars.githubusercontent.com/u/63829555?v=4",
+                "gravatar_id": "",
+                "url": "https://api.github.com/users/xxxggg-ctrl",
+                "html_url": "https://github.com/xxxggg-ctrl",
+                "followers_url": "https://api.github.com/users/xxxggg-ctrl/followers",
+                "following_url": "https://api.github.com/users/xxxggg-ctrl/following{/other_user}",
+                "gists_url": "https://api.github.com/users/xxxggg-ctrl/gists{/gist_id}",
+                "starred_url": "https://api.github.com/users/xxxggg-ctrl/starred{/owner}{/repo}",
+                "subscriptions_url": "https://api.github.com/users/xxxggg-ctrl/subscriptions",
+                "organizations_url": "https://api.github.com/users/xxxggg-ctrl/orgs",
+                "repos_url": "https://api.github.com/users/xxxggg-ctrl/repos",
+                "events_url": "https://api.github.com/users/xxxggg-ctrl/events{/privacy}",
+                "received_events_url": "https://api.github.com/users/xxxggg-ctrl/received_events",
+                "type": "User",
+                "user_view_type": "public",
+                "site_admin": false
+            }
+        ]
+            
+
+
+
+    </script>
+
+</body>
+
+</html>
