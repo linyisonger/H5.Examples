@@ -86,5 +86,7 @@
 086.扫雷.html
 087.新建窗口大小.html
 088.乌龟对对碰.html
+089.看星星的舞者.html
+090.火柴人生成器.html
 blog.html
 index.html

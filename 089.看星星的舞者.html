@@ -6,249 +6,108 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./assets/global.css">
+
+    <style>
+        #container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            height: 100vh;
+            align-content: center;
+            position: relative;
+        }
+
+        #container canvas {
+            margin-top: -140px
+        }
+
+        .welcome-statement {
+            position: absolute;
+            top: 100px;
+            font-size: 40px;
+            color: #999;
+        }
+
+        .join-us {
+            position: absolute;
+            bottom: 200px;
+            z-index: 100;
+            display: inline-flex;
+            padding: 0 20px 3px;
+            line-height: 40px;
+            background: linear-gradient(to bottom, rgb(87, 196, 245), rgb(26, 147, 206));
+            color: rgb(254, 252, 255);
+            cursor: pointer;
+            border-radius: 4px;
+            font-weight: bold;
+            box-shadow: inset 0px -3px 0 rgb(19, 98, 139);
+        }
+
+        .join-us:active {
+            opacity: .7;
+            box-shadow: inset 0px 0px 0 transparent;
+        }
+
+        .bgm-controller {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            width: 40px;
+        }
+
+        .bgm-controller:active {
+            opacity: .7;
+        }
+    </style>
 </head>
 
 <body>
-    <div id="container"></div>
-    <script type="importmap">
-        {
-          "imports": {
-            "three": "https://gcore.jsdelivr.net/npm/three/build/three.module.js",
-            "three/addons/": "https://gcore.jsdelivr.net/npm/three/examples/jsm/"
-          }
-        }
-    </script>
+    <div id="container">
+        <!-- <audio class="bgm" muted="true">
+            <source src="./assets/dance/swing-dance.mp3" />
+        </audio> -->
+        <video class="bgm" muted style="display: none;">
+            <source src="./assets/dance/kemusan.mp4" />
+        </video>
+
+
+        <div class="welcome-statement">感谢各位给 H5.Examples 点⭐⭐~</div>
+
+        <a class="join-us" href="https://github.com/linyisonger/H5.Examples">
+            加入我们
+        </a>
+
+
+        <img class="bgm-controller" src="./assets/dance/bgm-c.png">
+
+    </div>
     <script type="module">
-        import * as THREE from "three";
-        import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
-
-
-        import { Octree } from "three/addons/math/Octree.js";
-        import { OctreeHelper } from "three/addons/helpers/OctreeHelper.js";
-        import { Capsule } from "three/addons/math/Capsule.js";
-        import { GUI } from "three/addons/libs/lil-gui.module.min.js";
-
-        const clock = new THREE.Clock();
-        const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x88ccee);
-        scene.fog = new THREE.Fog(0x88ccee, 0, 50);
-        const camera = new THREE.PerspectiveCamera(
-            70,
-            window.innerWidth / window.innerHeight,
-            0.1,
-            1000
-        );
-        camera.rotation.order = "YXZ";
-
-
-
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 2.5);
-        directionalLight.position.set(-5, 25, -1);
-        directionalLight.castShadow = true;
-        directionalLight.shadow.camera.near = 0.01;
-        directionalLight.shadow.camera.far = 500;
-        directionalLight.shadow.camera.right = 30;
-        directionalLight.shadow.camera.left = -30;
-        directionalLight.shadow.camera.top = 30;
-        directionalLight.shadow.camera.bottom = -30;
-        directionalLight.shadow.mapSize.width = 1024;
-        directionalLight.shadow.mapSize.height = 1024;
-        directionalLight.shadow.radius = 4;
-        directionalLight.shadow.bias = -0.00006;
-        scene.add(directionalLight);
-
-        const container = document.getElementById("container");
-
-        const renderer = new THREE.WebGLRenderer({ antialias: true });
-        renderer.setPixelRatio(window.devicePixelRatio);
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.shadowMap.enabled = true;
-        renderer.shadowMap.type = THREE.VSMShadowMap;
-        renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        container.appendChild(renderer.domElement);
-
-        const GRAVITY = 30;
-        const SPHERE_RADIUS = 0.2;
-        const STEPS_PER_FRAME = 5;
-        const worldOctree = new Octree();
-        const playerBornPoint = { x: -2, z: -2 };
-        const playerCollider = new Capsule(
-            new THREE.Vector3(playerBornPoint.x, 0.35, playerBornPoint.z),
-            new THREE.Vector3(playerBornPoint.x, 1.8, playerBornPoint.z),
-            0.35
-        );
-        const playerVelocity = new THREE.Vector3();
-        const playerDirection = new THREE.Vector3();
-
-        let playerOnFloor = false;
-
-        const keyStates = {};
-
-        document.addEventListener("keydown", (event) => {
-            keyStates[event.code] = true;
-        });
-
-        document.addEventListener("keyup", (event) => {
-            keyStates[event.code] = false;
-        });
-
-        container.addEventListener("mousedown", () => {
-            document.body.requestPointerLock();
-        });
-
-        document.body.addEventListener("mousemove", (event) => {
-            if (document.pointerLockElement === document.body) {
-                camera.rotation.y -= event.movementX / 500;
-                camera.rotation.x -= event.movementY / 500;
-            }
-        });
-
-        window.addEventListener("resize", onWindowResize);
-
-        function onWindowResize() {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        }
-
-        function playerCollisions() {
-            const result = worldOctree.capsuleIntersect(playerCollider);
-
-            playerOnFloor = false;
-
-            if (result) {
-                playerOnFloor = result.normal.y > 0;
-
-                if (!playerOnFloor) {
-                    playerVelocity.addScaledVector(
-                        result.normal,
-                        -result.normal.dot(playerVelocity)
-                    );
+        /**
+         * 加载图
+         * @param {string} src
+         * @returns {Promise<HTMLImageElement>}
+         */
+        function loadImage(src) {
+            return new Promise((resolve) => {
+                let image = new Image()
+                image.src = src;
+                image.onload = (ev) => {
+                    resolve(image)
                 }
-
-                playerCollider.translate(result.normal.multiplyScalar(result.depth));
-            }
+            })
         }
 
-        function updatePlayer(deltaTime) {
-            let damping = Math.exp(-4 * deltaTime) - 1;
-
-            if (!playerOnFloor) {
-                playerVelocity.y -= GRAVITY * deltaTime;
-
-                // small air resistance
-                damping *= 0.1;
-            }
-
-            playerVelocity.addScaledVector(playerVelocity, damping);
-
-            const deltaPosition = playerVelocity.clone().multiplyScalar(deltaTime);
-            playerCollider.translate(deltaPosition);
-
-            playerCollisions();
-
-            camera.position.copy(playerCollider.end);
-        }
-
-        function getForwardVector() {
-            camera.getWorldDirection(playerDirection);
-            playerDirection.y = 0;
-            playerDirection.normalize();
-
-            return playerDirection;
-        }
-
-        function getSideVector() {
-            camera.getWorldDirection(playerDirection);
-            playerDirection.y = 0;
-            playerDirection.normalize();
-            playerDirection.cross(camera.up);
-
-            return playerDirection;
-        }
-
-        function controls(deltaTime) {
-            // gives a bit of air control
-            const speedDelta = deltaTime * (playerOnFloor ? 25 : 8);
-
-            if (keyStates["KeyW"]) {
-                playerVelocity.add(getForwardVector().multiplyScalar(speedDelta));
-            }
-
-            if (keyStates["KeyS"]) {
-                playerVelocity.add(getForwardVector().multiplyScalar(-speedDelta));
-            }
-
-            if (keyStates["KeyA"]) {
-                playerVelocity.add(getSideVector().multiplyScalar(-speedDelta));
-            }
-
-            if (keyStates["KeyD"]) {
-                playerVelocity.add(getSideVector().multiplyScalar(speedDelta));
-            }
-
-            if (playerOnFloor) {
-                if (keyStates["Space"]) {
-                    playerVelocity.y = 10;
-                }
-            }
-        }
-
-
-        const loader = new GLTFLoader().setPath("./assets/exhibition-hall/");
-        loader.load("平面.glb", (gltf) => {
-            scene.add(gltf.scene);
-
-            worldOctree.fromGraphNode(gltf.scene);
-            const helper = new OctreeHelper(worldOctree);
-            helper.visible = false;
-            scene.add(helper);
-            animate();
-        });
-        loader.load(
-            "简单的人物.glb",
-            (gltf) => {
-                gltf.scene.scale.set(0.025, 0.025, 0.025);
-                scene.add(gltf.scene);
-                worldOctree.fromGraphNode(gltf.scene);
-            },
-            function (xhr) {
-                console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
-            },
-            // called when loading has errors
-            function (error) {
-                console.log("An error happened", error);
-            }
-        );
-
-        function teleportPlayerIfOob() {
-            if (camera.position.y <= -25) {
-                playerCollider.start.set(0, 0.35, 0);
-                playerCollider.end.set(0, 1, 0);
-                playerCollider.radius = 0.35;
-                camera.position.copy(playerCollider.end);
-                camera.rotation.set(0, 0, 0);
-            }
-        }
-
-        function animate() {
-            const deltaTime = Math.min(0.05, clock.getDelta()) / STEPS_PER_FRAME;
-
-            // we look for collisions in substeps to mitigate the risk of
-            // an object traversing another too quickly for detection.
-
-            for (let i = 0; i < STEPS_PER_FRAME; i++) {
-                controls(deltaTime);
-
-                updatePlayer(deltaTime);
-
-                teleportPlayerIfOob();
-            }
-
-            renderer.render(scene, camera);
-
-            requestAnimationFrame(animate);
+        /**
+         * 加载音乐
+         * @param {string} src
+         * @returns {Promise<HTMLImageElement>}
+         */
+        function loadAudio(src) {
+            return new Promise((resolve) => {
+                let audio = new Audio(src)
+                audio.addEventListener("loadeddata", resolve)
+            })
         }
 
         /**
@@ -272,6 +131,8 @@
             if (stargazers.length < 30) return users
             return await getAllStargazers(page + 1, users)
         }
+
+
 
         // getAllStargazers().then((res) => {
         //     console.log("获取star的用户", res);
@@ -427,7 +288,98 @@
             }
         ]
 
-        // 3D Three 2D Avatar 贴图
+
+        let bgmControllerDom = document.querySelector('.bgm-controller')
+        bgmControllerDom.addEventListener("click", () => {
+            const bgm = document.body.querySelector('.bgm')
+            bgm.muted = !bgm.muted;
+            bgmControllerDom.setAttribute('src', bgm.muted ? './assets/dance/bgm-c.png' : './assets/dance/bgm-o.png')
+        })
+
+        // 2D火柴人 贴图
+
+        function fetchLoad(url) {
+            return new Promise((resolve) => {
+                fetch(url).then((response) => response.json()).then(resolve)
+            })
+        }
+
+        async function initGame() {
+            dancers = await getAllStargazers()
+            let dance = await fetchLoad("./assets/dance/kemusan.json")
+            const DROP_FRAME = 5 // 抽帧
+            const ZOOM_OUT = .5
+            // 检查动作信息
+            // for (let i = 0; i < dance.frames.length; i++) {
+            //     console.log(i);
+            //     const frame = dance.frames[i];
+            //     const img = document.createElement('img')
+            //     img.src = frame.url;
+            //     document.body.appendChild(img)
+            // }
+
+            let danceCvsList = []
+            for (let i = 0; i < dancers.length; i++) {
+                const dancer = dancers[i];
+                let danceCvs = await createCanvas(dancer)
+                danceCvsList.push({
+                    dancer,
+                    cvs: danceCvs
+                })
+            }
+
+
+            let i = 0
+            async function animationFrame() {
+                if (i % DROP_FRAME == 0) {
+                    for (let j = 0; j < danceCvsList.length; j++) {
+                        const { cvs, dancer } = danceCvsList[j];
+                        await drawFrame(cvs, dance.frames[(i / DROP_FRAME) % dance.frames.length], dancer.avatar_url)
+                    }
+                }
+                requestAnimationFrame(animationFrame)
+                i++;
+            }
+            await animationFrame()
+
+            document.body.querySelector('.bgm').play()
+            document.body.querySelector('.bgm').loop = true;
+            /**
+             * 创建一个用户
+             * @author 	 linyisonger
+             * @date 	 2025-02-23
+             */
+            function createCanvas(dancer) {
+                let avatarUrl = dancer.avatar_url
+                let cvs = document.createElement("canvas")
+                cvs.setAttribute('width', dance.width)
+                cvs.setAttribute('height', dance.height)
+                cvs.width = dance.width * ZOOM_OUT;
+                cvs.height = dance.height * ZOOM_OUT;
+                document.body.querySelector("#container").appendChild(cvs)
+                return cvs
+            }
+            /**
+             * 渲染一帧
+             * @author 	 linyisonger
+             * @date 	 2025-02-23
+             */
+            async function drawFrame(cvs, frame, avatar) {
+                /** @type {CanvasRenderingContext2D } */
+                let ctx = cvs.getContext('2d')
+                let roleImg = await loadImage(frame.url)
+                let avatarImg = await loadImage(avatar)
+                ctx.clearRect(0, 0, cvs.width, cvs.height)
+                ctx.drawImage(roleImg, 0, 0, cvs.width, cvs.height)
+                let avatarWidth = 40 * ZOOM_OUT
+                ctx.drawImage(avatarImg, (frame.avatar.x * ZOOM_OUT - avatarWidth / 2), (frame.avatar.y * ZOOM_OUT - avatarWidth / 2), avatarWidth, avatarWidth)
+            }
+        }
+
+        initGame()
+
+
+
 
 
 

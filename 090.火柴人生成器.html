@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./assets/global.css">
+
+    <style>
+        .upload-image {
+            display: flex;
+        }
+
+        .upload-image>div {
+            width: 200px;
+        }
+
+        .upload-image img {
+            width: 100%;
+        }
+
+        .upload-video {
+            display: flex;
+        }
+
+        .upload-video .origin {
+            width: 200px;
+        }
+    </style>
+</head>
+
+<body>
+    <script src="https://unpkg.com/@tensorflow/tfjs"></script>
+    <script src="https://unpkg.com/@tensorflow-models/posenet"></script>
+
+    <h1>上传图片生成单个火柴人动作</h1>
+
+    <button class="upload-image-btn">上传图片</button>
+    <div class="upload-image">
+        <div class="origin">
+            <h6>原图</h6>
+            <img class="upload-img">
+        </div>
+        <div class="preview">
+            <h6>预览</h6>
+            <canvas class="preview-cvs">
+        </div>
+    </div>
+
+    <h1>上传视频生成火柴人序列帧</h1>
+
+    <button class="upload-video-btn">上传视频(mp4)</button>
+    <div class="upload-video">
+        <div class="origin">
+            <h6>原图</h6>
+            <canvas class="capture-cvs"></canvas>
+        </div>
+        <div class="preview">
+            <h6>预览</h6>
+            <canvas class="preview-cvs">
+        </div>
+        <div class="output">
+            <h6>输出</h6>
+            <textarea class="output-text" cols="60" rows="10"></textarea>
+            <button class="export-btn">导出</button>
+
+        </div>
+    </div>
+
+
+    <script type="module">
+        import { aspectFit } from "https://gcore.jsdelivr.net/npm/@3r/tool/lib/picture.js";
+
+
+        const DROP_FRAME = 5 // 抽帧
+
+
+        document.querySelector('.upload-image-btn').addEventListener("click", uploadImg)
+        document.querySelector('.upload-video-btn').addEventListener("click", uploadMp4)
+        document.querySelector('.export-btn').addEventListener("click", exportBtn)
+        /**
+         * 加载图
+         * @param {string} src
+         * @returns {Promise<HTMLImageElement>}
+         */
+        function loadImage(src) {
+            return new Promise((resolve) => {
+                let image = new Image()
+                image.src = src;
+                image.onload = (ev) => {
+                    resolve(image)
+                }
+            })
+        }
+
+        /**
+         * 上传图片
+         */
+        function uploadImg() {
+            const fileInput = document.createElement('input');
+            fileInput.setAttribute('type', 'file');
+            fileInput.setAttribute('accept', '*');
+            fileInput.addEventListener('change', async () => {
+                const file = fileInput.files[0];
+                const url = URL.createObjectURL(file)
+                let imageDom = document.querySelector('.upload-image .origin .upload-img')
+                let imageCvs = document.querySelector('.upload-image .preview .preview-cvs')
+                imageDom.src = url
+                await fitCanvas(imageCvs, imageDom)
+                drawStickFigure(imageCvs, imageDom)
+            })
+            fileInput.click()
+        }
+
+        /**
+         * 上传视频
+         */
+        function uploadMp4() {
+            const fileInput = document.createElement('input');
+            fileInput.setAttribute('type', 'file');
+            fileInput.setAttribute('accept', '*');
+            fileInput.addEventListener('change', () => {
+                const file = fileInput.files[0];
+                const url = URL.createObjectURL(file)
+                let videoDom = document.createElement('video')
+                // videoDom.muted = true
+                videoDom.src = url
+                videoDom.setAttribute('preload', 'auto')
+                videoDom.addEventListener('loadedmetadata', _ => {
+                    videoDom.play();
+                })
+
+                let keyframes = []
+
+                videoDom.addEventListener("play", (e) => {
+                    let cvs = document.querySelector('.upload-video .origin .capture-cvs')
+                    fitCanvas(cvs, videoDom)
+                    let i = 0
+                    function drawFrameImg() {
+                        if (videoDom.paused) return;
+                        if (i % DROP_FRAME == 0) {
+                            /** @type {CanvasRenderingContext2D } */
+                            let ctx = cvs.getContext('2d')
+                            ctx.drawImage(videoDom, 0, 0, cvs.width, cvs.height);
+                            const url = cvs.toDataURL('image/png');
+                            keyframes.push({ url })
+                        }
+                        requestAnimationFrame(drawFrameImg)
+                        i++;
+                    }
+                    drawFrameImg()
+                })
+                videoDom.style.opacity = 0;
+                videoDom.style.position = 'absolute'
+                document.body.appendChild(videoDom)
+
+                videoDom.addEventListener("ended", async e => {
+                    // 将缓存的图片 整合成序列帧json输出
+                    let cvs = document.querySelector('.upload-video .preview .preview-cvs')
+                    let txt = document.querySelector('.upload-video .output .output-text')
+                    let imageDom = document.querySelector('.upload-image .origin .upload-img')
+
+                    let frames = []
+                    for (let i = 0; i < keyframes.length; i++) {
+                        const { url } = keyframes[i];
+                        imageDom.src = url
+                        await fitCanvas(cvs, imageDom)
+                        frames.push(await drawStickFigure(cvs, imageDom))
+                    }
+
+                    let output = {
+                        width: imageDom.clientWidth,
+                        height: imageDom.clientHeight,
+                        frames
+                    }
+
+                    txt.textContent = JSON.stringify(output)
+
+
+                })
+            })
+            fileInput.click()
+        }
+
+
+        function exportBtn() {
+            let txt = document.querySelector('.upload-video .output .output-text')
+            if (!txt.textContent) {
+                alert('没有内容导出')
+                return;
+            }
+            let a = document.createElement('a');
+            a.href = window.URL.createObjectURL(new Blob([txt.textContent], { type: 'text/plain;charset=utf-8' }));
+            a.setAttribute('download', 'dance.json');
+            a.click();
+        }
+        /**
+         * 获取骨骼信息
+         * @author 	 linyisonger
+         * @date 	 2025-02-23
+         */
+        async function getPose(dom) {
+            const imageScaleFactor = 0.50;
+            const flipHorizontal = false;
+            const outputStride = 16;
+            // load the posenet model
+            const net = await posenet.load();
+            const pose = await net.estimateSinglePose(dom, imageScaleFactor, flipHorizontal, outputStride);
+            return pose
+        }
+
+
+        /**
+         * 自适应画布
+         * @author 	 linyisonger
+         * @date 	 2025-02-23
+         */
+        async function fitCanvas(cvs, dom) {
+            let image = dom.nodeName == 'VIDEO' ? dom : await loadImage(dom.src)
+            let imageWidth = dom.nodeName == 'VIDEO' ? dom.videoWidth : image.width
+            let imageHeight = dom.nodeName == 'VIDEO' ? dom.videoHeight : image.height
+            let fit = await aspectFit(imageWidth, imageHeight, Math.min(dom.clientWidth, 200), dom.clientHeight)
+            console.log(cvs);
+            cvs.setAttribute('width', fit.width)
+            cvs.setAttribute('height', fit.height)
+            /** @type {CanvasRenderingContext2D } */
+            let ctx = cvs.getContext('2d')
+            let width = fit.width;
+            let height = fit.height;
+            cvs.width = width;
+            cvs.height = height;
+
+            return {
+                width,
+                height
+            }
+        }
+
+        /**
+         * 渲染火柴人
+         * @author 	 linyisonger
+         * @date 	 2025-02-23
+         * 
+         * @param {HTMLImageElement} dom
+         */
+        async function drawStickFigure(cvs, dom) {
+            let pose = await getPose(dom)
+            /** @type {CanvasRenderingContext2D } */
+            let ctx = cvs.getContext('2d')
+            /**
+             * 连接骨骼
+             * @author 	 linyisonger
+             * @date 	 2025-02-23
+             * @param {string[]} nodeNames
+             */
+            function connection(nodeNames, type = 'stroke') {
+                let nodes = nodeNames.map(n => pose.keypoints.find(p => p.part == n))
+                ctx.beginPath();
+                ctx.moveTo(nodes[0].position.x, nodes[0].position.y)
+                for (let i = 1; i < nodes.length; i++) ctx.lineTo(nodes[i].position.x, nodes[i].position.y)
+                ctx[type]()
+                ctx.closePath()
+            }
+            let nose = pose.keypoints.find(p => p.part == "nose")
+            let leftEar = pose.keypoints.find(p => p.part == "leftEar")
+            let rightEar = pose.keypoints.find(p => p.part == "rightEar")
+            let leftShoulder = pose.keypoints.find(p => p.part == "leftShoulder")
+            let rightShoulder = pose.keypoints.find(p => p.part == "rightShoulder")
+            let leftHip = pose.keypoints.find(p => p.part == "leftHip")
+            let rightHip = pose.keypoints.find(p => p.part == "rightHip")
+            let headWidth = Math.abs(leftEar.position.x - rightEar.position.x)
+            let neck = {
+                x: (leftShoulder.position.x + rightShoulder.position.x) / 2,
+                y: (leftShoulder.position.y + rightShoulder.position.y) / 2
+            }
+            let hip = {
+                x: (leftHip.position.x + rightHip.position.x) / 2,
+                y: (leftHip.position.y + rightHip.position.y) / 2
+            }
+            ctx.strokeStyle = "black";
+            ctx.lineWidth = 10;
+            ctx.beginPath();
+            ctx.arc(nose.position.x, nose.position.y, headWidth, 0, 2 * Math.PI);
+            ctx.fill()
+            ctx.lineJoin = "round"
+            ctx.lineCap = "round"
+            connection(['rightWrist', 'rightElbow', 'rightShoulder', 'leftShoulder', 'leftElbow', 'leftWrist'])
+            connection(['leftAnkle', 'leftKnee', 'leftHip', 'rightHip', 'rightKnee', 'rightAnkle'])
+            ctx.beginPath();
+            ctx.moveTo(neck.x, neck.y)
+            ctx.lineTo(hip.x, hip.y)
+            ctx.closePath()
+            ctx.stroke()
+
+            return {
+                url: cvs.toDataURL('image/png'),
+                avatar: {
+                    x: nose.position.x,
+                    y: nose.position.y,
+                    r: headWidth
+                }
+            }
+        }
+
+    </script>
+</body>
+
+</html>
