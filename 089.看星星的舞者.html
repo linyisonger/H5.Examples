@@ -64,25 +64,27 @@
 
 <body>
     <div id="container">
-        <!-- <audio class="bgm" muted="true">
-            <source src="./assets/dance/swing-dance.mp3" />
-        </audio> -->
         <video class="bgm" muted style="display: none;">
             <source src="./assets/dance/kemusan.mp4" />
         </video>
-
-
         <div class="welcome-statement">感谢各位给 H5.Examples 点⭐⭐~</div>
-
         <a class="join-us" href="https://github.com/linyisonger/H5.Examples">
             加入我们
         </a>
-
-
         <img class="bgm-controller" src="./assets/dance/bgm-c.png">
-
     </div>
     <script type="module">
+        /**
+        * 加载配置信息
+        * @author 	 linyisonger
+        * @date 	 2025-02-25
+        */
+        function fetchLoad(url) {
+            return new Promise((resolve) => {
+                fetch(url).then((response) => response.json()).then(resolve)
+            })
+        }
+
         /**
          * 加载图
          * @param {string} src
@@ -95,18 +97,6 @@
                 image.onload = (ev) => {
                     resolve(image)
                 }
-            })
-        }
-
-        /**
-         * 加载音乐
-         * @param {string} src
-         * @returns {Promise<HTMLImageElement>}
-         */
-        function loadAudio(src) {
-            return new Promise((resolve) => {
-                let audio = new Audio(src)
-                audio.addEventListener("loadeddata", resolve)
             })
         }
 
@@ -133,162 +123,6 @@
         }
 
 
-
-        // getAllStargazers().then((res) => {
-        //     console.log("获取star的用户", res);
-        // })
-
-        let dancers = [
-            {
-                "login": "AnChangSu",
-                "id": 5037050,
-                "node_id": "MDQ6VXNlcjUwMzcwNTA=",
-                "avatar_url": "https://avatars.githubusercontent.com/u/5037050?v=4",
-                "gravatar_id": "",
-                "url": "https://api.github.com/users/AnChangSu",
-                "html_url": "https://github.com/AnChangSu",
-                "followers_url": "https://api.github.com/users/AnChangSu/followers",
-                "following_url": "https://api.github.com/users/AnChangSu/following{/other_user}",
-                "gists_url": "https://api.github.com/users/AnChangSu/gists{/gist_id}",
-                "starred_url": "https://api.github.com/users/AnChangSu/starred{/owner}{/repo}",
-                "subscriptions_url": "https://api.github.com/users/AnChangSu/subscriptions",
-                "organizations_url": "https://api.github.com/users/AnChangSu/orgs",
-                "repos_url": "https://api.github.com/users/AnChangSu/repos",
-                "events_url": "https://api.github.com/users/AnChangSu/events{/privacy}",
-                "received_events_url": "https://api.github.com/users/AnChangSu/received_events",
-                "type": "User",
-                "user_view_type": "public",
-                "site_admin": false
-            },
-            {
-                "login": "HGinGitHub",
-                "id": 103415496,
-                "node_id": "U_kgDOBin-yA",
-                "avatar_url": "https://avatars.githubusercontent.com/u/103415496?v=4",
-                "gravatar_id": "",
-                "url": "https://api.github.com/users/HGinGitHub",
-                "html_url": "https://github.com/HGinGitHub",
-                "followers_url": "https://api.github.com/users/HGinGitHub/followers",
-                "following_url": "https://api.github.com/users/HGinGitHub/following{/other_user}",
-                "gists_url": "https://api.github.com/users/HGinGitHub/gists{/gist_id}",
-                "starred_url": "https://api.github.com/users/HGinGitHub/starred{/owner}{/repo}",
-                "subscriptions_url": "https://api.github.com/users/HGinGitHub/subscriptions",
-                "organizations_url": "https://api.github.com/users/HGinGitHub/orgs",
-                "repos_url": "https://api.github.com/users/HGinGitHub/repos",
-                "events_url": "https://api.github.com/users/HGinGitHub/events{/privacy}",
-                "received_events_url": "https://api.github.com/users/HGinGitHub/received_events",
-                "type": "User",
-                "user_view_type": "public",
-                "site_admin": false
-            },
-            {
-                "login": "harris2012",
-                "id": 12846977,
-                "node_id": "MDQ6VXNlcjEyODQ2OTc3",
-                "avatar_url": "https://avatars.githubusercontent.com/u/12846977?v=4",
-                "gravatar_id": "",
-                "url": "https://api.github.com/users/harris2012",
-                "html_url": "https://github.com/harris2012",
-                "followers_url": "https://api.github.com/users/harris2012/followers",
-                "following_url": "https://api.github.com/users/harris2012/following{/other_user}",
-                "gists_url": "https://api.github.com/users/harris2012/gists{/gist_id}",
-                "starred_url": "https://api.github.com/users/harris2012/starred{/owner}{/repo}",
-                "subscriptions_url": "https://api.github.com/users/harris2012/subscriptions",
-                "organizations_url": "https://api.github.com/users/harris2012/orgs",
-                "repos_url": "https://api.github.com/users/harris2012/repos",
-                "events_url": "https://api.github.com/users/harris2012/events{/privacy}",
-                "received_events_url": "https://api.github.com/users/harris2012/received_events",
-                "type": "User",
-                "user_view_type": "public",
-                "site_admin": false
-            },
-            {
-                "login": "Lavenir7",
-                "id": 105573717,
-                "node_id": "U_kgDOBkrtVQ",
-                "avatar_url": "https://avatars.githubusercontent.com/u/105573717?v=4",
-                "gravatar_id": "",
-                "url": "https://api.github.com/users/Lavenir7",
-                "html_url": "https://github.com/Lavenir7",
-                "followers_url": "https://api.github.com/users/Lavenir7/followers",
-                "following_url": "https://api.github.com/users/Lavenir7/following{/other_user}",
-                "gists_url": "https://api.github.com/users/Lavenir7/gists{/gist_id}",
-                "starred_url": "https://api.github.com/users/Lavenir7/starred{/owner}{/repo}",
-                "subscriptions_url": "https://api.github.com/users/Lavenir7/subscriptions",
-                "organizations_url": "https://api.github.com/users/Lavenir7/orgs",
-                "repos_url": "https://api.github.com/users/Lavenir7/repos",
-                "events_url": "https://api.github.com/users/Lavenir7/events{/privacy}",
-                "received_events_url": "https://api.github.com/users/Lavenir7/received_events",
-                "type": "User",
-                "user_view_type": "public",
-                "site_admin": false
-            },
-            {
-                "login": "linyisonger",
-                "id": 34770610,
-                "node_id": "MDQ6VXNlcjM0NzcwNjEw",
-                "avatar_url": "https://avatars.githubusercontent.com/u/34770610?v=4",
-                "gravatar_id": "",
-                "url": "https://api.github.com/users/linyisonger",
-                "html_url": "https://github.com/linyisonger",
-                "followers_url": "https://api.github.com/users/linyisonger/followers",
-                "following_url": "https://api.github.com/users/linyisonger/following{/other_user}",
-                "gists_url": "https://api.github.com/users/linyisonger/gists{/gist_id}",
-                "starred_url": "https://api.github.com/users/linyisonger/starred{/owner}{/repo}",
-                "subscriptions_url": "https://api.github.com/users/linyisonger/subscriptions",
-                "organizations_url": "https://api.github.com/users/linyisonger/orgs",
-                "repos_url": "https://api.github.com/users/linyisonger/repos",
-                "events_url": "https://api.github.com/users/linyisonger/events{/privacy}",
-                "received_events_url": "https://api.github.com/users/linyisonger/received_events",
-                "type": "User",
-                "user_view_type": "public",
-                "site_admin": false
-            },
-            {
-                "login": "lpleipeng",
-                "id": 39250004,
-                "node_id": "MDQ6VXNlcjM5MjUwMDA0",
-                "avatar_url": "https://avatars.githubusercontent.com/u/39250004?v=4",
-                "gravatar_id": "",
-                "url": "https://api.github.com/users/lpleipeng",
-                "html_url": "https://github.com/lpleipeng",
-                "followers_url": "https://api.github.com/users/lpleipeng/followers",
-                "following_url": "https://api.github.com/users/lpleipeng/following{/other_user}",
-                "gists_url": "https://api.github.com/users/lpleipeng/gists{/gist_id}",
-                "starred_url": "https://api.github.com/users/lpleipeng/starred{/owner}{/repo}",
-                "subscriptions_url": "https://api.github.com/users/lpleipeng/subscriptions",
-                "organizations_url": "https://api.github.com/users/lpleipeng/orgs",
-                "repos_url": "https://api.github.com/users/lpleipeng/repos",
-                "events_url": "https://api.github.com/users/lpleipeng/events{/privacy}",
-                "received_events_url": "https://api.github.com/users/lpleipeng/received_events",
-                "type": "User",
-                "user_view_type": "public",
-                "site_admin": false
-            },
-            {
-                "login": "xxxggg-ctrl",
-                "id": 63829555,
-                "node_id": "MDQ6VXNlcjYzODI5NTU1",
-                "avatar_url": "https://avatars.githubusercontent.com/u/63829555?v=4",
-                "gravatar_id": "",
-                "url": "https://api.github.com/users/xxxggg-ctrl",
-                "html_url": "https://github.com/xxxggg-ctrl",
-                "followers_url": "https://api.github.com/users/xxxggg-ctrl/followers",
-                "following_url": "https://api.github.com/users/xxxggg-ctrl/following{/other_user}",
-                "gists_url": "https://api.github.com/users/xxxggg-ctrl/gists{/gist_id}",
-                "starred_url": "https://api.github.com/users/xxxggg-ctrl/starred{/owner}{/repo}",
-                "subscriptions_url": "https://api.github.com/users/xxxggg-ctrl/subscriptions",
-                "organizations_url": "https://api.github.com/users/xxxggg-ctrl/orgs",
-                "repos_url": "https://api.github.com/users/xxxggg-ctrl/repos",
-                "events_url": "https://api.github.com/users/xxxggg-ctrl/events{/privacy}",
-                "received_events_url": "https://api.github.com/users/xxxggg-ctrl/received_events",
-                "type": "User",
-                "user_view_type": "public",
-                "site_admin": false
-            }
-        ]
-
-
         let bgmControllerDom = document.querySelector('.bgm-controller')
         bgmControllerDom.addEventListener("click", () => {
             const bgm = document.body.querySelector('.bgm')
@@ -296,19 +130,13 @@
             bgmControllerDom.setAttribute('src', bgm.muted ? './assets/dance/bgm-c.png' : './assets/dance/bgm-o.png')
         })
 
-        // 2D火柴人 贴图
 
-        function fetchLoad(url) {
-            return new Promise((resolve) => {
-                fetch(url).then((response) => response.json()).then(resolve)
-            })
-        }
-
-        async function initGame() {
-            dancers = await getAllStargazers()
-            let dance = await fetchLoad("./assets/dance/kemusan.json")
+        async function init() {
+            let dancers = await getAllStargazers() // 加载关注用户信息
+            let dance = await fetchLoad("./assets/dance/kemusan.json") // 加载配置
             const DROP_FRAME = 5 // 抽帧
-            const ZOOM_OUT = .5
+            const ZOOM_OUT = .5 // 缩放
+            
             // 检查动作信息
             // for (let i = 0; i < dance.frames.length; i++) {
             //     console.log(i);
@@ -316,12 +144,14 @@
             //     const img = document.createElement('img')
             //     img.src = frame.url;
             //     document.body.appendChild(img)
-            // }
+            // } 
+            // return
+            
 
-            let danceCvsList = []
+            let danceCvsList = [] // 用户画布列表
             for (let i = 0; i < dancers.length; i++) {
-                const dancer = dancers[i];
-                let danceCvs = await createCanvas(dancer)
+                const dancer = dancers[i]; // 单个的用户信息
+                let danceCvs = await createCanvas(dancer) // 创建画布
                 danceCvsList.push({
                     dancer,
                     cvs: danceCvs
@@ -329,21 +159,24 @@
             }
 
 
-            let i = 0
+            let i = 0 // 帧
             async function animationFrame() {
-                if (i % DROP_FRAME == 0) {
+                if (i % DROP_FRAME == 0) { // 每几帧进行取余
                     for (let j = 0; j < danceCvsList.length; j++) {
                         const { cvs, dancer } = danceCvsList[j];
-                        await drawFrame(cvs, dance.frames[(i / DROP_FRAME) % dance.frames.length], dancer.avatar_url)
+                        await drawFrame(cvs, dance.frames[(i / DROP_FRAME) % dance.frames.length], dancer.avatar_url) // 绘制一帧画面
                     }
                 }
                 requestAnimationFrame(animationFrame)
                 i++;
             }
-            await animationFrame()
+            await animationFrame() // 等待第一张加载完成
 
             document.body.querySelector('.bgm').play()
             document.body.querySelector('.bgm').loop = true;
+
+            // 依然无法同步音频与动画的频率
+
             /**
              * 创建一个用户
              * @author 	 linyisonger
@@ -376,7 +209,7 @@
             }
         }
 
-        initGame()
+        init()
 
 
 
