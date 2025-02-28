@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./assets/global.css">
+
+    <style>
+        .box-a {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+    </style>
+</head>
+
+<body>
+
+
+    <div class="box-a">A</div>
+    <div class="box-b">B</div>
+    <div class="box-c">C</div>
+
+
+
+    <script type="module">
+
+        /**
+         * 初始化平面数组
+         * @author 	 linyisonger
+         * @date 	 2025-01-13
+         * 
+         * @template T
+         * @param {number} rows
+         * @param {number} cols
+         * @param {T|(x,y)=>T} init 
+         * 
+         * @return {T[][]}
+         */
+        function createFlatArray(rows, cols, init = 0) {
+            let level1 = []
+            for (let y = 0; y < cols; y++) {
+                let level2 = [];
+                for (let x = 0; x < rows; x++) {
+                    level2[x] = typeof init == "function" ? init(x, y) : init;
+                }
+                level1[y] = level2
+            }
+            return level1
+        }
+
+        class Grid {
+            /**
+             * @param {number} x
+             * @param {number} y
+             */
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+            }
+        }
+
+
+        class TargetPoint extends Grid {
+            constructor(x, y) {
+                super(x, y)
+            }
+            /** @type {HTMLImageElement} */
+            dom = null
+            show() {  // 增加样式标签展示
+                this.dom.classList.add('show')
+            }
+            hidden() {  // 增加样式标签隐藏 
+                this.dom.classList.add('hidden')
+            }
+        }
+
+        
+        class ChessPiece {
+            type = [] // 兼容暗棋
+        }
+
+
+        let chineseChessBoard = [] // 中国象棋棋盘
+        let currentTargetPoint = [] // 当前操作靶点
+
+        /**
+         * 生成靶点
+         * @author 	 linyisonger
+         * @date 	 2025-02-27
+         */
+        function generateTargetPoint() {
+            clearAllTargetPoint(); // 先清除再生成
+
+            // 生成自身靶点
+
+            // 点击目标点事件
+
+
+        }
+
+        /**
+         * 清除所有目标点
+         * @author 	 linyisonger
+         * @date 	 2025-02-27
+         */
+        function clearAllTargetPoint() {
+            currentTargetPoint.forEach(t => t.remove()) // 清空靶点
+            currentTargetPoint = []
+        }
+
+
+
+        /**
+         * 点击棋子
+         *  - 当前点击棋子 currentOperateChessPiece
+         *  - 靶点生成 generateTargetPoint
+         * 
+         * 点击靶点
+         *  - 清除所有目标点位 clearAllTargetPoint
+         *  - 移动棋子 moveChessPiece
+         *  - 检查是否吃棋子 eatChessPiece
+         *  - 检查是否胜利 checkGameOver
+         * 
+         */
+    </script>
+
+
+</body>
+
+</html>
