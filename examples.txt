@@ -88,5 +88,6 @@
 088.乌龟对对碰.html
 089.看星星的舞者.html
 090.火柴人生成器.html
+091.中国象棋.html
 blog.html
 index.html

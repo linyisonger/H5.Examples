@@ -1,0 +1,16 @@
+<svg version="1.1" id="L1" xmlns="http://www.w3.org/2000/svg"
+    xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" stroke="green" viewBox="0 0 100 100"
+    enable-background="new 0 0 100 100" xml:space="preserve">
+    <path d="M -100 0 L -70 0 M -30 0 L 30 0 M 70 0 L 100 0" stroke-width="10" fill="none" >
+        <animateTransform  attributeName="transform"  attributeType="XML"  type="translate" dur="1s"  from="0 5" to="100 5"  repeatCount="indefinite" /> 
+    </path>
+    <path d="M -100 0 L -70 0 M -30 0 L 30 0 M 70 0 L 100 0" stroke-width="10" fill="none" >
+        <animateTransform  attributeName="transform"  attributeType="XML"  type="translate" dur="1s"  from="100 95" to="0 95"  repeatCount="indefinite" /> 
+    </path>
+    <path d="M 0 200 L 0 170 M 0 130 L 0 70 M 0 30 L 0 0" stroke-width="10" fill="none" >
+        <animateTransform  attributeName="transform"  attributeType="XML"  type="translate" dur="1s"  from="5 0" to="5 -100"  repeatCount="indefinite" />
+    </path>
+    <path d="M 0 200 L 0 170 M 0 130 L 0 70 M 0 30 L 0 0" stroke-width="10" fill="none" >
+        <animateTransform  attributeName="transform"  attributeType="XML"  type="translate" dur="1s"  from="95 -100" to="95 0"  repeatCount="indefinite" />
+    </path>
+</svg>
