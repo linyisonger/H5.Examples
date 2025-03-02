@@ -65,6 +65,56 @@
             left: 0;
             top: 0;
         }
+
+        .chess-board .cb-over-box {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            right: 0;
+            background-color: rgba(255, 255, 255, .5);
+            padding-bottom: 10vmin;
+        }
+
+        .chess-board .hidden {
+            display: none;
+        }
+
+        .chess-board .over-title {
+            font-size: 4vmin;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .chess-board .over-subtitle {
+            margin-top: 20px;
+            font-size: 5vmin;
+            font-weight: bold;
+            color: goldenrod;
+        }
+
+
+        .again-btn {
+            margin-top: 100px;
+            display: inline-flex;
+            padding: 0 20px 3px;
+            line-height: 40px;
+            background: linear-gradient(to bottom, rgb(87, 196, 245), rgb(26, 147, 206));
+            color: rgb(254, 252, 255);
+            cursor: pointer;
+            border-radius: 4px;
+            font-weight: bold;
+            box-shadow: inset 0px -3px 0 rgb(19, 98, 139);
+        }
+
+        .again-btn:active {
+            opacity: .7;
+            box-shadow: inset 0px 0px 0 transparent;
+        }
     </style>
 </head>
 
@@ -72,6 +122,11 @@
 
     <div class="chess-board">
         <div class="cb-grid-box"></div>
+        <div class="cb-over-box hidden">
+            <div class="over-title">游戏结束</div>
+            <div class="over-subtitle"></div>
+            <div class="again-btn">再来一局!</div>
+        </div>
     </div>
 
     <script type="module">
@@ -156,7 +211,8 @@
         }
 
         // 中国象棋棋盘
-        let chessBoardGridBox = document.querySelector('.cb-grid-box')
+        let chessBoardGridBox = document.querySelector('.cb-grid-box') // 格子盒子
+        let chessBoardOverBox = document.querySelector(".cb-over-box") // 结束盒子
         let chineseChessBoard = createFlatArray(9, 10, (x, y) => {
             let grid = new Grid(x, y)
             let dom = document.createElement('div')
@@ -289,8 +345,6 @@
                 }
             }
         }
-
-        loadChessManual();
 
         /**
          * 同一阵营
@@ -625,12 +679,15 @@
             let nextOperateGrid = chineseChessBoard[y][x];
             let tempOperateChessPiece = chessManual[y][x];
 
+
             if (tempOperateChessPiece != null) { // 吃子 
                 console.log('吃子', tempOperateChessPiece);
                 nextOperateGrid.dom.querySelector('.chess-piece').remove()
-
+                if (tempOperateChessPiece.type == CHESS_PIECE_STANDARD.KING) { // 被吃掉的是将
+                    chessBoardOverBox.querySelector('.over-subtitle').textContent = `🎉${currentOperateCamp}方获胜！`
+                    chessBoardOverBox.classList.remove('hidden')
+                }
             }
-
             nextOperateGrid.dom.appendChild(currentOperateGrid.dom.querySelector('.chess-piece'))
             chessManual[y][x] = currentOperateChessPiece;
             chessManual[currentOperateGrid.y][currentOperateGrid.x] = null;
@@ -638,6 +695,22 @@
             currentOperateCamp = currentOperateCamp === CAMP_TYPE.RED ? CAMP_TYPE.BLACK : CAMP_TYPE.RED // 切换阵营
         }
 
+        /**
+         * 结束页面
+         * @author 	 linyisonger
+         * @date 	 2025-03-02
+         */
+        function loadOverPanel() {
+            let againBtn = chessBoardOverBox.querySelector('.again-btn')
+            againBtn.addEventListener('click', () => {
+                location.reload()
+            })
+        }
+
+
+
+        loadChessManual();
+        loadOverPanel();
     </script>
 
 
