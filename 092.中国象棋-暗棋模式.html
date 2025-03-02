@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./assets/global.css">
+
+    <style>
+        .box-a {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .chess-board {
+            background-image: url('./assets/chess-piece/chessBoard.png');
+            background-repeat: no-repeat;
+            width: 100vmin;
+            height: 100vmin;
+            background-position: center;
+            background-size: 90% 90%;
+            position: relative;
+        }
+
+        .chess-board .cb-grid-box {
+            position: absolute;
+            display: grid;
+            width: 83.2%;
+            height: 81.2%;
+
+            left: 5%;
+            top: 4%;
+
+            grid-template-columns: repeat(9, 9.7%);
+            grid-template-rows: repeat(10, 10%);
+            grid-gap: calc(10% / 9) calc(21% / 8);
+        }
+
+        .chess-board .cb-grid {
+            position: relative;
+        }
+
+        .chess-board .cb-grid img {
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .chess-board .target-point {
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+
+        .chess-board .cb-over-box {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            right: 0;
+            background-color: rgba(255, 255, 255, .5);
+            padding-bottom: 10vmin;
+        }
+
+        .chess-board .hidden {
+            display: none;
+        }
+
+        .chess-board .over-title {
+            font-size: 4vmin;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .chess-board .over-subtitle {
+            margin-top: 20px;
+            font-size: 5vmin;
+            font-weight: bold;
+            color: goldenrod;
+        }
+
+
+        .again-btn {
+            margin-top: 100px;
+            display: inline-flex;
+            padding: 0 20px 3px;
+            line-height: 40px;
+            background: linear-gradient(to bottom, rgb(87, 196, 245), rgb(26, 147, 206));
+            color: rgb(254, 252, 255);
+            cursor: pointer;
+            border-radius: 4px;
+            font-weight: bold;
+            box-shadow: inset 0px -3px 0 rgb(19, 98, 139);
+        }
+
+        .again-btn:active {
+            opacity: .7;
+            box-shadow: inset 0px 0px 0 transparent;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="chess-board">
+        <div class="cb-grid-box"></div>
+        <div class="cb-over-box hidden">
+            <div class="over-title">游戏结束</div>
+            <div class="over-subtitle"></div>
+            <div class="again-btn">再来一局!</div>
+        </div>
+    </div>
+
+    <script type="module">
+
+        /**
+         * 初始化平面数组
+         * @author 	 linyisonger
+         * @date 	 2025-01-13
+         * 
+         * @template T
+         * @param {number} rows
+         * @param {number} cols
+         * @param {T|(x,y)=>T} init 
+         * 
+         * @return {T[][]}
+         */
+        function createFlatArray(rows, cols, init = 0) {
+            let level1 = []
+            for (let y = 0; y < cols; y++) {
+                let level2 = [];
+                for (let x = 0; x < rows; x++) {
+                    level2[x] = typeof init == "function" ? init(x, y) : init;
+                }
+                level1[y] = level2
+            }
+            return level1
+        }
+
+        class Grid {
+            /**
+             * @param {number} x
+             * @param {number} y
+             */
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+            }
+
+            /** @type {HTMLDivElement} */
+            dom = null
+        }
+
+
+        class TargetPoint extends Grid {
+            constructor(x, y) {
+                super(x, y)
+                let dom = document.createElement('img');
+                dom.classList.add('target-point')
+                dom.setAttribute('src', './assets/chess-piece/targetPoint.svg')
+                chineseChessBoard[y][x].dom.appendChild(dom)
+                this.dom = dom;
+            }
+            /** @type {HTMLImageElement} */
+            dom = null
+            remove() {
+                this.dom.remove()
+            }
+        }
+        // 棋子标准
+        const CHESS_PIECE_STANDARD = {
+            ROOKS: '车',
+            KNIGHTS: '马',
+            ELEPHANTS: '相',
+            MANDARINS: '士',
+            KING: '将',
+            CANNONS: "炮",
+            PAWMS: '兵'
+        }
+
+        // 阵营类型
+        const CAMP_TYPE = {
+            BLACK: '黑',
+            RED: '红'
+        }
+
+
+        class ChessPiece {
+            /** 棋子类型 */
+            type = null
+            /** 阵营类型 */
+            camp = null
+        }
+
+        // 中国象棋棋盘
+        let chessBoardGridBox = document.querySelector('.cb-grid-box') // 格子盒子
+        let chessBoardOverBox = document.querySelector(".cb-over-box") // 结束盒子
+        let chineseChessBoard = createFlatArray(9, 10, (x, y) => {
+            let grid = new Grid(x, y)
+            let dom = document.createElement('div')
+            dom.classList.add('cb-grid')
+            dom.setAttribute('data-x', x)
+            dom.setAttribute('data-y', y)
+            chessBoardGridBox.appendChild(dom)
+            grid.dom = dom;
+            grid.dom.addEventListener('click', gridClick)
+            return grid;
+        })
+        /** 棋谱 @type {ChessPiece[][]} */
+        let chessManual = [
+            [
+                { type: CHESS_PIECE_STANDARD.ROOKS, camp: CAMP_TYPE.BLACK },
+                { type: CHESS_PIECE_STANDARD.KNIGHTS, camp: CAMP_TYPE.BLACK },
+                { type: CHESS_PIECE_STANDARD.ELEPHANTS, camp: CAMP_TYPE.BLACK },
+                { type: CHESS_PIECE_STANDARD.MANDARINS, camp: CAMP_TYPE.BLACK },
+                { type: CHESS_PIECE_STANDARD.KING, camp: CAMP_TYPE.BLACK },
+                { type: CHESS_PIECE_STANDARD.MANDARINS, camp: CAMP_TYPE.BLACK },
+                { type: CHESS_PIECE_STANDARD.ELEPHANTS, camp: CAMP_TYPE.BLACK },
+                { type: CHESS_PIECE_STANDARD.KNIGHTS, camp: CAMP_TYPE.BLACK },
+                { type: CHESS_PIECE_STANDARD.ROOKS, camp: CAMP_TYPE.BLACK },
+            ],
+            new Array(9).fill(null),
+            [
+                null,
+                { type: CHESS_PIECE_STANDARD.CANNONS, camp: CAMP_TYPE.BLACK },
+                null,
+                null,
+                null,
+                null,
+                null,
+                { type: CHESS_PIECE_STANDARD.CANNONS, camp: CAMP_TYPE.BLACK },
+                null,
+            ],
+            [
+                { type: CHESS_PIECE_STANDARD.PAWMS, camp: CAMP_TYPE.BLACK },
+                null,
+                { type: CHESS_PIECE_STANDARD.PAWMS, camp: CAMP_TYPE.BLACK },
+                null,
+                { type: CHESS_PIECE_STANDARD.PAWMS, camp: CAMP_TYPE.BLACK },
+                null,
+                { type: CHESS_PIECE_STANDARD.PAWMS, camp: CAMP_TYPE.BLACK },
+                null,
+                { type: CHESS_PIECE_STANDARD.PAWMS, camp: CAMP_TYPE.BLACK },
+            ],
+            new Array(9).fill(null),
+            new Array(9).fill(null),
+            [
+                { type: CHESS_PIECE_STANDARD.PAWMS, camp: CAMP_TYPE.RED },
+                null,
+                { type: CHESS_PIECE_STANDARD.PAWMS, camp: CAMP_TYPE.RED },
+                null,
+                { type: CHESS_PIECE_STANDARD.PAWMS, camp: CAMP_TYPE.RED },
+                null,
+                { type: CHESS_PIECE_STANDARD.PAWMS, camp: CAMP_TYPE.RED },
+                null,
+                { type: CHESS_PIECE_STANDARD.PAWMS, camp: CAMP_TYPE.RED },
+            ],
+            [
+                null,
+                { type: CHESS_PIECE_STANDARD.CANNONS, camp: CAMP_TYPE.RED },
+                null,
+                null,
+                null,
+                null,
+                null,
+                { type: CHESS_PIECE_STANDARD.CANNONS, camp: CAMP_TYPE.RED },
+                null,
+            ],
+            new Array(9).fill(null),
+            [
+                { type: CHESS_PIECE_STANDARD.ROOKS, camp: CAMP_TYPE.RED },
+                { type: CHESS_PIECE_STANDARD.KNIGHTS, camp: CAMP_TYPE.RED },
+                { type: CHESS_PIECE_STANDARD.ELEPHANTS, camp: CAMP_TYPE.RED },
+                { type: CHESS_PIECE_STANDARD.MANDARINS, camp: CAMP_TYPE.RED },
+                { type: CHESS_PIECE_STANDARD.KING, camp: CAMP_TYPE.RED },
+                { type: CHESS_PIECE_STANDARD.MANDARINS, camp: CAMP_TYPE.RED },
+                { type: CHESS_PIECE_STANDARD.ELEPHANTS, camp: CAMP_TYPE.RED },
+                { type: CHESS_PIECE_STANDARD.KNIGHTS, camp: CAMP_TYPE.RED },
+                { type: CHESS_PIECE_STANDARD.ROOKS, camp: CAMP_TYPE.RED },
+            ],
+        ]
+        /** 暗棋 @type {ChessPiece[]} */
+        let darkChessPiece = []
+        // 当前操作阵营
+        let currentOperateCamp = CAMP_TYPE.RED
+        /** @type {ChessPiece} 当前操作棋子 */
+        let currentOperateChessPiece = null
+        /** @type {Grid} 当前操作格子 */
+        let currentOperateGrid = null
+        /** @type {TargetPoint[]} 当前操作靶点 */
+        let currentTargetPoint = []
+
+
+        /**
+         * 格子的点击事件
+         * @author 	 linyisonger
+         * @date 	 2025-03-01
+         */
+        function gridClick() {
+            let x = +this.getAttribute('data-x')
+            let y = +this.getAttribute('data-y')
+            console.log(x, y);
+            let grid = chineseChessBoard[y][x];
+            let chessPiece = chessManual[y][x];
+
+            if (grid.dom.querySelector('.target-point')) return moveChessPiece(x, y) // 移动棋子
+            if (chessPiece == null) return; // 没有操作棋子
+            if (chessPiece.camp != currentOperateCamp) return; // 不该你操作
+
+            currentOperateChessPiece = chessPiece;
+            currentOperateGrid = grid
+
+            generateTargetPoint()
+        }
+
+        /**
+         * 加载棋盘 
+         */
+        function loadChessManual() {
+            for (let y = 0; y < chessManual.length; y++) {
+                let rows = chessManual[y]
+                for (let x = 0; x < rows.length; x++) {
+                    const chessPiece = rows[x];
+                    if (chessPiece == null) continue
+                    const dom = document.createElement('img')
+                    dom.classList.add('chess-piece')
+                    if (chessPiece.type == CHESS_PIECE_STANDARD.KING) { // 主将不变
+                        dom.setAttribute('src', `./assets/chess-piece/${chessPiece.type}-${chessPiece.camp}.png`)
+                    }
+                    else { // 暗棋
+                        darkChessPiece.push(chessPiece)
+                        dom.setAttribute('src', `./assets/chess-piece/暗-${chessPiece.camp}.png`)
+                        dom.setAttribute('data-type', '暗')
+                    }
+                    chineseChessBoard[y][x].dom.appendChild(dom)
+                }
+            }
+        }
+
+        /**
+         * 同一阵营
+         * @author 	 linyisonger
+         * @date 	 2025-03-02
+         */
+        function sameCamp(x, y) {
+            return chessManual[y][x] && chessManual[y][x].camp == currentOperateCamp
+        }
+
+        /**
+         * 有棋子
+         * @author 	 linyisonger
+         * @date 	 2025-03-02
+         */
+        function hasChessPiece(x, y) {
+            return chessManual?.[y]?.[x]
+        }
+
+        /**
+         * 在棋盘内
+         * @author 	 linyisonger
+         * @date 	 2025-03-02
+         */
+        function insideChessBoard(x, y) {
+            return chineseChessBoard?.[y]?.[x]
+        }
+
+        /**
+         * 是否过河
+         * @author 	 linyisonger
+         * @date 	 2025-03-02
+         */
+        function isCrossRiver(y) {
+            return y < 5 && currentOperateCamp == CAMP_TYPE.RED || y > 4 && currentOperateCamp == CAMP_TYPE.BLACK
+        }
+
+        /**
+         * 田字格内
+         * @author 	 linyisonger
+         * @date 	 2025-03-02
+         */
+        function insideMatts(x, y) {
+            if (currentOperateCamp == CAMP_TYPE.RED) return 2 < x && x < 6 && y > 6
+            return 2 < x && x < 6 && y < 3
+        }
+
+        /**
+         * 检查目标点
+         * @author 	 linyisonger
+         * @date 	 2025-03-01
+         */
+        function checkTargetPoint(x, y) {
+            if (!chineseChessBoard[y][x]) return null
+            if (chessManual[y][x] && chessManual[y][x].camp == currentOperateCamp) return null;
+            return new TargetPoint(x, y)
+        }
+
+        /**
+         * 生成靶点
+         * @author 	 linyisonger
+         * @date 	 2025-02-27
+         */
+        function generateTargetPoint() {
+            clearAllTargetPoint(); // 先清除再生成
+            // 生成自身靶点
+            console.log(currentOperateChessPiece, currentOperateGrid);
+
+            switch (currentOperateChessPiece.type) { // 棋子类型
+                case CHESS_PIECE_STANDARD.PAWMS: // 兵 
+                    currentTargetPoint = generateTargetPointByPawms()
+                    break;
+                case CHESS_PIECE_STANDARD.KNIGHTS: // 马
+                    currentTargetPoint = generateTargetPointByKnights()
+                    break;
+                case CHESS_PIECE_STANDARD.ROOKS: // 车
+                    currentTargetPoint = generateTargetPointByRooks()
+                    break;
+                case CHESS_PIECE_STANDARD.CANNONS: // 炮
+                    currentTargetPoint = generateTargetPointByCannons()
+                    break;
+                case CHESS_PIECE_STANDARD.ELEPHANTS: // 相
+                    currentTargetPoint = generateTargetPointByElephants()
+                    break;
+                case CHESS_PIECE_STANDARD.MANDARINS: // 士
+                    currentTargetPoint = generateTargetPointByMandarins()
+                    break;
+                case CHESS_PIECE_STANDARD.KING: //将
+                    currentTargetPoint = generateTargetPointByKing()
+                default:
+                    break;
+            }
+        }
+
+        /**
+         * 兵
+         * @author 	 linyisonger
+         * @date 	 2025-03-01
+         */
+        function generateTargetPointByPawms() {
+            let camp = currentOperateCamp; // 阵营
+            let grid = currentOperateGrid; // 当前格子
+            let board = chineseChessBoard; // 棋盘
+            let toward = camp == CAMP_TYPE.RED ? -1 : 1 // 朝向
+            let targetPoint = [{ x: grid.x, y: grid.y + toward }] // 目标点位 
+            if (isCrossRiver(grid.y)) targetPoint.push(...[{ x: grid.x + 1, y: grid.y }, { x: grid.x - 1, y: grid.y }]) // 增加左右移动
+            // 在棋盘内部、非同阵营允许移动
+            return targetPoint.filter(t => insideChessBoard(t.x, t.y) && !sameCamp(t.x, t.y)).map(t => new TargetPoint(t.x, t.y))
+        }
+
+        /**
+         * 马
+         * @author 	 linyisonger
+         * @date 	 2025-03-02
+         */
+        function generateTargetPointByKnights() {
+            let camp = currentOperateCamp; // 阵营
+            let grid = currentOperateGrid; // 当前格子
+            let board = chineseChessBoard; // 棋盘
+            let targetPoint = [] // 目标点位
+            if (!hasChessPiece(grid.x, grid.y + 1)) targetPoint.push(...[{ x: grid.x - 1, y: grid.y + 2 }, { x: grid.x + 1, y: grid.y + 2 }]) // 下
+            if (!hasChessPiece(grid.x, grid.y - 1)) targetPoint.push(...[{ x: grid.x - 1, y: grid.y - 2 }, { x: grid.x + 1, y: grid.y - 2 }]) // 上
+            if (!hasChessPiece(grid.x - 1, grid.y)) targetPoint.push(...[{ x: grid.x - 2, y: grid.y + 1 }, { x: grid.x - 2, y: grid.y - 1 }]) // 左
+            if (!hasChessPiece(grid.x + 1, grid.y)) targetPoint.push(...[{ x: grid.x + 2, y: grid.y + 1 }, { x: grid.x + 2, y: grid.y - 1 }]) // 右
+            // 在棋盘内部、非同阵营允许移动
+            return targetPoint.filter(t => insideChessBoard(t.x, t.y) && !sameCamp(t.x, t.y)).map(t => new TargetPoint(t.x, t.y))
+        }
+
+        /**
+         * 车
+         * @author 	 linyisonger
+         * @date 	 2025-03-02
+         */
+        function generateTargetPointByRooks() {
+            let camp = currentOperateCamp; // 阵营
+            let grid = currentOperateGrid; // 当前格子
+            let board = chineseChessBoard; // 棋盘
+            let targetPoint = [] // 目标点位
+
+            for (let x = grid.x - 1; x > -1; x--) { // 往左
+                if (hasChessPiece(x, grid.y)) { // 有棋子
+                    if (!sameCamp(x, grid.y)) targetPoint.push({ x, y: grid.y }) // 非同阵营
+                    break;
+                }
+                else targetPoint.push({ x, y: grid.y }) // 无棋子
+            }
+            for (let x = grid.x + 1; x < 9; x++) { // 往右
+                if (hasChessPiece(x, grid.y)) { // 有棋子
+                    if (!sameCamp(x, grid.y)) targetPoint.push({ x, y: grid.y }) // 非同阵营
+                    break;
+                }
+                else targetPoint.push({ x, y: grid.y }) // 无棋子
+            }
+
+            for (let y = grid.y - 1; y > -1; y--) { // 往上
+                if (hasChessPiece(grid.x, y)) { // 有棋子
+                    if (!sameCamp(grid.x, y)) targetPoint.push({ x: grid.x, y }) // 非同阵营
+                    break;
+                }
+                else targetPoint.push({ x: grid.x, y }) // 无棋子
+            }
+            for (let y = grid.y + 1; y < 10; y++) { // 往下
+                if (hasChessPiece(grid.x, y)) { // 有棋子
+                    if (!sameCamp(grid.x, y)) targetPoint.push({ x: grid.x, y }) // 非同阵营
+                    break;
+                }
+                else targetPoint.push({ x: grid.x, y }) // 无棋子
+            }
+            return targetPoint.map(t => new TargetPoint(t.x, t.y))
+        }
+
+        /**
+         * 炮
+         * @author 	 linyisonger
+         * @date 	 2025-03-02
+         */
+        function generateTargetPointByCannons() {
+            let camp = currentOperateCamp; // 阵营
+            let grid = currentOperateGrid; // 当前格子
+            let board = chineseChessBoard; // 棋盘
+            let targetPoint = [] // 目标点位
+
+            for (let x = grid.x - 1; x > -1; x--) { // 往左
+                if (hasChessPiece(x, grid.y)) { // 有棋子
+                    for (let tx = x - 1; tx > -1; tx--) { // 翻山炮
+                        if (hasChessPiece(tx, grid.y) && !sameCamp(tx, grid.y)) { // 非同阵营
+                            targetPoint.push({ x: tx, y: grid.y })
+                            break;
+                        }
+                    }
+                    break;
+                }
+                else targetPoint.push({ x, y: grid.y }) // 无棋子
+            }
+            for (let x = grid.x + 1; x < 9; x++) { // 往右
+                if (hasChessPiece(x, grid.y)) { // 有棋子
+                    for (let tx = x + 1; tx < 9; tx++) { // 翻山炮
+                        if (hasChessPiece(tx, grid.y) && !sameCamp(tx, grid.y)) { // 非同阵营
+                            targetPoint.push({ x: tx, y: grid.y })
+                            break;
+                        }
+                    }
+                    break;
+                }
+                else targetPoint.push({ x, y: grid.y }) // 无棋子
+            }
+
+            for (let y = grid.y - 1; y > -1; y--) { // 往上
+                if (hasChessPiece(grid.x, y)) { // 有棋子
+                    for (let ty = y - 1; ty > -1; ty--) { // 翻山炮
+                        if (hasChessPiece(grid.x, ty) && !sameCamp(grid.x, ty)) { // 非同阵营
+                            targetPoint.push({ x: grid.x, y: ty })
+                            break;
+                        }
+                    }
+                    break;
+                }
+                else targetPoint.push({ x: grid.x, y }) // 无棋子
+            }
+            for (let y = grid.y + 1; y < 10; y++) { // 往下
+                if (hasChessPiece(grid.x, y)) { // 有棋子
+                    for (let ty = y + 1; ty < 10; ty++) { // 翻山炮
+                        if (hasChessPiece(grid.x, ty) && !sameCamp(grid.x, ty)) { // 非同阵营
+                            targetPoint.push({ x: grid.x, y: ty })
+                            break;
+                        }
+                    }
+                    break;
+                }
+                else targetPoint.push({ x: grid.x, y }) // 无棋子
+            }
+            return targetPoint.map(t => new TargetPoint(t.x, t.y))
+        }
+
+        /**
+         * 相
+         * @author 	 linyisonger
+         * @date 	 2025-03-02
+         */
+        function generateTargetPointByElephants() {
+            let camp = currentOperateCamp; // 阵营
+            let grid = currentOperateGrid; // 当前格子
+            let board = chineseChessBoard; // 棋盘
+            let targetPoint = [] // 目标点位 
+            if (!hasChessPiece(grid.x + 1, grid.y + 1)) targetPoint.push({ x: grid.x + 2, y: grid.y + 2 }) // 右下
+            if (!hasChessPiece(grid.x + 1, grid.y - 1)) targetPoint.push({ x: grid.x + 2, y: grid.y - 2 }) // 右上
+            if (!hasChessPiece(grid.x - 1, grid.y - 1)) targetPoint.push({ x: grid.x - 2, y: grid.y - 2 }) // 左上
+            if (!hasChessPiece(grid.x - 1, grid.y + 1)) targetPoint.push({ x: grid.x - 2, y: grid.y + 2 }) // 左下
+
+            // targetPoint = targetPoint.filter(t => !isCrossRiver(t.y)); // 过河检测
+
+            // 在棋盘内部、非同阵营允许移动
+            return targetPoint.filter(t => insideChessBoard(t.x, t.y) && !sameCamp(t.x, t.y)).map(t => new TargetPoint(t.x, t.y))
+        }
+
+
+        /**
+         * 士
+         * @author 	 linyisonger
+         * @date 	 2025-03-02
+         */
+        function generateTargetPointByMandarins() {
+            let camp = currentOperateCamp; // 阵营
+            let grid = currentOperateGrid; // 当前格子
+            let board = chineseChessBoard; // 棋盘
+            // 目标点位
+            let targetPoint = [
+                { x: grid.x + 1, y: grid.y + 1 }, // 右下
+                { x: grid.x + 1, y: grid.y - 1 }, // 右上
+                { x: grid.x - 1, y: grid.y + 1 }, // 左下
+                { x: grid.x - 1, y: grid.y - 1 }  // 左上
+            ]
+
+            // 田字格检测
+            // targetPoint = targetPoint.filter(t => insideMatts(t.x, t.y))
+
+            // 在棋盘内部、非同阵营允许移动
+            return targetPoint.filter(t => insideChessBoard(t.x, t.y) && !sameCamp(t.x, t.y)).map(t => new TargetPoint(t.x, t.y))
+        }
+
+        /**
+         * 将
+         * @author 	 linyisonger
+         * @date 	 2025-03-02
+         */
+        function generateTargetPointByKing() {
+            let camp = currentOperateCamp; // 阵营
+            let grid = currentOperateGrid; // 当前格子
+            let board = chineseChessBoard; // 棋盘
+            // 目标点位
+            let targetPoint = [
+                { x: grid.x + 1, y: grid.y }, // 右 
+                { x: grid.x - 1, y: grid.y }, // 左
+                { x: grid.x, y: grid.y + 1 }, // 下
+                { x: grid.x, y: grid.y - 1 }  // 上
+            ]
+            // 田字格检测
+            targetPoint = targetPoint.filter(t => insideMatts(t.x, t.y))
+
+            // 当两将面对面时，可以将对面将杀掉
+            let toward = camp == CAMP_TYPE.RED ? -1 : 1 // 前进方向感  
+            for (let y = grid.y + toward; y > -1; y = y + toward) {
+                if (hasChessPiece(grid.x, y)) { // 是否有棋子
+                    if (chessManual[y][grid.x].type == CHESS_PIECE_STANDARD.KING) targetPoint.push({ x: grid.x, y }) // 类型为将
+                    break
+                }
+            }
+
+            return targetPoint.filter(t => insideChessBoard(t.x, t.y) && !sameCamp(t.x, t.y)).map(t => new TargetPoint(t.x, t.y))
+        }
+
+
+        /**
+         * 清除所有目标点
+         * @author 	 linyisonger
+         * @date 	 2025-02-27
+         */
+        function clearAllTargetPoint() {
+            currentTargetPoint.forEach(t => t.remove()) // 清空靶点
+            currentTargetPoint = []
+        }
+
+        /**
+         * 移动棋子
+         * @author 	 linyisonger
+         * @date 	 2025-03-01
+         */
+        function moveChessPiece(x, y) {
+            console.log('移动棋子', currentOperateChessPiece, currentOperateGrid);
+            clearAllTargetPoint();
+
+            let nextOperateGrid = chineseChessBoard[y][x];
+            let tempOperateChessPiece = chessManual[y][x];
+
+
+            if (tempOperateChessPiece != null) { // 吃子 
+                console.log('吃子', tempOperateChessPiece);
+                nextOperateGrid.dom.querySelector('.chess-piece').remove()
+                if (tempOperateChessPiece.type == CHESS_PIECE_STANDARD.KING) { // 被吃掉的是将
+                    chessBoardOverBox.querySelector('.over-subtitle').textContent = `🎉${currentOperateCamp}方获胜！`
+                    chessBoardOverBox.classList.remove('hidden')
+                }
+            }
+            nextOperateGrid.dom.appendChild(currentOperateGrid.dom.querySelector('.chess-piece'))
+            chessManual[y][x] = currentOperateChessPiece;
+            chessManual[currentOperateGrid.y][currentOperateGrid.x] = null;
+
+            currentOperateCamp = currentOperateCamp === CAMP_TYPE.RED ? CAMP_TYPE.BLACK : CAMP_TYPE.RED // 切换阵营
+        }
+
+        /**
+         * 结束页面
+         * @author 	 linyisonger
+         * @date 	 2025-03-02
+         */
+        function loadOverPanel() {
+            let againBtn = chessBoardOverBox.querySelector('.again-btn')
+            againBtn.addEventListener('click', () => {
+                location.reload()
+            })
+        }
+
+
+
+        loadChessManual();
+        loadOverPanel();
+    </script>
+
+
+</body>
+
+</html>
