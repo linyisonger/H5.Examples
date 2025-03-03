@@ -128,6 +128,7 @@
     </div>
 
     <script type="module">
+        import { Randoms } from "https://gcore.jsdelivr.net/npm/@3r/tool/lib/randoms.js";
 
         /**
          * 初始化平面数组
@@ -193,7 +194,9 @@
             CANNONS: "炮",
             PAWMS: '兵'
         }
-
+        const CHESS_PIECE_DARK = {
+            DARK: '暗',
+        }
         // 阵营类型
         const CAMP_TYPE = {
             BLACK: '黑',
@@ -345,8 +348,8 @@
                     }
                     else { // 暗棋
                         darkChessPiece.push(chessPiece)
-                        dom.setAttribute('src', `./assets/chess-piece/暗-${chessPiece.camp}.png`)
-                        dom.setAttribute('data-type', '暗')
+                        dom.setAttribute('src', `./assets/chess-piece/${CHESS_PIECE_DARK.DARK}-${chessPiece.camp}.png`)
+                        dom.setAttribute('data-type', CHESS_PIECE_DARK.DARK)
                     }
                     chineseChessBoard[y][x].dom.appendChild(dom)
                 }
@@ -626,7 +629,7 @@
             ]
 
             // 田字格检测
-            // targetPoint = targetPoint.filter(t => insideMatts(t.x, t.y))
+            targetPoint = isDarkChessPiece(grid.dom) ? targetPoint.filter(t => insideMatts(t.x, t.y)) : targetPoint
 
             // 在棋盘内部、非同阵营允许移动
             return targetPoint.filter(t => insideChessBoard(t.x, t.y) && !sameCamp(t.x, t.y)).map(t => new TargetPoint(t.x, t.y))
@@ -685,17 +688,30 @@
 
             let nextOperateGrid = chineseChessBoard[y][x];
             let tempOperateChessPiece = chessManual[y][x];
+            let currentChessPieceDom = currentOperateGrid.dom.querySelector('.chess-piece')
+            let nextChessPieceDom = nextOperateGrid.dom.querySelector('.chess-piece')
 
-
-            if (tempOperateChessPiece != null) { // 吃子 
+            if (tempOperateChessPiece != null) { // 吃子
+                if (isDarkChessPiece(nextOperateGrid.dom)) {
+                    tempOperateChessPiece = randomChessPiece()
+                }
                 console.log('吃子', tempOperateChessPiece);
-                nextOperateGrid.dom.querySelector('.chess-piece').remove()
+                nextChessPieceDom.remove()
                 if (tempOperateChessPiece.type == CHESS_PIECE_STANDARD.KING) { // 被吃掉的是将
                     chessBoardOverBox.querySelector('.over-subtitle').textContent = `🎉${currentOperateCamp}方获胜！`
                     chessBoardOverBox.classList.remove('hidden')
                 }
             }
-            nextOperateGrid.dom.appendChild(currentOperateGrid.dom.querySelector('.chess-piece'))
+
+
+            if (isDarkChessPiece(currentOperateGrid.dom)) {
+                currentOperateChessPiece = randomChessPiece()
+                console.log('明子', currentOperateChessPiece);
+                currentChessPieceDom.removeAttribute('data-type')
+                currentChessPieceDom.setAttribute('src', `./assets/chess-piece/${currentOperateChessPiece.type}-${currentOperateChessPiece.camp}.png`)
+            }
+
+            nextOperateGrid.dom.appendChild(currentChessPieceDom)
             chessManual[y][x] = currentOperateChessPiece;
             chessManual[currentOperateGrid.y][currentOperateGrid.x] = null;
 
@@ -714,7 +730,25 @@
             })
         }
 
+        /**
+         * 随机棋子
+         * @author 	 linyisonger
+         * @date 	 2025-03-03
+         */
+        function randomChessPiece() {
+            let idx = Randoms.int(0, darkChessPiece.length)
+            return darkChessPiece.splice(idx, 1).shift()
+        }
 
+        /**
+         * 是否是暗棋
+         * @author 	 linyisonger
+         * @date 	 2025-03-03
+         * @param {HTMLImageElement} dom
+         */
+        function isDarkChessPiece(dom) {
+            return dom.querySelector('.chess-piece').getAttribute('data-type') === CHESS_PIECE_DARK.DARK
+        }
 
         loadChessManual();
         loadOverPanel();
