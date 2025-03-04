@@ -90,5 +90,6 @@
 090.火柴人生成器.html
 091.中国象棋.html
 092.中国象棋-暗棋模式.html
+093.七王五二三-人机对战.html
 blog.html
 index.html

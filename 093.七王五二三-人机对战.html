@@ -59,6 +59,33 @@
             SPADE: '黑桃'
         }
 
+        // 7>大王>小王>5>2>3>A>K>Q>J>10>9>8>6>4 
+        const TYPE_LEVEL = {
+            [CARD_TYPE[4]]: 1,
+            [CARD_TYPE[6]]: 2,
+            [CARD_TYPE[8]]: 3,
+            [CARD_TYPE[9]]: 4,
+            [CARD_TYPE[10]]: 5,
+            [CARD_TYPE.J]: 6,
+            [CARD_TYPE.Q]: 7,
+            [CARD_TYPE.K]: 8,
+            [CARD_TYPE.A]: 9,
+            [CARD_TYPE[3]]: 10,
+            [CARD_TYPE[2]]: 11,
+            [CARD_TYPE[5]]: 12,
+            [CARD_TYPE.LITTLE_JOKER]: 13,
+            [CARD_TYPE.BIG_JOKER]: 14,
+            [CARD_TYPE[7]]: 15,
+        }
+
+        // 黑桃>红桃>梅花>方块
+        const SUITS_LEVEL = {
+            [CARD_SUITS.DIAMOND]: 1,
+            [CARD_SUITS.CLUB]: 2,
+            [CARD_SUITS.HEART]: 3,
+            [CARD_SUITS.SPADE]: 4
+        }
+
         class Card {
             constructor(type = '', suits = '') {
                 this.type = type;
@@ -119,6 +146,41 @@
 
 
         /**
+         * 卡牌对比
+         * A < B True
+         * A > B Fasle
+         * 
+         * @author 	 linyisonger
+         * @date 	 2025-03-04
+         * @param {Card} cardA
+         * @param {Card} cardB
+         */
+        function cardComparison(cardA, cardB) {
+            if (TYPE_LEVEL[cardA.type] < TYPE_LEVEL[cardB.type]) return true;
+            if (TYPE_LEVEL[cardA.type] > TYPE_LEVEL[cardB.type]) return false;
+            if (SUITS_LEVEL[cardA.suits] > SUITS_LEVEL[cardB.suits]) return true;
+            return false;
+        }
+
+
+        /**
+         * 最小卡牌
+         * @author 	 linyisonger
+         * @date 	 2025-03-04
+         * @param {Card[]} cards
+         */
+        function minCard(cards) {
+            if (cards.length == 1) return cards[0]
+            let min = cards[0]
+            for (let i = 1; i < cards.length; i++) {
+                const card = cards[i];
+                if (!cardComparison(min, card)) min = card
+            }
+            return min
+        }
+
+
+        /**
          * 开始游戏
          * @author 	 linyisonger
          * @date 	 2025-03-04
@@ -159,6 +221,9 @@
             let startPlayIdx = playIdx; // 先出牌的玩家索引
             let passPlayerCount = 0; // 过牌玩家数量
             let round = new Round();
+            let min
+
+
             // while (true) {
             // 
 
