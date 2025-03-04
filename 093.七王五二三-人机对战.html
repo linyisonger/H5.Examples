@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./assets/global.css">
+</head>
+
+<body>
+
+    <script type="module">
+        import { Randoms } from "https://gcore.jsdelivr.net/npm/@3r/tool/lib/randoms.js";
+        /**  
+            游戏准备
+            牌数与人数:
+                使用一副54张的扑克牌，至少2人参与，最多可容纳5人。
+                发牌:开始每人发5张牌。
+            牌型及大小
+                单牌:大小顺序为7>大王>小王>5>2>3>A>K>Q>J>10>9>8>6>4.同等点数的牌，黑桃>红桃>梅花>方块。
+                对牌:数值相同的两张牌，大小王算一对。点数一样时，带黑桃的一方大。
+                三条:单独三张点数一样的牌，不带牌，三带对:数值相同的三张牌，带两张一样的。别的三张要大过它必须也带三张一样的，带的牌不参与比大小。
+                四条:四张点数一样的牌，
+                四带一:数值相同的四张牌，带一张单张。别的四张要大过它必须也带一张，带的牌不参与比大小。
+            游戏流程
+                首轮出牌:由手上最小牌的人先出，可以出包含最小牌的任意牌型。
+                后续出牌:按逆时针顺序依次出牌，轮到玩家跟牌时，玩家需出比上一个玩家大的牌或选择“不出”。除炸弹外，先出牌者出多少张牌，后面的人就需要跟多少张来压牌。
+                补牌:当一轮出牌结束后，由最后出牌且牌最大的玩家开始补牌，直到手中的牌数再次达到5张，然后按照逆时针顺序，其他玩家也依次补牌。
+            得分与胜负
+                得分:5代表5分，10和K代表10分。当一轮中出分牌后，最后牌最大的玩家可获得本轮所有分牌的分数。
+                胜负:通常最先出完牌的玩家算赢;或者游戏结束后，得分最高的玩家获胜。
+         */
+
+        const CARD_TYPE = {
+            1: '1',
+            2: '2',
+            3: '3',
+            4: '4',
+            5: '5',
+            6: '6',
+            7: '7',
+            8: '8',
+            9: '9',
+            10: '10',
+            J: 'J',
+            Q: 'Q',
+            K: 'K',
+            A: 'A',
+            LITTLE_JOKER: '小王',
+            BIG_JOKER: '大王',
+            BACK: '背面'
+        }
+
+        const CARD_SUITS = {
+            DIAMOND: '分块',
+            HEART: '红心',
+            CLUB: '梅花',
+            SPADE: '黑桃'
+        }
+
+        class Card {
+            constructor(type = '', suits = '') {
+                this.type = type;
+                this.suits = suits;
+            }
+            get url() {
+                return `./assets/poker/${this.type}${this.suits && '-' + this.suits}.png`
+            }
+        }
+
+        class Round {
+            history = []
+            winner = null
+        }
+
+        class PlayCards {
+            player = null
+            cards = []
+        }
+
+        class Player {
+            id = Randoms.uuid()
+            score = 0
+            cards = []
+        }
+
+        const deckOfCards = generateDeckOfCards().slice(0, 7); // 一副牌
+        const playerList = [new Player(), new Player()] // 玩家列表
+        const playIdx = 0 // 出牌玩家索引
+        const maxCardCount = 5 // 最大手牌数
+
+        /**
+         * 生成一副牌
+         * @author 	 linyisonger
+         * @date 	 2025-03-04
+         */
+        function generateDeckOfCards() {
+            let cards = []
+            for (const t of Object.values(CARD_TYPE)) {
+                if (t === CARD_TYPE.BACK) continue;
+                else if (t === CARD_TYPE.BIG_JOKER || t === CARD_TYPE.LITTLE_JOKER) cards.push(new Card(t))
+                else for (const s of Object.values(CARD_SUITS)) cards.push(new Card(t, s))
+            }
+            return cards
+        }
+
+
+        /**
+         * 随机分牌
+         * @author 	 linyisonger
+         * @date 	 2025-03-04
+         */
+        function randomDeal() {
+            if (deckOfCards.length == 0) return null // 发牌结束
+            let idx = Randoms.int(0, deckOfCards.length)
+            return deckOfCards.splice(idx, 1)[0]
+        }
+
+
+        /**
+         * 开始游戏
+         * @author 	 linyisonger
+         * @date 	 2025-03-04
+         */
+        function startGame() {
+            startDeal();
+            startRound()
+        }
+
+        /**
+         * 开始发牌
+         * @author 	 linyisonger
+         * @date 	 2025-03-04
+         */
+        function startDeal() {
+            let startPlayIdx = playIdx; // 先发牌的玩家索引
+            let completeDealPlayerCount = 0; // 完成发牌玩家数量
+            while (true) {
+                if (completeDealPlayerCount === playerList.length) break // 完成发牌的人数等于玩家人数
+                let player = playerList[startPlayIdx % playerList.length]
+                let card = randomDeal();
+                if (card != null) player.cards.push(card) // 剩余有牌时发牌
+                else completeDealPlayerCount = playerList.length; // 无牌时结束发牌
+                if (player.cards.length === maxCardCount) { // 当玩家手牌最大数量时
+                    completeDealPlayerCount++;
+                    startPlayIdx++ // 补满切换下一个人
+                }
+            }
+        }
+
+
+        /**
+         * 开始回合
+         * @author 	 linyisonger
+         * @date 	 2025-03-04
+         */
+        function startRound() {
+            let startPlayIdx = playIdx; // 先出牌的玩家索引
+            let passPlayerCount = 0; // 过牌玩家数量
+            let round = new Round();
+            // while (true) {
+            // 
+
+
+
+
+            // }
+        }
+
+
+        startGame();
+        console.log(playerList);
+    </script>
+
+</body>
+
+</html>
