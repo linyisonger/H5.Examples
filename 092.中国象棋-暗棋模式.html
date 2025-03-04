@@ -18,8 +18,8 @@
         .chess-board {
             background-image: url('./assets/chess-piece/chessBoard.png');
             background-repeat: no-repeat;
-            width: 100vmin;
-            height: 100vmin;
+            width: 90vmin;
+            height: 90vmin;
             background-position: center;
             background-size: 90% 90%;
             position: relative;
@@ -104,6 +104,36 @@
             opacity: .7;
             box-shadow: inset 0px 0px 0 transparent;
         }
+
+        .chess-board .cb-eat-piece {
+            position: absolute;
+            left: 0vmin;
+            top: -5vmin;
+            width: 90vmin;
+            height: 100vmin;
+            pointer-events: none;
+        }
+
+        .chess-board .cb-eat-piece .eat-piece-list:first-child {
+            position: absolute;
+            top: 2vmin;
+            left: 4vmin;
+            height: 5vmin;
+            right: 4vmin;
+        }
+
+        .chess-board .cb-eat-piece .eat-piece-list:last-child {
+            position: absolute;
+            bottom: 2vmin;
+            left: 4vmin;
+            height: 5vmin;
+            right: 4vmin;
+        }
+
+        .chess-board .cb-eat-piece .chess-piece {
+            height: 100%;
+            margin-right: 10px;
+        }
     </style>
 </head>
 
@@ -115,6 +145,10 @@
             <div class="over-title">游戏结束</div>
             <div class="over-subtitle"></div>
             <div class="again-btn">再来一局!</div>
+        </div>
+        <div class="cb-eat-piece">
+            <div class="eat-piece-list"></div>
+            <div class="eat-piece-list"></div>
         </div>
     </div>
 
@@ -205,6 +239,7 @@
         // 中国象棋棋盘
         let chessBoardGridBox = document.querySelector('.cb-grid-box') // 格子盒子
         let chessBoardOverBox = document.querySelector(".cb-over-box") // 结束盒子
+        let chessBoardEatBox = document.querySelector(".cb-eat-piece") // 吃子盒子
         let chineseChessBoard = createFlatArray(9, 10, (x, y) => {
             let grid = new Grid(x, y)
             let dom = document.createElement('div')
@@ -687,6 +722,7 @@
                     tempOperateChessPiece = randomChessPiece()
                 }
                 console.log('吃子', tempOperateChessPiece);
+                createEatenChessPiece(currentOperateCamp, tempOperateChessPiece) // 创建吃子列表
                 nextChessPieceDom.remove()
                 if (tempOperateChessPiece.type == CHESS_PIECE_STANDARD.KING) { // 被吃掉的是将
                     chessBoardOverBox.querySelector('.over-subtitle').textContent = `🎉${currentOperateCamp}方获胜！`
@@ -740,6 +776,26 @@
         function isDarkChessPiece(dom) {
             return dom.querySelector('.chess-piece').getAttribute('data-type') === CHESS_PIECE_DARK.DARK
         }
+
+
+        /**
+         * 创建被吃掉的棋子
+         * @author 	 linyisonger
+         * @date 	 2025-03-03
+         * 
+         * @param {string} camp
+         * @param {ChessPiece} chessPiece
+         */
+        function createEatenChessPiece(camp, chessPiece) {
+            const selector = '.eat-piece-list' + (camp === CAMP_TYPE.BLACK ? ':first-child' : ':last-child');
+            const container = chessBoardEatBox.querySelector(selector)
+
+            const dom = document.createElement('img');
+            dom.classList.add('chess-piece')
+            dom.setAttribute('src', `./assets/chess-piece/${chessPiece.type}-${chessPiece.camp}.png`)
+            container.appendChild(dom)
+        }
+
 
         loadChessManual();
         loadOverPanel();
