@@ -33,7 +33,6 @@
          */
 
         const CARD_TYPE = {
-            1: '1',
             2: '2',
             3: '3',
             4: '4',
@@ -53,8 +52,8 @@
         }
 
         const CARD_SUITS = {
-            DIAMOND: '分块',
-            HEART: '红心',
+            DIAMOND: '方片',
+            HEART: '红桃',
             CLUB: '梅花',
             SPADE: '黑桃'
         }
@@ -112,7 +111,19 @@
             cards = []
         }
 
-        const deckOfCards = generateDeckOfCards().slice(0, 7); // 一副牌
+
+        Array.prototype.first = function () {
+            if (this.length === 0) return null
+            return this[0]
+        }
+
+        Array.prototype.last = function () {
+            if (this.length === 0) return null
+            return this[this.length - 1]
+        }
+
+
+        const deckOfCards = generateDeckOfCards(); // 一副牌
         const playerList = [new Player(), new Player()] // 玩家列表
         const playIdx = 0 // 出牌玩家索引
         const maxCardCount = 5 // 最大手牌数
@@ -156,28 +167,51 @@
          * @param {Card} cardB
          */
         function cardComparison(cardA, cardB) {
-            if (TYPE_LEVEL[cardA.type] < TYPE_LEVEL[cardB.type]) return true;
-            if (TYPE_LEVEL[cardA.type] > TYPE_LEVEL[cardB.type]) return false;
-            if (SUITS_LEVEL[cardA.suits] > SUITS_LEVEL[cardB.suits]) return true;
-            return false;
+            if (TYPE_LEVEL[cardA.type] < TYPE_LEVEL[cardB.type]) return true;  // A牌面小于B牌面 True
+            if (TYPE_LEVEL[cardA.type] > TYPE_LEVEL[cardB.type]) return false; // A牌面大于B牌面 False
+            if (SUITS_LEVEL[cardA.suits] < SUITS_LEVEL[cardB.suits]) return true; // A牌面等于B牌面 且A花色小于B花色 True
+            return false;  // 其他 False
         }
 
-
         /**
-         * 最小卡牌
+         * 手牌排序 从大到小排序
          * @author 	 linyisonger
          * @date 	 2025-03-04
          * @param {Card[]} cards
          */
-        function minCard(cards) {
-            if (cards.length == 1) return cards[0]
-            let min = cards[0]
-            for (let i = 1; i < cards.length; i++) {
-                const card = cards[i];
-                if (!cardComparison(min, card)) min = card
-            }
-            return min
+        function cardSortByLevel(cards) {
+            cards.sort((a, b) => cardComparison(a, b) ? 1 : -1);
+            return cards
         }
+
+
+        /**
+         * 卡牌最小牌面
+         * @author 	 linyisonger
+         * @date 	 2025-03-06
+         * @param {Card[]} cards
+         */
+        function cardMinLevelIndex(cards) {
+            if (cards.length === 0) return -1; // 处理空数组
+            let minIndex = 0;
+            for (let i = 1; i < cards.length; i++) {
+                if (cardComparison(cards[i], cards[minIndex])) minIndex = i;
+            }
+            return minIndex;
+        }
+
+
+        /**
+         * 出牌
+         * @author 	 linyisonger
+         * @date 	 2025-03-06
+         * @param {Card[]} hold 持有
+         * @param {Card[]} target 目标
+         */
+        function bringOut(hold, target) {
+
+        }
+
 
 
         /**
@@ -209,6 +243,7 @@
                     startPlayIdx++ // 补满切换下一个人
                 }
             }
+            playerList.map(p => cardSortByLevel(p.cards))
         }
 
 
@@ -218,14 +253,12 @@
          * @date 	 2025-03-04
          */
         function startRound() {
-            let startPlayIdx = playIdx; // 先出牌的玩家索引
+            let startPlayIdx = cardMinLevelIndex(playerList.map(p => p.cards.last())); // 最小牌面显出 先出牌的玩家索引
             let passPlayerCount = 0; // 过牌玩家数量
-            let round = new Round();
-            let min
-
+            let round = new Round(); // 第一回合
 
             // while (true) {
-            // 
+
 
 
 
