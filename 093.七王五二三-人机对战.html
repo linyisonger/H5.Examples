@@ -96,13 +96,30 @@
         }
 
         class Round {
+            /** @type {Player[]} 玩家*/
+            players = []
+            /** @type {PlayerRound[]} 玩家出牌*/
             history = []
-            winner = null
+
+            get end() {
+                if (history.length < playerList.length) return false
+                let hisLen = this.history.length;
+                let playerLen = this.players.length;
+                let lastPlayerRounds = this.history.slice(hisLen - playerLen - 1)
+                return lastPlayerRounds.every(a => a.pass)
+            }
+
+            get winner() {
+
+            }
         }
 
-        class PlayCards {
+        class PlayerRound {
             player = null
             cards = []
+            get pass() {
+                return this.cards.length === 0
+            }
         }
 
         class Player {
@@ -175,7 +192,7 @@
 
 
 
-        
+
 
 
         /**
