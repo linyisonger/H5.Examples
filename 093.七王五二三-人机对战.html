@@ -110,13 +110,17 @@
             }
 
             get winner() {
-
+                if (!this.end) return null
+                let hisLen = this.history.length;
+                let playerLen = this.players.length;
+                return this.history[hisLen - playerLen - 1].player
             }
         }
 
         class PlayerRound {
             player = null
             cards = []
+
             get pass() {
                 return this.cards.length === 0
             }
@@ -144,7 +148,7 @@
         const playerList = [new Player(), new Player()] // 玩家列表
         const playIdx = 0 // 出牌玩家索引
         const maxCardCount = 5 // 最大手牌数
-
+        const roundList = [] // 回合数据
         /**
          * 生成一副牌
          * @author 	 linyisonger
@@ -276,10 +280,13 @@
          */
         function startRound() {
             let startPlayIdx = cardMinLevelIndex(playerList.map(p => p.cards.last())); // 最小牌面显出 先出牌的玩家索引
-            let passPlayerCount = 0; // 过牌玩家数量
             let round = new Round(); // 第一回合
 
-            // while (true) {
+            round.players = playerList;
+            
+            // while (round.end) {
+                // let currentPlayer = playerList[startPlayIdx % playerList.length] // 先出
+
             //     if (passPlayerCount + 1 == playerList.length) {
             //          // 发牌
             //          // 开始新的一轮
