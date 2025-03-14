@@ -93,32 +93,65 @@
             get url() {
                 return `./assets/poker/${this.type}${this.suits && '-' + this.suits}.png`
             }
+
+            /**
+             * 卡片对比
+             * A < B True
+             * A > B Fasle
+             * @author 	 linyisonger
+             * @date 	 2025-03-14
+             * @param {Card} a
+             * @param {Card} b
+             */
+            static comparison(a, b) {
+                if (TYPE_LEVEL[a.type] < TYPE_LEVEL[b.type]) return true;  // A牌面小于B牌面 True
+                if (TYPE_LEVEL[a.type] > TYPE_LEVEL[b.type]) return false; // A牌面大于B牌面 False
+                if (SUITS_LEVEL[a.suits] < SUITS_LEVEL[b.suits]) return true; // A牌面等于B牌面 且A花色小于B花色 True
+                return false;  // 其他 False
+            }
+
+            /**
+             * 数组中最小卡牌下表
+             * @author 	 linyisonger
+             * @date 	 2025-03-14
+             * @param {Card[]} arr
+             */
+            static minCardIndex(arr) {
+                if (arr.length === 0) return -1; // 处理空数组
+                let idx = 0;
+                for (let i = 1; i < arr.length; i++) if (Card.comparison(arr[i], arr[idx])) idx = i;
+                return idx;
+            }
         }
+
+
 
         class Round {
-            /** @type {Player[]} 玩家*/
-            players = []
-            /** @type {PlayerRound[]} 玩家出牌*/
-            history = []
+            /** @type {Record[]} 所有记录*/
+            allRecord = []
 
-            get end() {
-                if (history.length < playerList.length) return false
-                let hisLen = this.history.length;
-                let playerLen = this.players.length;
-                let lastPlayerRounds = this.history.slice(hisLen - playerLen - 1)
-                return lastPlayerRounds.every(a => a.pass)
+            /**
+             * @param {Game} game
+             */
+            constructor(game) {
+                this.currentGame = game;
             }
 
-            get winner() {
-                if (!this.end) return null
-                let hisLen = this.history.length;
-                let playerLen = this.players.length;
-                return this.history[hisLen - playerLen - 1].player
+            /**
+             * 结束
+             */
+            get end() {
+                // 记录数量小于玩家的人数 不可能结束
+                if (this.allRecord.length < this.currentGame.joinPlayers.length) return false
+                // 记录倒着数玩家数量-1数量的记录  如都是pass则结束
+                return this.allRecord.slice(this.allRecord.length - this.currentGame.joinPlayers.length + 1).every(r => r.pass)
             }
         }
 
-        class PlayerRound {
+        class Record {
+            /** @type {Player} 玩家*/
             player = null
+            /** @type {Card[]} 牌面*/
             cards = []
 
             get pass() {
@@ -127,28 +160,139 @@
         }
 
         class Player {
+            /**
+             * @param {Game} game
+             */
+            constructor(game) {
+                this.currentGame = game;
+            }
+            /** @type {string} ID */
             id = Randoms.uuid()
-            score = 0
-            cards = []
+            /** @type {string} 名称*/
+            get name() {
+                return '玩家' + this.id.slice(0, 10)
+            }
+            /** @type {Card[]} 持有手牌*/
+            holdCards = []
+            // 最大持有手牌数
+            maxHoldCardsCount = 5
+            /**
+             * 出牌
+             */
+            discard(round) {
+                
+            }
+            /**
+             * 起牌 
+             */
+            pickup() {
+                let pickupCount = this.maxHoldCardsCount - this.holdCards.length // 需要起几张牌
+                for (let i = 0; i < pickupCount; i++) {
+                    let card = this.currentGame.randomlyDrawCards();
+                    card && this.holdCards.push(card)
+                }
+                this.holdCards.sort((a, b) => Card.comparison(a, b) ? 1 : -1);
+            }
+
+            /**
+             * 最小卡牌
+             */
+            get holdMinCard() {
+                return this.holdCards[this.holdCards.length - 1];
+            }
         }
 
 
-        Array.prototype.first = function () {
-            if (this.length === 0) return null
-            return this[0]
+        class Game {
+            /** @type {Card[]} 所有卡牌*/
+            allCards = generateDeckOfCards();
+            /** @type {Round[]} 所有回合*/
+            allRounds = []
+            /** @type {Player[]} 加入玩家*/
+            joinPlayers = [new Player(this), new Player(this)]
+
+            // 当前玩家索引
+            currentPlayerIndex = 0;
+            // 当前玩家
+            get currentPlayer() {
+                return this.joinPlayers[this.currentPlayerIndex]
+            }
+
+            // 当前回合
+            currentRound = new Round();
+
+
+
+            /**
+             * 下一个玩家
+             * 切换玩家进行出牌操作
+             */
+            nextPlayer = () => {
+                this.currentPlayerIndex++
+                if (this.currentPlayerIndex >= this.joinPlayers.length) this.currentPlayerIndex = 0
+            }
+
+
+            /**
+             * 下一个玩家出牌
+             */
+            nextPlayerDiscard = () => {
+                this.nextPlayer(); // 下一个玩家
+                if (this.currentRound.end) { // 检测回合是否结束
+                    this.allRounds.push(this.currentRound);
+                    this.nextRound();
+                }
+                else this.currentPlayer.discard(this.currentRound)
+            }
+
+
+            /**
+             * 下一回合
+             * 切换回合
+             */
+            nextRound = async () => {
+                this.currentRound = new Round();
+                // 玩家起牌
+                console.log('玩家起牌');
+
+                for (let i = 0; i < this.joinPlayers.length; i++) {
+                    this.currentPlayer.pickup();
+                    this.nextPlayer();
+                }
+
+                if (this.allRounds.length === 0) {
+                    console.log('最小牌面对比');
+                    // 牌面最小
+                    let minCards = this.joinPlayers.map(p => p.holdMinCard)
+                    let minCardIndex = Card.minCardIndex(minCards);
+                    this.currentPlayerIndex = minCardIndex;
+                    console.log('玩家牌面最小', this.currentPlayer);
+                }
+
+                this.currentPlayer.discard(this.currentRound)
+            }
+
+            /**
+             * 开始游戏
+             * @author 	 linyisonger
+             * @date 	 2025-03-14
+             */
+            start = () => {
+                this.nextRound()
+                return this;
+            }
+
+            /**
+             * 随机抽取卡牌 
+             */
+            randomlyDrawCards = () => {
+                if (this.allCards.length == 0) return null // 发牌结束
+                let index = Randoms.int(0, this.allCards.length) // 随机卡牌
+                return this.allCards.splice(index, 1)[0]
+            }
+
         }
 
-        Array.prototype.last = function () {
-            if (this.length === 0) return null
-            return this[this.length - 1]
-        }
-
-
-        const deckOfCards = generateDeckOfCards(); // 一副牌
-        const playerList = [new Player(), new Player()] // 玩家列表
-        const playIdx = 0 // 出牌玩家索引
-        const maxCardCount = 5 // 最大手牌数
-        const roundList = [] // 回合数据
         /**
          * 生成一副牌
          * @author 	 linyisonger
@@ -157,151 +301,15 @@
         function generateDeckOfCards() {
             let cards = []
             for (const t of Object.values(CARD_TYPE)) {
-                if (t === CARD_TYPE.BACK) continue;
-                else if (t === CARD_TYPE.BIG_JOKER || t === CARD_TYPE.LITTLE_JOKER) cards.push(new Card(t))
-                else for (const s of Object.values(CARD_SUITS)) cards.push(new Card(t, s))
+                if (t === CARD_TYPE.BACK) continue; // 背面
+                else if (t === CARD_TYPE.BIG_JOKER || t === CARD_TYPE.LITTLE_JOKER) cards.push(new Card(t)) // 大小王
+                else for (const s of Object.values(CARD_SUITS)) cards.push(new Card(t, s)) // 其他
             }
             return cards
         }
 
 
-        /**
-         * 随机分牌
-         * @author 	 linyisonger
-         * @date 	 2025-03-04
-         */
-        function randomDeal() {
-            if (deckOfCards.length == 0) return null // 发牌结束
-            let idx = Randoms.int(0, deckOfCards.length)
-            return deckOfCards.splice(idx, 1)[0]
-        }
-
-
-        /**
-         * 卡牌对比
-         * A < B True
-         * A > B Fasle
-         * 
-         * @author 	 linyisonger
-         * @date 	 2025-03-04
-         * @param {Card} cardA
-         * @param {Card} cardB
-         */
-        function cardComparison(cardA, cardB) {
-            if (TYPE_LEVEL[cardA.type] < TYPE_LEVEL[cardB.type]) return true;  // A牌面小于B牌面 True
-            if (TYPE_LEVEL[cardA.type] > TYPE_LEVEL[cardB.type]) return false; // A牌面大于B牌面 False
-            if (SUITS_LEVEL[cardA.suits] < SUITS_LEVEL[cardB.suits]) return true; // A牌面等于B牌面 且A花色小于B花色 True
-            return false;  // 其他 False
-        }
-
-
-
-
-
-
-        /**
-         * 手牌排序 从大到小排序
-         * @author 	 linyisonger
-         * @date 	 2025-03-04
-         * @param {Card[]} cards
-         */
-        function cardSortByLevel(cards) {
-            cards.sort((a, b) => cardComparison(a, b) ? 1 : -1);
-            return cards
-        }
-
-
-        /**
-         * 卡牌最小牌面
-         * @author 	 linyisonger
-         * @date 	 2025-03-06
-         * @param {Card[]} cards
-         */
-        function cardMinLevelIndex(cards) {
-            if (cards.length === 0) return -1; // 处理空数组
-            let minIndex = 0;
-            for (let i = 1; i < cards.length; i++) {
-                if (cardComparison(cards[i], cards[minIndex])) minIndex = i;
-            }
-            return minIndex;
-        }
-
-
-        /**
-         * 出牌
-         * @author 	 linyisonger
-         * @date 	 2025-03-06
-         * @param {Card[]} hold 持有
-         * @param {Card[]} target 目标
-         */
-        function bringOut(hold, target) {
-
-        }
-
-
-
-        /**
-         * 开始游戏
-         * @author 	 linyisonger
-         * @date 	 2025-03-04
-         */
-        function startGame() {
-            startDeal();
-            startRound()
-        }
-
-        /**
-         * 开始发牌
-         * @author 	 linyisonger
-         * @date 	 2025-03-04
-         */
-        function startDeal() {
-            let startPlayIdx = playIdx; // 先发牌的玩家索引
-            let completeDealPlayerCount = 0; // 完成发牌玩家数量
-            while (true) {
-                if (completeDealPlayerCount === playerList.length) break // 完成发牌的人数等于玩家人数
-                let player = playerList[startPlayIdx % playerList.length]
-                let card = randomDeal();
-                if (card != null) player.cards.push(card) // 剩余有牌时发牌
-                else completeDealPlayerCount = playerList.length; // 无牌时结束发牌
-                if (player.cards.length === maxCardCount) { // 当玩家手牌最大数量时
-                    completeDealPlayerCount++;
-                    startPlayIdx++ // 补满切换下一个人
-                }
-            }
-            playerList.map(p => cardSortByLevel(p.cards))
-        }
-
-
-        /**
-         * 开始回合
-         * @author 	 linyisonger
-         * @date 	 2025-03-04
-         */
-        function startRound() {
-            let startPlayIdx = cardMinLevelIndex(playerList.map(p => p.cards.last())); // 最小牌面显出 先出牌的玩家索引
-            let round = new Round(); // 第一回合
-
-            round.players = playerList;
-            
-            // while (round.end) {
-                // let currentPlayer = playerList[startPlayIdx % playerList.length] // 先出
-
-            //     if (passPlayerCount + 1 == playerList.length) {
-            //          // 发牌
-            //          // 开始新的一轮
-            //          break;
-            //     }
-            //     let currentPlayer = playerList[startPlayIdx % playerList.length] // 先出
-            //     if (isPass) passPlayerCount++;
-            //     else passPlayerCount = 0; // 出牌后重置弃牌人数
-            //     startPlayIdx++ // 换人
-            // }
-        }
-
-
-        startGame();
-        console.log(playerList);
+        console.log(new Game().start());
     </script>
 
 </body>
