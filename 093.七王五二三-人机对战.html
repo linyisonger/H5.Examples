@@ -12,6 +12,8 @@
 
     <script type="module">
         import { Randoms } from "https://gcore.jsdelivr.net/npm/@3r/tool/lib/randoms.js";
+        import { group } from "https://gcore.jsdelivr.net/npm/@3r/tool/lib/common.js";
+
         /**  
             游戏准备
             牌数与人数:
@@ -31,7 +33,6 @@
                 得分:5代表5分，10和K代表10分。当一轮中出分牌后，最后牌最大的玩家可获得本轮所有分牌的分数。
                 胜负:通常最先出完牌的玩家算赢;或者游戏结束后，得分最高的玩家获胜。
          */
-
         const CARD_TYPE = {
             2: '2',
             3: '3',
@@ -50,14 +51,12 @@
             BIG_JOKER: '大王',
             BACK: '背面'
         }
-
         const CARD_SUITS = {
             DIAMOND: '方片',
             HEART: '红桃',
             CLUB: '梅花',
             SPADE: '黑桃'
         }
-
         // 7>大王>小王>5>2>3>A>K>Q>J>10>9>8>6>4 
         const TYPE_LEVEL = {
             [CARD_TYPE[4]]: 1,
@@ -76,13 +75,21 @@
             [CARD_TYPE.BIG_JOKER]: 14,
             [CARD_TYPE[7]]: 15,
         }
-
         // 黑桃>红桃>梅花>方块
         const SUITS_LEVEL = {
             [CARD_SUITS.DIAMOND]: 1,
             [CARD_SUITS.CLUB]: 2,
             [CARD_SUITS.HEART]: 3,
             [CARD_SUITS.SPADE]: 4
+        }
+        // 牌型
+        const GROUP_TYPE = {
+            LEAFLETS: "单张",
+            PAIRS: '一对',
+            TRIPLE: '三张',
+            FOUR: '四张',
+            TRIPLE_WITH_PAIRS: '三带二',
+            FOUR_WITH_SINGLE: '四带一',
         }
 
         class Card {
@@ -124,11 +131,23 @@
             }
         }
 
-
-
         class Round {
             /** @type {Record[]} 所有记录*/
             allRecord = []
+
+
+            /** @type {Record} 最后记录*/
+            get lastRecord() {
+                return this.allRecord.at(-1)
+            }
+
+
+            /** @type {Card[]} 当前牌面*/
+            get lastCards() {
+                return this.lastRecord?.cards || []
+            }
+
+
 
             /**
              * @param {Game} game
@@ -154,8 +173,28 @@
             /** @type {Card[]} 牌面*/
             cards = []
 
+            constructor(player, cards) {
+                this.player = player;
+                this.cards = cards;
+
+                console.log(`${player.name} 打出 ${this.groupType} `, cards);
+            }
+
             get pass() {
                 return this.cards.length === 0
+            }
+
+            get groupType() {
+                let tmpGroup = group(this.cards, c => c.type)
+                if (this.cards.length === 1) return GROUP_TYPE.LEAFLETS;
+                if (this.cards.length === 2 && tmpGroup.length === 1) return GROUP_TYPE.PAIRS;
+                if (this.cards.length === 3 && tmpGroup.length === 1) return GROUP_TYPE.TRIPLE;
+                if (this.cards.length === 4 && tmpGroup.length === 1) return GROUP_TYPE.FOUR;
+                if (this.cards.length === 5 && tmpGroup.length === 2) {
+                    if (tmpGroup.filter(g => g.length === 3)) return GROUP_TYPE.TRIPLE_WITH_PAIRS
+                    if (tmpGroup.filter(g => g.length === 4)) return GROUP_TYPE.FOUR_WITH_SINGLE
+                }
+                return null;
             }
         }
 
@@ -174,13 +213,37 @@
             }
             /** @type {Card[]} 持有手牌*/
             holdCards = []
+
+            /**
+             * 持有组合
+             * @type {Card[][]}
+             */
+            get holdGroup() {
+                return group(this.holdCards, c => c.type)
+            }
+
             // 最大持有手牌数
             maxHoldCardsCount = 5
             /**
              * 出牌
+             * @param {Round} round
              */
             discard(round) {
-                
+                // 机器人
+                console.log();
+                if ('托管') {
+                    // 最小能大上的牌
+                    let cards = this.betterCards(round.lastCards)
+                    // 出牌操作
+                    this.holdCards = this.holdCards.filter(h => !cards.includes(h))
+                    // 一条记录
+                    round.allRecord.push(new Record(this, cards))
+                    if (this.holdCards.length === 0 && this.currentGame.allCards.length === 0) {
+                        // 游戏结束
+                        console.log("游戏结束");
+                    }
+                    else this.currentGame.nextPlayerDiscard()
+                }
             }
             /**
              * 起牌 
@@ -196,12 +259,46 @@
 
             /**
              * 最小卡牌
+             * @type {Card}
              */
             get holdMinCard() {
-                return this.holdCards[this.holdCards.length - 1];
+                return this.holdCards.at(-1);
+            }
+
+            /**
+             * 是否胜过的组合
+             * @author 	 linyisonger
+             * @date 	 2025-03-15
+             * @param {Card[]} cards
+             * 
+             */
+            betterCards(cards) {
+                // 自己先出牌
+                if (cards.length === 0) {
+                    // 最小的组合
+                    return this.holdCards.filter(c => c.type === this.holdMinCard.type)
+                }
+                // 单牌
+                else if (cards.length === 1) {
+                    let leaflets = this.holdCards.find(c => Card.comparison(cards[0], c))
+                    if (leaflets) return [leaflets]
+                }
+                // 一对
+                // else if (cards.length === 2) {
+                //     // 是否有黑桃
+                //     let hasSpade = cards.some(c => c.suits === CARD_SUITS.SPADE)
+                //     // 是否有组合能够
+                //     let groups = this.holdGroup.filter(g => g.length >= 2)
+
+                // }
+
+
+
+
+
+                return []
             }
         }
-
 
         class Game {
             /** @type {Card[]} 所有卡牌*/
@@ -251,7 +348,10 @@
              * 切换回合
              */
             nextRound = async () => {
-                this.currentRound = new Round();
+
+
+
+                this.currentRound = new Round(this);
                 // 玩家起牌
                 console.log('玩家起牌');
 
@@ -307,7 +407,6 @@
             }
             return cards
         }
-
 
         console.log(new Game().start());
     </script>
