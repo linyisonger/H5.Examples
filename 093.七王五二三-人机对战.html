@@ -6,13 +6,217 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./assets/global.css">
+
+    <style>
+        .scene {
+            width: 100vw;
+            height: 100vh;
+            background-image: url('./assets/poker/background.png');
+            user-select: none;
+            width: 100%;
+        }
+
+        .card-table {
+            position: absolute;
+            width: 100%;
+            transform: translate(-50%, -50%);
+            top: 50%;
+            left: 50%;
+            display: flex;
+            justify-content: center;
+        }
+
+
+        .player {
+            position: absolute;
+            bottom: 60px;
+            width: 100%;
+        }
+
+
+        .player-hold-cards {
+            display: flex;
+            justify-content: flex-end;
+            padding-right: 20vmin;
+
+        }
+
+        .player-name {
+            position: absolute;
+            bottom: -30px;
+            left: 40px;
+        }
+
+        .card-item.selected img {
+            transform: translateY(-20px);
+        }
+
+        .robot {
+            top: 30px;
+            position: absolute;
+            width: 100%;
+        }
+
+        .robot-hold-cards {
+            display: flex;
+            padding-left: 10vmin;
+        }
+
+        .robot-name {
+            position: absolute;
+            top: 170px;
+            right: 40px;
+        }
+
+        .card-item {
+            max-width: 10vmin;
+            display: flex;
+        }
+
+
+        .player-operation-buttons {
+            position: absolute;
+            bottom: 180px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .player-operation-buttons>div {
+            display: flex;
+        }
+
+        .player-operation-buttons .hidden {
+            display: none;
+        }
+
+
+        [class$='btn'] {
+            display: inline-flex;
+            padding: 0 20px 3px;
+            line-height: 40px;
+            background: linear-gradient(to bottom, rgb(87, 196, 245), rgb(26, 147, 206));
+            color: rgb(254, 252, 255);
+            cursor: pointer;
+            border-radius: 4px;
+            font-weight: bold;
+            box-shadow: inset 0px -3px 0 rgb(19, 98, 139);
+        }
+
+        [class$='btn']+[class$='btn'] {
+            margin-left: 50px;
+        }
+
+
+        [class$='btn']:active {
+            opacity: .7;
+            box-shadow: inset 0px 0px 0 transparent;
+        }
+
+        .pass-btn {
+            background: linear-gradient(to bottom, rgb(245, 87, 87), rgb(206, 26, 26));
+            box-shadow: inset 0px -3px 0 rgb(139, 19, 39);
+        }
+
+        .powerless {
+            font-size: 28px;
+            font-weight: bold;
+            color: rgb(218, 183, 96);
+        }
+
+        .non-compliance {
+            font-size: 28px;
+            font-weight: bold;
+            color: rgb(218, 183, 96);
+        }
+    </style>
 </head>
 
 <body>
+    <div class="scene">
+        <div class="robot">
+            <div class="robot-name">玩家嘻嘻嘻xxxx</div>
+            <div class="robot-hold-cards">
+                <div class="card-item">
+                    <img src="./assets/poker/背面.jpg">
+                </div>
+                <div class="card-item">
+                    <img src="./assets/poker/背面.jpg">
+                </div>
+                <div class="card-item">
+                    <img src="./assets/poker/背面.jpg">
+                </div>
+                <div class="card-item">
+                    <img src="./assets/poker/背面.jpg">
+                </div>
+                <div class="card-item">
+                    <img src="./assets/poker/背面.jpg">
+                </div>
+            </div>
+        </div>
+
+
+        <div class="card-table">
+            <div class="card-item">
+                <img src="./assets/poker/背面.jpg">
+            </div>
+            <div class="card-item">
+                <img src="./assets/poker/背面.jpg">
+            </div>
+            <div class="card-item">
+                <img src="./assets/poker/背面.jpg">
+            </div>
+            <div class="card-item">
+                <img src="./assets/poker/背面.jpg">
+            </div>
+            <div class="card-item">
+                <img src="./assets/poker/背面.jpg">
+            </div>
+        </div>
+
+
+        <div class="player">
+            <div class="player-operation-buttons">
+                <div>
+                    <div class="dis-btn">出牌</div>
+                    <div class="pass-btn">不要</div>
+                </div>
+                <div>
+                    <div class="powerless">没有能大过的牌</div>
+                    <div class="non-compliance">不符合规则</div>
+                </div>
+            </div>
+            <div class="player-name">玩家嘻嘻嘻xxxx</div>
+            <div class="player-hold-cards">
+                <div class="card-item" data-index="0"> </div>
+                <div class="card-item" data-index="1"> </div>
+                <div class="card-item" data-index="2"> </div>
+                <div class="card-item" data-index="3"> </div>
+                <div class="card-item" data-index="4"> </div>
+            </div>
+        </div>
+
+    </div>
+
 
     <script type="module">
         import { Randoms } from "https://gcore.jsdelivr.net/npm/@3r/tool/lib/randoms.js";
-        import { group } from "https://gcore.jsdelivr.net/npm/@3r/tool/lib/common.js";
+
+        /**
+         * 打组
+         * @author 	 linyisonger
+         * @date 	 2025-03-15
+         */
+        function groupBy(arr, func) {
+            const tmpDict = {}
+            for (let i = 0; i < arr.length; i++) {
+                if (!tmpDict[func(arr[i], i)]) tmpDict[func(arr[i], i)] = []
+                tmpDict[func(arr[i], i)].push(arr[i])
+            }
+            return tmpDict
+        }
 
         /**  
             游戏准备
@@ -92,13 +296,73 @@
             FOUR_WITH_SINGLE: '四带一',
         }
 
+        const PLAYER_STATUS = {
+            AUTO: '托管',
+            MANUAL: '手动'
+        }
+
+        class EventBus {
+            constructor() {
+                // 初始化事件列表
+                this.eventObject = {};
+                // 回调函数列表的id
+                this.callbackId = 0;
+            }
+            // 发布事件
+            publish(eventName, ...args) {
+                // 取出当前事件所有的回调函数
+                const callbackObject = this.eventObject[eventName];
+
+                if (!callbackObject) return console.warn(eventName + " not found!");
+
+                // 执行每一个回调函数
+                for (let id in callbackObject) {
+                    // 执行时传入参数
+                    callbackObject[id](...args);
+                }
+            }
+            // 订阅事件
+            subscribe(eventName, callback) {
+                // 初始化这个事件
+                if (!this.eventObject[eventName]) {
+                    // 使用对象存储，注销回调函数的时候提高删除的效率
+                    this.eventObject[eventName] = {};
+                }
+
+                const id = this.callbackId++;
+
+                // 存储订阅者的回调函数
+                // callbackId使用后需要自增，供下一个回调函数使用
+                this.eventObject[eventName][id] = callback;
+
+                // 每一次订阅事件，都生成唯一一个取消订阅的函数
+                const unSubscribe = () => {
+                    // 清除这个订阅者的回调函数
+                    delete this.eventObject[eventName][id];
+
+                    // 如果这个事件没有订阅者了，也把整个事件对象清除
+                    if (Object.keys(this.eventObject[eventName]).length === 0) {
+                        delete this.eventObject[eventName];
+                    }
+                };
+
+                return { unSubscribe };
+            }
+        }
+
+
+
         class Card {
             constructor(type = '', suits = '') {
                 this.type = type;
                 this.suits = suits;
             }
             get url() {
-                return `./assets/poker/${this.type}${this.suits && '-' + this.suits}.png`
+                return `./assets/poker/${this.type}${this.suits && '-' + this.suits}.jpg`
+            }
+
+            UIIMG() {
+                return `<img src="${this.url}"/>`
             }
 
             /**
@@ -117,6 +381,18 @@
                 return false;  // 其他 False
             }
 
+
+            /**
+             * 卡片类型
+             * A < B True
+             * A > B False
+             * @author 	 linyisonger
+             * @date 	 2025-03-15
+             */
+            static comparisonByType(a, b) {
+                return TYPE_LEVEL[a] < TYPE_LEVEL[b]
+            }
+
             /**
              * 数组中最小卡牌下表
              * @author 	 linyisonger
@@ -128,6 +404,68 @@
                 let idx = 0;
                 for (let i = 1; i < arr.length; i++) if (Card.comparison(arr[i], arr[idx])) idx = i;
                 return idx;
+            }
+
+            /**
+             * 卡牌组类型
+             * @author 	 linyisonger
+             * @date 	 2025-03-15
+             * @param {Card[]} cards
+             */
+            static groupType(cards) {
+                let tmpGroup = Object.values(groupBy(cards, c => c.type))
+                if (cards.length === 1) return GROUP_TYPE.LEAFLETS;
+                if (cards.length === 2 && tmpGroup.length === 1) return GROUP_TYPE.PAIRS;
+                if (cards.length === 3 && tmpGroup.length === 1) return GROUP_TYPE.TRIPLE;
+                if (cards.length === 4 && tmpGroup.length === 1) return GROUP_TYPE.FOUR;
+                if (cards.length === 5 && tmpGroup.length === 2) {
+                    if (tmpGroup.filter(g => g.length === 3)) return GROUP_TYPE.TRIPLE_WITH_PAIRS
+                    if (tmpGroup.filter(g => g.length === 4)) return GROUP_TYPE.FOUR_WITH_SINGLE
+                }
+                return null;
+            }
+
+            /**
+             * 提示
+             * 
+             * hold > target 的牌型
+             * 
+             * @author 	 linyisonger
+             * @date 	 2025-03-15
+             * @param {Card[]} hold
+             * @param {Card[]} target
+             */
+            static hint(hold, target) {
+                let groupType = Card.groupType(target) // 目标牌型
+                let holdGroup = groupBy(hold, c => c.type) // 持有打组
+
+                if (groupType === GROUP_TYPE.LEAFLETS) { // 单张
+                    for (let i = hold.length - 1; i >= 0; i--) {
+                        if (Card.comparison(target[0], hold[i])) return [hold[i]]
+                    }
+                }
+                else if (groupType === GROUP_TYPE) { // 一对
+                    // 是否有黑桃
+                    let hasSpade = cards.some(c => c.suits === CARD_SUITS.SPADE)
+                    // 单张卡牌类型
+                    let type = target[0].type
+                    for (const key in holdGroup) {
+                        if (holdGroup[key].length >= 2) { // 张数大于等于2
+                            if (Card.comparisonByType(key, type)) // 当key < type 时
+                                delete holdGroup[key]
+                            if (hasSpade && key === type) // 相同
+                                delete holdGroup[key]
+                        }
+                    }
+                    // 排序后取最小的组合的前两张
+                    let keys = Object.keys(holdGroup)
+                    // 排序
+                    if (keys.length > 1) keys.sort((a, b) => Card.comparisonByType(a, b) ? 1 : -1)
+                    console.log(keys);
+                    if (keys.length > 0) return holdGroup[keys[0]].slice(0, 2)
+                }
+
+                return []
             }
         }
 
@@ -165,6 +503,33 @@
                 // 记录倒着数玩家数量-1数量的记录  如都是pass则结束
                 return this.allRecord.slice(this.allRecord.length - this.currentGame.joinPlayers.length + 1).every(r => r.pass)
             }
+
+            /**
+             * @type {HTMLDivElement}
+             */
+            container = null
+
+            /**
+             * 加载UI容器
+             * @author 	 linyisonger
+             * @date 	 2025-03-16
+             * @param {HTMLDivElement} container
+             */
+            loadUIContainer(container) {
+                this.container = container;
+                this.loadUILastCards();
+                return this;
+            }
+
+
+            loadUILastCards() {
+                const cardItemDomList = this.container.querySelectorAll('.card-item')
+                for (let i = 0; i < cardItemDomList.length; i++) {
+                    const cardItemDom = cardItemDomList.item(i)
+                    const cardItem = this.lastCards[i]
+                    cardItemDom.innerHTML = cardItem?.UIIMG() ?? ``
+                }
+            }
         }
 
         class Record {
@@ -176,7 +541,6 @@
             constructor(player, cards) {
                 this.player = player;
                 this.cards = cards;
-
                 console.log(`${player.name} 打出 ${this.groupType} `, cards);
             }
 
@@ -185,20 +549,14 @@
             }
 
             get groupType() {
-                let tmpGroup = group(this.cards, c => c.type)
-                if (this.cards.length === 1) return GROUP_TYPE.LEAFLETS;
-                if (this.cards.length === 2 && tmpGroup.length === 1) return GROUP_TYPE.PAIRS;
-                if (this.cards.length === 3 && tmpGroup.length === 1) return GROUP_TYPE.TRIPLE;
-                if (this.cards.length === 4 && tmpGroup.length === 1) return GROUP_TYPE.FOUR;
-                if (this.cards.length === 5 && tmpGroup.length === 2) {
-                    if (tmpGroup.filter(g => g.length === 3)) return GROUP_TYPE.TRIPLE_WITH_PAIRS
-                    if (tmpGroup.filter(g => g.length === 4)) return GROUP_TYPE.FOUR_WITH_SINGLE
-                }
-                return null;
+                return Card.groupType(this.cards)
             }
         }
 
         class Player {
+            // 玩家状态
+            status = PLAYER_STATUS.AUTO
+
             /**
              * @param {Game} game
              */
@@ -209,40 +567,115 @@
             id = Randoms.uuid()
             /** @type {string} 名称*/
             get name() {
-                return '玩家' + this.id.slice(0, 10)
+                return '玩家' + this.id.slice(0, 8)
             }
             /** @type {Card[]} 持有手牌*/
             holdCards = []
 
             /**
              * 持有组合
-             * @type {Card[][]}
+             * @type {{[key:string]:Card[]}}
              */
             get holdGroup() {
-                return group(this.holdCards, c => c.type)
+                return groupBy(this.holdCards, c => c.type)
             }
 
             // 最大持有手牌数
             maxHoldCardsCount = 5
+
             /**
              * 出牌
              * @param {Round} round
              */
             discard(round) {
-                // 机器人
-                console.log();
-                if ('托管') {
+                if (this.status === PLAYER_STATUS.AUTO) {
+                    console.log('自动', round.lastCards);
                     // 最小能大上的牌
                     let cards = this.betterCards(round.lastCards)
                     // 出牌操作
                     this.holdCards = this.holdCards.filter(h => !cards.includes(h))
                     // 一条记录
                     round.allRecord.push(new Record(this, cards))
-                    if (this.holdCards.length === 0 && this.currentGame.allCards.length === 0) {
-                        // 游戏结束
+                    if (this.holdCards.length === 0 && this.currentGame.allCards.length === 0) // 游戏结束
                         console.log("游戏结束");
-                    }
                     else this.currentGame.nextPlayerDiscard()
+                }
+                else {
+                    console.log('手动', round.lastCards);
+                    let cardItemDomList = this.container.querySelectorAll('.card-item');
+                    let player = this;
+
+                    let clickFunc = function () {
+                        console.log("clickFunc", this);
+                        /** @type {HTMLDivElement } */
+                        let cardDom = this;
+                        let container = player.container;
+
+                        console.log(cardDom.classList.toggle('selected'));
+                        // 检查是否符合规则
+                        /** @type {HTMLDivElement[]} */
+                        let cardItemSelectedDomList = container.querySelectorAll('.card-item.selected');
+
+                        console.log(cardItemSelectedDomList);
+                        let disBtn = container.querySelector('.player-operation-buttons .dis-btn'); // 出牌
+                        let passBtn = container.querySelector('.player-operation-buttons .pass-btn'); // 不要
+                        let powerless = container.querySelector('.player-operation-buttons .powerless'); // 没有能大过的牌
+                        let nonCompliance = container.querySelector('.player-operation-buttons .non-compliance'); // 不符合规则
+
+                        let selectedCards = []
+
+                        let disFunc = function () {
+                            // 出牌操作
+                            player.holdCards = player.holdCards.filter(h => !selectedCards.includes(h))
+                            // 一条记录
+                            round.allRecord.push(new Record(player, selectedCards))
+                            // 更新手牌
+                            player.loadUIHoldCards();
+                            // 切换下一个人
+                            player.currentGame.nextPlayerDiscard()
+                            // 清除选中痕迹
+                            cardItemSelectedDomList.forEach(cardItemDom => {
+                                if (cardItemDom.classList.contains('selected')) cardDom.classList.toggle('selected')
+                                cardItemDom.removeEventListener('click', clickFunc)
+                            })
+
+                        }
+                        let passFunc = function () {
+
+                        }
+
+                        disBtn.removeEventListener('click', disFunc)
+                        disBtn.addEventListener('click', disFunc)
+
+                        cardItemSelectedDomList.forEach(cardItemDom => {
+                            let i = +cardItemDom.getAttribute('data-index')
+                            console.log(player.holdCards[i]);
+                            selectedCards.push(player.holdCards[i])
+                            console.log(selectedCards);
+                            let groupType = Card.groupType(selectedCards)
+
+
+                            if (groupType == null || round.lastCards.length > 0 && groupType != Card.groupType(round.lastCards)) {
+                                disBtn.classList.remove('hidden')
+                                nonCompliance.classList.remove('hidden')
+                                powerless.classList.add('hidden')
+                                passBtn.classList.add('hidden')
+                            }
+                            else { // 符合规则
+
+                                if (round.lastCards.length == 0) passBtn.classList.add('hidden')
+                                disBtn.classList.remove('hidden')
+                                nonCompliance.classList.add('hidden')
+
+                            }
+                        })
+
+                    }
+
+
+                    cardItemDomList.forEach(cardItemDom => {
+                        cardItemDom.addEventListener("click", clickFunc)
+                    })
                 }
             }
             /**
@@ -273,34 +706,61 @@
              * 
              */
             betterCards(cards) {
-                // 自己先出牌
-                if (cards.length === 0) {
-                    // 最小的组合
-                    return this.holdCards.filter(c => c.type === this.holdMinCard.type)
+                // 组类型
+                let groupType = Card.groupType(cards)
+                // 自己先出牌 最小的组合
+                if (groupType === null) return this.holdCards.filter(c => c.type === this.holdMinCard.type)
+                return Card.hint(this.holdCards, cards)
+            }
+
+            /** 
+             * 界面容器
+             * @type {HTMLDivElement}
+             */
+            container = null
+
+            /**
+             * 加载界面容器
+             * @author 	 linyisonger
+             * @date 	 2025-03-16
+             * 
+             * @param {HTMLDivElement} container
+             */
+            loadUIContainer(container) {
+                this.container = container;
+                container.querySelector('[class$="-name"]').textContent = this.name
+
+                let disBtn = container.querySelector('.player-operation-buttons .dis-btn'); // 出牌
+                let passBtn = container.querySelector('.player-operation-buttons .pass-btn'); // 不要
+                let powerless = container.querySelector('.player-operation-buttons .powerless'); // 没有能大过的牌
+                let nonCompliance = container.querySelector('.player-operation-buttons .non-compliance'); // 不符合规则 
+                disBtn?.classList.add('hidden')
+                passBtn?.classList.add('hidden')
+                powerless?.classList.add('hidden')
+                nonCompliance?.classList.add('hidden')
+
+                this.loadUIHoldCards()
+                return this
+            }
+
+            /**
+             * 加载UI手牌
+             * @author 	 linyisonger
+             * @date 	 2025-03-16
+             */
+            loadUIHoldCards() {
+                const cardItemDomList = this.container.querySelectorAll('.card-item')
+                for (let i = 0; i < cardItemDomList.length; i++) {
+                    const cardItemDom = cardItemDomList.item(i)
+                    const cardItem = this.holdCards[i]
+                    if (this.status === PLAYER_STATUS.MANUAL) cardItemDom.innerHTML = cardItem?.UIIMG() ?? ``
+                    else cardItemDom.hidden = !cardItem
                 }
-                // 单牌
-                else if (cards.length === 1) {
-                    let leaflets = this.holdCards.find(c => Card.comparison(cards[0], c))
-                    if (leaflets) return [leaflets]
-                }
-                // 一对
-                // else if (cards.length === 2) {
-                //     // 是否有黑桃
-                //     let hasSpade = cards.some(c => c.suits === CARD_SUITS.SPADE)
-                //     // 是否有组合能够
-                //     let groups = this.holdGroup.filter(g => g.length >= 2)
-
-                // }
-
-
-
-
-
-                return []
             }
         }
 
         class Game {
+
             /** @type {Card[]} 所有卡牌*/
             allCards = generateDeckOfCards();
             /** @type {Round[]} 所有回合*/
@@ -318,8 +778,6 @@
             // 当前回合
             currentRound = new Round();
 
-
-
             /**
              * 下一个玩家
              * 切换玩家进行出牌操作
@@ -334,6 +792,7 @@
              * 下一个玩家出牌
              */
             nextPlayerDiscard = () => {
+                this.currentRound.loadUILastCards();
                 this.nextPlayer(); // 下一个玩家
                 if (this.currentRound.end) { // 检测回合是否结束
                     this.allRounds.push(this.currentRound);
@@ -348,10 +807,8 @@
              * 切换回合
              */
             nextRound = async () => {
+                this.currentRound = new Round(this) // .loadUIContainer(document.querySelector('.card-table'))
 
-
-
-                this.currentRound = new Round(this);
                 // 玩家起牌
                 console.log('玩家起牌');
 
@@ -366,6 +823,11 @@
                     let minCards = this.joinPlayers.map(p => p.holdMinCard)
                     let minCardIndex = Card.minCardIndex(minCards);
                     this.currentPlayerIndex = minCardIndex;
+
+                    // 定制化变更
+                    this.currentPlayer.status = PLAYER_STATUS.MANUAL
+                    // this.currentPlayer // .loadUIContainer(document.querySelector('.player'))
+                    // this.joinPlayers[(minCardIndex + 1) % this.joinPlayers.length] // .loadUIContainer(document.querySelector('.robot'))
                     console.log('玩家牌面最小', this.currentPlayer);
                 }
 
@@ -392,6 +854,38 @@
             }
 
         }
+
+        class UIController {
+            /** 
+             * 界面容器
+             * @type {HTMLDivElement}
+             */
+            container = null
+
+            /**
+             * 机器人容器
+             * @author 	 linyisonger
+             * @date 	 2025-03-16
+             */
+            get robotContainer() {
+                return this.container.querySelector('.robot')
+            }
+
+            /**
+             * 玩家容器
+             * @author 	 linyisonger
+             * @date 	 2025-03-16
+             */
+            get playerContainer() {
+                return this.container.querySelector('.player')
+            }
+
+            
+
+
+        }
+
+        const UIEvent = new EventBus()
 
         /**
          * 生成一副牌
