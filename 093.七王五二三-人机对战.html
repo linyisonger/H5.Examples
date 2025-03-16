@@ -504,32 +504,6 @@
                 return this.allRecord.slice(this.allRecord.length - this.currentGame.joinPlayers.length + 1).every(r => r.pass)
             }
 
-            /**
-             * @type {HTMLDivElement}
-             */
-            container = null
-
-            /**
-             * 加载UI容器
-             * @author 	 linyisonger
-             * @date 	 2025-03-16
-             * @param {HTMLDivElement} container
-             */
-            loadUIContainer(container) {
-                this.container = container;
-                this.loadUILastCards();
-                return this;
-            }
-
-
-            loadUILastCards() {
-                const cardItemDomList = this.container.querySelectorAll('.card-item')
-                for (let i = 0; i < cardItemDomList.length; i++) {
-                    const cardItemDom = cardItemDomList.item(i)
-                    const cardItem = this.lastCards[i]
-                    cardItemDom.innerHTML = cardItem?.UIIMG() ?? ``
-                }
-            }
         }
 
         class Record {
@@ -542,6 +516,7 @@
                 this.player = player;
                 this.cards = cards;
                 console.log(`${player.name} 打出 ${this.groupType} `, cards);
+                uiEvent.publish('updateCardTable', cards)
             }
 
             get pass() {
@@ -599,6 +574,8 @@
                     if (this.holdCards.length === 0 && this.currentGame.allCards.length === 0) // 游戏结束
                         console.log("游戏结束");
                     else this.currentGame.nextPlayerDiscard()
+
+                    uiEvent.publish('updateRobotHoldCards', this.holdCards)
                 }
                 else {
                     console.log('手动', round.lastCards);
@@ -713,50 +690,6 @@
                 return Card.hint(this.holdCards, cards)
             }
 
-            /** 
-             * 界面容器
-             * @type {HTMLDivElement}
-             */
-            container = null
-
-            /**
-             * 加载界面容器
-             * @author 	 linyisonger
-             * @date 	 2025-03-16
-             * 
-             * @param {HTMLDivElement} container
-             */
-            loadUIContainer(container) {
-                this.container = container;
-                container.querySelector('[class$="-name"]').textContent = this.name
-
-                let disBtn = container.querySelector('.player-operation-buttons .dis-btn'); // 出牌
-                let passBtn = container.querySelector('.player-operation-buttons .pass-btn'); // 不要
-                let powerless = container.querySelector('.player-operation-buttons .powerless'); // 没有能大过的牌
-                let nonCompliance = container.querySelector('.player-operation-buttons .non-compliance'); // 不符合规则 
-                disBtn?.classList.add('hidden')
-                passBtn?.classList.add('hidden')
-                powerless?.classList.add('hidden')
-                nonCompliance?.classList.add('hidden')
-
-                this.loadUIHoldCards()
-                return this
-            }
-
-            /**
-             * 加载UI手牌
-             * @author 	 linyisonger
-             * @date 	 2025-03-16
-             */
-            loadUIHoldCards() {
-                const cardItemDomList = this.container.querySelectorAll('.card-item')
-                for (let i = 0; i < cardItemDomList.length; i++) {
-                    const cardItemDom = cardItemDomList.item(i)
-                    const cardItem = this.holdCards[i]
-                    if (this.status === PLAYER_STATUS.MANUAL) cardItemDom.innerHTML = cardItem?.UIIMG() ?? ``
-                    else cardItemDom.hidden = !cardItem
-                }
-            }
         }
 
         class Game {
@@ -807,7 +740,7 @@
              * 切换回合
              */
             nextRound = async () => {
-                this.currentRound = new Round(this) // .loadUIContainer(document.querySelector('.card-table'))
+                this.currentRound = new Round(this)
 
                 // 玩家起牌
                 console.log('玩家起牌');
@@ -826,8 +759,10 @@
 
                     // 定制化变更
                     this.currentPlayer.status = PLAYER_STATUS.MANUAL
-                    // this.currentPlayer // .loadUIContainer(document.querySelector('.player'))
-                    // this.joinPlayers[(minCardIndex + 1) % this.joinPlayers.length] // .loadUIContainer(document.querySelector('.robot'))
+
+                    uiEvent.publish('updatePlayerHoldCards', this.currentPlayer.holdCards)
+                    uiEvent.publish('updatePlayerBaseInfo', this.currentPlayer)
+                    uiEvent.publish('updateRobotBaseInfo', this.joinPlayers[(minCardIndex + 1) % this.joinPlayers.length])
                     console.log('玩家牌面最小', this.currentPlayer);
                 }
 
@@ -856,19 +791,17 @@
         }
 
         class UIController {
-            /** 
-             * 界面容器
-             * @type {HTMLDivElement}
-             */
-            container = null
+            static get container() {
+                return document.body.querySelector('.scene')
+            }
 
             /**
              * 机器人容器
              * @author 	 linyisonger
              * @date 	 2025-03-16
              */
-            get robotContainer() {
-                return this.container.querySelector('.robot')
+            static get robotContainer() {
+                return UIController.container.querySelector('.robot')
             }
 
             /**
@@ -876,16 +809,116 @@
              * @author 	 linyisonger
              * @date 	 2025-03-16
              */
-            get playerContainer() {
-                return this.container.querySelector('.player')
+            static get playerContainer() {
+                return UIController.container.querySelector('.player')
             }
 
-            
+
+            /**
+             * 牌桌
+             * @author 	 linyisonger
+             * @date 	 2025-03-16
+             */
+            static get cardTable() {
+                return UIController.container.querySelector('.card-table')
+            }
 
 
+            /**
+             * 更新托管手牌
+             * @author 	 linyisonger
+             * @date 	 2025-03-16
+             * @param {Card[]} holdCards
+             */
+            static updateRobotHoldCards(holdCards) {
+                const cardItemDomList = UIController.robotContainer.querySelectorAll('.card-item')
+                for (let i = 0; i < cardItemDomList.length; i++) {
+                    const cardItemDom = cardItemDomList.item(i)
+                    const cardItem = holdCards[i]
+                    cardItemDom.hidden = !cardItem
+                }
+            }
+
+            /**
+             * 更新自己手牌
+             * @author 	 linyisonger
+             * @date 	 2025-03-16
+             * @param {Card[]} holdCards
+             */
+            static updatePlayerHoldCards(holdCards) {
+                const cardItemDomList = UIController.playerContainer.querySelectorAll('.card-item')
+                for (let i = 0; i < cardItemDomList.length; i++) {
+                    const cardItemDom = cardItemDomList.item(i)
+                    const cardItem = holdCards[i]
+                    cardItemDom.innerHTML = cardItem?.UIIMG() ?? ``
+                }
+            }
+
+
+            /**
+             * 更新玩家基础信息
+             * @author 	 linyisonger
+             * @date 	 2025-03-16
+             * @param {Player} player
+             */
+            static updatePlayerBaseInfo(player) {
+                UIController.playerContainer.querySelector('[class$="-name"]').textContent = player.name
+            }
+
+
+            /**
+             * 更新对手基础信息
+             * @author 	 linyisonger
+             * @date 	 2025-03-16
+             * @param {Player} robot
+             */
+            static updateRobotBaseInfo(robot) {
+                UIController.robotContainer.querySelector('[class$="-name"]').textContent = robot.name
+            }
+
+
+            /**
+             * 更新牌桌的牌
+             * @author 	 linyisonger
+             * @date 	 2025-03-16
+             */
+            static updateCardTable(cards) {
+                const cardItemDomList = UIController.cardTable.querySelectorAll('.card-item')
+                for (let i = 0; i < cardItemDomList.length; i++) {
+                    const cardItemDom = cardItemDomList.item(i)
+                    const cardItem = cards[i]
+                    cardItemDom.innerHTML = cardItem?.UIIMG() ?? ``
+                }
+            }
+
+
+            /**
+             * 初始化手牌
+             * @author 	 linyisonger
+             * @date 	 2025-03-16
+             */
+            static initPlayerHoldCards() {
+                const cardItemDomList = UIController.playerContainer.querySelectorAll('.card-item')
+                cardItemDomList.forEach(cardItemDom => {
+                    cardItemDom.addEventListener('click', function () {
+                        cardItemDom.classList.toggle('selected')
+                    })
+                })
+            }
         }
 
-        const UIEvent = new EventBus()
+
+        const uiEvent = new EventBus()
+
+        UIController.initPlayerHoldCards()
+
+        uiEvent.subscribe('updateRobotHoldCards', UIController.updateRobotHoldCards)
+        uiEvent.subscribe('updatePlayerHoldCards', UIController.updatePlayerHoldCards)
+        uiEvent.subscribe('updateRobotBaseInfo', UIController.updateRobotBaseInfo)
+        uiEvent.subscribe('updatePlayerBaseInfo', UIController.updatePlayerBaseInfo)
+        uiEvent.subscribe('updateCardTable', UIController.updateCardTable)
+        
+        uiEvent.publish('updateCardTable', [])
 
         /**
          * 生成一副牌
