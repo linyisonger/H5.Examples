@@ -88,7 +88,7 @@
             display: flex;
         }
 
-        .player-operation-buttons .hidden {
+        .hidden {
             display: none;
         }
 
@@ -361,9 +361,6 @@
                 return `./assets/poker/${this.type}${this.suits && '-' + this.suits}.jpg`
             }
 
-            UIIMG() {
-                return `<img src="${this.url}"/>`
-            }
 
             /**
              * 卡片对比
@@ -434,37 +431,52 @@
              * @date 	 2025-03-15
              * @param {Card[]} hold
              * @param {Card[]} target
+             * @returns {Card[]}
              */
             static hint(hold, target) {
                 let groupType = Card.groupType(target) // 目标牌型
                 let holdGroup = groupBy(hold, c => c.type) // 持有打组
+                let groupTypeNum = {
+                    [GROUP_TYPE.LEAFLETS]: 1,
+                    [GROUP_TYPE.PAIRS]: 2,
+                    [GROUP_TYPE.TRIPLE]: 3,
+                    [GROUP_TYPE.FOUR]: 4,
+                    [GROUP_TYPE.FOUR_WITH_SINGLE]: 5,
+                    [GROUP_TYPE.TRIPLE_WITH_PAIRS]: 5
+                }[groupType]   // 牌型张数
 
-                if (groupType === GROUP_TYPE.LEAFLETS) { // 单张
-                    for (let i = hold.length - 1; i >= 0; i--) {
-                        if (Card.comparison(target[0], hold[i])) return [hold[i]]
-                    }
+
+                if (hold.length < groupTypeNum) return [] // 手牌数小于牌型数 
+                if (groupType === GROUP_TYPE.LEAFLETS) {  // 单张
+                    for (let i = hold.length - 1; i >= 0; i--)  if (Card.comparison(target[0], hold[i])) return [hold[i]]
                 }
-                else if (groupType === GROUP_TYPE) { // 一对
+                else if (groupType === GROUP_TYPE.PAIRS) { // 一对
                     // 是否有黑桃
                     let hasSpade = cards.some(c => c.suits === CARD_SUITS.SPADE)
                     // 单张卡牌类型
                     let type = target[0].type
                     for (const key in holdGroup) {
-                        if (holdGroup[key].length >= 2) { // 张数大于等于2
-                            if (Card.comparisonByType(key, type)) // 当key < type 时
-                                delete holdGroup[key]
-                            if (hasSpade && key === type) // 相同
-                                delete holdGroup[key]
+                        if (holdGroup[key].length >= groupTypeNum) { // 张数大于等于2
+                            if (Card.comparisonByType(key, type)) delete holdGroup[key] // 当key < type 时
+                            if (hasSpade && key === type) delete holdGroup[key] // 相同
                         }
                     }
                     // 排序后取最小的组合的前两张
                     let keys = Object.keys(holdGroup)
                     // 排序
                     if (keys.length > 1) keys.sort((a, b) => Card.comparisonByType(a, b) ? 1 : -1)
-                    console.log(keys);
                     if (keys.length > 0) return holdGroup[keys[0]].slice(0, 2)
                 }
-
+                else if (groupType === GROUP_TYPE.TRIPLE || groupType === GROUP_TYPE.FOUR) { // 三张 or 四张
+                    // 单张卡牌类型
+                    let type = target[0].type
+                    for (const key in holdGroup) {
+                        if (holdGroup[key].length >= groupTypeNum) { // 张数大于等于 牌型张数
+                            if (Card.comparisonByType(key, type)) delete holdGroup[key] // 当key < type 时 
+                        }
+                    }
+                    if (keys.length > 0) return holdGroup[keys[0]].slice(0, groupTypeNum)
+                }
                 return []
             }
         }
@@ -473,19 +485,15 @@
             /** @type {Record[]} 所有记录*/
             allRecord = []
 
-
             /** @type {Record} 最后记录*/
             get lastRecord() {
                 return this.allRecord.at(-1)
             }
 
-
             /** @type {Card[]} 当前牌面*/
             get lastCards() {
                 return this.lastRecord?.cards || []
             }
-
-
 
             /**
              * @param {Game} game
@@ -565,94 +573,14 @@
             discard(round) {
                 if (this.status === PLAYER_STATUS.AUTO) {
                     console.log('自动', round.lastCards);
-                    // 最小能大上的牌
-                    let cards = this.betterCards(round.lastCards)
-                    // 出牌操作
-                    this.holdCards = this.holdCards.filter(h => !cards.includes(h))
-                    // 一条记录
-                    round.allRecord.push(new Record(this, cards))
-                    if (this.holdCards.length === 0 && this.currentGame.allCards.length === 0) // 游戏结束
-                        console.log("游戏结束");
-                    else this.currentGame.nextPlayerDiscard()
-
-                    uiEvent.publish('updateRobotHoldCards', this.holdCards)
+                    let cards = this.betterCards(round.lastCards) // 最小能大上的牌 
+                    this.holdCards = this.holdCards.filter(h => !cards.includes(h)) // 出牌操作 
+                    round.allRecord.push(new Record(this, cards))  // 一条记录
+                    this.currentGame.nextPlayerDiscard() // 下一个人 
+                    uiEvent.publish('updateRobotHoldCards', this.holdCards) // 轮到玩家出牌
                 }
                 else {
-                    console.log('手动', round.lastCards);
-                    let cardItemDomList = this.container.querySelectorAll('.card-item');
-                    let player = this;
-
-                    let clickFunc = function () {
-                        console.log("clickFunc", this);
-                        /** @type {HTMLDivElement } */
-                        let cardDom = this;
-                        let container = player.container;
-
-                        console.log(cardDom.classList.toggle('selected'));
-                        // 检查是否符合规则
-                        /** @type {HTMLDivElement[]} */
-                        let cardItemSelectedDomList = container.querySelectorAll('.card-item.selected');
-
-                        console.log(cardItemSelectedDomList);
-                        let disBtn = container.querySelector('.player-operation-buttons .dis-btn'); // 出牌
-                        let passBtn = container.querySelector('.player-operation-buttons .pass-btn'); // 不要
-                        let powerless = container.querySelector('.player-operation-buttons .powerless'); // 没有能大过的牌
-                        let nonCompliance = container.querySelector('.player-operation-buttons .non-compliance'); // 不符合规则
-
-                        let selectedCards = []
-
-                        let disFunc = function () {
-                            // 出牌操作
-                            player.holdCards = player.holdCards.filter(h => !selectedCards.includes(h))
-                            // 一条记录
-                            round.allRecord.push(new Record(player, selectedCards))
-                            // 更新手牌
-                            player.loadUIHoldCards();
-                            // 切换下一个人
-                            player.currentGame.nextPlayerDiscard()
-                            // 清除选中痕迹
-                            cardItemSelectedDomList.forEach(cardItemDom => {
-                                if (cardItemDom.classList.contains('selected')) cardDom.classList.toggle('selected')
-                                cardItemDom.removeEventListener('click', clickFunc)
-                            })
-
-                        }
-                        let passFunc = function () {
-
-                        }
-
-                        disBtn.removeEventListener('click', disFunc)
-                        disBtn.addEventListener('click', disFunc)
-
-                        cardItemSelectedDomList.forEach(cardItemDom => {
-                            let i = +cardItemDom.getAttribute('data-index')
-                            console.log(player.holdCards[i]);
-                            selectedCards.push(player.holdCards[i])
-                            console.log(selectedCards);
-                            let groupType = Card.groupType(selectedCards)
-
-
-                            if (groupType == null || round.lastCards.length > 0 && groupType != Card.groupType(round.lastCards)) {
-                                disBtn.classList.remove('hidden')
-                                nonCompliance.classList.remove('hidden')
-                                powerless.classList.add('hidden')
-                                passBtn.classList.add('hidden')
-                            }
-                            else { // 符合规则
-
-                                if (round.lastCards.length == 0) passBtn.classList.add('hidden')
-                                disBtn.classList.remove('hidden')
-                                nonCompliance.classList.add('hidden')
-
-                            }
-                        })
-
-                    }
-
-
-                    cardItemDomList.forEach(cardItemDom => {
-                        cardItemDom.addEventListener("click", clickFunc)
-                    })
+                    uiEvent.publish('showPlayerOperationButtons') // 轮到玩家出牌 
                 }
             }
             /**
@@ -725,6 +653,13 @@
              * 下一个玩家出牌
              */
             nextPlayerDiscard = () => {
+                // 当手牌为0且牌堆为0时 游戏结束
+                if (this.currentPlayer.holdCards.length === 0 && this.allCards.length === 0) {
+                    console.log('游戏结束');
+                    return;
+                }
+
+
                 this.currentRound.loadUILastCards();
                 this.nextPlayer(); // 下一个玩家
                 if (this.currentRound.end) { // 检测回合是否结束
@@ -763,6 +698,18 @@
                     uiEvent.publish('updatePlayerHoldCards', this.currentPlayer.holdCards)
                     uiEvent.publish('updatePlayerBaseInfo', this.currentPlayer)
                     uiEvent.publish('updateRobotBaseInfo', this.joinPlayers[(minCardIndex + 1) % this.joinPlayers.length])
+                    uiEvent.subscribe('discard', (cards) => {
+                        console.log('出牌', cards);
+                        // 出牌操作
+                        this.currentPlayer.holdCards = this.currentPlayer.holdCards.filter(h => !cards.find(c => c.type === h.type && c.suits === h.suits))
+                        // 一条记录
+                        this.currentRound.allRecord.push(new Record(this.currentPlayer, cards))
+                        // 下一个出牌
+                        this.nextPlayerDiscard()
+                        // 隐藏玩家操作按钮
+                        uiEvent.publish('hidePlayerOperationButtons')
+                    })
+
                     console.log('玩家牌面最小', this.currentPlayer);
                 }
 
@@ -825,6 +772,69 @@
 
 
             /**
+             * 牌桌上的牌
+             * @author 	 linyisonger
+             * @date 	 2025-03-18 
+             */
+            static get cardTableCards() {
+                const cardItemDomList = UIController.cardTable.querySelectorAll('.card-item')
+                return UIController.cardDomConvertToCard(cardItemDomList);
+            }
+
+            /**
+             * 玩家手上的牌
+             * @author 	 linyisonger
+             * @date 	 2025-03-18
+             */
+            static get playerHoldCards() {
+                const cardItemDomList = UIController.playerContainer.querySelectorAll('.card-item')
+                return UIController.cardDomConvertToCard(cardItemDomList);
+            }
+
+
+            /**
+             * 玩家选中的牌
+             * @author 	 linyisonger
+             * @date 	 2025-03-18
+             */
+            static get playerSelectedCards() {
+                const cardItemDomList = UIController.playerContainer.querySelectorAll('.card-item.selected')
+                return UIController.cardDomConvertToCard(cardItemDomList);
+            }
+
+
+
+            /**
+             * 卡牌转换图像DOM
+             * @author 	 linyisonger
+             * @date 	 2025-03-17
+             * @param {Card} card
+             */
+            static cardConvertToImg(card) {
+                if (!card) return ''
+                return `<img src="${this.url}"/>`
+            }
+
+
+            /**
+            * 卡牌元素转换卡牌对象
+            * @author 	 linyisonger
+            * @date 	 2025-03-18
+            * @param {NodeListOf<Element>} doms
+            * @returns {Card[]}
+            */
+            static cardDomConvertToCard(doms) {
+                const cards = []
+                doms.forEach(item => {
+                    let type = item.getAttribute('data-type');
+                    let suits = item.getAttribute('data-suits');
+                    if (type) cards.push(new Card(type, suits))
+                })
+                return cards;
+            }
+
+
+            /**
              * 更新托管手牌
              * @author 	 linyisonger
              * @date 	 2025-03-16
@@ -850,8 +860,12 @@
                 for (let i = 0; i < cardItemDomList.length; i++) {
                     const cardItemDom = cardItemDomList.item(i)
                     const cardItem = holdCards[i]
-                    cardItemDom.innerHTML = cardItem?.UIIMG() ?? ``
+                    cardItemDom.setAttribute('data-type', cardItem?.type || '')
+                    cardItemDom.setAttribute('data-suits', cardItem?.suits || '')
+                    cardItemDom.innerHTML = UIController.cardConvertToImg(cardItem)
                 }
+
+
             }
 
 
@@ -881,13 +895,16 @@
              * 更新牌桌的牌
              * @author 	 linyisonger
              * @date 	 2025-03-16
+             * @param {Card[]} cards
              */
             static updateCardTable(cards) {
                 const cardItemDomList = UIController.cardTable.querySelectorAll('.card-item')
                 for (let i = 0; i < cardItemDomList.length; i++) {
                     const cardItemDom = cardItemDomList.item(i)
                     const cardItem = cards[i]
-                    cardItemDom.innerHTML = cardItem?.UIIMG() ?? ``
+                    cardItemDom.setAttribute('data-type', cardItem?.type || '')
+                    cardItemDom.setAttribute('data-suits', cardItem?.suits || '')
+                    cardItemDom.innerHTML = UIController.cardConvertToImg(cardItem)
                 }
             }
 
@@ -899,14 +916,110 @@
              */
             static initPlayerHoldCards() {
                 const cardItemDomList = UIController.playerContainer.querySelectorAll('.card-item')
+                const playerOperationButtons = UIController.playerContainer.querySelector('.player-operation-buttons')
+                const disBtn = playerOperationButtons.querySelector('.dis-btn'); // 出牌
+                const passBtn = playerOperationButtons.querySelector('.pass-btn'); // 不要
+                const powerless = playerOperationButtons.querySelector('.powerless'); // 没有能大过的牌
+                const nonCompliance = playerOperationButtons.querySelector('.non-compliance'); // 不符合规则
+
                 cardItemDomList.forEach(cardItemDom => {
                     cardItemDom.addEventListener('click', function () {
                         cardItemDom.classList.toggle('selected')
+                        let cardTableCards = UIController.cardTableCards  // 获取当前牌桌上的牌
+                        let playerHoldCards = UIController.playerHoldCards // 获取自己当前的手牌
+                        let playerSelectedCards = UIController.playerSelectedCards // 玩家选择的手牌
+
+                        let playerSelectedGroupType = Card.groupType(playerSelectedCards) // 玩家选择的组类型
+                        let cardTableGroupType = Card.groupType(cardTableCards) // 牌桌上的组类型
+
+                        // 不符合规则
+                        let irregular = playerSelectedGroupType == null && playerSelectedCards.length // 选择不为空 但组为空
+                            || cardTableGroupType != null && playerSelectedGroupType != cardTableGroupType // 牌桌组类型不为空 并且 组类型 不相同
+
+                        if (irregular) {
+                            disBtn.classList.add('hidden')
+                            nonCompliance.classList.remove('hidden')
+                        }
+                        else {
+                            nonCompliance.classList.add('hidden')
+                            disBtn.classList.remove('hidden')
+                        }
+
                     })
                 })
-            }
-        }
 
+
+                disBtn.addEventListener('click', function () {
+                    let playerSelectedCards = UIController.playerSelectedCards // 玩家选择的手牌
+                    uiEvent('discard', playerSelectedCards)
+                })
+            }
+
+
+            /**
+             * 初始化操作按钮
+             * @author 	 linyisonger
+             * @date 	 2025-03-17
+             */
+            static initPlayerOperationButtons() {
+                const playerOperationButtons = UIController.playerContainer.querySelector('.player-operation-buttons')
+                const disBtn = playerOperationButtons.querySelector('.dis-btn'); // 出牌
+                const passBtn = playerOperationButtons.querySelector('.pass-btn'); // 不要
+                const powerless = playerOperationButtons.querySelector('.powerless'); // 没有能大过的牌
+                const nonCompliance = playerOperationButtons.querySelector('.non-compliance'); // 不符合规则
+
+                nonCompliance.classList.add('hidden');
+
+                passBtn.addEventListener('click', () => {
+                    // 回合出牌
+                    uiEvent.publish('discard', [])
+                })
+
+            }
+
+            /**
+             * 展示玩家操作按钮
+             * @author 	 linyisonger
+             * @date 	 2025-03-17
+             */
+            static showPlayerOperationButtons() {
+                const playerOperationButtons = UIController.playerContainer.querySelector('.player-operation-buttons')
+                playerOperationButtons.classList.remove('hidden')
+
+                let cardTableCards = UIController.cardTableCards  // 获取当前牌桌上的牌
+                let playerHoldCards = UIController.playerHoldCards // 获取自己当前的手牌
+                let hintCards = Card.hint(playerHoldCards, cardTableCards) // 推荐打出的手牌
+
+                const disBtn = playerOperationButtons.querySelector('.dis-btn'); // 出牌
+                const passBtn = playerOperationButtons.querySelector('.pass-btn'); // 不要
+                const powerless = playerOperationButtons.querySelector('.powerless'); // 没有能大过的牌
+
+                if (hintCards.length) {
+                    disBtn.classList.remove('hidden')
+                    powerless.classList.add('hidden')
+                    if (cardTableCards.length) passBtn.classList.remove('hidden')
+                    else passBtn.classList.add('hidden')
+                }
+                else {
+                    disBtn.classList.add('hidden')
+                    passBtn.classList.remove('hidden')
+                    powerless.classList.remove('hidden')
+                }
+            }
+
+            /**
+             * 隐藏玩家操作按钮
+             * @author 	 linyisonger
+             * @date 	 2025-03-17
+             */
+            static hidePlayerOperationButtons() {
+                const playerOperationButtons = UIController.playerContainer.querySelector('.player-operation-buttons')
+                playerOperationButtons.classList.add('hidden')
+            }
+
+
+
+        }
 
         const uiEvent = new EventBus()
 
@@ -917,8 +1030,14 @@
         uiEvent.subscribe('updateRobotBaseInfo', UIController.updateRobotBaseInfo)
         uiEvent.subscribe('updatePlayerBaseInfo', UIController.updatePlayerBaseInfo)
         uiEvent.subscribe('updateCardTable', UIController.updateCardTable)
-        
+
+        uiEvent.subscribe('showPlayerOperationButtons', UIController.showPlayerOperationButtons)
+        uiEvent.subscribe('hidePlayerOperationButtons', UIController.hidePlayerOperationButtons)
+
+        // 初始化操作
         uiEvent.publish('updateCardTable', [])
+        uiEvent.publish('hidePlayerOperationButtons')
+
 
         /**
          * 生成一副牌
