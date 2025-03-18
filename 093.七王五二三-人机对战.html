@@ -391,6 +391,36 @@
             }
 
             /**
+             * 卡牌对比
+             * A < B True
+             * A > B False
+             * @author 	 linyisonger
+             * @date 	 2025-03-15
+             * @param {Card[]} a
+             * @param {Card[]} b
+             */
+            static comparisonByCards(a, b) {
+                let groupType = Card.groupType(a)
+                switch (groupType) {
+                    case GROUP_TYPE.LEAFLETS:
+                    case GROUP_TYPE.PAIRS:
+                    case GROUP_TYPE.FOUR:
+                    case GROUP_TYPE.TRIPLE:
+                        return Card.comparison(a[0], b[0])
+                    case GROUP_TYPE.TRIPLE_WITH_PAIRS:
+                    case GROUP_TYPE.FOUR_WITH_SINGLE:
+                        let aGroup = groupBy(a, c => c.type)
+                        let bGroup = groupBy(b, c => c.type)
+                        let aCard = null
+                        let bCard = null
+                        for (const key in aGroup) if (aGroup[key].length >= 3) aCard = aGroup[key][0]
+                        for (const key in bCard) if (bCard[key].length >= 3) bCard = bCard[key][0]
+                        return Card.comparison(aCard, bCard)
+                }
+            }
+
+
+            /**
              * 数组中最小卡牌下表
              * @author 	 linyisonger
              * @date 	 2025-03-14
@@ -452,7 +482,7 @@
                 }
                 else if (groupType === GROUP_TYPE.PAIRS) { // 一对
                     // 是否有黑桃
-                    let hasSpade = cards.some(c => c.suits === CARD_SUITS.SPADE)
+                    let hasSpade = target.some(c => c.suits === CARD_SUITS.SPADE)
                     // 单张卡牌类型
                     let type = target[0].type
                     for (const key in holdGroup) {
@@ -460,6 +490,7 @@
                             if (Card.comparisonByType(key, type)) delete holdGroup[key] // 当key < type 时
                             if (hasSpade && key === type) delete holdGroup[key] // 相同
                         }
+                        else delete holdGroup[key]
                     }
                     // 排序后取最小的组合的前两张
                     let keys = Object.keys(holdGroup)
@@ -474,11 +505,18 @@
                         if (holdGroup[key].length >= groupTypeNum) { // 张数大于等于 牌型张数
                             if (Card.comparisonByType(key, type)) delete holdGroup[key] // 当key < type 时 
                         }
+                        else delete holdGroup[key]
                     }
+                    // 排序后取最小的组合的前两张
+                    let keys = Object.keys(holdGroup)
                     if (keys.length > 0) return holdGroup[keys[0]].slice(0, groupTypeNum)
                 }
                 return []
             }
+
+
+
+
         }
 
         class Round {
@@ -571,6 +609,7 @@
              * @param {Round} round
              */
             discard(round) {
+                console.log('discard');
                 if (this.status === PLAYER_STATUS.AUTO) {
                     console.log('自动', round.lastCards);
                     let cards = this.betterCards(round.lastCards) // 最小能大上的牌 
@@ -658,11 +697,11 @@
                     console.log('游戏结束');
                     return;
                 }
-
-
-                this.currentRound.loadUILastCards();
+                console.log("nextPlayerDiscard");
                 this.nextPlayer(); // 下一个玩家
                 if (this.currentRound.end) { // 检测回合是否结束
+                    console.log('检测回合是否结束');
+                    uiEvent.publish('updateCardTable', [])
                     this.allRounds.push(this.currentRound);
                     this.nextRound();
                 }
@@ -682,8 +721,12 @@
 
                 for (let i = 0; i < this.joinPlayers.length; i++) {
                     this.currentPlayer.pickup();
+                    if (this.currentPlayer.status === PLAYER_STATUS.AUTO) uiEvent.publish('updateRobotBaseInfo', this.currentPlayer.holdCards)
+                    if (this.currentPlayer.status === PLAYER_STATUS.MANUAL) uiEvent.publish('updatePlayerHoldCards', this.currentPlayer.holdCards)
                     this.nextPlayer();
                 }
+
+
 
                 if (this.allRounds.length === 0) {
                     console.log('最小牌面对比');
@@ -699,15 +742,16 @@
                     uiEvent.publish('updatePlayerBaseInfo', this.currentPlayer)
                     uiEvent.publish('updateRobotBaseInfo', this.joinPlayers[(minCardIndex + 1) % this.joinPlayers.length])
                     uiEvent.subscribe('discard', (cards) => {
-                        console.log('出牌', cards);
+                        // 隐藏玩家操作按钮
+                        uiEvent.publish('hidePlayerOperationButtons')
                         // 出牌操作
                         this.currentPlayer.holdCards = this.currentPlayer.holdCards.filter(h => !cards.find(c => c.type === h.type && c.suits === h.suits))
+                        uiEvent.publish('updatePlayerHoldCards', this.currentPlayer.holdCards)
                         // 一条记录
                         this.currentRound.allRecord.push(new Record(this.currentPlayer, cards))
                         // 下一个出牌
                         this.nextPlayerDiscard()
-                        // 隐藏玩家操作按钮
-                        uiEvent.publish('hidePlayerOperationButtons')
+
                     })
 
                     console.log('玩家牌面最小', this.currentPlayer);
@@ -812,7 +856,7 @@
              */
             static cardConvertToImg(card) {
                 if (!card) return ''
-                return `<img src="${this.url}"/>`
+                return `<img src="${card.url}"/>`
             }
 
 
@@ -845,7 +889,8 @@
                 for (let i = 0; i < cardItemDomList.length; i++) {
                     const cardItemDom = cardItemDomList.item(i)
                     const cardItem = holdCards[i]
-                    cardItemDom.hidden = !cardItem
+                    if (cardItem) cardItemDom.classList.remove('hidden')
+                    else cardItemDom.classList.add('hidden')
                 }
             }
 
@@ -934,7 +979,9 @@
 
                         // 不符合规则
                         let irregular = playerSelectedGroupType == null && playerSelectedCards.length // 选择不为空 但组为空
-                            || cardTableGroupType != null && playerSelectedGroupType != cardTableGroupType // 牌桌组类型不为空 并且 组类型 不相同
+                            || cardTableGroupType != null && playerSelectedGroupType != cardTableGroupType && playerSelectedCards.length // 牌桌组类型不为空 并且 组类型 不相同
+                            || Card.comparisonByCards(playerSelectedCards, cardTableCards)  // 对比大小
+
 
                         if (irregular) {
                             disBtn.classList.add('hidden')
@@ -949,10 +996,6 @@
                 })
 
 
-                disBtn.addEventListener('click', function () {
-                    let playerSelectedCards = UIController.playerSelectedCards // 玩家选择的手牌
-                    uiEvent('discard', playerSelectedCards)
-                })
             }
 
 
@@ -968,11 +1011,17 @@
                 const powerless = playerOperationButtons.querySelector('.powerless'); // 没有能大过的牌
                 const nonCompliance = playerOperationButtons.querySelector('.non-compliance'); // 不符合规则
 
+                powerless.classList.add('hidden');
                 nonCompliance.classList.add('hidden');
 
                 passBtn.addEventListener('click', () => {
-                    // 回合出牌
                     uiEvent.publish('discard', [])
+                })
+
+                disBtn.addEventListener('click', function () {
+                    let playerSelectedCards = UIController.playerSelectedCards // 玩家选择的手牌
+                    uiEvent.publish('discard', playerSelectedCards)
+                    UIController.playerContainer.querySelectorAll(`.card-item.selected`).forEach(selected => selected.classList.remove('selected'))
                 })
 
             }
@@ -983,6 +1032,7 @@
              * @date 	 2025-03-17
              */
             static showPlayerOperationButtons() {
+                console.log('showPlayerOperationButtons');
                 const playerOperationButtons = UIController.playerContainer.querySelector('.player-operation-buttons')
                 playerOperationButtons.classList.remove('hidden')
 
@@ -994,7 +1044,8 @@
                 const passBtn = playerOperationButtons.querySelector('.pass-btn'); // 不要
                 const powerless = playerOperationButtons.querySelector('.powerless'); // 没有能大过的牌
 
-                if (hintCards.length) {
+                console.log(hintCards, playerOperationButtons);
+                if (hintCards.length || cardTableCards.length == 0) {
                     disBtn.classList.remove('hidden')
                     powerless.classList.add('hidden')
                     if (cardTableCards.length) passBtn.classList.remove('hidden')
@@ -1013,6 +1064,8 @@
              * @date 	 2025-03-17
              */
             static hidePlayerOperationButtons() {
+                console.log('hidePlayerOperationButtons');
+
                 const playerOperationButtons = UIController.playerContainer.querySelector('.player-operation-buttons')
                 playerOperationButtons.classList.add('hidden')
             }
@@ -1024,6 +1077,7 @@
         const uiEvent = new EventBus()
 
         UIController.initPlayerHoldCards()
+        UIController.initPlayerOperationButtons();
 
         uiEvent.subscribe('updateRobotHoldCards', UIController.updateRobotHoldCards)
         uiEvent.subscribe('updatePlayerHoldCards', UIController.updatePlayerHoldCards)
