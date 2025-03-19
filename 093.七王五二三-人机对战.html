@@ -507,16 +507,15 @@
                         }
                         else delete holdGroup[key]
                     }
-                    // 排序后取最小的组合的前两张
+
                     let keys = Object.keys(holdGroup)
                     if (keys.length > 0) return holdGroup[keys[0]].slice(0, groupTypeNum)
                 }
+                else if (groupType === GROUP_TYPE.TRIPLE_WITH_PAIRS || groupType === GROUP_TYPE.FOUR_WITH_SINGLE) {
+                    if (!Card.comparisonByCards(hold, target) && Card.groupType(hold) === groupType) return hold
+                }
                 return []
             }
-
-
-
-
         }
 
         class Round {
