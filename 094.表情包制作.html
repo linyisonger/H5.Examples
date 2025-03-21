@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./assets/global.css">
+</head>
+
+<body>
+
+    <!-- <img src="./assets/stars/bailu.jpg"> -->
+    <canvas id="face"></canvas>
+
+    <script src="./assets/face-api/face-api.min.js"></script>
+    <script type="module">
+
+        /**
+         * 加载图
+         * @param {string} src
+         * @returns {Promise<HTMLImageElement>}
+         */
+        function loadImage(src) {
+            return new Promise((resolve) => {
+                let image = new Image()
+                image.src = src;
+                image.onload = (ev) => {
+                    resolve(image)
+                }
+            })
+        }
+        Promise.all([
+            faceapi.nets.faceRecognitionNet.loadFromUri('./assets/face-api/models'),
+            faceapi.nets.faceLandmark68Net.loadFromUri('./assets/face-api/models'),
+            faceapi.nets.ssdMobilenetv1.loadFromUri('./assets/face-api/models')
+        ]).then(start)
+
+        async function start() {
+            const img = await faceapi.fetchImage('./assets/stars/bailu.jpg')
+
+            console.log(img.width);
+
+            /** @type {HTMLCanvasElement} */
+            let canvas = document.querySelector("#face")
+            let ctx = canvas.getContext('2d')
+            let width = img.width;
+            let height = img.height;
+            canvas.width = width;
+            canvas.height = height;
+
+
+            const detections = await faceapi.detectSingleFace(img).withFaceLandmarks()
+            const positions = detections.landmarks.positions;
+
+
+            const linkPositionIndexList = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 26, 25, 24, 23, 22, 21, 20, 19, 18, 17]
+
+            // ctx.restore();
+            // ctx.clearRect(0, 0, operateWidth, operateHeight)
+            // ctx.save();
+
+            ctx.beginPath();
+            ctx.strokeStyle = '#000'
+            ctx.lineWidth = 2;
+            for (let i = 0; i < linkPositionIndexList.length; i++) {
+                const linkPosition = positions[linkPositionIndexList[i]];
+                console.log(linkPosition);
+
+                i == 0 ? ctx.moveTo(linkPosition.x, linkPosition.y) : ctx.lineTo(linkPosition.x, linkPosition.y)
+            }
+            ctx.closePath();
+            ctx.clip();
+            ctx.drawImage(await loadImage('./assets/stars/bailu.jpg'), 0, 0, width, height);
+
+
+            
+            detections.landmarks.positions.forEach((pos, index) => {
+                // console.log(pos);
+                ctx.fillStyle = '#000'
+                ctx.fillRect(pos.x, pos.y, 10, 10)
+                ctx.fillText(index, pos.x, pos.y)
+            })
+
+            console.log(detections);
+        }
+    </script>
+
+
+
+
+</body>
+
+</html>
