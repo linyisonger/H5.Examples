@@ -187,7 +187,7 @@ https://linyisonger.github.io/H5.Examples/
 #!/bin/sh
 
 # 复制文件进入文件夹
-ls -R  *.html > examples.txt
+ls -R  [0-9]*.html > examples.txt
 git add examples.txt
 ```
 
