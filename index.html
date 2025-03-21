@@ -268,14 +268,16 @@
       let name = getQueryParam("name");
 
       for (const nav of navData) {
-        let navNum = nav.split(".").shift();
-        let navName = nav.match(/[\d]{1,}.(.*?).html/)[1];
-        let navSrc = "./" + nav?.replace("\r", "");
-        navList.push({
-          navNum,
-          navName,
-          navSrc,
-        });
+        if (nav) {
+          let navNum = nav.split(".").shift();
+          let navName = nav.match(/[\d]{1,}.(.*?).html/)[1];
+          let navSrc = "./" + nav?.replace("\r", "");
+          navList.push({
+            navNum,
+            navName,
+            navSrc,
+          });
+        }
       }
       navList.sort((a, b) => b.navNum - a.navNum);
       for (const navItem of navList) {
