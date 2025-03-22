@@ -91,6 +91,20 @@
             return [r, g, b]
         }
 
+
+        function zoom(p, t, v) {
+            let tmpX = p.x - t.x;
+            let tmpY = p.y - t.y;
+
+            tmpX *= v;
+            tmpY *= v;
+
+            return {
+                x: t.x + tmpX,
+                y: t.y + tmpY,
+            }
+        }
+
         /**
          * 亮度
          * @author 	 linyisonger
@@ -222,7 +236,14 @@
             const positions = detections.landmarks.positions;
 
 
-            const linkPositionIndexList = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 26, 25, 24, 23, 22, 21, 20, 19, 18, 17]
+            const linkPositionIndexList = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 26, 25, 24, 23, 22, 21, 20, 19, 18, 17]
+
+            const zoomPositionIndexList = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
+
+            for (let i = 0; i < zoomPositionIndexList.length; i++) {
+                const zoomPosition = positions[zoomPositionIndexList[i]];
+                positions[zoomPositionIndexList[i]] = zoom(zoomPosition, positions[29], .92)
+            }
 
             // ctx.restore();
             // ctx.clearRect(0, 0, operateWidth, operateHeight)
@@ -243,12 +264,12 @@
             luminance(ctx, { v: -.5 })
             exposure(ctx, { v: 2.6 })
             contrastRatio(ctx, { v: 1 })
-            detections.landmarks.positions.forEach((pos, index) => {
-                // console.log(pos);
-                ctx.fillStyle = '#000'
-                // ctx.fillRect(pos.x, pos.y, 10, 10)
-                // ctx.fillText(index, pos.x, pos.y)
-            })
+            // detections.landmarks.positions.forEach((pos, index) => {
+            //     // console.log(pos);
+            //     ctx.fillStyle = '#000'
+            //     ctx.fillRect(pos.x, pos.y, 10, 10)
+            //     ctx.fillText(index, pos.x, pos.y)
+            // })
 
             console.log(detections);
         }
