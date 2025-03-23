@@ -10,87 +10,12 @@
 
 <body>
 
-    <!-- <img src="./assets/stars/huangyi.jpg"> -->
+    <!-- <img src="./assets/test.jpg"> -->
     <canvas id="face"></canvas>
 
     <script src="./assets/face-api/face-api.min.js"></script>
     <script type="module">
-        import "https://gcore.jsdelivr.net/npm/@3r/canvas-plus@1.0.6/index.js";
-
-        function clamp(value) {
-            return Math.min(255, Math.max(0, value));
-        }
-        function rgb2hsv(r, g, b) {
-            r /= 255;
-            g /= 255;
-            b /= 255;
-
-            let h;
-            let s;
-            let v = Math.max(r, g, b);
-            let diff = v - Math.min(r, g, b);
-            let diffChange = (c) => (v - c) / 6 / diff + 1 / 2;
-
-            if (diff === 0) h = s = 0;
-            else {
-                s = diff / v;
-                let tr = diffChange(r);
-                let tg = diffChange(g);
-                let tb = diffChange(b);
-                if (r === v) h = tb - tg
-                else if (g === v) h = (1 / 3) + tr - tb;
-                else if (b === v) h = (2 / 3) + tg - tr;
-                if (h < 0) h += 1;
-                else if (h > 1) h -= 1;
-            }
-            return [Math.round(h * 360), Math.round(s * 100), Math.round(v * 100)]
-        }
-
-        function hsv2rgb(l, m, n) {
-            let r;
-            let g;
-            let b;
-            if (m === 0) {
-                l = m = n = Math.round(255 * n / 100);
-                r = l;
-                g = m;
-                b = n;
-            } else {
-                m /= 100;
-                n /= 100;
-                let p = Math.floor(l / 60) % 6;
-                let f = l / 60 - p;
-                let a = n * (1 - m);
-                let b = n * (1 - m * f);
-                let c = n * (1 - m * (1 - f));
-
-                switch (p) {
-                    case 0:
-                        r = n; g = c; b = a;
-                        break;
-                    case 1:
-                        r = b; g = n; b = a;
-                        break;
-                    case 2:
-                        r = a; g = n; b = c;
-                        break;
-                    case 3:
-                        r = a; g = b; b = n;
-                        break;
-                    case 4:
-                        r = c; g = a; b = n;
-                        break;
-                    case 5:
-                        r = n; g = a; b = b;
-                        break;
-                }
-                r = Math.round(255 * r);
-                g = Math.round(255 * g);
-                b = Math.round(255 * b);
-            }
-            return [r, g, b]
-        }
-
+        import "https://gcore.jsdelivr.net/npm/@3r/canvas-plus@1.0.8/index.js";
 
         function zoom(p, t, v) {
             let tmpX = p.x - t.x;
@@ -105,98 +30,6 @@
             }
         }
 
-        /**
-         * 亮度
-         * @author 	 linyisonger
-         * @date 	 2025-03-22
-         */
-        export function luminance(ctx, { x, y, w, h, v }) {
-            x ??= 0
-            y ??= 0
-            w ??= ctx.canvas.width
-            h ??= ctx.canvas.height
-            const imageData = ctx.getImageData(x, y, w, h)
-            for (let x = 0; x < imageData.width; x++) {
-                for (let y = 0; y < imageData.height; y++) {
-                    const idx = (x + y * imageData.width) * 4
-                    const r = imageData.data[idx + 0]
-                    const g = imageData.data[idx + 1]
-                    const b = imageData.data[idx + 2]
-                    const hsv = rgb2hsv(r, g, b)
-                    hsv[2] *= (1 + v)
-                    const rgb = hsv2rgb(...hsv)
-
-                    imageData.data[idx + 0] = rgb[0]
-                    imageData.data[idx + 1] = rgb[1]
-                    imageData.data[idx + 2] = rgb[2]
-                }
-            }
-            ctx.putImageData(imageData, x, y)
-        }
-
-        /**
-         * 曝光
-         * @author 	 linyisonger
-         * @date 	 2025-03-22
-         */
-        export function exposure(ctx, { x, y, w, h, v }) {
-            x ??= 0
-            y ??= 0
-            w ??= ctx.canvas.width
-            h ??= ctx.canvas.height
-            const imageData = ctx.getImageData(x, y, w, h)
-            for (let x = 0; x < imageData.width; x++) {
-                for (let y = 0; y < imageData.height; y++) {
-                    const idx = (x + y * imageData.width) * 4
-                    let r = imageData.data[idx + 0]
-                    let g = imageData.data[idx + 1]
-                    let b = imageData.data[idx + 2]
-                    let a = imageData.data[idx + 3]
-                    if (a == 0) continue;
-
-                    r = clamp(r * v);
-                    g = clamp(g * v);
-                    b = clamp(b * v);
-
-                    imageData.data[idx + 0] = ~~r
-                    imageData.data[idx + 1] = ~~g
-                    imageData.data[idx + 2] = ~~b
-                }
-            }
-            ctx.putImageData(imageData, x, y)
-        }
-
-        /**
-        * 对比度
-        * @author 	 linyisonger
-        * @date 	 2025-03-22
-        */
-        export function contrastRatio(ctx, { x, y, w, h, v }) {
-            x ??= 0
-            y ??= 0
-            w ??= ctx.canvas.width
-            h ??= ctx.canvas.height
-            const imageData = ctx.getImageData(x, y, w, h)
-            for (let x = 0; x < imageData.width; x++) {
-                for (let y = 0; y < imageData.height; y++) {
-                    const idx = (x + y * imageData.width) * 4
-                    let r = imageData.data[idx + 0]
-                    let g = imageData.data[idx + 1]
-                    let b = imageData.data[idx + 2]
-                    let a = imageData.data[idx + 3]
-                    if (a == 0) continue;
-
-                    r = clamp((r - 128) * v + 128);
-                    g = clamp((g - 128) * v + 128);
-                    b = clamp((b - 128) * v + 128);
-
-                    imageData.data[idx + 0] = ~~r
-                    imageData.data[idx + 1] = ~~g
-                    imageData.data[idx + 2] = ~~b
-                }
-            }
-            ctx.putImageData(imageData, x, y)
-        }
 
         /**
          * 加载图
@@ -219,7 +52,7 @@
         ]).then(start)
 
         async function start() {
-            const img = await faceapi.fetchImage('./assets/stars/huangyi.jpg')
+            const img = await faceapi.fetchImage('./assets/stars/bailu.jpg')
 
             console.log(img.width);
 
@@ -242,12 +75,8 @@
 
             for (let i = 0; i < zoomPositionIndexList.length; i++) {
                 const zoomPosition = positions[zoomPositionIndexList[i]];
-                positions[zoomPositionIndexList[i]] = zoom(zoomPosition, positions[29], .92)
+                positions[zoomPositionIndexList[i]] = zoom(zoomPosition, positions[29], .8)
             }
-
-            // ctx.restore();
-            // ctx.clearRect(0, 0, operateWidth, operateHeight)
-            // ctx.save();
 
             ctx.beginPath();
             ctx.strokeStyle = '#000'
@@ -258,12 +87,34 @@
             }
             ctx.closePath();
             ctx.clip();
-            ctx.drawImage(await loadImage('./assets/stars/huangyi.jpg'), 0, 0, width, height);
+            ctx.drawImage(await loadImage('./assets/stars/bailu.jpg'), 0, 0, width, height);
 
             ctx.grayProcessing(0, 0, width, height)
-            luminance(ctx, { v: -.5 })
-            exposure(ctx, { v: 2.6 })
-            contrastRatio(ctx, { v: 1 })
+            ctx.luminance({ v: -.5 })
+            ctx.exposure({ v: 4 })
+            ctx.contrastRatio({ v: 2 })
+            let layerSizeRes = ctx.layerSize({})
+            let faceImageData = ctx.getImageData(layerSizeRes.x, layerSizeRes.y, layerSizeRes.w, layerSizeRes.h)
+
+            ctx.clearRect(0, 0, width, height)
+
+            width = layerSizeRes.w;
+            height = layerSizeRes.h;
+            canvas.width = width;
+            canvas.height = height;
+            ctx.putImageData(faceImageData, 0, 0)
+            let faceImageBase64 = canvas.toDataURL()
+            ctx.clearRect(0, 0, width, height)
+            let pandaHead = await loadImage('./assets/pandaHead.png')
+            let faceImage = await loadImage(faceImageBase64)
+            width = pandaHead.width;
+            height = pandaHead.height;
+            canvas.width = width;
+            canvas.height = height;
+            ctx.drawImage(pandaHead, 0, 0, width, height);
+            ctx.drawImage(faceImage, 200, 170, 250, 250);
+            console.log('layerSizeRes', layerSizeRes);
+
             // detections.landmarks.positions.forEach((pos, index) => {
             //     // console.log(pos);
             //     ctx.fillStyle = '#000'
