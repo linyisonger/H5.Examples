@@ -6,17 +6,30 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./assets/global.css">
+
+    <style>
+        #face {
+            position: absolute;
+        }
+    </style>
 </head>
 
 <body>
-
-    <!-- <img src="./assets/test.jpg"> -->
+    <canvas id="emo"></canvas>
     <canvas id="face"></canvas>
 
     <script src="./assets/face-api/face-api.min.js"></script>
     <script type="module">
         import "https://gcore.jsdelivr.net/npm/@3r/canvas-plus@1.0.8/index.js";
 
+        /**
+         * 靠近一点点
+         * @author 	 linyisonger
+         * @date 	 2025-03-24
+         * @param {{x:number,y:number}} p
+         * @param {{x:number,y:number}} t
+         * @param {number} v
+         */
         function zoom(p, t, v) {
             let tmpX = p.x - t.x;
             let tmpY = p.y - t.y;
@@ -45,39 +58,51 @@
                 }
             })
         }
-        Promise.all([
-            faceapi.nets.faceRecognitionNet.loadFromUri('./assets/face-api/models'),
-            faceapi.nets.faceLandmark68Net.loadFromUri('./assets/face-api/models'),
-            faceapi.nets.ssdMobilenetv1.loadFromUri('./assets/face-api/models')
-        ]).then(start)
 
-        async function start() {
-            const img = await faceapi.fetchImage('./assets/stars/bailu.jpg')
 
-            console.log(img.width);
+        /**
+         * 绘制表情包的背景
+         * @author 	 linyisonger
+         * @date 	 2025-03-24
+         */
+        async function drawEmoBackground() {
+            /** @type {HTMLCanvasElement} */
+            let canvas = document.querySelector("#emo")
+            let ctx = canvas.getContext('2d')
+            let pandaHead = await loadImage('./assets/pandaHead.png')
+            width = pandaHead.width;
+            height = pandaHead.height;
+            canvas.width = width;
+            canvas.height = height;
+            ctx.clearRect(0, 0, width, height)
+            ctx.drawImage(pandaHead, 0, 0, width, height);
+        }
 
+        /**
+         * 获取面部信息
+         * @author 	 linyisonger
+         * @date 	 2025-03-24
+         */
+        async function drawFaceImage(url) {
+            const originImg = await faceapi.fetchImage(url) // 获取原图
+            const detections = await faceapi.detectSingleFace(originImg).withFaceLandmarks() // 获取特征
+            const positions = detections.landmarks.positions; // 面部坐标点位
+            const linkPositionIndexList = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 26, 25, 24, 23, 22, 21, 20, 19, 18, 17] // 外轮廓
+            const zoomPositionIndexList = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16] // 脸颊
             /** @type {HTMLCanvasElement} */
             let canvas = document.querySelector("#face")
             let ctx = canvas.getContext('2d')
-            let width = img.width;
-            let height = img.height;
+            let width = originImg.width;
+            let height = originImg.height;
             canvas.width = width;
             canvas.height = height;
 
-
-            const detections = await faceapi.detectSingleFace(img).withFaceLandmarks()
-            const positions = detections.landmarks.positions;
-
-
-            const linkPositionIndexList = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 26, 25, 24, 23, 22, 21, 20, 19, 18, 17]
-
-            const zoomPositionIndexList = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
-
             for (let i = 0; i < zoomPositionIndexList.length; i++) {
                 const zoomPosition = positions[zoomPositionIndexList[i]];
-                positions[zoomPositionIndexList[i]] = zoom(zoomPosition, positions[29], .8)
+                positions[zoomPositionIndexList[i]] = zoom(zoomPosition, positions[29], .8) // 缩放脸颊 清除黑边
             }
 
+            // 裁切操作
             ctx.beginPath();
             ctx.strokeStyle = '#000'
             ctx.lineWidth = 2;
@@ -87,42 +112,42 @@
             }
             ctx.closePath();
             ctx.clip();
-            ctx.drawImage(await loadImage('./assets/stars/bailu.jpg'), 0, 0, width, height);
-
-            ctx.grayProcessing(0, 0, width, height)
-            ctx.luminance({ v: -.5 })
-            ctx.exposure({ v: 4 })
-            ctx.contrastRatio({ v: 2 })
-            let layerSizeRes = ctx.layerSize({})
-            let faceImageData = ctx.getImageData(layerSizeRes.x, layerSizeRes.y, layerSizeRes.w, layerSizeRes.h)
-
+            ctx.drawImage(originImg, 0, 0, width, height); // 渲染原图 
+            ctx.grayProcessing() // 灰度处理
+            let layerSizeRes = ctx.layerSize({}) // 获取尺寸
+            faceImageData = ctx.getImageData(layerSizeRes.x, layerSizeRes.y, layerSizeRes.w, layerSizeRes.h)
             ctx.clearRect(0, 0, width, height)
-
             width = layerSizeRes.w;
             height = layerSizeRes.h;
             canvas.width = width;
             canvas.height = height;
             ctx.putImageData(faceImageData, 0, 0)
-            let faceImageBase64 = canvas.toDataURL()
-            ctx.clearRect(0, 0, width, height)
-            let pandaHead = await loadImage('./assets/pandaHead.png')
-            let faceImage = await loadImage(faceImageBase64)
-            width = pandaHead.width;
-            height = pandaHead.height;
-            canvas.width = width;
-            canvas.height = height;
-            ctx.drawImage(pandaHead, 0, 0, width, height);
-            ctx.drawImage(faceImage, 200, 170, 250, 250);
-            console.log('layerSizeRes', layerSizeRes);
+        }
 
-            // detections.landmarks.positions.forEach((pos, index) => {
-            //     // console.log(pos);
-            //     ctx.fillStyle = '#000'
-            //     ctx.fillRect(pos.x, pos.y, 10, 10)
-            //     ctx.fillText(index, pos.x, pos.y)
-            // })
+        async function drawFaceEffect() {
+            /** @type {HTMLCanvasElement} */
+            let canvas = document.querySelector("#face")
+            let ctx = canvas.getContext('2d')
+            ctx.clearRect(0, 0, canvas.width, canvas.height)
+            ctx.putImageData(faceImageData, 0, 0)
+            ctx.luminance({ v: -.5 })
+            ctx.exposure({ v: 4 })
+            ctx.contrastRatio({ v: 2 })
+        }
 
-            console.log(detections);
+
+        Promise.all([
+            faceapi.nets.faceRecognitionNet.loadFromUri('./assets/face-api/models'),
+            faceapi.nets.faceLandmark68Net.loadFromUri('./assets/face-api/models'),
+            faceapi.nets.ssdMobilenetv1.loadFromUri('./assets/face-api/models')
+        ]).then(start)
+
+        let faceImageData = null
+
+        async function start() {
+            drawEmoBackground()
+            drawFaceImage('./assets/stars/bailu.jpg')
+            drawFaceEffect()
         }
     </script>
 
