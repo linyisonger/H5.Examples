@@ -113,14 +113,14 @@
             ctx.closePath();
             ctx.clip();
             ctx.drawImage(originImg, 0, 0, width, height); // 渲染原图 
-            ctx.grayProcessing() // 灰度处理
+            ctx.grayProcessing({}) // 灰度处理
             let layerSizeRes = ctx.layerSize({}) // 获取尺寸
             faceImageData = ctx.getImageData(layerSizeRes.x, layerSizeRes.y, layerSizeRes.w, layerSizeRes.h)
             ctx.clearRect(0, 0, width, height)
             width = layerSizeRes.w;
             height = layerSizeRes.h;
-            canvas.width = width;
-            canvas.height = height;
+            canvas.width = width
+            canvas.height = height
             ctx.putImageData(faceImageData, 0, 0)
         }
 
@@ -145,8 +145,8 @@
         let faceImageData = null
 
         async function start() {
-            drawEmoBackground()
-            drawFaceImage('./assets/stars/bailu.jpg')
+            // drawEmoBackground()
+            await drawFaceImage('./assets/stars/bailu.jpg')
             drawFaceEffect()
         }
     </script>
