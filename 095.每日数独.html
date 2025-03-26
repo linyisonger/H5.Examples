@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./assets/global.css">
+    <style>
+        .game-box {
+            --size: 25px;
+            --gap: 5px;
+            --tip: 60px;
+            padding-left: var(--tip);
+            padding-top: var(--tip);
+        }
+
+        .game-grid-box {
+            display: grid;
+            padding: var(--gap);
+            width: calc(var(--size) * 5 + 4 * var(--gap));
+            grid-template-rows: repeat(5, var(--size));
+            grid-template-columns: repeat(5, var(--size));
+            gap: var(--gap);
+            background-color: rgb(176, 176, 176);
+        }
+
+        .game-grid-box .game-grid {
+            background-color: rgb(229, 229, 229);
+        }
+
+        .game-tip-y,
+        .game-tip-x {
+            position: absolute;
+        }
+
+        .game-tip-y {
+            top: 0;
+            left: calc(var(--tip) + var(--gap));
+            display: flex;
+        }
+
+        .game-tip-x {
+            left: 0;
+            top: calc(var(--tip) + var(--gap));
+        }
+
+        .game-tip-y .game-tip {
+            height: var(--tip);
+            margin-right: var(--gap);
+            display: flex;
+            flex-direction: column; 
+            justify-content: flex-end;
+        }
+
+        .game-tip-y .game-tip>div {
+            text-align: center;
+            min-width: var(--size);
+            line-height: 20px;
+        }
+
+        .game-tip-x .game-tip {
+            width: var(--tip);
+            margin-bottom: var(--gap);
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .game-tip-x .game-tip>div {
+            min-width: 20px;
+            line-height: var(--size);
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="game-box">
+        <div class="game-tip-y"></div>
+        <div class="game-tip-x"></div>
+        <div class="game-grid-box"></div>
+    </div>
+
+
+    <script type="module">
+        import { Randoms } from "https://gcore.jsdelivr.net/npm/@3r/tool/lib/randoms.js";
+        /**
+         * 初始化平面数组
+         * @author 	 linyisonger
+         * @date 	 2025-01-13
+         * 
+         * @template T
+         * @param {number} rows
+         * @param {number} cols
+         * @param {T|(x,y)=>T} init 
+         * 
+         * @return {T[][]}
+         */
+        function createFlatArray(rows, cols, init = 0) {
+            let level1 = []
+            for (let y = 0; y < cols; y++) {
+                let level2 = [];
+                for (let x = 0; x < rows; x++) {
+                    level2[x] = typeof init == "function" ? init(x, y) : init;
+                }
+                level1[y] = level2
+            }
+            return level1
+        }
+
+        class Grid {
+            type = Randoms.int(0, 3) > 0 ? GRID_TYPE.FULL : GRID_TYPE.BLANK
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.dom = document.createElement('div')
+                this.dom.classList.add('game-grid')
+                this.dom.setAttribute('data-x', x)
+                this.dom.setAttribute('data-y', y)
+            }
+        }
+
+        const GRID_TYPE = {
+            BLANK: 0,
+            FULL: 1,
+        }
+
+
+        const map = createFlatArray(5, 5, (x, y) => new Grid(x, y))
+        const tip = {
+            y: [],
+            x: []
+        }
+
+        for (let y = 0; y < 5; y++) {
+            let yStr = ''
+            let xStr = ''
+            for (let x = 0; x < 5; x++) {
+                yStr += map[x][y].type
+                xStr += map[y][x].type
+            }
+
+            tip.y.push(yStr.split('0').filter(a => a).map(a => a.length))
+            tip.x.push(xStr.split('0').filter(a => a).map(a => a.length))
+        }
+
+        console.log(map, tip);
+
+        let gridList = map.flat(1)
+        let gridBox = document.querySelector('.game-box .game-grid-box')
+        let tipY = document.querySelector('.game-box .game-tip-y')
+        let tipX = document.querySelector('.game-box .game-tip-x')
+
+        gridList.forEach(g =>
+            gridBox.appendChild(g.dom)
+        )
+        tip.y.forEach(item => {
+            let dom = document.createElement('div')
+            dom.classList.add('game-tip')
+            for (const child of item) {
+                let tmp = document.createElement('div')
+                tmp.textContent = child;
+                dom.appendChild(tmp)
+            }
+            tipY.appendChild(dom)
+        })
+        tip.x.forEach(item => {
+            let dom = document.createElement('div')
+            dom.classList.add('game-tip')
+            for (const child of item) {
+                let tmp = document.createElement('div')
+                tmp.textContent = child;
+                dom.appendChild(tmp)
+            }
+            tipX.appendChild(dom)
+        })
+    </script>
+</body>
+
+</html>
