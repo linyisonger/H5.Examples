@@ -6,6 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./assets/global.css">
+    <link rel="stylesheet" href="./assets/fontawesome/css/all.min.css">
     <style>
         .game-box {
             --size: 25px;
@@ -13,6 +14,7 @@
             --tip: 60px;
             padding-left: var(--tip);
             padding-top: var(--tip);
+            position: relative;
         }
 
         .game-grid-box {
@@ -27,6 +29,24 @@
 
         .game-grid-box .game-grid {
             background-color: rgb(229, 229, 229);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+
+        .game-grid-box .game-grid.disabled {
+            background-color: rgb(141, 141, 141);
+            color: #fff;
+        }
+
+        .game-grid-box .game-grid.correct {
+            background-color: rgb(2, 141, 32);
+        }
+
+        .game-grid-box .game-grid.wrong.clicked {
+            background-color: rgb(214, 2, 2);
+            color: #fff;
         }
 
         .game-tip-y,
@@ -49,7 +69,7 @@
             height: var(--tip);
             margin-right: var(--gap);
             display: flex;
-            flex-direction: column; 
+            flex-direction: column;
             justify-content: flex-end;
         }
 
@@ -71,15 +91,39 @@
             line-height: var(--size);
             text-align: center;
         }
+
+        .game-over {
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            right: 0;
+            background-color: rgba(255, 255, 255, .7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .hide {
+            display: none;
+        }
+
+        .container {
+            display: flex;
+        }
     </style>
 </head>
 
 <body>
-
-    <div class="game-box">
-        <div class="game-tip-y"></div>
-        <div class="game-tip-x"></div>
-        <div class="game-grid-box"></div>
+    <div class="container">
+        <div class="game-box">
+            <div class="game-tip-y"></div>
+            <div class="game-tip-x"></div>
+            <div class="game-grid-box"></div>
+            <div class="game-over hide">
+                <div class="game-over-title">游戏胜利</div>
+            </div>
+        </div>
     </div>
 
 
@@ -111,6 +155,29 @@
 
         class Grid {
             type = Randoms.int(0, 3) > 0 ? GRID_TYPE.FULL : GRID_TYPE.BLANK
+
+            get clicked() {
+                return this.dom.classList.contains('clicked')
+            }
+            get disabled() {
+                return this.dom.classList.contains('disabled')
+            }
+
+            set clicked(val) {
+                if (val) this.dom.classList.add('clicked')
+            }
+
+            set disabled(val) {
+                if (val) {
+                    this.dom.classList.add('disabled')
+                    if (this.type === GRID_TYPE.BLANK) {
+                        this.dom.classList.add('wrong')
+                        this.dom.innerHTML = `<i class="fas fa-times"></i>`
+                    }
+                    else if (this.type === GRID_TYPE.FULL) this.dom.classList.add('correct')
+                }
+            }
+
             constructor(x, y) {
                 this.x = x;
                 this.y = y;
@@ -127,54 +194,131 @@
         }
 
 
-        const map = createFlatArray(5, 5, (x, y) => new Grid(x, y))
-        const tip = {
-            y: [],
-            x: []
-        }
+        /** @type {Grid[][]} */
+        let map = [] // createFlatArray(5, 5, (x, y) => new Grid(x, y))
+        let tip = { y: [], x: [] }
 
-        for (let y = 0; y < 5; y++) {
-            let yStr = ''
-            let xStr = ''
-            for (let x = 0; x < 5; x++) {
-                yStr += map[x][y].type
-                xStr += map[y][x].type
-            }
-
-            tip.y.push(yStr.split('0').filter(a => a).map(a => a.length))
-            tip.x.push(xStr.split('0').filter(a => a).map(a => a.length))
-        }
-
-        console.log(map, tip);
-
-        let gridList = map.flat(1)
+        /** @type {Grid[]} */
+        let gridList = []
         let gridBox = document.querySelector('.game-box .game-grid-box')
         let tipY = document.querySelector('.game-box .game-tip-y')
         let tipX = document.querySelector('.game-box .game-tip-x')
+        let clickedWrongCount = 0; // 点击错误的数量 
 
-        gridList.forEach(g =>
-            gridBox.appendChild(g.dom)
-        )
-        tip.y.forEach(item => {
-            let dom = document.createElement('div')
-            dom.classList.add('game-tip')
-            for (const child of item) {
-                let tmp = document.createElement('div')
-                tmp.textContent = child;
-                dom.appendChild(tmp)
+
+        /**
+         * 格子点击事件
+         * @author 	 linyisonger
+         * @date 	 2025-03-27
+         */
+        function gridClickedFunc(e) {
+            console.log(e);
+            /** @type {HTMLDivElement} */
+            let dom = e.target
+            if (dom.classList.contains('disabled')) return
+            let x = +dom.getAttribute('data-x')
+            let y = +dom.getAttribute('data-y')
+            let g = map[y][x]
+            g.clicked = true;
+            g.disabled = true;
+            if (g.clicked && g.type === GRID_TYPE.BLANK) clickedWrongCount++ // 错误累加
+            checkAxisComplete(x, y);
+            checkGameOver();
+        }
+
+        /**
+         * 检查轴向是否完成
+         * @author 	 linyisonger
+         * @date 	 2025-03-27
+         * @param {number} x
+         * @param {number} y
+         */
+        function checkAxisComplete(x, y) {
+            let xAxis = gridList.filter(g => g.y === y)
+            let yAxis = gridList.filter(g => g.x === x)
+            if (!xAxis.some(g => !g.clicked && g.type === GRID_TYPE.FULL)) xAxis.filter(g => !g.disabled).forEach(g => g.disabled = true)
+            if (!yAxis.some(g => !g.clicked && g.type === GRID_TYPE.FULL)) yAxis.filter(g => !g.disabled).forEach(g => g.disabled = true)
+        }
+
+        /**
+         * 检查游戏是否结束
+         * @author 	 linyisonger
+         * @date 	 2025-03-27
+         */
+        function checkGameOver() {
+            let gameOver = document.querySelector('.game-over')
+            let gameOverTitle = gameOver.querySelector('.game-over-title')
+            let completed = gridList.filter(g => g.disabled).length === 25
+
+            // 游戏结束
+            if (clickedWrongCount >= 3) {  // 游戏失败
+                gameOverTitle.textContent = '😭失败了...'
+                gameOver.classList.remove('hide')
             }
-            tipY.appendChild(dom)
-        })
-        tip.x.forEach(item => {
-            let dom = document.createElement('div')
-            dom.classList.add('game-tip')
-            for (const child of item) {
-                let tmp = document.createElement('div')
-                tmp.textContent = child;
-                dom.appendChild(tmp)
+            else if (completed) { // 游戏胜利
+                gameOverTitle.textContent = '😀不过如此'
+                gameOver.classList.remove('hide')
             }
-            tipX.appendChild(dom)
-        })
+        }
+
+
+        /**
+         * 初始化地图
+         * @author 	 linyisonger
+         * @date 	 2025-03-27
+         * @param {Grid[][]} map
+         */
+        function initMap() {
+            map = createFlatArray(5, 5, (x, y) => new Grid(x, y))
+            tip = { x: [], y: [] }
+            gridList = map.flat(1)
+
+            for (let y = 0; y < 5; y++) {
+                let yStr = ''
+                let xStr = ''
+                for (let x = 0; x < 5; x++) {
+                    yStr += map[x][y].type
+                    xStr += map[y][x].type
+                }
+
+                tip.y.push(yStr.split('0').filter(a => a).map(a => a.length))
+                tip.x.push(xStr.split('0').filter(a => a).map(a => a.length))
+            }
+
+            if (tip.y.length < 5 || tip.x.length < 5) { // 地图有问题重新生成
+                initMap();
+                return;
+            }
+
+            gridList.forEach(g => {
+                g.dom.addEventListener('click', gridClickedFunc);
+                gridBox.appendChild(g.dom)
+            })
+
+            tip.y.forEach(item => {
+                let dom = document.createElement('div')
+                dom.classList.add('game-tip')
+                for (const child of item) {
+                    let tmp = document.createElement('div')
+                    tmp.textContent = child;
+                    dom.appendChild(tmp)
+                }
+                tipY.appendChild(dom)
+            })
+            tip.x.forEach(item => {
+                let dom = document.createElement('div')
+                dom.classList.add('game-tip')
+                for (const child of item) {
+                    let tmp = document.createElement('div')
+                    tmp.textContent = child;
+                    dom.appendChild(tmp)
+                }
+                tipX.appendChild(dom)
+            })
+        }
+
+
+        initMap();
     </script>
 </body>
 
