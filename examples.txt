@@ -93,3 +93,4 @@
 093.七王五二三-人机对战.html
 094.表情包制作.html
 095.每日数独.html
+096.Ollama Chat.html

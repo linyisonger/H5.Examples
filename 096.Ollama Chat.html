@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./assets/global.css">
+    <link rel="stylesheet" href="./assets/fontawesome/css/all.min.css">
+
+
+    <style>
+        .chat-box {
+            width: 100vw;
+            height: 100vh;
+            background-color: #f2f5fc;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .chat-box .chat-header {
+            height: 50px;
+            display: flex;
+            align-items: center;
+            /* font-size: 26px; */
+            /* font-weight: bold; */
+
+            max-width: 1000px;
+            width: calc(100% - 40px);
+            margin-left: max(calc((100vw - 1000px) / 2), 20px);
+            margin-right: max(calc((100vw - 1000px) / 2), 20px);
+        }
+
+        .chat-box .chat-header .form-item {
+            margin-right: 10px;
+        }
+
+        .chat-box .chat-header .form-item input {
+            border: none;
+            outline: none;
+            padding: 6px 8px;
+            border-radius: 6px;
+            width: 220px;
+        }
+
+        .chat-box .chat-header .form-item select {
+            border: none;
+            outline: none;
+            padding: 6px 8px;
+            border-radius: 6px;
+            width: 220px;
+        }
+
+        .chat-box .chat-message {
+            min-height: calc(100vh - 50px);
+            overflow-y: auto;
+            overflow-x: hidden;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-box .chat-footer {
+            position: fixed;
+            bottom: 0;
+            max-width: 1000px;
+            width: calc(100% - 40px);
+            background-color: #f2f5fc;
+            padding-top: 6px;
+            margin-left: max(calc((100vw - 1000px) / 2), 20px);
+            margin-right: max(calc((100vw - 1000px) / 2), 20px);
+        }
+
+        .chat-box .message-list {
+            max-width: 1000px;
+            width: calc(100% - 40px);
+            padding-bottom: 120px;
+            margin-left: max(calc((100vw - 1000px) / 2), 20px);
+            margin-right: max(calc((100vw - 1000px) / 2), 20px);
+        }
+
+        .chat-box .message-item {
+            margin-top: 40px;
+        }
+
+        .chat-box .message-item.user {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .chat-box .message-item.user .message-content {
+            font-size: 16px;
+            font-style: normal;
+            font-weight: 400;
+            line-height: 28px;
+            background: #4D6BFE;
+            color: #fff;
+            padding: 6px 15px;
+            border-radius: 12px 2px 12px 12px;
+            max-width: 65%;
+        }
+
+        .chat-box .message-item.bot {
+            display: flex;
+        }
+
+        .chat-box .message-item.bot .message-content {
+            font-size: 16px;
+            font-style: normal;
+            font-weight: 400;
+            line-height: 28px;
+            padding: 4px 15px;
+            border-radius: 2px 12px 12px 12px;
+            background: rgba(255, 255, 255, 0.7);
+            color: #242424;
+            padding: 6px 15px;
+            box-sizing: border-box;
+            min-height: 28px;
+            transition: height 0.1s;
+            box-shadow: 0px 3px 10px 0px rgba(0, 0, 0, 0.02);
+            max-width: 65%;
+        }
+
+        .chat-box .input-bar {
+            background: #E8EBF2;
+            border-radius: 12px;
+            display: flex;
+            padding: 14px 46px 14px 14px;
+            position: relative;
+            margin-bottom: 20px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .chat-box .input-bar input {
+            height: 24px;
+            background-color: inherit;
+            resize: none;
+            width: 100%;
+            border: none;
+            font-size: 16px;
+            line-height: 24px;
+            color: #242424;
+            outline: none;
+        }
+
+        .chat-box .input-bar .search-btn {
+            position: absolute;
+            right: 8px;
+            line-height: 24px;
+            background-color: #4D6BFE;
+            color: #fff;
+            top: 8px;
+            bottom: 8px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .chat-box .refresh-btn {
+            line-height: 24px;
+            background-color: #4D6BFE;
+            padding: 2px 15px;
+            color: #fff;
+            border-radius: 5px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .chat-box .refresh-btn:active,
+        .chat-box .input-bar .search-btn:not(.disabeld):active {
+            opacity: .7;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="chat-box">
+        <div class="chat-header">
+            <div class="form-item">
+                地址:
+                <input type="text" class="url-input" value="http://127.0.0.1:11434" />
+            </div>
+            <div class="form-item">
+                模型:
+                <select class="model-select">
+                    <option value="deepseek-r1">deepseek-r1</option>
+
+                </select>
+            </div>
+            <div class="form-item">
+                <div class="refresh-btn">刷新</div>
+            </div>
+        </div>
+        <div class="chat-message">
+            <div class="message-list"></div>
+        </div>
+        <div class="chat-footer">
+            <div class="input-bar">
+                <input class="search-text" type="text" placeholder="你有什么想问的">
+                <div class="search-btn">搜索</div>
+            </div>
+        </div>
+    </div>
+    <script src="https://gcore.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <script type="module">
+
+        const MESSAGE_TYPE = {
+            USER: 'user',
+            BOT: 'bot'
+        }
+
+        const CHAT_TYPE = {
+            OLLAMA: 'ollama'
+        }
+
+        const RESP_MAP = {
+            [CHAT_TYPE.OLLAMA]: ({ originData, success }) => {
+                originData.split('\n').filter(item => item).forEach(item => {
+                    let { message } = JSON.parse(item);
+                    success(message.content)
+                })
+            }
+        }
+
+        const currentChatType = CHAT_TYPE.OLLAMA;
+
+        function createMessageDOM(type) {
+            const messageItemDOM = document.createElement('div')
+            const messageDOM = document.createElement('div')
+            messageItemDOM.className = `message-item ${type}`;
+            messageDOM.className = 'message-content'
+            messageItemDOM.appendChild(messageDOM)
+            messageListDOM.appendChild(messageItemDOM)
+            return messageDOM
+        }
+
+        async function getTags() {
+            let res = await fetch(`${urlInputDOM.value}/api/tags`)
+            return await res.json()
+        }
+
+        async function postChat({ model, content }) {
+            const messageDOM = createMessageDOM(MESSAGE_TYPE.BOT)
+            try {
+                let res = await fetch(`${urlInputDOM.value}/api/chat`, {
+                    method: "POST",
+                    body: JSON.stringify({
+                        "model": model,
+                        "messages": [{ "role": "user", "content": content }],
+                        "stream": true
+                    }),
+                })
+
+                if (!res.ok) {
+                    throw await res.json()
+                }
+
+                let reader = res.body.getReader();
+                let textDecoder = new TextDecoder()
+                let tmpContent = '';
+
+                while (true) {
+                    try {
+                        let { done, value } = await reader.read();  // 读取数据流
+                        if (done) break;  // 如果读取完成则退出循环 
+                        let str = textDecoder.decode(value); // 解码二进制数据为文本
+                        RESP_MAP[currentChatType]({
+                            originData: str, // 元数据
+                            success: (c) => { // 成功处理 
+                                tmpContent += c;
+                                messageDOM.innerHTML = marked.parse(tmpContent)
+                                chatMessageDOM.scrollTop = messageListDOM.scrollHeight
+                            }
+                        })
+                    } catch (e) {
+                        console.error("Stream reading error:", e);
+                        break;
+                    }
+                }
+            } catch (e) {
+                console.log(e);
+                if (e.error) {
+                    messageDOM.innerHTML = e.error
+                }
+            }
+
+        }
+
+        const searchBtnDOM = document.querySelector('.search-btn')      // 搜索按钮
+        const searchTextDOM = document.querySelector('.search-text')    // 搜索输入
+        const messageListDOM = document.querySelector('.message-list')  // 信息列表
+        const chatMessageDOM = document.querySelector('.chat-message')  // 信息容器
+        const modelSelectDOM = document.querySelector('.model-select')  // 模型选择
+        const urlInputDOM = document.querySelector('.url-input')        // 地址输入
+        const refreshBtnDOM = document.querySelector('.refresh-btn')    // 刷新按钮
+
+
+        refreshBtnDOM.addEventListener('click', () => {
+            getTags().then((res) => { // 加载模型
+                modelSelectDOM.innerHTML = '';
+                messageListDOM.innerHTML = '';
+                res.models.forEach(m => { // 将模型刷到页面上
+                    const optionDOM = document.createElement('option')
+                    optionDOM.value = m.model;
+                    optionDOM.textContent = m.model;
+                    modelSelectDOM.appendChild(optionDOM)
+                })
+                postChat({ model: modelSelectDOM.value, content: '你好呀' }) // 初始化调用
+            })
+        })
+        searchBtnDOM.addEventListener('click', () => {
+            let content = searchTextDOM.value
+            if (!content) return;
+            const messageDOM = createMessageDOM(MESSAGE_TYPE.USER)
+            messageDOM.innerHTML = content
+            searchTextDOM.value = '';
+            postChat({ model: modelSelectDOM.value, content })
+        })
+        searchTextDOM.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                searchBtnDOM.click()
+            }
+        }); 
+
+        refreshBtnDOM.click();
+    </script>
+</body>
+
+</html>
