@@ -7,7 +7,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./assets/global.css">
     <link rel="stylesheet" href="./assets/fontawesome/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.8.1/github-markdown-dark.css">
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.8.1/github-markdown-dark.css">
     <style>
         .chat-box {
             width: 100vw;
@@ -119,6 +120,22 @@
             transition: height 0.1s;
             box-shadow: 0px 3px 10px 0px rgba(0, 0, 0, 0.02);
             max-width: 65%;
+            position: relative;
+        }
+
+        .chat-box .message-content.loading::after {
+            -moz-osx-font-smoothing: grayscale;
+            -webkit-font-smoothing: antialiased;
+            display: inline-block;
+            font-style: normal;
+            font-variant: normal;
+            text-rendering: auto;
+            line-height: 1;
+            content: "\f110";
+            -webkit-animation: fa-spin 2s linear infinite;
+            animation: fa-spin 2s linear infinite;
+            font-family: "Font Awesome 5 Free";
+            font-weight: 900;
         }
 
         .chat-box .input-bar {
@@ -225,7 +242,7 @@
             [CHAT_TYPE.OLLAMA]: ({ originData, success }) => {
                 originData.split('\n').filter(item => item).forEach(item => {
                     let { message } = JSON.parse(item);
-                    if(message) message.content = decodeURIComponent(message.content)
+                    if (message) message.content = decodeURIComponent(message.content)
                     success(message.content)
                 })
             }
@@ -237,7 +254,7 @@
             const messageItemDOM = document.createElement('div')
             const messageDOM = document.createElement('div')
             messageItemDOM.className = `message-item ${type}`;
-            messageDOM.className = 'message-content markdown-body'
+            messageDOM.className = 'message-content markdown-body loading'
             messageItemDOM.appendChild(messageDOM)
             messageListDOM.appendChild(messageItemDOM)
             return messageDOM
@@ -292,6 +309,7 @@
                     messageDOM.innerHTML = e.error
                 }
             }
+            messageDOM.classList.remove('loading')
 
         }
 
