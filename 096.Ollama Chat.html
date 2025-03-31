@@ -82,11 +82,19 @@
 
         .chat-box .message-item {
             margin-top: 40px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-box .message-info {
+            margin-bottom: 5px;
+            font-size: 16px;
+            color: #888;
         }
 
         .chat-box .message-item.user {
             display: flex;
-            justify-content: flex-end;
+            align-items: flex-end;
         }
 
         .chat-box .message-item.user .message-content {
@@ -252,9 +260,16 @@
 
         function createMessageDOM(type) {
             const messageItemDOM = document.createElement('div')
+            const messageInfoDOM = document.createElement('div')
             const messageDOM = document.createElement('div')
             messageItemDOM.className = `message-item ${type}`;
-            messageDOM.className = 'message-content markdown-body loading'
+            messageInfoDOM.className = `message-info ${type}`
+            messageDOM.className = 'message-content markdown-body'
+            if (type === MESSAGE_TYPE.BOT) {
+                messageDOM.classList.add('loading')
+                messageInfoDOM.textContent = modelSelectDOM.value
+            }
+            messageItemDOM.appendChild(messageInfoDOM)
             messageItemDOM.appendChild(messageDOM)
             messageListDOM.appendChild(messageItemDOM)
             return messageDOM
@@ -275,6 +290,9 @@
                         "messages": [{ "role": "user", "content": content }],
                         "stream": true
                     }),
+                    headers: {
+                        'Content-Type': 'application/json; charset=utf-8'
+                    }
                 })
 
                 if (!res.ok) {
