@@ -7,8 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./assets/global.css">
     <link rel="stylesheet" href="./assets/fontawesome/css/all.min.css">
-
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.8.1/github-markdown-dark.css">
     <style>
         .chat-box {
             width: 100vw;
@@ -175,6 +174,10 @@
         .chat-box .input-bar .search-btn:not(.disabeld):active {
             opacity: .7;
         }
+
+        .chat-box pre {
+            overflow-x: auto;
+        }
     </style>
 </head>
 
@@ -209,7 +212,6 @@
     <script src="https://gcore.jsdelivr.net/npm/marked/marked.min.js"></script>
 
     <script type="module">
-
         const MESSAGE_TYPE = {
             USER: 'user',
             BOT: 'bot'
@@ -223,6 +225,7 @@
             [CHAT_TYPE.OLLAMA]: ({ originData, success }) => {
                 originData.split('\n').filter(item => item).forEach(item => {
                     let { message } = JSON.parse(item);
+                    if(message) message.content = decodeURIComponent(message.content)
                     success(message.content)
                 })
             }
@@ -234,7 +237,7 @@
             const messageItemDOM = document.createElement('div')
             const messageDOM = document.createElement('div')
             messageItemDOM.className = `message-item ${type}`;
-            messageDOM.className = 'message-content'
+            messageDOM.className = 'message-content markdown-body'
             messageItemDOM.appendChild(messageDOM)
             messageListDOM.appendChild(messageItemDOM)
             return messageDOM
@@ -327,7 +330,7 @@
                 e.preventDefault();
                 searchBtnDOM.click()
             }
-        }); 
+        });
 
         refreshBtnDOM.click();
     </script>
