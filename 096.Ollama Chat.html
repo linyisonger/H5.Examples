@@ -282,12 +282,14 @@
 
         async function postChat({ model, content }) {
             const messageDOM = createMessageDOM(MESSAGE_TYPE.BOT)
+            const message = { "role": "user", "content": content }
             try {
+                messageHistory.push(message)
                 let res = await fetch(`${urlInputDOM.value}/api/chat`, {
                     method: "POST",
                     body: JSON.stringify({
                         "model": model,
-                        "messages": [{ "role": "user", "content": content }],
+                        "messages": messageHistory,
                         "stream": true
                     }),
                     headers: {
@@ -338,18 +340,21 @@
         const modelSelectDOM = document.querySelector('.model-select')  // 模型选择
         const urlInputDOM = document.querySelector('.url-input')        // 地址输入
         const refreshBtnDOM = document.querySelector('.refresh-btn')    // 刷新按钮
-
+        
+        let messageHistory = [] // 消息历史
 
         refreshBtnDOM.addEventListener('click', () => {
             getTags().then((res) => { // 加载模型
                 modelSelectDOM.innerHTML = '';
                 messageListDOM.innerHTML = '';
+                messageHistory = []
                 res.models.forEach(m => { // 将模型刷到页面上
                     const optionDOM = document.createElement('option')
                     optionDOM.value = m.model;
                     optionDOM.textContent = m.model;
                     modelSelectDOM.appendChild(optionDOM)
                 })
+
                 postChat({ model: modelSelectDOM.value, content: '你好呀' }) // 初始化调用
             })
         })
