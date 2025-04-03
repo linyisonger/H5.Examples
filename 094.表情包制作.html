@@ -41,14 +41,19 @@
         .face-config .form-item__value input[type='file']+span {
             display: none;
         }
+
+        .emo-box {
+            display: flex;
+        }
     </style>
 </head>
 
 <body>
-    <canvas id="emo"></canvas>
-    <canvas id="face"></canvas>
-
-    <div class="face-config"> </div>
+    <div class="emo-box">
+        <canvas id="emo"></canvas>
+        <canvas id="face"></canvas>
+        <div class="face-config"> </div>
+    </div>
 
 
 
@@ -75,10 +80,10 @@
             formItemLabelDOM.textContent = label
             formItemValueTxtDOM.textContent = value
             formItemValueInputDOM.type = type
-            formItemValueInputDOM.value = value;
             formItemValueInputDOM.min = min || 0;
             formItemValueInputDOM.max = max || 1;
             formItemValueInputDOM.step = step || 0.01;
+            formItemValueInputDOM.setAttribute('value', value)
 
             formItemValueDOM.appendChild(formItemValueInputDOM)
             formItemValueDOM.appendChild(formItemValueTxtDOM)
@@ -159,9 +164,9 @@
             canvas.width = width;
             canvas.height = height;
             ctx.clearRect(0, 0, width, height)
-            ctx.fillStyle = '#999'
-            ctx.fillRect(0, 0, width, height)
-            // ctx.drawImage(pandaHead, 0, 0, width, height);
+            // ctx.fillStyle = '#999'
+            // ctx.fillRect(0, 0, width, height)
+            ctx.drawImage(pandaHead, 0, 0, width, height);
         }
 
         /**
@@ -207,9 +212,9 @@
             height = layerSizeRes.h;
             canvas.width = width
             canvas.height = height
-            // ctx.putImageData(faceImageData, 0, 0)
-            ctx.fillStyle = '#333'
-            ctx.fillRect(0, 0, width, height)
+            ctx.putImageData(faceImageData, 0, 0)
+            // ctx.fillStyle = '#333'
+            // ctx.fillRect(0, 0, width, height)
         }
 
         async function drawFaceEffect() {
@@ -243,12 +248,12 @@
         // 面部位置配置
         // 比例
         const faceConfig = {
-            x: 0.35,
-            y: 0.24,
-            w: 0.31,
-            h: 0.33,
+            x: 0.29,
+            y: 0.26,
+            w: 0.45,
+            h: 0.51,
             a: 0, // 旋转角度
-            url: './assets/stars/bailu.jpg', // 默认照片
+            url: './assets/stars/jiangshuying.jpg', // 默认照片
             luminance: -0.5, // 亮度
             exposure: 4, // 曝光
             contrastRatio: 2, // 对比度
@@ -311,7 +316,7 @@
 
             drawEmoBackground()
             await drawFaceImage(faceConfig.url)
-            // drawFaceEffect()
+            drawFaceEffect()
             updateFaceTranform();
         }
 
