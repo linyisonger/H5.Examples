@@ -10,6 +10,36 @@
     <style>
         #face {
             position: absolute;
+            transform-origin: center;
+        }
+
+        .face-config {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .face-config .form-item {
+            display: flex;
+            align-items: center;
+        }
+
+        .face-config .form-item__label {
+            width: 80px;
+            margin-right: 10px;
+            text-align: right;
+        }
+
+        .face-config .form-item__value {
+            display: flex;
+            align-items: center;
+        }
+
+        .face-config .form-item__value span {
+            margin-left: 10px;
+        }
+
+        .face-config .form-item__value input[type='file']+span {
+            display: none;
         }
     </style>
 </head>
@@ -18,9 +48,58 @@
     <canvas id="emo"></canvas>
     <canvas id="face"></canvas>
 
+    <div class="face-config"> </div>
+
+
+
     <script src="./assets/face-api/face-api.min.js"></script>
     <script type="module">
         import "https://gcore.jsdelivr.net/npm/@3r/canvas-plus@1.0.8/index.js";
+
+
+        /**
+         * 创建
+         * @author 	 linyisonger
+         * @date 	 2025-04-02
+         */
+        function createFormItemDOM({ label, max, min, step, change, type, value }) {
+            let formItemDOM = document.createElement('div')
+            let formItemLabelDOM = document.createElement('div')
+            let formItemValueDOM = document.createElement('div')
+            let formItemValueInputDOM = document.createElement('input')
+            let formItemValueTxtDOM = document.createElement('span')
+            formItemDOM.className = 'form-item'
+            formItemLabelDOM.className = 'form-item__label'
+            formItemValueDOM.className = 'form-item__value'
+            formItemValueTxtDOM.className = 'form-item__value-txt'
+            formItemLabelDOM.textContent = label
+            formItemValueTxtDOM.textContent = value
+            formItemValueInputDOM.type = type
+            formItemValueInputDOM.value = value;
+            formItemValueInputDOM.min = min || 0;
+            formItemValueInputDOM.max = max || 1;
+            formItemValueInputDOM.step = step || 0.01;
+
+            formItemValueDOM.appendChild(formItemValueInputDOM)
+            formItemValueDOM.appendChild(formItemValueTxtDOM)
+            formItemDOM.appendChild(formItemLabelDOM)
+            formItemDOM.appendChild(formItemValueDOM)
+
+            formItemValueInputDOM.addEventListener('change', (e) => {
+                formItemValueTxtDOM.textContent = e.target.value
+                let v = type === 'range' ? +e.target.value :
+                    type === 'file' ? e.target.files : e.target.value
+                change?.(v)
+            })
+            return formItemDOM
+        }
+
+        function createButtonDOM({ label, click }) {
+            let buttonDOM = document.createElement('button')
+            buttonDOM.textContent = label
+            buttonDOM.addEventListener('click', click)
+            return buttonDOM;
+        }
 
         /**
          * 靠近一点点
@@ -59,7 +138,12 @@
             })
         }
 
-
+        function saveImage(blob) {
+            let a = document.createElement('a');
+            a.href = window.URL.createObjectURL(blob);
+            a.setAttribute('download', '表情包.jpg');
+            a.click();
+        }
         /**
          * 绘制表情包的背景
          * @author 	 linyisonger
@@ -70,12 +154,14 @@
             let canvas = document.querySelector("#emo")
             let ctx = canvas.getContext('2d')
             let pandaHead = await loadImage('./assets/pandaHead.png')
-            width = pandaHead.width;
-            height = pandaHead.height;
+            let width = pandaHead.width;
+            let height = pandaHead.height;
             canvas.width = width;
             canvas.height = height;
             ctx.clearRect(0, 0, width, height)
-            ctx.drawImage(pandaHead, 0, 0, width, height);
+            ctx.fillStyle = '#999'
+            ctx.fillRect(0, 0, width, height)
+            // ctx.drawImage(pandaHead, 0, 0, width, height);
         }
 
         /**
@@ -99,7 +185,7 @@
 
             for (let i = 0; i < zoomPositionIndexList.length; i++) {
                 const zoomPosition = positions[zoomPositionIndexList[i]];
-                positions[zoomPositionIndexList[i]] = zoom(zoomPosition, positions[29], .8) // 缩放脸颊 清除黑边
+                positions[zoomPositionIndexList[i]] = zoom(zoomPosition, positions[29], .9) // 缩放脸颊 清除黑边
             }
 
             // 裁切操作
@@ -121,7 +207,9 @@
             height = layerSizeRes.h;
             canvas.width = width
             canvas.height = height
-            ctx.putImageData(faceImageData, 0, 0)
+            // ctx.putImageData(faceImageData, 0, 0)
+            ctx.fillStyle = '#333'
+            ctx.fillRect(0, 0, width, height)
         }
 
         async function drawFaceEffect() {
@@ -130,9 +218,18 @@
             let ctx = canvas.getContext('2d')
             ctx.clearRect(0, 0, canvas.width, canvas.height)
             ctx.putImageData(faceImageData, 0, 0)
-            ctx.luminance({ v: -.5 })
-            ctx.exposure({ v: 4 })
-            ctx.contrastRatio({ v: 2 })
+            ctx.luminance({ v: faceConfig.luminance })
+            ctx.exposure({ v: faceConfig.exposure })
+            ctx.contrastRatio({ v: faceConfig.contrastRatio })
+        }
+
+        function updateFaceTranform() {
+            console.log('updateFaceTranform');
+            let emoDOM = document.querySelector('#emo')
+            let faceDOM = document.querySelector('#face')
+            let width = emoDOM.width;
+            let height = emoDOM.height;
+            faceDOM.setAttribute('style', `left:${faceConfig.x * width}px;top:${faceConfig.y * height}px;width:${width * faceConfig.w}px;height:${height * faceConfig.h}px;transform: rotate(${faceConfig.a}deg)`)
         }
 
 
@@ -142,13 +239,82 @@
             faceapi.nets.ssdMobilenetv1.loadFromUri('./assets/face-api/models')
         ]).then(start)
 
+
+        // 面部位置配置
+        // 比例
+        const faceConfig = {
+            x: 0.35,
+            y: 0.24,
+            w: 0.31,
+            h: 0.33,
+            a: 0, // 旋转角度
+            url: './assets/stars/bailu.jpg', // 默认照片
+            luminance: -0.5, // 亮度
+            exposure: 4, // 曝光
+            contrastRatio: 2, // 对比度
+        }
         let faceImageData = null
+        let faceConfigDOM = document.querySelector('.face-config')
 
         async function start() {
-            // drawEmoBackground()
-            await drawFaceImage('./assets/stars/bailu.jpg')
-            drawFaceEffect()
+            faceConfigDOM.appendChild(createFormItemDOM({ label: 'x:', type: 'range', value: faceConfig.x, change: (v) => (faceConfig.x = v) && updateFaceTranform() }))
+            faceConfigDOM.appendChild(createFormItemDOM({ label: 'y:', type: 'range', value: faceConfig.y, change: (v) => (faceConfig.y = v) && updateFaceTranform() }))
+            faceConfigDOM.appendChild(createFormItemDOM({ label: 'w:', type: 'range', value: faceConfig.w, change: (v) => (faceConfig.w = v) && updateFaceTranform() }))
+            faceConfigDOM.appendChild(createFormItemDOM({ label: 'h:', type: 'range', value: faceConfig.h, change: (v) => (faceConfig.h = v) && updateFaceTranform() }))
+            faceConfigDOM.appendChild(createFormItemDOM({ label: 'a:', type: 'range', value: faceConfig.a, change: (v) => (faceConfig.a = v) && updateFaceTranform(), min: 0, max: 360, step: 1, }))
+            faceConfigDOM.appendChild(createFormItemDOM({
+                label: '照片:', type: 'file', value: '', change: async (v) => {
+                    const filePath = URL.createObjectURL(v[0])
+                    await drawFaceImage(filePath)
+                    drawFaceEffect()
+                }
+            }))
+            faceConfigDOM.appendChild(createFormItemDOM({ label: '亮度:', type: 'range', value: faceConfig.luminance, change: (v) => (faceConfig.luminance = v) && drawFaceEffect(), min: -10, max: 10, step: .1, }))
+            faceConfigDOM.appendChild(createFormItemDOM({ label: '曝光:', type: 'range', value: faceConfig.exposure, change: (v) => (faceConfig.exposure = v) && drawFaceEffect(), min: -10, max: 10, step: .1, }))
+            faceConfigDOM.appendChild(createFormItemDOM({ label: '对比度:', type: 'range', value: faceConfig.contrastRatio, change: (v) => (faceConfig.contrastRatio = v) && drawFaceEffect(), min: -10, max: 10, step: .1, }))
+            faceConfigDOM.appendChild(createButtonDOM({
+                label: '保存', click: async () => {
+                    console.log('保存图片');
+                    /** @type {HTMLCanvasElement} */
+                    let faceDOM = document.querySelector('#face')
+                    /** @type {HTMLCanvasElement} */
+                    let canvas = document.querySelector("#emo")
+                    let ctx = canvas.getContext('2d')
+
+                    let x = faceConfig.x * canvas.width;
+                    let y = faceConfig.y * canvas.height;
+                    let w = faceConfig.w * canvas.width;
+                    let h = faceConfig.h * canvas.height;
+                    let rad = faceConfig.a / 180 * Math.PI;
+
+                    let cx = x + w / 2
+                    let cy = y + h / 2
+
+                    let faceImage = await loadImage(faceDOM.toDataURL('image/png', .8))
+
+                    console.log(cx, cy);
+
+                    // ctx.drawImage(faceImage, x, y, w, h)
+
+                    ctx.translate(cx, cy)
+                    ctx.rotate(rad)
+                    ctx.translate(-cx, -cy)
+                    ctx.drawImage(faceImage, cx - w / 2, cy - h / 2, w, h)
+                    ctx.translate(cx, cy)
+                    ctx.rotate(-rad)
+                    ctx.translate(-cx, -cy)
+
+                    canvas.toBlob((b) => saveImage(b), 'image/jpeg', .8)
+                    drawEmoBackground()
+                }
+            }))
+
+            drawEmoBackground()
+            await drawFaceImage(faceConfig.url)
+            // drawFaceEffect()
+            updateFaceTranform();
         }
+
     </script>
 
 
