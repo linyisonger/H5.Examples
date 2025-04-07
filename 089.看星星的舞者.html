@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./assets/global.css">
-
+    <link rel="stylesheet" href="./assets/fontawesome/css/all.min.css">
     <style>
         #container {
             display: flex;
@@ -53,7 +53,7 @@
             position: absolute;
             right: 20px;
             top: 20px;
-            width: 40px;
+            font-size: 40px;
         }
 
         .bgm-controller:active {
@@ -71,7 +71,9 @@
         <a class="join-us" href="https://github.com/linyisonger/H5.Examples">
             加入我们
         </a>
-        <img class="bgm-controller" src="./assets/dance/bgm-c.png">
+        <div class="bgm-controller">
+            <i class="fas fa-volume-mute"></i>
+        </div>
     </div>
     <script type="module">
         /**
@@ -126,8 +128,10 @@
         let bgmControllerDom = document.querySelector('.bgm-controller')
         bgmControllerDom.addEventListener("click", () => {
             const bgm = document.body.querySelector('.bgm')
+
+            const bgmIcon = document.querySelector('.bgm-controller').querySelector('i')
             bgm.muted = !bgm.muted;
-            bgmControllerDom.setAttribute('src', bgm.muted ? './assets/dance/bgm-c.png' : './assets/dance/bgm-o.png')
+            bgmIcon.className = bgm.muted ? 'fas fa-volume-mute' : 'fas fa-volume-up'
         })
 
 
@@ -136,7 +140,7 @@
             let dance = await fetchLoad("./assets/dance/kemusan.json") // 加载配置
             const DROP_FRAME = 5 // 抽帧
             const ZOOM_OUT = .5 // 缩放
-            
+
             // 检查动作信息
             // for (let i = 0; i < dance.frames.length; i++) {
             //     console.log(i);
@@ -146,7 +150,7 @@
             //     document.body.appendChild(img)
             // } 
             // return
-            
+
 
             let danceCvsList = [] // 用户画布列表
             for (let i = 0; i < dancers.length; i++) {
