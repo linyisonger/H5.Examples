@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./assets/global.css">
+
+    <style>
+        .parks .park {
+            display: flex;
+            margin-bottom: 5px;
+        }
+
+        .parks .words {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .book>.name,
+        .park>.name {
+            padding: 4px 8px;
+        }
+
+        .parks .word {
+            padding: 4px 8px;
+            margin-right: 6px;
+            cursor: pointer;
+            box-sizing: border-box;
+            border: 1px solid transparent;
+        }
+
+        .parks .word.selected {
+            border: 1px dashed red;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="control-bar">
+        <div class="form-item  ">
+            <div class="form-item-label">
+                间隔
+            </div>
+            <div class="form-item-input">
+                <input class="read-interval" type="range" min="1" max="5" value="2">
+            </div>
+            <div class="form-item-text">
+                2s
+            </div>
+        </div>
+        <div class="form-item">
+            <button class="read-words">朗读</button>
+        </div>
+    </div>
+
+
+    <script>
+        const bookWords = [
+            {
+                name: '义务教育（六三学制）三年级上册',
+                parts: [
+                    {
+                        name: '1',
+                        words: [
+                            '穿戴',
+                            '鲜艳',
+                            '服装',
+                            '打扮',
+                            '敬爱',
+                            '早晨',
+                            '国旗',
+                            '树枝',
+                            '好奇',
+                            '孔雀',
+                            '招引',
+                            '安静',
+                            '敬礼',
+                            '粗壮',
+                            '枝干',
+                            '影子'
+                        ]
+                    },
+                    {
+                        name: '2',
+                        words: [
+                            "阵雨",
+                            "荒野",
+                            "跳舞",
+                            "狂欢",
+                            "功课",
+                            "放假",
+                            "互相",
+                            "狂风",
+                            "急急忙忙",
+                            "自然",
+                            "能够",
+                            "双臂"
+                        ]
+                    }
+                ]
+            }
+        ]
+        /**
+         * 创建📕元素
+         * @author 	 linyisonger
+         * @date 	 2025-04-10
+         */
+        function createBookDOM() {
+            let bookWordsDOM = document.createElement('div')
+            bookWordsDOM.className = 'book-words'
+
+            for (const book of bookWords) {
+                let bookDOM = document.createElement('div')
+                let bookNameDOM = document.createElement('div')
+                let bookPartsDOM = document.createElement('div')
+
+                bookDOM.className = 'book'
+                bookNameDOM.className = 'name'
+                bookPartsDOM.className = 'parks'
+
+                bookNameDOM.textContent = book.name
+
+                for (const part of book.parts) {
+                    let partDOM = document.createElement('div')
+                    let partNameDOM = document.createElement('div')
+                    let partWordsDOM = document.createElement('div')
+
+                    partDOM.className = 'park'
+                    partNameDOM.className = 'name'
+                    partWordsDOM.className = 'words'
+
+                    partNameDOM.textContent = part.name;
+
+                    for (const words of part.words) {
+                        let workDOM = document.createElement('div')
+                        workDOM.className = 'word'
+                        workDOM.textContent = words
+                        partWordsDOM.appendChild(workDOM)
+
+                        workDOM.addEventListener('click', (e) => {
+                            e.target.classList.toggle('selected')
+                        })
+                    }
+
+                    partDOM.appendChild(partNameDOM)
+                    partDOM.appendChild(partWordsDOM)
+                    bookPartsDOM.appendChild(partDOM)
+                }
+
+                bookDOM.appendChild(bookNameDOM)
+                bookDOM.appendChild(bookPartsDOM)
+                bookWordsDOM.appendChild(bookDOM)
+            }
+
+            document.body.prepend(bookWordsDOM);
+        }
+
+        createBookDOM();
+
+
+        const synth = window.speechSynthesis;
+        let voices;
+        function loadVoices() {
+            voices = synth.getVoices();
+        }
+
+        // in Google Chrome the voices are not ready on page load
+        if ("onvoiceschanged" in synth) {
+            synth.onvoiceschanged = loadVoices;
+        } else {
+            loadVoices();
+        }
+
+
+        // const utterThis = new SpeechSynthesisUtterance(inputTxt.value);
+        // utterThis.voice = voices[voiceSelect.value];
+        // synth.speak(utterThis); 
+
+        let readWordsDOM = document.querySelector('.read-words')
+        let readIntervalDOM = document.querySelector('.read-interval')
+        readWordsDOM.addEventListener('click', readWord)
+        readIntervalDOM.addEventListener('change', (e) => {
+            let textDOM = e.target.parentElement.parentElement.querySelector('.form-item-text')
+            textDOM.textContent = e.target.value + 's';
+        })
+        async function readWord() {
+            let wordsSelectedDOMList = document.querySelectorAll('.book-words  .word.selected')
+            let wordsSelected = []
+            wordsSelectedDOMList.forEach(item => {
+                wordsSelected.push(item.textContent)
+            })
+
+            for (let i = 0; i < wordsSelected.length; i++) {
+                const words = wordsSelected[i];
+                const utterThis = new SpeechSynthesisUtterance(words);
+                utterThis.voice = voices[0];
+                synth.speak(utterThis);
+                await new Promise(r => setTimeout(r, +readIntervalDOM.value * 1000))
+            }
+
+        }
+
+    </script>
+</body>
+
+</html>
