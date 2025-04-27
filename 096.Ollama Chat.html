@@ -315,7 +315,11 @@
                             success: (c) => { // 成功处理 
                                 tmpContent += c;
                                 messageDOM.innerHTML = marked.parse(tmpContent)
-                                chatMessageDOM.scrollTop = messageListDOM.scrollHeight
+                                chatMessageDOM.scrollTo({
+                                    behavior: "smooth",
+                                    top: messageListDOM.scrollHeight
+                                })
+
                             }
                         })
                     } catch (e) {
@@ -340,7 +344,7 @@
         const modelSelectDOM = document.querySelector('.model-select')  // 模型选择
         const urlInputDOM = document.querySelector('.url-input')        // 地址输入
         const refreshBtnDOM = document.querySelector('.refresh-btn')    // 刷新按钮
-        
+
         let messageHistory = [] // 消息历史
 
         refreshBtnDOM.addEventListener('click', () => {
