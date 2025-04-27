@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./assets/global.css">
+
+
+    <style>
+        body {
+            overflow: hidden;
+        }
+
+        .main {
+            height: auto;
+            width: 100%;
+        }
+
+        section {
+            display: flex;
+            justify-content: center;
+            font-size: 50px;
+            align-items: center;
+            height: 100vh;
+            width: 100%;
+        }
+
+        .s1 {
+            background-color: rgb(255, 160, 160);
+        }
+
+        .s2 {
+            background-color: rgb(158, 255, 158);
+        }
+
+        .s3 {
+            background-color: rgb(146, 146, 255);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="main">
+        <section class="s1">一</section>
+        <section class="s2">二</section>
+        <section class="s3">三</section>
+    </div>
+
+
+
+    <script type="module">
+        let sections = document.querySelectorAll('.main section')
+
+        let currentSectionIndex = 0
+
+        window.addEventListener("wheel", (event) => {
+            if (currentSectionIndex < sections.length - 1 && event.deltaY > 0) {
+                currentSectionIndex++;
+                scrollToSection(currentSectionIndex)
+            }
+            else if (currentSectionIndex != 0 && event.deltaY < 0) {
+                currentSectionIndex--;
+                scrollToSection(currentSectionIndex)
+            }
+        })
+
+        function scrollToSection(index) {
+            sections[index].scrollIntoView({ behavior: "smooth" })
+        }
+
+    </script>
+</body>
+
+</html>
