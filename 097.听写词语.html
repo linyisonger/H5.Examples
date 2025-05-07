@@ -34,13 +34,46 @@
         .parks .word.selected {
             border: 1px dashed red;
         }
+
+        .control-bar {
+            display: flex;
+        }
+
+        .control-bar .form-item {
+            display: flex;
+            align-items: center;
+            padding-left: 8px;
+        }
+
+        .control-bar .form-item-input {
+            margin: 0 12px;
+            display: flex;
+            align-items: center;
+        }
+
+        .control-bar .form-item-text {
+            margin-right: 12px;
+        }
+
+        .read-word-text {
+            padding: 8px;
+        }
+
+        .read-word-text textarea {
+            height: 120px;
+            width: 265px;
+            resize: none;
+        }
     </style>
 </head>
 
 <body>
 
+    <div class="read-word-text">
+        <textarea></textarea>
+    </div>
     <div class="control-bar">
-        <div class="form-item  ">
+        <div class="form-item">
             <div class="form-item-label">
                 间隔
             </div>
@@ -103,6 +136,11 @@
                 ]
             }
         ]
+
+        const readWordTextDOM = document.querySelector('.read-word-text > textarea')
+
+
+
         /**
          * 创建📕元素
          * @author 	 linyisonger
@@ -142,6 +180,13 @@
 
                         workDOM.addEventListener('click', (e) => {
                             e.target.classList.toggle('selected')
+
+                            let wordsSelectedDOMList = document.querySelectorAll('.book-words  .word.selected')
+                            let wordsSelected = []
+                            wordsSelectedDOMList.forEach(item => {
+                                wordsSelected.push(item.textContent)
+                            })
+                            readWordTextDOM.value = wordsSelected.join(' ');
                         })
                     }
 
@@ -174,11 +219,6 @@
             loadVoices();
         }
 
-
-        // const utterThis = new SpeechSynthesisUtterance(inputTxt.value);
-        // utterThis.voice = voices[voiceSelect.value];
-        // synth.speak(utterThis); 
-
         let readWordsDOM = document.querySelector('.read-words')
         let readIntervalDOM = document.querySelector('.read-interval')
         readWordsDOM.addEventListener('click', readWord)
@@ -187,12 +227,7 @@
             textDOM.textContent = e.target.value + 's';
         })
         async function readWord() {
-            let wordsSelectedDOMList = document.querySelectorAll('.book-words  .word.selected')
-            let wordsSelected = []
-            wordsSelectedDOMList.forEach(item => {
-                wordsSelected.push(item.textContent)
-            })
-
+            let wordsSelected = readWordTextDOM.value.split(' ')
             for (let i = 0; i < wordsSelected.length; i++) {
                 const words = wordsSelected[i];
                 const utterThis = new SpeechSynthesisUtterance(words);
