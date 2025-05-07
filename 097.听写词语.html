@@ -86,11 +86,41 @@
         </div>
         <div class="form-item">
             <button class="read-words">朗读</button>
+            <button class="input-image">图片识别</button>
         </div>
     </div>
 
 
-    <script>
+    <script type="module">
+        import Tesseract from "https://gcore.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.esm.min.js";
+        const worker = await Tesseract.createWorker("chi_sim", 1, {
+            corePath:
+                "https://gcore.jsdelivr.net/npm/tesseract.js-core@5/tesseract-core-simd-lstm.wasm.js",
+            workerPath:
+                "https://gcore.jsdelivr.net/npm/tesseract.js@5/dist/worker.min.js",
+            langPath:
+                "https://gcore.jsdelivr.net/npm/@tesseract.js-data/chi_sim/4.0.0",
+        });
+
+        const inputImageDOM = document.querySelector('.input-image')
+        inputImageDOM.addEventListener("click", () => {
+            const fileInput = document.createElement('input');
+            fileInput.setAttribute('type', 'file');
+            fileInput.setAttribute('accept', '*');
+            fileInput.addEventListener('change', async () => {
+                const files = fileInput.files;
+                let text = '';
+                for (let i = 0; i < files.length; i++) {
+                    const ret = await worker.recognize(files[i]);
+                    text += ret.data.text.replace(/[^a-zA-Z\u4e00-\u9fa5 ]/g, '')
+                    console.log(ret.data.text);
+                }
+                readWordTextDOM.value = text;
+            });
+            fileInput.click();
+        })
+
+
         const bookWords = [
             {
                 name: '义务教育（六三学制）三年级上册',
@@ -132,6 +162,34 @@
                             "能够",
                             "双臂"
                         ]
+                    },
+                    {
+                        name: '5',
+                        words: ['水泥', '放晴', '明朗', '亮晶晶', '金黄', '雨珠', '院墙', '落叶', '闪闪发光', '尽头', '平展', '排列', '规则', '歌唱', '迟到']
+                    },
+                    {
+                        name: '6',
+                        words: '清凉 留意 颜料 枫叶 邮票 果树 菊花 仙子 气味 香甜 香味 加紧 过冬 丰收'.split(' ')
+                    },
+                    {
+                        name: '8',
+                        words: '火柴 围裙 可怜 哪怕 暖和 简直 蜡烛 亮光 地板 烛光 温和 赶紧 痛苦 清晨'.split(' ')
+                    },
+                    {
+                        name: '10',
+                        words: '旅行 要好 咱们 草堆 作声 偷偷 答应 做梦 来得及 救命 拼命 大吃一惊 消化 当然 几乎 知觉 眼泪'.split(' ')
+                    },
+                    {
+                        name: '12',
+                        words: '变成 门板 准备 暴风雨 安心 睡觉 主人 墙壁 母鸡 注意 蜘蛛 漂亮 因此'.split(' ')
+                    },
+                    {
+                        name: '15',
+                        words: '雨点 船夫 用力 船头 羽毛 母亲 外祖父 翠绿 静悄悄 翠鸟 捕鱼'.split(' ')
+                    },
+                    {
+                        name: '16',
+                        words: '窗前 蒲公英 盛开 玩耍 一本正经 绒毛 合拢 手掌 有趣 假装 哈欠 钓鱼 观察 喜爱'.split(' ')
                     }
                 ]
             }
