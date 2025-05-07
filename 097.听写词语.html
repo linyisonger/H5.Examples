@@ -61,8 +61,12 @@
 
         .read-word-text textarea {
             height: 120px;
-            width: 265px;
+            width: 360px;
             resize: none;
+        }
+
+        .input-image {
+            margin-left: 10px;
         }
     </style>
 </head>
@@ -78,7 +82,7 @@
                 间隔
             </div>
             <div class="form-item-input">
-                <input class="read-interval" type="range" min="1" max="5" value="2">
+                <input class="read-interval" type="range" min="0" max="5" value="2">
             </div>
             <div class="form-item-text">
                 2s
@@ -285,15 +289,22 @@
             textDOM.textContent = e.target.value + 's';
         })
         async function readWord() {
-            let wordsSelected = readWordTextDOM.value.split(' ')
-            for (let i = 0; i < wordsSelected.length; i++) {
-                const words = wordsSelected[i];
-                const utterThis = new SpeechSynthesisUtterance(words);
+
+            if (+readIntervalDOM.value == 0) {
+                const utterThis = new SpeechSynthesisUtterance(readWordTextDOM.value);
                 utterThis.voice = voices[0];
                 synth.speak(utterThis);
-                await new Promise(r => setTimeout(r, +readIntervalDOM.value * 1000))
             }
-
+            else {
+                let wordsSelected = readWordTextDOM.value.split(' ').filter(w => w)
+                for (let i = 0; i < wordsSelected.length; i++) {
+                    const words = wordsSelected[i];
+                    const utterThis = new SpeechSynthesisUtterance(words);
+                    utterThis.voice = voices[0];
+                    synth.speak(utterThis);
+                    await new Promise(r => setTimeout(r, +readIntervalDOM.value * 1000))
+                }
+            }
         }
 
     </script>
