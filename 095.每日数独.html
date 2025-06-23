@@ -273,6 +273,7 @@
             tip = { x: [], y: [] }
             gridList = map.flat(1)
 
+            let isNull = false;
             for (let y = 0; y < 5; y++) {
                 let yStr = ''
                 let xStr = ''
@@ -281,11 +282,15 @@
                     xStr += map[y][x].type
                 }
 
+                if (xStr === '00000' || yStr === '00000') {
+                    isNull = true;
+                    break;
+                }
                 tip.y.push(yStr.split('0').filter(a => a).map(a => a.length))
                 tip.x.push(xStr.split('0').filter(a => a).map(a => a.length))
             }
 
-            if (tip.y.length < 5 || tip.x.length < 5) { // 地图有问题重新生成
+            if (tip.y.length < 5 || tip.x.length < 5 || isNull) { // 地图有问题重新生成
                 initMap();
                 return;
             }
