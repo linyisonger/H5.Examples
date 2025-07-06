@@ -372,6 +372,7 @@
              * @param {Card} b
              */
             static comparison(a, b) {
+                if (!a || !b) return false
                 if (TYPE_LEVEL[a.type] < TYPE_LEVEL[b.type]) return true;  // A牌面小于B牌面 True
                 if (TYPE_LEVEL[a.type] > TYPE_LEVEL[b.type]) return false; // A牌面大于B牌面 False
                 if (SUITS_LEVEL[a.suits] < SUITS_LEVEL[b.suits]) return true; // A牌面等于B牌面 且A花色小于B花色 True
