@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./assets/global.css">
+
+    <style>
+        textarea {
+            min-width: 300px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="group-title">数组A</div>
+    <textarea id="arrayA" rows="10"></textarea>
+    <div class="group-title">数组B</div>
+    <textarea id="arrayB" rows="10"></textarea>
+    <div>
+        <button class="contrast-btn">对比</button>
+    </div>
+    <div class="group-title">交集C</div>
+    <textarea id="arrayC" rows="10"></textarea>
+    <div class="group-title">补集D (A补C)</div>
+    <textarea id="arrayD" rows="10"></textarea>
+    <div class="group-title">补集E (B补C)</div>
+    <textarea id="arrayE" rows="10"></textarea>
+    <script type="module">
+        import { Maths } from "https://gcore.jsdelivr.net/npm/@3r/tool/lib/maths.js";
+        document.querySelector('.contrast-btn').addEventListener('click', () => {
+            /** @type {string} */
+            let arrayAOrigin = document.querySelector('#arrayA').value
+            /** @type {string} */
+            let arrayBOrigin = document.querySelector('#arrayB').value
+
+            let arrayA = arrayAOrigin.split(/\n/).map(item => item.trim())
+            let arrayB = arrayBOrigin.split(/\n/).map(item => item.trim())
+
+            let arrayC = Maths.intersection(arrayA, arrayB);
+            let arrayD = Maths.complementarySet(arrayC, arrayA);
+            let arrayE = Maths.complementarySet(arrayC, arrayB);
+
+            arrayD = Maths.removeRepeat(arrayD);
+            arrayE = Maths.removeRepeat(arrayE);
+
+            document.querySelector('#arrayC').textContent = arrayC.join('\n');
+            document.querySelector('#arrayD').textContent = arrayD.join('\n');
+            document.querySelector('#arrayE').textContent = arrayE.join('\n');
+
+            console.log(arrayD, arrayE);
+        })
+
+    </script>
+</body>
+
+</html>
