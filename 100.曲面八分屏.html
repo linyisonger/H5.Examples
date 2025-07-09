@@ -26,7 +26,7 @@
             box-shadow: 2px 0 30px #333;
             transform: translateX(-100%);
             transition: transform 5s ease-out;
-            filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.6));
+            /* filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.6)); */
         }
 
         .eighth-box img {
@@ -56,23 +56,24 @@
             position: absolute;
             color: #fff;
             font-weight: bold;
-            font-size: 20px;
+            font-size: 60px;
             text-align: center;
-            top: 30px;
+            top: 50%;
             z-index: 200;
             text-align: center;
             left: 50%;
-            transform: translateX(-50%);
+            transform: translate(-50%, -50%);
+            text-shadow: 2px 0 2px #333;
         }
 
         .header .subtitle {
             margin-top: 8px;
-            font-size: 16px;
+            font-size: 30px;
             font-weight: normal;
             opacity: .6;
         }
 
-        .header::before {
+        /* .header::before {
             position: absolute;
             height: 100%;
             background-color: #000;
@@ -81,11 +82,11 @@
             width: 100%;
             transition: left 5s ease-out;
             z-index: 10;
-        }
+        } */
 
-        .header.show::before {
+        /* .header.show::before {
             left: 100%;
-        }
+        } */
     </style>
 </head>
 
@@ -113,7 +114,7 @@
         <div class="upper-mask"></div>
         <div class="bottom-mask"></div>
         <div class="header">
-            <div class="title">奥さんを選んでください</div>
+            <div class="title">⌈ 奥さんを選んでください ⌋</div>
             <div class="subtitle">
                 Please choose your wife
             </div>
