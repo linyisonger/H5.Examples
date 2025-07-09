@@ -23,10 +23,9 @@
             justify-content: center;
             overflow: hidden;
             flex-direction: row-reverse;
-            box-shadow: 2px 0 30px #333;
+            box-shadow: 2px 0 30px #000;
             transform: translateX(-100%);
             transition: transform 5s ease-out;
-            /* filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.6)); */
         }
 
         .eighth-box img {
@@ -72,21 +71,6 @@
             font-weight: normal;
             opacity: .6;
         }
-
-        /* .header::before {
-            position: absolute;
-            height: 100%;
-            background-color: #000;
-            content: '';
-            left: 0;
-            width: 100%;
-            transition: left 5s ease-out;
-            z-index: 10;
-        } */
-
-        /* .header.show::before {
-            left: 100%;
-        } */
     </style>
 </head>
 
@@ -123,20 +107,12 @@
 
     <script type="module">
         let ebSegmentDoms = document.querySelectorAll('.eb-segment')
-        let headerDom = document.querySelector('.header')
-
         let width = document.body.clientWidth;
-
         ebSegmentDoms.forEach((item, index) => {
             item.style.width = `${width / ebSegmentDoms.length}px`;
             item.style.zIndex = ebSegmentDoms.length - index + 1
             item.style.transform = `translateX(${~~(index * item.clientWidth)}px)`
-        })
-
-        headerDom.classList.add('show')
-
-
-
+        }) 
     </script>
 </body>
 
