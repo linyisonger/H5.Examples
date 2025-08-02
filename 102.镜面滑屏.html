@@ -29,6 +29,8 @@
 
 
 
+
+
         .container {
             position: relative;
             display: flex;
@@ -69,11 +71,9 @@
 
         .v2 {
             clip-path: polygon(-15% 0%, 0% 0%, -10% 100%, -25% 100%);
-            animation-name: v2LeftToRight;
-            animation-duration: 3s;
-            animation-timing-function: ease-in;
-            animation-iteration-count: infinite;
         }
+
+
 
 
         video {
@@ -103,21 +103,27 @@
             height: 100%;
             background: linear-gradient(-80deg, rgba(0, 0, 0, 0) 25%, rgba(0, 0, 0, 1) 35%, rgba(0, 0, 0, 1) 65%, rgba(0, 0, 0, 0) 75%);
             transform: scaleX(1.1);
-            animation-name: v2ShadowLeftToRight;
-            animation-duration: 3s;
-            animation-timing-function: ease-in;
-            animation-iteration-count: infinite;
         }
 
         .l2 {
             position: absolute;
             width: 100%;
             height: 100%;
-            transition: opacity .5s ease;
         }
 
-        .hide {
-            opacity: 0;
+
+        .v2.playing {
+            animation-name: v2LeftToRight;
+            animation-duration: 3s;
+            animation-timing-function: ease-in;
+            animation-iteration-count: infinite;
+        }
+
+        .v2-shadow.playing {
+            animation-name: v2ShadowLeftToRight;
+            animation-duration: 3s;
+            animation-timing-function: ease-in;
+            animation-iteration-count: infinite;
         }
     </style>
 </head>
@@ -125,46 +131,39 @@
 <body>
     <div class="container">
         <div class="v1">
-            <video muted autoplay class="l1">
+            <video muted class="l1">
                 <source src="./assets/effects-video/frxxz-p1.mp4">
-            </video>
-            <video muted class="l2 hide">
                 <source src="./assets/effects-video/frxxz-p2.mp4">
             </video>
         </div>
-        <div class="v2-shadow"></div>
-        <div class="v2">
-            <video muted autoplay class="l1">
+        <div class="v2-shadow playing"></div>
+        <div class="v2 playing">
+            <video muted class="l1">
                 <source src="./assets/effects-video/frxxz-p1.mp4">
-            </video>
-            <video muted class="l2 hide">
                 <source src="./assets/effects-video/frxxz-p2.mp4">
             </video>
         </div>
     </div>
 
     <script type="module">
-        let v1VideoDOM = document.querySelectorAll('.v1 video')
-        let v2VideoDOM = document.querySelectorAll('.v2 video')
+        let v2DOM = document.querySelector(".v2")
         let v2ShadowDOM = document.querySelector(".v2-shadow")
-        v1VideoDOM.item(0).addEventListener("ended", () => {
-            v1VideoDOM.item(1).classList.remove('hide')
-            v1VideoDOM.item(1).play()
-        })
-        v2VideoDOM.item(0).addEventListener("ended", () => {
-            v2VideoDOM.item(1).classList.remove('hide')
-            v2VideoDOM.item(1).play()
-        })
 
-        v1VideoDOM.item(1).addEventListener("ended", () => {
-            v1VideoDOM.item(1).classList.add('hide')
-            v1VideoDOM.item(0).play()
-        })
-        v2VideoDOM.item(1).addEventListener("ended", () => {
-            v2VideoDOM.item(1).classList.add('hide')
-            v2VideoDOM.item(0).play()
-        })
+        let videosDOM = document.querySelectorAll('video')
+        let videoMainDOM = videosDOM.item(0);
+        let videoSubDOM = videosDOM.item(1)
 
+        let sources = videoMainDOM.querySelectorAll('source')
+        let currentPlayIndex = 0;
+        function playNextVideo() {
+            currentPlayIndex++;
+            videoMainDOM.src = videoSubDOM.src = sources[currentPlayIndex % sources.length].src
+            videoMainDOM.play()
+            videoSubDOM.play()
+        }
+        videoMainDOM.addEventListener('ended', playNextVideo)
+        videoMainDOM.play();
+        videoSubDOM.play()
 
         function updateV2Shadow() {
             const opposite = document.body.clientWidth * .1;
