@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./assets/global.css">
+    <style>
+        @keyframes v2LeftToRight {
+            0% {
+                clip-path: polygon(-15% 0%, 0% 0%, -10% 100%, -25% 100%);
+            }
+
+            100% {
+                clip-path: polygon(110% 0%, 125% 0%, 115% 100%, 100% 100%);
+            }
+        }
+
+        @keyframes v2ShadowLeftToRight {
+            0% {
+                left: -25%;
+            }
+
+            100% {
+                left: 100%;
+            }
+        }
+
+
+
+        .container {
+            position: relative;
+            display: flex;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .v1,
+        .v2 {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            box-sizing: border-box;
+            background-color: #000;
+        }
+
+        .v1 {
+            filter: grayscale(100%);
+        }
+
+        .v1::before,
+        .v1::after {
+            content: "";
+            position: absolute;
+            height: 10vh;
+            background-color: #000;
+            top: 0;
+            right: 0;
+            left: 0;
+            z-index: 10;
+        }
+
+        .v1::after {
+            top: auto;
+            bottom: 0;
+        }
+
+        .v2 {
+            clip-path: polygon(-15% 0%, 0% 0%, -10% 100%, -25% 100%);
+            animation-name: v2LeftToRight;
+            animation-duration: 3s;
+            animation-timing-function: ease-in;
+            animation-iteration-count: infinite;
+        }
+
+
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        video::-webkit-media-controls {
+            display: none !important;
+        }
+
+        video {
+            pointer-events: none;
+        }
+
+        .v2 {
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+
+        .v2-shadow {
+            left: -25%;
+            position: absolute;
+            width: 25%;
+            height: 100%;
+            background: linear-gradient(-80deg, rgba(0, 0, 0, 0) 25%, rgba(0, 0, 0, 1) 35%, rgba(0, 0, 0, 1) 65%, rgba(0, 0, 0, 0) 75%);
+            transform: scaleX(1.1);
+            animation-name: v2ShadowLeftToRight;
+            animation-duration: 3s;
+            animation-timing-function: ease-in;
+            animation-iteration-count: infinite;
+        }
+
+        .l2 {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            transition: opacity .5s ease;
+        }
+
+        .hide {
+            opacity: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="v1">
+            <video muted autoplay class="l1">
+                <source src="./assets/effects-video/frxxz-p1.mp4">
+            </video>
+            <video muted class="l2 hide">
+                <source src="./assets/effects-video/frxxz-p2.mp4">
+            </video>
+        </div>
+        <div class="v2-shadow"></div>
+        <div class="v2">
+            <video muted autoplay class="l1">
+                <source src="./assets/effects-video/frxxz-p1.mp4">
+            </video>
+            <video muted class="l2 hide">
+                <source src="./assets/effects-video/frxxz-p2.mp4">
+            </video>
+        </div>
+    </div>
+
+    <script type="module">
+        let v1VideoDOM = document.querySelectorAll('.v1 video')
+        let v2VideoDOM = document.querySelectorAll('.v2 video')
+        let v2ShadowDOM = document.querySelector(".v2-shadow")
+        v1VideoDOM.item(0).addEventListener("ended", () => {
+            v1VideoDOM.item(1).classList.remove('hide')
+            v1VideoDOM.item(1).play()
+        })
+        v2VideoDOM.item(0).addEventListener("ended", () => {
+            v2VideoDOM.item(1).classList.remove('hide')
+            v2VideoDOM.item(1).play()
+        })
+
+        v1VideoDOM.item(1).addEventListener("ended", () => {
+            v1VideoDOM.item(1).classList.add('hide')
+            v1VideoDOM.item(0).play()
+        })
+        v2VideoDOM.item(1).addEventListener("ended", () => {
+            v2VideoDOM.item(1).classList.add('hide')
+            v2VideoDOM.item(0).play()
+        })
+
+
+        function updateV2Shadow() {
+            const opposite = document.body.clientWidth * .1;
+            const adjacent = document.body.clientHeight;
+            const hypotenuse = Math.sqrt(opposite * opposite + adjacent * adjacent);
+            const angle = Math.round(Math.asin(opposite / hypotenuse) * 180 / Math.PI);
+            v2ShadowDOM.setAttribute('style', `background: linear-gradient(-${90 - angle}deg, rgba(0, 0, 0, 0) 25%, rgba(0, 0, 0, 1) 35%, rgba(0, 0, 0, 1) 65%, rgba(0, 0, 0, 0) 75%);`)
+        }
+        window.addEventListener("resize", updateV2Shadow)
+        updateV2Shadow()
+    </script>
+</body>
+
+</html>
