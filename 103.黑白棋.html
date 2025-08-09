@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./assets/global.css">
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        .reversi-board {
+            width: 100vmin;
+            height: 100vmin;
+            background-color: #059a14;
+            padding: 20px;
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        .reversi-board .grid {
+            position: absolute;
+            border: 1px solid #000;
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .reversi-board .grid.allowSelect {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            top: 0;
+            border: 2px solid #f0f;
+        }
+
+        .reversi-board .piece {
+            width: 90%;
+            height: 90%;
+            border-radius: 50%;
+        }
+
+        .reversi-board .piece.W {
+            background: #fff;
+        }
+
+        .reversi-board .piece.B {
+            background: #000;
+        }
+
+        .reversi-board .game-over {
+            position: absolute;
+            left: 0;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, .8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .reversi-board .game-over .title {
+            font-size: 40px;
+            font-weight: bold;
+            color: #fdad19;
+        }
+
+        .reversi-board .game-over .subtitle {
+            font-size: 20px;
+            margin-top: 10px;
+        }
+
+        .reversi-board .game-over .maintitle {
+            font-size: 22px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="reversi-board"></div>
+    <script type="module">
+        // String To V2
+        function strToV2(str) {
+            let x = +str.split('-')?.[0]
+            let y = +str.split('-')?.[1]
+            return { x, y }
+        }
+        // V2 To String
+        function v2ToStr(x, y) {
+            return `${x}-${y}`
+        }
+
+        let reversiBoardDOM = document.querySelector(".reversi-board")
+        let sideLength = (reversiBoardDOM.clientWidth - 40) / 8 // 边长
+        let operatePlayer = 'B'; // 操作的颜色
+        let lastPos = [] // 操作点位 
+        let reversiBoard = new Proxy({}, {
+            get(obj, prop) {
+                return obj[prop];
+            },
+            set(obj, prop, val) {
+                let pos = prop // 位置
+                let lastPiece = obj[prop] // 上次的棋子
+                let { x, y } = strToV2(prop)
+                let color = val
+                let gridDOM = reversiBoardDOM.querySelector(`.grid[data-x="${x}"][data-y="${y}"]`)
+                obj[prop] = val // 落子
+
+                if (!lastPiece) { // 为空落子
+                    // 旗子元素
+                    let pieceDOM = document.createElement('div')
+                    pieceDOM.classList.add('piece')
+                    pieceDOM.classList.add(color)
+                    gridDOM.appendChild(pieceDOM)
+                }
+                else {
+                    let pieceDOM = gridDOM.querySelector('.piece')
+                    pieceDOM.classList.remove('W')
+                    pieceDOM.classList.remove('B')
+                    pieceDOM.classList.add(color)
+                }
+
+                return true
+            }
+        })
+        // 初始化棋盘
+        for (let y = 0; y < 8; y++) {
+            for (let x = 0; x < 8; x++) {
+                let gridDOM = document.createElement("div")
+                gridDOM.classList.add('grid')
+                gridDOM.style.top = sideLength * y + 20 + 'px'
+                gridDOM.style.left = sideLength * x + 20 + 'px'
+                gridDOM.style.width = sideLength + 'px';
+                gridDOM.style.height = sideLength + 'px';
+                gridDOM.setAttribute('data-x', x)
+                gridDOM.setAttribute('data-y', y)
+                gridDOM.addEventListener("click", (e) => {
+                    if (e.target.classList.contains("allowSelect")) { // 允许选择
+                        let x = e.target.getAttribute('data-x')
+                        let y = e.target.getAttribute('data-y')
+                        let allowSelectPos = lastPos.filter(op => op[op.length - 1] == v2ToStr(x, y))
+                        allowSelectPos.forEach((arr) => {
+                            arr.forEach(key => {
+                                reversiBoard[key] = operatePlayer;
+                            })
+                        })
+                        reversiBoardDOM.querySelectorAll('.allowSelect').forEach(dom => dom.classList.remove('allowSelect'))
+                        operatePlayer = 'W';
+                        nextPlayerOperate()
+                    }
+                })
+                reversiBoardDOM.appendChild(gridDOM)
+            }
+        }
+
+
+        // 初始化棋子
+        reversiBoard['3-3'] = 'W'
+        reversiBoard['4-3'] = 'B'
+        reversiBoard['3-4'] = 'B'
+        reversiBoard['4-4'] = 'W'
+
+
+        // 加载可以操作的点位
+        function nextPlayerOperate() {
+            showReversiBoard();
+            let pos = []
+            for (const key in reversiBoard) {
+                if (reversiBoard[key] === operatePlayer) {
+                    let { x, y } = strToV2(key)
+                    pos.push(...find8Direction(x, y))
+                }
+            }
+
+            if (pos.length === 0) {
+                if (lastPos.length === 0) {
+                    console.log('游戏结束');
+                    showGameOver()
+                    return
+                }
+            }
+            else if (operatePlayer === "B") { // 玩家提供可操作的点位
+                // 渲染到页面
+                let allowSelect = pos.map(a => a[a.length - 1])
+                allowSelect.forEach((key) => {
+                    let { x, y } = strToV2(key)
+                    reversiBoardDOM.querySelector(`.grid[data-x="${x}"][data-y="${y}"]`).classList.add('allowSelect')
+                })
+                lastPos = pos;
+                return;
+            }
+            else if (operatePlayer === 'W') { // 机器人  
+                let allowSelect = pos.sort((a, b) => a.length - b.length);
+                let selected = allowSelect[allowSelect.length - 1]
+                let key = selected[selected.length - 1]
+                allowSelect.filter(arr => arr[arr.length - 1] === key).forEach(arr => {
+                    arr.forEach(key => {
+                        reversiBoard[key] = operatePlayer;
+                    })
+                })
+            }
+            operatePlayer = operatePlayer == "B" ? "W" : "B"
+            lastPos = pos;
+            nextPlayerOperate();
+        }
+
+        // 查询一个方向可以操作点位
+        function find1Direction(sx, sy, dx, dy) {
+            let pos = []
+            let cx = sx + dx;
+            let cy = sy + dy;
+            while (-1 < cx && cx < 8 && -1 < cy && cy < 8) {
+                let key = v2ToStr(cx, cy)
+                if (!reversiBoard[key]) return pos.length ? pos.concat(key) : []
+                else if (reversiBoard[key] === operatePlayer) return []
+                else pos.push(key)
+                cx += dx
+                cy += dy
+            }
+            return []
+        }
+
+        // 查询八个方向可以操作点位
+        function find8Direction(cx, cy) {
+            let sx = cx;
+            let sy = cy;
+            let dt = find1Direction(sx, sy, 0, -1);
+            let db = find1Direction(sx, sy, 0, 1);
+            let dl = find1Direction(sx, sy, -1, 0);
+            let dr = find1Direction(sx, sy, 1, 0);
+            let dtl = find1Direction(sx, sy, -1, -1);
+            let dtr = find1Direction(sx, sy, 1, -1);
+            let dbl = find1Direction(sx, sy, -1, 1);
+            let dbr = find1Direction(sx, sy, 1, 1);
+            return [
+                dt, db, dl, dr, dtl, dtr, dbl, dbr
+            ].filter(a => a.length)
+        }
+
+        // 展示游戏结束
+        function showGameOver() {
+            let gameOverDOM = document.createElement("div")
+            let gameOverTitleDOM = document.createElement("div")
+            let gameOverSubTitleDOM = document.createElement("div")
+            let gameOverMainTitleDOM = document.createElement("div")
+
+            let pieceList = Object.values(reversiBoard)
+            let blackCount = pieceList.filter(p => p === "B").length
+            let whiteCount = pieceList.filter(p => p === "W").length
+
+            gameOverDOM.classList.add('game-over')
+            gameOverTitleDOM.classList.add('title')
+            gameOverSubTitleDOM.classList.add('subtitle')
+            gameOverMainTitleDOM.classList.add('maintitle')
+
+            gameOverTitleDOM.textContent = '游戏结束'
+            gameOverSubTitleDOM.textContent = `黑 ${blackCount}  vs  白 ${whiteCount}`
+            gameOverMainTitleDOM.textContent = `${blackCount > whiteCount ? '真棒🎉，胜利啦~' : '失败啦，不要气馁哦~'}`
+
+            gameOverDOM.appendChild(gameOverTitleDOM)
+            gameOverDOM.appendChild(gameOverSubTitleDOM)
+            gameOverDOM.appendChild(gameOverMainTitleDOM)
+            reversiBoardDOM.appendChild(gameOverDOM)
+        }
+
+        // 展示棋盘图
+        function showReversiBoard() {
+            let str = ``;
+            for (let y = 0; y < 8; y++) {
+                for (let x = 0; x < 8; x++) {
+                    let key = v2ToStr(x, y)
+                    str += reversiBoard[key] ? reversiBoard[key] == "W" ? '⚪' : '⚫' : '🈳'
+                }
+                str += '\n'
+            }
+            console.log(str);
+        }
+
+        nextPlayerOperate() 
+    </script>
+
+
+
+</body>
+
+</html>
