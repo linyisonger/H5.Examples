@@ -38,7 +38,8 @@
             right: 0;
             bottom: 0;
             top: 0;
-            border: 2px solid #f0f;
+            z-index: 1;
+            border: 3px dashed #fdad19;
         }
 
         .reversi-board .piece {
@@ -53,6 +54,58 @@
 
         .reversi-board .piece.B {
             background: #000;
+        }
+
+        .reversi-board .piece.B.flip {
+            animation: PieceWTB .5s linear;
+        }
+
+        .reversi-board .piece.W.flip {
+            animation: PieceBTW .5s linear;
+        }
+
+        @keyframes PieceBTW {
+            0% {
+                background: #000;
+                transform: rotateY(0);
+            }
+
+            49% {
+                background: #000;
+                transform: rotateY(90deg);
+            }
+
+            50% {
+                background: #fff;
+                transform: rotateY(90deg);
+            }
+
+            100% {
+                background: #fff;
+                transform: rotateY(180deg);
+            }
+        }
+
+        @keyframes PieceWTB {
+            0% {
+                background: #fff;
+                transform: rotateY(0);
+            }
+
+            49% {
+                background: #fff;
+                transform: rotateY(90deg);
+            }
+
+            50% {
+                background: #000;
+                transform: rotateY(90deg);
+            }
+
+            100% {
+                background: #000;
+                transform: rotateY(180deg);
+            }
         }
 
         .reversi-board .game-over {
@@ -102,8 +155,9 @@
 
         let reversiBoardDOM = document.querySelector(".reversi-board")
         let sideLength = (reversiBoardDOM.clientWidth - 40) / 8 // 边长
-        let operatePlayer = 'B'; // 操作的颜色
+        let currPlayer = 'B'; // 操作的颜色
         let lastPos = [] // 操作点位 
+        let lastPosDict = {} // 操作字典 
         let reversiBoard = new Proxy({}, {
             get(obj, prop) {
                 return obj[prop];
@@ -128,8 +182,11 @@
                     pieceDOM.classList.remove('W')
                     pieceDOM.classList.remove('B')
                     pieceDOM.classList.add(color)
+                    pieceDOM.classList.add('flip')
+                    setTimeout(() => {
+                        pieceDOM.classList.remove('flip')
+                    }, 800);
                 }
-
                 return true
             }
         })
@@ -148,15 +205,12 @@
                     if (e.target.classList.contains("allowSelect")) { // 允许选择
                         let x = e.target.getAttribute('data-x')
                         let y = e.target.getAttribute('data-y')
-                        let allowSelectPos = lastPos.filter(op => op[op.length - 1] == v2ToStr(x, y))
-                        allowSelectPos.forEach((arr) => {
-                            arr.forEach(key => {
-                                reversiBoard[key] = operatePlayer;
-                            })
-                        })
+                        let key = v2ToStr(x, y);
+                        lastPosDict[key].forEach(key => reversiBoard[key] = currPlayer)
                         reversiBoardDOM.querySelectorAll('.allowSelect').forEach(dom => dom.classList.remove('allowSelect'))
-                        operatePlayer = 'W';
-                        nextPlayerOperate()
+                        currPlayer = 'W';
+                        setTimeout(() => nextPlayerOperate(), 1000)
+
                     }
                 })
                 reversiBoardDOM.appendChild(gridDOM)
@@ -176,7 +230,7 @@
             showReversiBoard();
             let pos = []
             for (const key in reversiBoard) {
-                if (reversiBoard[key] === operatePlayer) {
+                if (reversiBoard[key] === currPlayer) {
                     let { x, y } = strToV2(key)
                     pos.push(...find8Direction(x, y))
                 }
@@ -189,27 +243,23 @@
                     return
                 }
             }
-            else if (operatePlayer === "B") { // 玩家提供可操作的点位
-                // 渲染到页面
-                let allowSelect = pos.map(a => a[a.length - 1])
-                allowSelect.forEach((key) => {
+            else if (currPlayer === "B") { // 玩家提供可操作的点位 
+                lastPosDict = doubleArrayToDictArray(pos)
+                Object.keys(lastPosDict).forEach((key) => {
                     let { x, y } = strToV2(key)
                     reversiBoardDOM.querySelector(`.grid[data-x="${x}"][data-y="${y}"]`).classList.add('allowSelect')
                 })
                 lastPos = pos;
                 return;
             }
-            else if (operatePlayer === 'W') { // 机器人  
+            else if (currPlayer === 'W') { // 机器人  
                 let allowSelect = pos.sort((a, b) => a.length - b.length);
                 let selected = allowSelect[allowSelect.length - 1]
                 let key = selected[selected.length - 1]
-                allowSelect.filter(arr => arr[arr.length - 1] === key).forEach(arr => {
-                    arr.forEach(key => {
-                        reversiBoard[key] = operatePlayer;
-                    })
-                })
+                lastPosDict = doubleArrayToDictArray(pos);
+                lastPosDict[key].forEach(key => reversiBoard[key] = currPlayer)
             }
-            operatePlayer = operatePlayer == "B" ? "W" : "B"
+            currPlayer = currPlayer == "B" ? "W" : "B"
             lastPos = pos;
             nextPlayerOperate();
         }
@@ -222,7 +272,7 @@
             while (-1 < cx && cx < 8 && -1 < cy && cy < 8) {
                 let key = v2ToStr(cx, cy)
                 if (!reversiBoard[key]) return pos.length ? pos.concat(key) : []
-                else if (reversiBoard[key] === operatePlayer) return []
+                else if (reversiBoard[key] === currPlayer) return []
                 else pos.push(key)
                 cx += dx
                 cy += dy
@@ -245,6 +295,18 @@
             return [
                 dt, db, dl, dr, dtl, dtr, dbl, dbr
             ].filter(a => a.length)
+        }
+
+        // 将多个点位打组
+        function doubleArrayToDictArray(da) {
+            let dict = {}
+            da.forEach(arr => {
+                let last = arr[arr.length - 1];
+                let booty = arr.slice(0, arr.length - 1);
+                if (dict[last]) dict[last] = dict[last].concat(booty)
+                else dict[last] = [...booty, last]
+            })
+            return dict
         }
 
         // 展示游戏结束
