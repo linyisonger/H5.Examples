@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./assets/global.css">
+
+    <style>
+        @font-face {
+            font-family: "SourceHanSansCN-Light";
+            src: url("./assets/SourceHanSansCN-Light.otf");
+        }
+
+        .frame-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            position: relative;
+            width: 100%;
+            font-family: "SourceHanSansCN-Light";
+        }
+
+        .video-contianer {
+            /* background-color: ; */
+            height: 100vh;
+            width: 100%;
+            filter: grayscale();
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .video-contianer.light {
+            filter: none;
+        }
+
+        .video-contianer video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+        }
+
+        .text-box {
+            position: absolute;
+            color: lightblue;
+            font-size: 80px;
+            text-shadow: 2px 0px #000;
+            text-align: center;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="frame-container">
+        <div class="video-contianer">
+            <video src="./assets/effects-video/yskd.mp4"></video>
+        </div>
+        <div class="text-box">
+            <div class="title">蓝色</div>
+            <div class="subtitle">Blue</div>
+        </div>
+    </div>
+    <script type="module">
+        // purplish red
+        const audioConfig = {
+            url: './assets/musics/only you.mp3',
+            keyframes: [
+                {
+                    keys: [0, 65],
+                    color: 'orange',
+                    title: '橙色',
+                    subtitle: 'orange'
+                },
+                {
+                    keys: [94, 122],
+                    color: 'green',
+                    title: '绿色',
+                    subtitle: 'green'
+                },
+                {
+                    keys: [149, 177],
+                    color: 'pink',
+                    title: '粉红色',
+                    subtitle: 'pink'
+                },
+                {
+                    keys: [205, 233],
+                    color: 'orange',
+                    title: '橙色',
+                    subtitle: 'orange'
+                },
+                {
+                    keys: [260, 288],
+                    color: 'white',
+                    title: '白色',
+                    subtitle: 'white'
+                },
+                {
+                    keys: [316, 343],
+                    color: 'skyblue',
+                    title: '天蓝色',
+                    subtitle: 'sky blue'
+                },
+                {
+                    keys: [371, 398],
+                    color: 'orange',
+                    title: '橙色',
+                    subtitle: 'orange'
+                },
+                {
+                    keys: [426, 454],
+                    color: '#ef726c',
+                    title: '紫红色',
+                    subtitle: 'purplish red'
+                }
+            ],
+            fps: 30
+        }
+
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const audioSource = audioContext.createBufferSource();
+        const videoDom = document.querySelector('video')
+        let playing = false;
+        let startTime = 0;
+        let lastKeyframeContentIndex = 0;
+
+        updateTextDomAndFilter();
+        audioSource.onended = () => {
+            playing = false;
+            location.reload()
+        }
+
+        fetch('./assets/effects-video/yskd.mp4').then(() => {
+
+            fetch(audioConfig.url)
+                .then(response => response.arrayBuffer())
+                .then(buffer => audioContext.decodeAudioData(buffer))
+                .then(audioBuffer => {
+                    document.addEventListener('click', () => {
+                        if (playing) return;
+
+                        audioSource.buffer = audioBuffer;
+                        audioSource.connect(audioContext.destination);
+                        audioSource.start();
+                        videoDom.play()
+                        playing = true
+                        startTime = +new Date()
+                        playVideo();
+                    })
+                })
+        })
+
+
+
+        /**
+         * 时间戳转关键帧
+         * @param {number} stamp
+         */
+        function timestampToKeyframe(stamp) {
+            return ~~(stamp / 1000 * audioConfig.fps)
+        }
+
+        /**
+         * 查找关键帧内容
+         * @param {number} key
+         */
+        function findKeyframeContentIndex(key) {
+            return audioConfig.keyframes.findIndex((keyframe) => {
+                if (keyframe.keys[0] <= key && key <= keyframe.keys[1]) {
+                    return true
+                }
+                return false
+            })
+        }
+
+        /**
+         * 刷新文字及过滤器
+         */
+        function updateTextDomAndFilter() {
+            let videoContianerDom = document.querySelector('.video-contianer')
+            let textBoxDom = document.querySelector('.text-box')
+            let titleDom = textBoxDom.querySelector('.title')
+            let subtitleDom = textBoxDom.querySelector('.subtitle')
+            if (lastKeyframeContentIndex == -1) {
+                textBoxDom.hidden = true;
+                videoContianerDom.classList.add('light')
+                return;
+            }
+            let currentKeyframeContent = audioConfig.keyframes[lastKeyframeContentIndex]
+            titleDom.textContent = currentKeyframeContent.title;
+            subtitleDom.textContent = currentKeyframeContent.subtitle;
+            textBoxDom.style.color = currentKeyframeContent.color;
+            textBoxDom.hidden = false;
+            videoContianerDom.classList.remove('light')
+        }
+
+        function playVideo() {
+            if (playing) requestAnimationFrame(playVideo);
+            let timestamp = +new Date() - startTime
+            let key = timestampToKeyframe(timestamp)
+            let currentKeyframeContentIndex = findKeyframeContentIndex(key)
+
+            if (currentKeyframeContentIndex != lastKeyframeContentIndex) {
+                lastKeyframeContentIndex = currentKeyframeContentIndex;
+                updateTextDomAndFilter()
+                console.log('帧数', key, lastKeyframeContentIndex);
+            }
+        }
+
+
+    </script>
+
+</body>
+
+</html>
