@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./assets/global.css">
+    <script
+        src="https://webapi.amap.com/maps?v=2.0&key=659821bdf025f908526e97255d3ab5cb&plugin=AMap.MouseTool,AMap.PolylineEditor"></script>
+    <style>
+        #container {
+            width: 100%;
+            height: 100vh;
+        }
+
+        .draw-opt {
+            position: absolute;
+            right: 20px;
+            background-color: #fff;
+            padding: 20px;
+            bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="container"></div>
+
+
+    <div class="draw-opt">
+        <button id="start-btn">开始绘制</button>
+        <button id="save-btn">保存</button>
+        <button id="clear-btn">清空</button>
+    </div>
+
+    <script type="text/javascript">
+        var map = new AMap.Map('container', {
+            zoom: 14
+        });
+        var mouseTool = new AMap.MouseTool(map);
+        var overlays = [];
+        var polyEditor;
+
+
+        document.getElementById("start-btn").addEventListener("click", () => {
+            mouseTool.polyline({
+                strokeColor: '#ff00ff',
+                strokeWeight: 5
+                //同Polyline的Option设置
+            });
+            if (polyEditor) polyEditor.close()
+            mouseTool.on('draw', function (e) {
+                console.log(e);
+                e.obj.on('click', () => {
+                    console.log(polyEditor, e.obj);
+
+                    if (polyEditor) polyEditor.setTarget(e.obj);
+                    else polyEditor = new AMap.PolylineEditor(map, e.obj);
+                    polyEditor.open();
+                })
+                overlays.push(e.obj);
+                mouseTool.close(false)
+            })
+        })
+
+        document.getElementById("save-btn").addEventListener("click", () => {
+            if (polyEditor) polyEditor.close()
+            console.log(overlays);
+            console.log(map.getAllOverlays('polyline').map(p => p.getPath()));
+
+        })
+        document.getElementById("clear-btn").addEventListener("click", () => {
+            if (polyEditor) polyEditor.close()
+            map.remove(overlays)
+            overlays = [];
+        })
+    </script>
+</body>
+
+</html>
