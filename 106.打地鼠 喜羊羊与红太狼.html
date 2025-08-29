@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./assets/global.css">
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+
+        .stats-container {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            max-width: 500px;
+            margin-bottom: 25px;
+            padding: 15px;
+            border-radius: 16px;
+        }
+
+        .stat-box {
+            text-align: center;
+            padding: 10px;
+        }
+
+        .stat-value {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #e74c3c;
+        }
+
+        .stat-label {
+            font-size: 1.1rem;
+            color: #7f8c8d;
+        }
+
+        #game-board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .hole {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            background-image: url('./assets/whac-a-mole/hole-bg.png');
+            background-size: 100%;
+            background-repeat: no-repeat;
+            background-position: center bottom;
+            cursor: pointer;
+            overflow: hidden;
+            transition: transform 0.1s;
+        }
+
+        .hole::after {
+            position: absolute;
+            content: "";
+            width: 120px;
+            height: 120px;
+            background-image: url('./assets/whac-a-mole/hole-fg.png');
+            background-size: 100%;
+            background-repeat: no-repeat;
+            background-position: center bottom;
+            pointer-events: none;
+            z-index: 3;
+        }
+
+
+        .mole {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            bottom: -120px;
+            background-image: url('./assets/whac-a-mole/xyy.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center bottom;
+            transition: bottom 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 2;
+        }
+
+
+        .mole.up {
+            bottom: -50px;
+            animation: pop-up 0.4s;
+        }
+
+        @keyframes pop-up {
+            0% {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .hit-effect {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.8) 0%, transparent 70%);
+            border-radius: 50%;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            z-index: 3;
+        }
+
+        .hit-animation {
+            animation: hit 0.6s;
+        }
+
+        @keyframes hit {
+            0% {
+                opacity: 0.8;
+                transform: scale(0.5);
+            }
+
+            100% {
+                opacity: 0;
+                transform: scale(1.5);
+            }
+        }
+
+        .controls {
+            margin-top: 30px;
+            display: flex;
+            gap: 20px;
+        }
+
+        .btn {
+            padding: 14px 32px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: white;
+            background: linear-gradient(to right, #27ae60, #2ecc71);
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 6px 0 #219653, 0 8px 10px rgba(0, 0, 0, 0.3);
+            transition: all 0.1s;
+        }
+
+        .btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 #219653;
+        }
+
+        .btn:disabled {
+            background: linear-gradient(to right, #95a5a6, #bdc3c7);
+            box-shadow: 0 4px 0 #7f8c8d;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="stats-container">
+        <div class="stat-box">
+            <div class="stat-value" id="score">0</div>
+            <div class="stat-label">当前得分</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-value" id="timer">30</div>
+            <div class="stat-label">剩余时间</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-value" id="high-score">0</div>
+            <div class="stat-label">最高分</div>
+        </div>
+    </div>
+
+    <div id="game-board">
+        <!-- 地鼠洞将由JS动态生成 -->
+    </div>
+
+    <div class="controls">
+        <button id="start-btn" class="btn">开始游戏</button>
+    </div>
+
+
+
+    <script>
+        // DOM元素引用
+        const gameBoard = document.getElementById('game-board');
+        const scoreDisplay = document.getElementById('score');
+        const timerDisplay = document.getElementById('timer');
+        const highScoreDisplay = document.getElementById('high-score');
+        const startBtn = document.getElementById('start-btn');
+
+        // 游戏变量
+        let score = 0;
+        let highScore = localStorage.getItem('whackMoleHighScore') || 0;
+        let timeLeft = 30;
+        let gameInterval;
+        let timerInterval;
+        let isGameRunning = false;
+        let holes = [];
+        let activeMoles = 0;
+
+        // 难度配置
+        const difficultySettings = {
+            easy: { initialInterval: 1600, minInterval: 1000, speedIncrease: 30 },
+            medium: { initialInterval: 1300, minInterval: 800, speedIncrease: 40 },
+            hard: { initialInterval: 1000, minInterval: 600, speedIncrease: 50 },
+            insane: { initialInterval: 700, minInterval: 400, speedIncrease: 60 }
+        };
+
+        // 初始化最高分显示
+        highScoreDisplay.textContent = highScore;
+
+        // 创建地鼠洞
+        function createHoles() {
+            gameBoard.innerHTML = '';
+            holes = [];
+
+            for (let i = 0; i < 9; i++) {
+                const hole = document.createElement('div');
+                hole.className = 'hole';
+                hole.dataset.index = i;
+
+                const mole = document.createElement('div');
+                mole.className = 'mole';
+
+                const hitEffect = document.createElement('div');
+                hitEffect.className = 'hit-effect';
+
+                hole.appendChild(mole);
+                hole.appendChild(hitEffect);
+                gameBoard.appendChild(hole);
+
+                holes.push({
+                    element: hole,
+                    mole: mole,
+                    hitEffect: hitEffect,
+                    isActive: false
+                });
+            }
+        }
+
+        // 随机选择一个洞
+        function getRandomHole() {
+            const inactiveHoles = holes.filter(hole => !hole.isActive);
+            if (inactiveHoles.length === 0) return null;
+
+            const randomIndex = Math.floor(Math.random() * inactiveHoles.length);
+            return inactiveHoles[randomIndex];
+        }
+
+        // 显示地鼠
+        function showMole() {
+            if (!isGameRunning || activeMoles >= 3) return;
+
+            const hole = getRandomHole();
+            if (!hole) return;
+
+            hole.isActive = true;
+            hole.mole.classList.add('up');
+            activeMoles++;
+
+            // 随机消失时间 (600-1200ms)
+            const hideDelay = Math.random() * 600 + 600;
+
+            setTimeout(() => {
+                if (hole.isActive) {
+                    hideMole(hole);
+                }
+            }, hideDelay);
+        }
+
+        // 隐藏地鼠
+        function hideMole(hole) {
+            hole.isActive = false;
+            hole.mole.classList.remove('up');
+            activeMoles--;
+        }
+
+        // 击中地鼠
+        function hitMole(e) {
+            if (!isGameRunning) return;
+
+            // 防作弊检测
+            if (!e.isTrusted) return;
+
+            const holeIndex = parseInt(e.currentTarget.dataset.index);
+            const hole = holes[holeIndex];
+
+            if (hole.isActive) {
+                // 更新分数
+                score++;
+                scoreDisplay.textContent = score;
+
+                // 显示打击效果
+                hole.hitEffect.classList.add('hit-animation');
+                setTimeout(() => {
+                    hole.hitEffect.classList.remove('hit-animation');
+                }, 600);
+
+                // 隐藏地鼠
+                hideMole(hole);
+
+                // 播放音效（使用内置）
+                playHitSound();
+            }
+        }
+
+        // 播放打击音效
+        function playHitSound() {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = ctx.createOscillator();
+            const gainNode = ctx.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(ctx.destination);
+
+            oscillator.type = 'sine';
+            oscillator.frequency.value = 200 + Math.random() * 800;
+            gainNode.gain.value = 0.3;
+
+            oscillator.start();
+            setTimeout(() => {
+                oscillator.stop();
+            }, 150);
+        }
+
+
+        // 开始游戏
+        function startGame() {
+            if (isGameRunning) return;
+
+            // 重置游戏状态
+            score = 0;
+            timeLeft = 30;
+            scoreDisplay.textContent = score;
+            timerDisplay.textContent = timeLeft;
+            isGameRunning = true;
+            startBtn.disabled = true;
+
+            // 清除所有活动地鼠
+            holes.forEach(hole => {
+                if (hole.isActive) {
+                    hideMole(hole);
+                }
+            });
+
+            const settings = difficultySettings.easy;
+
+            // 启动游戏循环
+            gameInterval = setInterval(showMole, settings.initialInterval);
+
+            // 启动计时器
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                timerDisplay.textContent = timeLeft;
+
+                if (timeLeft <= 0) {
+                    endGame();
+                }
+            }, 1000);
+        }
+
+        // 结束游戏
+        function endGame() {
+            isGameRunning = false;
+            clearInterval(gameInterval);
+            clearInterval(timerInterval);
+            startBtn.disabled = false;
+
+            // 清除所有活动地鼠
+            holes.forEach(hole => {
+                if (hole.isActive) {
+                    hideMole(hole);
+                }
+            });
+
+            // 更新最高分
+            if (score > highScore) {
+                highScore = score;
+                highScoreDisplay.textContent = highScore;
+                localStorage.setItem('whackMoleHighScore', highScore);
+            }
+
+            // 游戏结束提示
+            setTimeout(() => {
+                alert(`游戏结束！\n您的得分: ${score}\n${score > highScore * 0.8 ? '🎉 太棒了！' : '继续加油！'}`);
+            }, 500);
+        }
+
+
+
+        // 事件监听器
+        function initEventListeners() {
+            startBtn.addEventListener('click', startGame);
+            // 为每个洞添加点击事件
+            holes.forEach(hole => {
+                hole.element.addEventListener('click', hitMole);
+            });
+        }
+
+        // 初始化游戏
+        function initGame() {
+            createHoles();
+            initEventListeners();
+        }
+
+        // 页面加载完成后初始化游戏
+        window.addEventListener('DOMContentLoaded', initGame);
+
+    </script>
+</body>
+
+</html>
