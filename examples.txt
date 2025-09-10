@@ -104,5 +104,4 @@
 104.颜色卡点.html
 105.高德地图 折现添加编辑.html
 106.打地鼠 喜羊羊与红太狼.html
-blog.html
-index.html
+107.双色球机选.html
