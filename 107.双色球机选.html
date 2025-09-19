@@ -43,52 +43,125 @@
             font-size: 20px;
             font-weight: bold;
         }
+
+        .op-btns {
+            margin-top: 20px;
+            display: flex;
+        }
+
+        .again-btn {
+            display: inline-block;
+            padding: 10px 40px;
+            background-color: #3575cf;
+            color: azure;
+            border-radius: 50px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .copy-btn {
+            display: inline-block;
+            padding: 10px 40px;
+            background-color: #42cf35;
+            color: azure;
+            border-radius: 50px;
+            cursor: pointer;
+            user-select: none;
+            margin-left: 10px;
+        }
     </style>
 </head>
 
 <body>
     <div class="union-lotto">
     </div>
-
+    <div class="op-btns">
+        <div class="again-btn">再来一次</div>
+        <div class="copy-btn">复制号码</div>
+    </div>
 
 
     <script type="module">
         let unionLottoDOM = document.querySelector('.union-lotto')
-
+        let againBtnDOM = document.querySelector(".again-btn")
+        let copyBtnDOM = document.querySelector(".copy-btn")
         import { Randoms } from "https://gcore.jsdelivr.net/npm/@3r/tool/lib/randoms.js";
 
-        for (let i = 0; i < 5; i++) {
-            const groupItemDOM = document.createElement('div')
-            groupItemDOM.classList.add('group-item')
-            let redDict = {}
-            let redList = []
-
-            for (let j = 0; j < 6; j++) {
-                let redNum = Randoms.int(1, 34)
-                if (redDict[redNum]) {
-                    j--;
-                    continue;
-                }
-                redDict[redNum] = true;
-                redList.push(redNum)
-            }
-
-            let blueNum = Randoms.int(1, 17)
-            redList.sort((a, b) => a - b)
-            redList.forEach(red => {
-                const redBallDOM = document.createElement('div')
-                redBallDOM.classList.add('red-ball')
-                redBallDOM.textContent = red
-                groupItemDOM.appendChild(redBallDOM)
-            })
-
-            const blueBallDOM = document.createElement('div')
-            blueBallDOM.classList.add('blue-ball')
-            blueBallDOM.textContent = blueNum
-            groupItemDOM.appendChild(blueBallDOM)
-            unionLottoDOM.appendChild(groupItemDOM)
+        /**
+         * 复制到剪贴板
+         */
+        function copyToClipboard(value) {
+            let input =
+                document.querySelector(".copy-input") ||
+                document.createElement("textarea");
+            input.className = "copy-input";
+            input.value = value;
+            input.style = `position: fixed;top: -100%;`;
+            document.body.append(input);
+            input.select();
+            document.execCommand("copy");
         }
 
+        function random5group() {
+            unionLottoDOM.innerHTML = ''
+            for (let i = 0; i < 5; i++) {
+                const groupItemDOM = document.createElement('div')
+                groupItemDOM.classList.add('group-item')
+                let redDict = {}
+                let redList = []
+
+                for (let j = 0; j < 6; j++) {
+                    let redNum = Randoms.int(1, 34)
+                    if (redDict[redNum]) {
+                        j--;
+                        continue;
+                    }
+                    redDict[redNum] = true;
+                    redList.push(redNum)
+                }
+
+                let blueNum = Randoms.int(1, 17)
+                redList.sort((a, b) => a - b)
+                redList.forEach(red => {
+                    const redBallDOM = document.createElement('div')
+                    redBallDOM.classList.add('red-ball')
+                    redBallDOM.textContent = String(red).padStart(2, '0')
+                    groupItemDOM.appendChild(redBallDOM)
+                })
+
+                const blueBallDOM = document.createElement('div')
+                blueBallDOM.classList.add('blue-ball')
+                blueBallDOM.textContent = String(blueNum).padStart(2, '0')
+                groupItemDOM.appendChild(blueBallDOM)
+                unionLottoDOM.appendChild(groupItemDOM)
+            }
+
+        }
+
+        function copy5group() {
+            let str = `双色球`
+            let groupItemDOM = document.querySelectorAll('.group-item')
+            groupItemDOM.forEach((item) => {
+                let redBallDOM = item.querySelectorAll('.red-ball')
+                let blueBallDOM = item.querySelectorAll('.blue-ball')
+                str += '\n'
+
+                let redBall = []
+                let blueBall = []
+                redBallDOM.forEach(item => redBall.push(item.textContent))
+                blueBallDOM.forEach(item => blueBall.push(item.textContent))
+
+                str += redBall.join('、') + ' + ' + blueBall.join('、')
+            })
+
+            copyToClipboard(str)
+        }
+
+        random5group()
+
+
+        againBtnDOM.addEventListener('click', random5group)
+        copyBtnDOM.addEventListener('click', copy5group)
     </script>
 
 
